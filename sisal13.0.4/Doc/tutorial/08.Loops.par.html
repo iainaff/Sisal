@@ -1,0 +1,90 @@
+<H2>8. Loops and Parallelism</H2>
+The preceding exercise set should have motivated the need for looping constructs. Performing repetitive operations is verbose and tedious without them. In most conventional languages, no distinction is made between the two basic kinds of loops, those in which the computations in the loop body are independent, and those in which they not. The first kind contains the potential for parallel execution, while the second kind, which we normally call "iteration" does not. It is the first kind, called the "for_loop", which is the easiest and most rewarding to use, in terms of return for effort, and we will discuss it first.
+
+<H3>8.1 For-Loops</H3>
+The Sisal for-loop is used for repetitive computations that are independent, meaning that no information flows among them. Examples of this might be the incrementing of an array of counters, or the element-wise addition of two vectors. None of the individual increment or addition operations depends on any of the others, so, potentially, they can all occur simultaneously, or in parallel. The Sisal for-loop is designed to expose this potential, so the language translation and support software can determine whether and how to exploit it. This allows the programmer to concentrate on the algorithms used and the problems being solved, and not get bogged down in the details of how the computer executes the program implementing the algorithm.<P>
+
+The Sisal for-loop contains three parts: the range, the body, and the returns clause. The syntax looks like this:
+<PRE>     for {range}
+        {optional body}
+     returns {returns clause}
+     end for</PRE>
+
+The range specifies the set of values controlling the number of instances of the body and returns clause that will be generated. Typically, it consists of an index identifier and a set of numeric values, such as "<TT>i in 1, n</TT>," but it can also consist of a pair of names for an element and an aggregate, such as "<TT>a in counters</TT>". In these ways, the number of instances of the loop that will be calculated is established, as well as the specific information needed by each one.<P>
+
+The loop body is optional, and may contain the definitions of the values that are to be returned or any intermediate values the calculation needs.<P>
+
+The returns clause controls which and how many data values will be returned by the loop, and it contains one or more aggregation or reduction operators (which will look familiar). But before we explain them, let's look at a simple for-loop that increments an array of counters, to see how these elements interact in practice.
+<PRE>for i in 1, num_counters
+   new_count := counters[i] + increment[i]
+returns array of new_count
+end for</PRE>
+
+Here we see a loop whose range is from 1 to the value named "<TT>num_counters</TT>;" we assume this value exists and makes sense in the present context. In the second line of the loop we see this loop's body. In this loop, the body is where all the work is done, namely the addition of the elements of the two vectors "<TT>counters</TT>" and "<TT>increment</TT>." Both vectors are assumed to be of such size that there will be an element of each available for the entire range of values of the loop index, "<TT>i</TT>." For each value of this index, a new value is calculated, named "<TT>new_count</TT>," and all instances of this calculation are independent. Finally, in the returns clause, all the instances of "<TT>new_count</TT>" are aggregated into an array, and that array is returned as the value of the loop.<P>
+
+Recalling that its index range is an integral part of a Sisal array, we must specify the index range of the array returned by this loop. This is simple and automatic; it is simply the set of values in the loop's range. In the current example, the loop's returned array has range <TT>[1, num_counters]</TT>.  This is characteristic of all Sisal for-loops that return arrays, except for cases we will discuss in a future section on advanced looping concepts.<P>
+
+As before, the for-loop is an expression, and has a well-defined value, which is the value defined by its returns clause. In the above case, it is an array. However, we can also return reduced values, such as in the following loop:
+<PRE>for i in 1, num_counters
+   new_count := counters[i] + increment[i]
+returns value of sum counters[i]
+        value of sum new_count
+        array of new_count
+end for</PRE>
+This loop returns three values: a scalar (the sum of all the values in the array "<TT>counters</TT>"), an array (containing all the values of "<TT>new_count</TT>"), and another scalar (the sum of all the values of "<TT>new_count</TT>"). This demonstrates aggregation and reduction in the same loop<P>
+
+The body of a for-loop is similar to a let-in statement, in that temporary names can be defined in it that are used subsequently in the loop and/or in the returns clause. But strictly speaking, the loop body is not generally needed at all. The following two loops have the same value as the one immediately above:
+<PRE>for i in 1, num_counters
+   old_count := counters[i];
+   new_count := old_count + increment[i]
+returns value of sum old_count
+        value of sum new_count
+        array of new_count
+end for
+
+for i in 1, num_counters
+returns value of sum counters[i]
+        value of sum counters[i] + increment[i]
+        array of sum counters[i] + increment[i]
+end for</PRE>
+
+The first of these two loops demonstrates that names, such as "<TT>old_count</TT>" may be assigned to values within the loop, and then used both in the loop and in the returns clause.  Again, a different instance of "<TT>old_count</TT>" is generated for each value of the loop's range, and none of the instances can affect each other in any way outside of the loop's returns clause. This guarantees that no matter how many or how few of the loop instances are computed in parallel, or in what order they are computed, that same set of intermediate values will be generated and the same set will be returned as the value(s) of the loop itself.<P>
+
+The second of the above loops demonstrates that all the work can occur in the loop's returns clause, leaving an empty loop body. This in no way changes what we just said:  each instance of the loop's calculation is independent of all the others, and they can occur in any order and give the same results.<P>
+
+There is one more thing to consider before we leave this section, and that is the alternate form of range generator we alluded to above - the one containing a pair of identifiers. Simply speaking, if we don't need the loop index as a numerical value, we don't have to use it. We can instead refer by name to the individual elements of the array we are working on, as in the following example:
+<PRE>
+for elt in counters
+   new_count := elt + 1
+returns value of sum elt
+        value of sum new_count
+        array of new_count
+end for</PRE>
+
+This loop assumes that the same value will be used to increment each element of the array "<TT>counters</TT>," namely one. So, no loop index is needed, since each instance of the loop gets one instance of "<TT>elt</TT>" from the array "<TT>counters</TT>" to work with. More advanced forms of loop range generation are also possible, and we will discuss them in a later section.<P>
+<BR><BR>
+<H4><A HREF="Exercises/07.Exercises.2.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/09.Exercises.3.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

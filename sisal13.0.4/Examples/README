@@ -1,0 +1,20 @@
+This directory contains examples of Sisal programs, sometimes
+accompanied by their Fortran equivalent.
+
+fft: Fast fourier transform developed by John Feo -- outperforms
+Cray's system routine!
+
+loops: Livermore loops in Sisal.
+
+misc: Miscellaneous examples -- a good place to start to get a
+feel for Sisal programming techniques.
+
+weather: An atmospheric circulation model in Sisal and Fortran.
+The Fortran version is from the Meteorology Department of the
+University of Melbourne and the Sisal translation was done at
+the Royal Melbourne Institute of Technology.
+
+All of these programs were snarfed from the Sisal anonymous ftp
+site at LLNL.
+
+D. J. Raymond

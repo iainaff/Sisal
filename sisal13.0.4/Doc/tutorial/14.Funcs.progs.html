@@ -1,0 +1,168 @@
+<H2>14. Functions and Programs</H2>
+By now the reader must be ready to write whole programs instead of program fragments. To develop this topic properly we must deal with function definitions and invocations, as well as the extra linguistic glue necessary to build complete programs out of them.<P>
+
+<H3>14.1 Functions</H3>
+The function definition and invocation is the heart and soul of the Sisal language. It will allow us to simplify several of the examples and exercises already presented in this tutorial. The basic idea, here, is similar to that of function and subroutine subprograms in Fortran and procedures in Pascal. The user composes code with dummy or formal arguments and then invokes it wherever necessary in a larger program with real arguments substituted for the formal ones. Sisal functions are more solidly founded, semantically, than those of Fortran because of the language's insistence on referential transparency and tight typing. This means that a function can get no information other than that provided through its argument list, and can return no information other than its value(s). Further, it means that the types of all arguments and returned values must be declared in the function definition and strictly adhered to in its use.<P>
+
+The syntax rules are simple:<P>
+
+<PRE>function ( {optional argument list} returns {returned value list} )
+{body expression}
+end function
+</PRE>
+The argument list, if present, consists of a list of one or more argument name-type declarations, with some allowed shorthand notations. The returned value list must have at least one type declaration for the value of the function. No name is needed for the returned value, any more than is needed for the value of "2+2"; the value itself suffices. However, the body of a function can contain any legal sisal statement, including further function definitions, function invocations (including recursive ones), let-in statements, if-statements, for-loops, etc. Several easy and obvious examples are possible at this point.<P>
+
+The following function computes the dot product of two argument vectors:<P>
+
+<PRE>function dot_product( x, y : array [ real ] returns real )
+
+   for a in x dot b in y
+   returns value of sum a * b
+   end for
+
+end function
+</PRE>
+
+The points to note about this example are that the argument arrays have the same type and can therefore be declared together, with their names separated by a comma, and separated from their type by a colon. If there were other arguments, they would be separated from other declarations with a semicolon. As with other Sisal language statements, there is an "end function" keyword pair to close the definition. Here is another function definition that invokes the function defined above:<P>
+
+<PRE>type One_Dim_R = array [ real ];
+type Two_Dim_R = array [ One_Dim_R ];
+
+function matrix_mult( x, y_transposed : Two_Dim_R
+                      returns Two_Dim_R )
+
+   for   x_row in x                % for all rows of x
+   cross y_col in y_transposed     % & all columns of y (rows of y_transposed)
+
+   returns array of dot_product(x_row, y_col) 
+   end for
+
+end function % matrix_mult
+</PRE>
+
+The above function shows how the type declaration of an anonymous (unnamed) two-dimensional matrix looks. It also shows the syntax of Sisal commentary in the comments in the body of the function, as well as that used after the "end function" keywords to identify the function. We have shown comment text in earlier examples, but without discussing it. Sisal comments begin with a percent character "%" and continue until the end of the line. Commentary can be embedded in other statements without affect, as shown in the for-loop.<P>
+
+The invocation of the previously defined function <TT>dot_product</TT> occurs in the returns clause of the for-loop. A function invocation, like any other Sisal statement, can occur anyplace a constant, identifier, or expression can occur in any Sisal statement. Since the for-loop has a two dimensional  range generator, its value will be a two dimensional array. The positioning of a specific dot-product result in it is determined by the values of i and j in that instance of the loop's body. Note that we assume in this function that the argument arrays have correctly conformable shape and size, and that all their various index ranges have lower bounds of one. The above could, of course, be written to allow for other cases.<P>
+
+It is also possible to write recursive functions in Sisal. This style of programming is very natural for some applications, and while it raises efficiency questions, if rapid and correct prototyping is the concern, recursive formulations are sometimes the most expedient means to use. We will not discuss this topic in depth, since it should be familiar to all who have seen it in other languages (except Fortran). We will simply present one example, for the sake of completeness:
+
+<PRE>function factorial( n : integer returns integer )
+
+if n <=1 then 1
+else n * factorial( n - 1 )
+end if
+
+end function
+</PRE>
+
+<H3>14.2 Programs</H3>
+
+Now we will see how to pull the above two functions together into a complete program that can actually be compiled and run. There is relatively little to add to what we've already seen, mostly details of coordination. First of all, we must tell the Sisal compiler what function is to serve as the program's entry point, and what name or names are to be exported. The latter allows us to load separately compiled modules together. The default entry point name is "main", but another name can be specified with the compiler pragma <TT>%$entry=</TT> placed at the head of the program text, or with an option flag passed directly to the compiler. (Sisal compiler options that are included in program source files always begin with the comment character so they will not be mistaken for source code statements thenselves.)<P>
+
+Second, we define new type names for convenience and readability. Third, we declare the names, formal parameters, types of any external functions. This includes any functions from the math library, such as square root, trigonometrics, transcendentals, etc., which we will discuss further below. It also includes any functions from other modules that are compiled separately and invoked in the program. The declarations of such functions are merely function headers, consisting of the function names, argument declaration lists, and return value declaration lists.<P>
+
+Fourth, we must provide the user-defined functions that constitute our Sisal source. The current Sisal compiler requires that functions be defined before they are invoked, so definitions must occur in the source before any references to them. However, there is a way around this order restriction, called a "forward declaration." In it, a function's header is provided, preceded by the keyword <TT>forward</TT>. The full definition can then be placed anywhere in the program source. There is a required ordering to the full set of "glue" statements that can or must appear in a Sisal program, and we will fully detail it later. 
+
+<H3>14.3 Importing Library Functions</H3>
+
+We've mentioned in passing that Sisal programs have access to all the routines in the Unix math libraries. However, since the routines in that library are all designed to be very general, we must inform the Sisal compiler exactly how we intend to use them in our programs. to do this, we use a "global" declaration. This is easily described by example:
+
+<PRE>global sin ( x: real returns real );
+global cos( x: double_real returns double_real );
+global sqrt( x: real returns real );
+global log( x: double_real returns double_real );</PRE>
+
+The above declarations specify how some of the math library functions will be used in a Sisal program.  Such declarations are necessary because the compiler must know what argument and result types to expect to be associated with invocations of these functions. These declarations show that the intended use for some math library  functions is different from that of others, by way of the argument and returned value types we have declared for them. Since the actual library functions can deal with many such type arrangements, we are free to use them as we see fit. However, there can be only one declaration for each function name. The declarations themselves must occur after the type statements and before any other function definitions.
+
+Following is a complete matrix multiply program, with examples of each type of glue statement described above:<P>
+
+<PRE>% MATRIX MULTIPLICATION PROGRAM
+%========================================================================
+% The "defines" statement is needed in every complete Sisal Program;
+% the "$entry=" statement is needed if the entry point isn't named "main".
+%------------------------------------------------------------------------
+define matrix_mult   % Specifies function name(s) exported from module/program
+%$entry=matrix_mult  % Specifies entry point(s) for this module/program
+
+%-----------------------------
+% Type declarations come next.
+%-----------------------------
+type One_Dim_R = array [ real ];
+type Two_Dim_R = array [ One_Dim_R ];
+
+%---------------------------------------------------------------------
+% Then come global declarations for functions imported from libraries.
+% These aren't used in the program, and are for illustration only.
+%---------------------------------------------------------------------
+global sqrt( x: real returns real );
+global sin( x: double_real returns double_real)
+
+%------------------------------------------------------------------------
+% Next come forward function declarations; these are not needed, in this
+% program, since the full function definitions are given in definition-
+% before-use order.
+%------------------------------------------------------------------------
+forward function dot_product( x, y : One_Dim_R returns real )
+
+forward function matrix_mult( x, y :  Two_Dim_R
+                              returns Two_Dim_R )
+
+%----------------------------------------
+% Finally, the full function definitions.
+%----------------------------------------
+function dot_product( x, y : One_Dim_R returns real )
+
+   for a in x dot b in y
+   returns value of sum a * b
+   end for
+
+end function % dot_product
+
+%..............................................................................
+
+function matrix_mult( x, y_transposed : Two_Dim_R
+                      returns Two_Dim_R )
+
+   for   x_row in x                % for all rows of x
+   cross y_col in y_transposed     % & all columns of y (rows of y_transposed)
+
+   returns array of dot_product(x_row, y_col)
+   end for
+
+end function % matrix_mult
+
+%..............................................................................
+</PRE>
+
+The comment statements describe the various parts of the program source. It isn't shown, above, but it is also possible to nest function definitions. That is, one function can have another defined and used within it. This can be notationally convenient, but the function so defined can be used only by the function it is defined within. There are a few more specific points about Sisal programs in general that can be illustrated by the above program.<P>
+
+Notice that the program above consists of two functions. They are defined at the same "level", but <TT>matrix_mult</TT> invokes <TT>dot_product</TT>, and is specified as the entry point by the <TT>$entry=</TT> declaration. The entry or outermost function corresponds to the main routine in a Fortran program. Here, the entry function is not invoked by any others in the program. This is generally the case, but not necessarily so; for instance, mutual recursion between two functions may cause the entry function to be invoked by another in the program. Notice also that the outermost function has arguments and returns values, just as the inner functions do. This is how Sisal programs get input and produce output. The arguments to the outermost function are the program's input, and the results it returns are the program's output. These may come from and go to files, as will be presented in a future section on compiling and running Sisal programs.<P>
+
+Now it's time for a few simple exercises in constructing whole functions and programs.<P>
+
+<BR><BR>
+<H4><A HREF="Exercises/13.Exercises.5.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/15.Exercises.6.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,1115 @@
+#! /bin/sh
+###############################################################################
+# SISAL OSC SINSTALL
+###############################################################################
+
+if [ "$1" != "" -a -f "$1" ]
+then
+  egrep -v "^#" $1 | $0
+  exit
+fi
+
+FPO=''
+DPO=''
+PAR=''
+GANGD=''
+MISCDEF=''
+SCC='0'
+TARGET=''
+RHOST=''
+
+TheFC='f77'
+TheFFLAGS=
+TheCC='cc'
+TheTARGETCC='cc'
+TheAR='ar r'
+TheINSTALL='/bin/cp'
+
+PROCS=''
+LIBM='mlib.o'
+ANS=
+PHASEGNU=0
+TARGETGNU=0
+
+TheRANLIB=ranlib
+HASGETRUSAGE=y
+
+PHASEOPT='-O'
+TARGETOPT='-O'
+PHASENOOPT='-g'
+TARGETNOOPT='-g'
+
+TARGETLD='-lm'
+
+THREADS=''
+THREADLD='-lpthread'
+
+###############################################################################
+# MENU
+###############################################################################
+
+echo "* This script will ask some questions about your system and build a"
+echo "* Makefile for OSC (Optimizing Sisal Compiler) installation."
+echo "* If you already have a file called \"Makefile\" it will be overwritten!"
+echo "* For some questions, a default response is given in []."
+echo "* Pressing RETURN in response to such a question will enable the default."
+echo "* Answer yes/no questions with y or n."
+echo ""
+echo "* Press RETURN to continue."
+read ans
+/bin/rm -f sinstall.res
+touch sinstall.res
+echo "# * Press RETURN to continue." >> sinstall.res
+echo $ans >> sinstall.res
+
+echo " "
+echo "Is this system:"
+echo "1.  Generic sequential machine running a UNIX derivative"
+echo "2.  Sun 3 running SunOS"
+echo "3.  Sequent Balance running DYNIX"
+echo "4.  Alliant FX series running Concentrix"
+echo "5.  Encore Multimax running Umax"
+echo "6.  Sequent Symmetry running DYNIX"
+echo "7.  Cray C90, Y-MP, or X-MP running UNICOS"
+echo "8.  Cray 2 running UNICOS"
+echo "9.  SGI multi-processor running IRIX"
+echo "10. IBM RS6000 running AIX"
+echo
+echo "13. HP running HPUX"
+echo "14. PC running Linux"
+echo "15. Apple Macintosh running MachTen"
+echo "16. Cray T3D running UNICOS (single MPP processor only)"
+echo "17. Sun Sparc running Solaris"
+echo "18. NeXT running Mach"
+echo "19. DEC running OSF1"
+echo "20. Sun Sparc running SunOS"
+echo "Enter a number: [1]"
+read ans
+echo "# Enter a number: [1]" >> sinstall.res
+echo $ans >> sinstall.res
+
+case "X$ans" in
+X|X1) VERSION='sunix'
+    HOST='-DSUNIX' ;;
+X2) VERSION='sun3'
+    HOST='-DSUN'
+    MISCDEF='-DSUNOS'
+    echo "Is a 68881 floating point chip installed? [n]"
+    read ans
+    echo "# Is a 68881 floating point chip installed? [n]" >> sinstall.res
+    echo $ans >> sinstall.res
+    if [ "X$ans" = Xy ]
+    then
+      FPO='-f68881'
+      DPO='-DF68881'
+    fi ;;
+X3) VERSION='balance';
+    HOST='-DBALANCE';
+    TheCC='cc -i';
+    TheFC='fortran'
+    echo "Run make in parallel? [n]"; 
+    read ans;
+    echo "# Run make in parallel? [n]" >> sinstall.res;
+    echo $ans >> sinstall.res;
+    if [ "X$ans" = Xy ]
+    then
+      PAR='&'
+    fi;
+    echo "Is LLNL gang daemon software installed? [n]"; 
+    read ans;
+    echo "# Is LLNL gang daemon software installed? [n]" >> sinstall.res;
+    echo $ans >> sinstall.res;
+    if [ "X$ans" = Xy ]
+    then
+      GANGD='-DGANGD'
+    fi
+    PROCS=1;;
+X4) VERSION='alliant'
+    HOST='-DALLIANT'
+    TheCC='fxc -w -ce -OM'
+    TheFC='fortran'
+    TheFFLAGS='-Ogicv -AS -recursive'
+    PHASEOPT='-Oig'
+    TARGETOPT='-Oig'
+    PROCS=1;;
+X5) VERSION='encore';
+    HOST='-DENCORE';
+    PROCS=1;;
+X6) VERSION='symmetry';
+    HOST='-DSYMMETRY';
+    TheFC='fortran'
+    TheCC='cc -i'
+    echo "Run make in parallel? [n]"; 
+    read ans;
+    echo "# Run make in parallel? [n]" >> sinstall.res;
+     echo $ans >> sinstall.res;
+    if [ "X$ans" = Xy ]
+    then
+      PAR='&'
+    fi;
+    echo "Are Weitek 1167 floating point accelerators installed? [n]"; 
+    read ans;
+    echo "# Are Weitek 1167 floating point accelerators installed? [n]" >> sinstall.res;
+    echo $ans >> sinstall.res;
+    if [ "X$ans" = Xy ]
+    then
+      FPO='-f1167'
+      DPO='-Dw1167'
+    fi
+    PROCS=1;;
+X7) VERSION='cray'
+    HOST='-DCRAY'
+    RHOST='-DCRAYXY'
+    TheCC='cc'
+    TheFC='cf77'
+    TheFFLAGS='-Zp -Wd"-dc" -Wf"-astack"'
+    TheRANLIB=touch
+    HASGETRUSAGE=n
+    PHASEOPT=''
+    TARGETOPT=''
+    PHASENOOPT='-O0 -hnopragma=allinline:allvector:opt'
+    TARGETNOOPT='-O0 -hnopragma=allinline:allvector:opt'
+    TheAR='bld r'
+    SCC=3
+    PROCS=1
+    echo ""
+    echo "* WARNING: The Sisal run time system on the CRAY X-MP and Y-MP"
+    echo "*          uses _semclr(31) and _semts(31) as well as LOCKTEST,"
+    echo "*          LOCKON, and LOCKOFF, assuming that the microtasking"
+    echo "*          library will not interfere with the 2 intrinsics. If"
+    echo "*          this is not the case, then make approapriate changes"
+    echo "*          to Runtime/locks.h."
+    echo "";;
+X8) VERSION='cray'
+    HOST='-DCRAY'
+    RHOST='-DCRAY2'
+    TheCC='cc'
+    TheFC='cf77'
+    TheFFLAGS='-Zp -Wd"-dc" -Wf"-astack"'
+    TheRANLIB=touch
+    HASGETRUSAGE=n
+    PHASEOPT=''
+    TARGETOPT=''
+    PHASENOOPT='-O0 -hnopragma=allinline:allvector:opt'
+    TARGETNOOPT='-O0 -hnopragma=allinline:allvector:opt'
+    TheAR='bld r'
+    SCC=3
+    PROCS=1
+    echo ""
+    echo "* WARNING: The Sisal run time system on the CRAY 2 uses _getsem"
+    echo "*          and _csem as well as LOCKTEST, LOCKON, and LOCKOFF,"
+    echo "*          assuming that the microtasking library will not "
+    echo "*          interfere with the 2 intrinsics.  If this is not the"
+    echo "*          case, then make appropriate changes to Runtime/locks.h."
+    echo "";;
+X9) VERSION='sgi'
+    HOST='-DSGI'
+    TheCC="cc"
+    TheFC="f77"
+    TheFFLAGS='-O'
+    TheRANLIB=touch
+    HASGETRUSAGE=n
+    if [ `uname` = IRIX64 ]; then
+        PHASEOPT='-O1 -OPT:fold_arith_limit=9999'
+        TARGETOPT='-O1 -OPT:fold_arith_limit=9999 -woff all'
+        PHASENOOPT='-g'
+        TARGETNOOPT='-g -woff 1167,1174'
+    else
+        PHASEOPT='-O2'
+        TARGETOPT='-O2 -Olimit 9999'
+        PHASENOOPT='-g'
+        TARGETNOOPT='-g'
+    fi
+    PROCS=1
+    echo ""
+    echo "* WARNING: The Sisal run time system on the SGI uses schedctl to"
+    echo "*          establish gang management of parallel execution and "
+    echo "*          sysmp to bind the worker processes (Runtime/p-ppp.c)."
+    echo "";;
+X10) VERSION='rs6000';
+    ANS=negzero
+    HOST='-DRS6000' ;;
+X13) VERSION='HPUX';
+    MISCDEF='-DHPUX';
+    HOST='-DSUNIX'
+    ANS=hpzero
+    TheRANLIB=touch
+    HASGETRUSAGE=n;;
+X14) VERSION='LINUX'    # raymond@kestrel.nmt.edu
+    TheCC='gcc'
+    TheFC='f2c'
+    ANS=negzero
+    MISCDEF='-DLINUX'
+    HOST='-DSUNIX';;
+X15) VERSION='macintosh'
+    HOST='-DSUNIX'
+    TheCC='cc'
+    echo "Is a 68881 floating point chip installed? [n]"
+    read ans
+    echo "# Is a 68881 floating point chip installed? [n]" >> sinstall.res
+    echo $ans >> sinstall.res
+    if [ "X$ans" = Xy ]
+    then
+      DPO='-DM68881 -DM68020'
+    fi ;;
+X16) VERSION='crayt3d'
+    HOST='-DSUNIX'
+    RHOST='-DCRAYT3D'
+    MISCDEF='-UCRAY'
+    TheCC='cc'
+    TheFC='/mpp/bin/cf77'
+    TheFFLAGS='-C cray-t3d -O'
+    PHASEOPT=''
+    PHASENOOPT='-O0 -hnopragma=allinline:allvector:opt'
+    TheRANLIB=touch
+    HASGETRUSAGE=n
+    TARGET=CRAYT3D
+    TheTARGETCC='cc -T cray-t3d'
+    echo "Only single node version is currently available"
+    SCC=3
+    PROCS=1;;
+X17) VERSION='solaris'
+    MISCDEF='-DSOLARIS'
+    HOST='-DSUNIX'
+    TheRANLIB=touch
+    ANS=negzero
+    THREADS=-DSTHREADS	# barrier from tomig.esd.mun.ca
+    THREADLD='-lthread'
+    HASGETRUSAGE=n;;
+X18) VERSION='next'
+    MISCDEF='-DMACH'
+    HOST='-DNEXT'
+    PHASEOPT='-g'
+    TARGETOPT='-g'
+    PHASENOOPT='-g'
+    TARGETNOOPT='-g'
+    TheRANLIB='ranlib -c';;
+X19)VERSION='dec'
+    ANS=negzero
+    HOST='-DDEC' ;;
+X20) VERSION='sunos'
+    MISCDEF='-DSUNOS'
+    HOST='-DSUNIX';;
+*)  VERSION='unknown'
+    HOST='-DUNKNOWN' ;;
+esac
+
+###############################################################################
+# RANLIB
+###############################################################################
+
+echo "Library command (ranlib) to use? [$TheRANLIB]"
+read ans
+echo "# Library command (ranlib) to use? [$TheRANLIB]" >> sinstall.res;
+echo $ans >> sinstall.res
+if [ "X$ans" != X ]; then
+   TheRANLIB=$ans
+fi
+
+###############################################################################
+# GETRUSAGE
+###############################################################################
+
+echo "Is getrusage supported? [$HASGETRUSAGE]"
+read ans
+echo "# Is getrusage supported? [$HASGETRUSAGE]" >> sinstall.res;
+echo $ans >> sinstall.res
+if [ "X$ans" = X ]; then
+   ans=$HASGETRUSAGE
+fi
+if [ "$ans" = y ]; then
+   TheTIMEM=''
+else
+   TheTIMEM='-DUSE_TIMES'
+   echo ""
+   echo "* WARNING: The Sisal run time system will use TIMES to gather"
+   echo "*          timing information during execution. On the Sun 3 the"
+   echo "*          CLK_TCK value is assumed to be 60 (man times,"
+   echo "*          Runtime/p-timer.c, Backend/If1opt/if1timer.c)."
+   echo ""
+fi
+
+###############################################################################
+# COMPILERS
+###############################################################################
+
+SPP=-'DUSESPP=0'
+echo "Do you wish to use the Sisal pre-processor? [n]"
+read ans
+echo "# Do you wish to use the Sisal pre-processor? [n]" >> sinstall.res;
+echo $ans >> sinstall.res
+case "X$ans" in
+  Xy) SPP='-DUSESPP=1'
+esac
+
+echo "Do you wish to use the Fortran mixed language interface? [n]"
+read ans
+echo "# Do you wish to use the Fortran mixed language interface? [n]" >> sinstall.res;
+echo $ans >> sinstall.res
+case "X$ans" in
+  X|Xn) LIBM=''
+esac
+if [ "X$LIBM" != X ]; then
+  echo "Fortran compiler to use? [$TheFC]"
+  read ans
+  echo "# Fortran compiler to use? [$TheFC]" >> sinstall.res;
+  echo $ans >> sinstall.res
+  if [ "X$ans" != "X" ]; then
+    TheFC=$ans
+  fi
+  echo "Fortran source file compiler flags to use? [$TheFFLAGS]"
+  read ans
+  echo "# Fortran source file compiler flags to use? [$TheFFLAGS]" >> sinstall.res;
+  echo $ans >> sinstall.res
+  if [ "X$ans" != "X" ]; then
+    TheFFLAGS=$ans
+  fi
+fi
+
+if [ $TheCC = gcc ]; then
+   PHASEGNU=1
+fi
+echo "C compiler to use for OSC? [$TheCC]"
+read ans
+echo "# C compiler to use for OSC? [$TheCC]" >> sinstall.res;
+echo $ans >> sinstall.res
+if [ "X$ans" != "X" ]; then
+   TheCC=$ans
+   if [ "X$ans" != Xgcc ]; then
+      echo "Is this a GNU compiler? [n]"
+      read ans
+      echo "# Is this a GNU compiler? [n]" >> sinstall.res;
+      echo $ans >> sinstall.res
+      case "X$ans" in
+           Xy)   PHASEGNU=1;;
+           X|Xn) PHASEGNU=0;;
+      esac
+   else
+      PHASEGNU=1
+   fi
+fi
+
+if [ "X$TARGET" = X ]; then
+   TheTARGETCC=$TheCC
+   TARGETGNU=$PHASEGNU
+else
+   echo "C compiler to use for applications? [$TheTARGETCC]"
+   read ans
+   echo "# C compiler to use for applications? [$TheTARGETCC]" >> sinstall.res;
+   echo $ans >> sinstall.res
+   if [ "X$ans" != "X" ]; then
+      TheTARGETCC=$ans
+      if [ "X$TheCC" = "X$TheTARGETCC" ]; then
+         TARGETGNU=PHASEGNU
+      elif [ "X$ans" != Xgcc ]; then
+         echo "Is this a GNU compiler? [n]"
+         read ans
+         echo "# Is this also a GNU compiler? [n]" >> sinstall.res;
+         echo $ans >> sinstall.res
+         case "X$ans" in
+              Xy)   TARGETGNU=1;;
+              X|Xn) TARGETGNU=0;;
+         esac
+      else
+         TARGETGNU=1
+      fi
+   elif [ "$TheTARGETCC" = gcc ]; then
+      TARGETGNU=1
+   fi
+fi
+
+###############################################################################
+# OPTIMIZATION
+###############################################################################
+
+echo "Optimize the compiler phases? [n]"
+read ans
+echo "# Optimize the compiler phases? [n]" >> sinstall.res;
+echo $ans >> sinstall.res;
+case "X$ans" in
+   Xy)   if [ $PHASEGNU = 1 ]; then
+            PHASEOPT="-O"
+         fi;;
+   X|Xn) if [ $PHASEGNU = 1 ]; then
+            PHASEOPT="-g"
+         else
+            PHASEOPT="$PHASENOOPT"
+         fi;;
+esac
+echo "Compiler phase flags are: [$PHASEOPT]"
+read ans
+echo "# Compiler phase flags are: [$PHASEOPT]" >> sinstall.res
+echo $ans >> sinstall.res
+if [ "X$ans" != X ]; then
+   PHASEOPT=$ans
+fi
+
+###############################################################################
+# RUNTIME
+###############################################################################
+
+if [ X$THREADS != X ]; then
+  echo "Use threads in the runtime system? [n]"
+  read ans
+  echo "# Use threads in runtime system? [n]" >> sinstall.res
+  echo $ans >> sinstall.res
+  case "X$ans" in
+    X|Xn) THREADS='';;
+    Xy)   TARGETLD="$TARGETLD $THREADLD"
+          PROCS=1;;
+  esac
+fi
+
+if [ "X$PROCS" != X ]; then
+   echo "Number of available processors? [$PROCS]";
+   read ans;
+   echo "# Number of available processors? [$PROCS]" >> sinstall.res;
+   echo $ans >> sinstall.res;
+   if [ "X$ans" != X ]; then
+      PROCS=$ans;
+   fi
+else
+   PROCS=1
+fi
+
+echo "Optimize the application and runtime library? [y]"
+read ans
+echo "# Optimize the application and runtime library? [y]" >> sinstall.res;
+echo $ans >> sinstall.res
+case "X$ans" in
+   X|Xy) if [ $TARGETGNU = 1 ]; then
+            TARGETOPT="-O"
+         fi;;
+   Xn)   if [ $TARGETGNU = 1 ]; then
+            TARGETOPT="-g"
+         else
+            TARGETOPT="$TARGETNOOPT"
+         fi;;
+esac
+TARGETOPT="$TARGETOPT $THREADS"
+echo "Application and runtime flags are: [$TARGETOPT]"
+read ans
+echo "# Application and runtime flags are: [$TARGETOPT]" >> sinstall.res
+echo $ans >> sinstall.res
+if [ "X$ans" != X ]; then
+   TARGETOPT=$ans
+fi
+
+echo "Application load flags are: [$TARGETLD]"
+read ans
+echo "# Application load flags are: [$TARGETLD]" >> sinstall.res
+echo $ans >> sinstall.res
+if [ X$ans != X ]; then
+   TARGETLD=$ans
+fi
+
+###############################################################################
+# DIRECTORIES
+###############################################################################
+
+echo "Default creation mask for directories: [755]"
+read DMASK
+echo "# Default creation mask for directories: [755]" >> sinstall.res;
+echo $DMASK >> sinstall.res
+if [ "X$DMASK" = "X" ]
+then
+   DMASK='755'
+fi
+
+echo "Default creation mask for executables: [755]"
+read XMASK
+echo "# Default creation mask for executables: [755]" >> sinstall.res;
+echo $XMASK >> sinstall.res
+if [ "X$XMASK" = "X" ]
+then
+   XMASK='755'
+fi
+
+echo "Default creation mask for read only objects (man pages, includes, ...): [644]"
+read MMASK
+echo "# Default creation mask for read only objects (man pages, includes, ...): [644]" >> sinstall.res;
+echo $MMASK >> sinstall.res
+if [ "X$MMASK" = "X" ]
+then
+   MMASK='644'
+fi
+
+DEF_PATH=`pwd`
+DIRNAME=`which dirname`
+if [ -x "$DIRNAME" ]
+then
+   DEF_PATH=`$DIRNAME $DEF_PATH`
+else
+   DEF_PATH=$DEF_PATH/..
+fi
+echo "Default top-level root for installation: [$DEF_PATH]"
+echo "# Default root for installation: [$DEF_PATH]" >> sinstall.res
+read TMP_PATH
+echo $TMP_PATH >> sinstall.res
+if [ "X$TMP_PATH" != 'X' ]
+then
+   DEF_PATH=$TMP_PATH
+fi
+# Evaluate any $ vars
+DEF_PATH=`eval echo $DEF_PATH`
+
+echo "Path for executable installation: [$DEF_PATH/bin]"
+echo "# Path for executable installation: [$DEF_PATH/bin]" >> sinstall.res
+read BIN_PATH
+echo $BIN_PATH >> sinstall.res
+if [ "X$BIN_PATH" = 'X' ]
+then
+   BIN_PATH=$DEF_PATH/bin
+fi
+# Evaluate any $ vars
+BIN_PATH=`eval echo $BIN_PATH`
+
+echo "Path for library installation: [$DEF_PATH/lib]"
+echo "# Path for library installation: [$DEF_PATH/lib]" >> sinstall.res
+read LIB_PATH
+echo $LIB_PATH >> sinstall.res
+if [ "X$LIB_PATH" = 'X' ]
+then
+   LIB_PATH=$DEF_PATH/lib
+fi
+# Evaluate any $ vars
+LIB_PATH=`eval echo $LIB_PATH`
+
+echo "Path for header installation: [$DEF_PATH/include]"
+echo "# Path for header installation: [$DEF_PATH/include]" >> sinstall.res;
+read INC_PATH
+echo $INC_PATH >> sinstall.res
+if [ "X$INC_PATH" = 'X' ]
+then
+   INC_PATH=$DEF_PATH/include
+fi
+# Evaluate any $ vars
+INC_PATH=`eval echo $INC_PATH`
+
+echo "Path for man page installation: [$DEF_PATH/man]"
+echo "# Path for man page installation: [$DEF_PATH/man]" >> sinstall.res;
+read MAN_PATH
+echo $MAN_PATH >> sinstall.res
+if [ "X$MAN_PATH" = 'X' ]
+then
+   MAN_PATH=$DEF_PATH/man
+fi
+# Evaluate any $ vars
+MAN_PATH=`eval echo $MAN_PATH`
+
+echo "Path to working directory TMPDIR: [none]"
+read TMPDIR
+echo "# Path to working directory TMPDIR: [none]" >> sinstall.res;
+echo "$TMPDIR" >> sinstall.res
+TMPDIR=`eval echo $TMPDIR`
+
+echo 'Examine the $TMPDIR environment variable [y]'
+read ans
+echo '# Examine the $TMPDIR environment variable [y]' >> sinstall.res;
+echo $ans >> sinstall.res
+case "X$ans" in
+  X|Xy) GETENV_TMPDIR="-DGETTMPDIR";;
+  Xn)   GETENV_TMPDIR="";;
+esac
+
+if [ "$GETENV_TMPDIR" = "" -a "$TMPDIR" = "" ]; then
+  echo "***** WARNING:  The OSC compiler may overwrite .i, .mono, .opt,"
+  echo "                .mem, .up, .part, and .c files in your working"
+  echo "                directory because no temporary directory was"
+  echo "                specified"
+fi
+
+###############################################################################
+# CREATE DIRECTORIES
+###############################################################################
+
+echo ""
+echo "* Checking installation directories..."
+if [ -d $BIN_PATH ]
+then
+  echo "$BIN_PATH exists"
+else
+  echo "$BIN_PATH being created..."
+  p=""
+  for d in `echo $BIN_PATH | tr / " "`; do
+      p=$p/$d
+      if [ ! -d $p ]
+      then
+        echo Creating directory $p;
+	mkdir $p
+	chmod $DMASK $p
+      fi;
+  done
+fi
+if [ -d $LIB_PATH ]
+then
+  echo "$LIB_PATH exists"
+else
+  echo "$LIB_PATH being created..."
+  p=""
+  for d in `echo $LIB_PATH | tr / " "`; do
+      p=$p/$d
+      if [ ! -d $p ]
+      then
+        echo Creating directory $p;
+	mkdir $p
+	chmod $DMASK $p
+      fi;
+  done
+fi
+if [ -d $INC_PATH ]
+then
+  echo "$INC_PATH exists"
+else
+  echo "$INC_PATH being created..."
+  p=""
+  for d in `echo $INC_PATH | tr / " "`; do
+      p=$p/$d
+      if [ ! -d $p ]
+      then
+        echo Creating directory $p;
+	mkdir $p
+	chmod $DMASK $p
+      fi;
+  done
+fi
+if [ -d $MAN_PATH ]
+then
+  echo "$MAN_PATH exists"
+else
+  echo "$MAN_PATH being created..."
+  p=""
+  for d in `echo $MAN_PATH | tr / " "`; do
+      p=$p/$d
+      if [ ! -d $p ]
+      then
+        echo Creating directory $p;
+	mkdir $p
+	chmod $DMASK $p
+      fi;
+  done
+fi
+if [ -d $MAN_PATH/man1 ]
+then 
+  echo "$MAN_PATH/man1 exists"
+else
+  echo "$MAN_PATH/man1 being created..."
+  mkdir $MAN_PATH/man1
+fi
+if [ -d $MAN_PATH/man3 ]
+then 
+  echo "$MAN_PATH/man3 exists"
+else
+  echo "$MAN_PATH/man3 being created..."
+  mkdir $MAN_PATH/man3
+fi
+if [ -d $MAN_PATH/man5 ]
+then 
+  echo "$MAN_PATH/man5 exists"
+else
+  echo "$MAN_PATH/man5 being created..."
+  mkdir $MAN_PATH/man5
+fi
+if [ "$TMPDIR" = "" ]
+then
+  echo No temp directory selected
+else
+  if [ -d "$TMPDIR" ]
+  then
+    echo "$TMPDIR exists"
+  else
+    echo "$TMPDIR being created..."
+    p=""
+    for d in `echo $TMPDIR | tr / " "`; do
+	p=$p/$d
+	if [ ! -d $p ]
+	then
+	  echo Creating directory $p;
+	  mkdir $p
+	  chmod $DMASK $p
+	fi;
+    done
+  fi
+fi
+
+###############################################################################
+# BANNER
+###############################################################################
+
+echo ""
+echo "Enter version prefix for osc banner [none]"
+read vprefix
+echo "# Enter version prefix for osc banner [none]" >> sinstall.res;
+echo $vprefix >> sinstall.res
+
+###############################################################################
+# MAKE MAKE
+###############################################################################
+
+# ------------------------------------------------------------
+# At least one brain damaged make program does not set the MAKE
+# var (normally set to the invoking name and options).  This will
+# catch that case and make a correction.
+cat > Makefile <<EOF
+all:
+	@echo \$(MAKE)
+EOF
+dollarmake=`make -s -f Makefile 2>/dev/null`
+if [ "$dollarmake" = "" ]; then
+  makefix="MAKE=make";
+else
+  makefix=""
+fi
+
+echo ""
+echo "* Makefile construction in progress..."
+DATE=`date`
+cat >Makefile <<EOF
+###############################################################################
+# Makefile for OSC (SISAL COMPILER)
+# Generated $DATE using $0.
+# CHECK FOR ACCURACY
+#     Documentation symbols: [] = optional, {} = pick one
+#     Command line macro definitions will override those shown here
+###############################################################################
+
+# **** PATHS TO COMMANDS USED BY THE MAKEFILE
+SHELL       = /bin/sh
+CC          = $TheCC
+TARGETCC    = $TheTARGETCC
+INSTALL     = $TheINSTALL
+RANLIB      = $TheRANLIB
+AR          = $TheAR
+DIFF        = diff
+
+# **** HOST AND TARGET SYSTEM
+# **** HOST = -D{ENCORE,ALLIANT,etc.}, TARGET = {CRAYT3D,etc.}
+HOST = $HOST $RHOST
+TARGET = $TARGET
+
+# *** NUMBER OF AVAILABLE PROCESSORS IN THE HOST SYSTEM
+PROCS = $PROCS
+
+# **** FLOATING POINT CHIP (FOR EXAMPLE, SUN)
+# **** FPO = -f68881
+FPO = $FPO
+DPO = $DPO
+
+# **** IS GANGD TO BE USED: ONLY SUPPORTED ON BALANCE
+# **** GANGD = [-DGANGD]
+GANGD = $GANGD
+
+# **** SHOULD THE MAKEFILE GO IN PARALLEL: ONLY SUPPORTED ON BALANCE
+# **** PAR = [&]
+PAR = $PAR
+
+# **** Miscelleneous def's
+MISCDEF = $MISCDEF
+
+# **** OPTIMIZE THE GENERATED ASSEMBLY CODE
+# **** PHASEOPT = [-O]
+PHASEOPT = $PHASEOPT
+TARGETOPT = $TARGETOPT
+TARGETLD = $TARGETLD
+
+# **** FILE CREATION MASKS
+DMASK = $DMASK
+XMASK = $XMASK
+MMASK = $MMASK
+ALLMASKS = DMASK=\${DMASK} XMASK=\${XMASK} MMASK=\${MMASK}
+
+BINSTALL=\${INSTALL}
+SINSTALL=\${INSTALL}
+
+# **** ABSOLUTE PATHS TO EXECUTABLE (BIN_PATH) AND MAN PAGE INSTALLATION
+# **** SITES. (Ex. BIN_PATH = /usr/local/bin, MAN_PATH = /usr/local/man)
+BIN_PATH = $BIN_PATH
+LIB_PATH = $LIB_PATH
+INC_PATH = $INC_PATH
+MAN_PATH = $MAN_PATH
+
+###############################################################################
+# DO NOT MODIFY ANYTHING ELSE
+###############################################################################
+
+MINIMAL=0
+
+LOCALTARGET=local
+
+$makefix
+
+PR          = -DMAX_PROCS=${PROCS}
+FC          = ${TheFC}
+FFLAGS      = ${TheFFLAGS}
+
+T_DEF1      = BIN_PATH=\${BIN_PATH}
+T_DEF2      = MAN_PATH=\${MAN_PATH}
+
+LIBM        = ${LIBM}
+ANS         = ${ANS}
+
+TIMEM       = ${TheTIMEM}
+
+CC_OPTS     = \${HOST} \${PR} \${FPO} \${DPO} \${GANGD} \${TIMEM} \${MISCDEF}
+
+
+VERSIONPREFIX=$vprefix
+TMPDIR=$TMPDIR
+CC_CMD      = "CC=\${CC}" "CFLAGS=\${CC_OPTS} \${PHASEOPT}" "PAR=\${PAR}" "AR=\${AR}"
+F_CC_CMD    = "CC=\${CC}" "CFLAGS=\${CC_OPTS} \${PHASEOPT}"
+T_CC_CMD    = "CC=\${CC}" "CFLAGS=\${CC_OPTS} \${PHASEOPT} ${SPP} -DSCC=$SCC -DGNU=$TARGETGNU $GETENV_TMPDIR '"\
+'-DVPREFIX="\${VERSIONPREFIX}"'\
+"' '"\
+'-DUSE_TMPDIR="\${TMPDIR}"'\
+"' '"\
+'-DUSECC="\${TARGETCC}"'\
+"' '"\
+'-DUSEOPT="\${TARGETOPT}"'\
+"' '"\
+'-DUSELD="\${TARGETLD}"'\
+"' '"\
+'-DUSEFF="\${FC}"'\
+"'" \
+"\${T_DEF1}" "\${T_DEF2}" "PAR=\${PAR}" 
+R_CC_CMD="CC=\${TARGETCC}" "CFLAGS=\${CC_OPTS} \${TARGETOPT}" "FC=\${FC}" "FFLAGS=\${FFLAGS}" "PAR=\${PAR}" "AR=\${AR}"
+
+PATHS = "BIN_PATH=\${BIN_PATH}" "LIB_PATH=\${LIB_PATH}" "INC_PATH=\${INC_PATH}" "MAN_PATH=\${MAN_PATH}"
+
+
+# **** LOCAL
+local: library tools frontend backend runtime
+
+# **** ALL
+all: local install
+
+# **** TOOLS
+tools:
+	cd Tools; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${T_CC_CMD} \${PATHS}
+
+# **** LIBRARY
+library:
+	cd Backend/Library; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${CC_CMD} "RANLIB=\${RANLIB}"
+
+# **** FRONTEND
+frontend: front1
+front1:
+	cd Frontend/Front1; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${F_CC_CMD}
+front90:
+	if [ -d Frontend/Front90 ]; then cd Frontend/Front90; \\
+	   \$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${F_CC_CMD}; \\
+	fi
+expand90:
+	if [ -d Frontend/Expand90 ]; then cd Frontend/Expand90; \\
+	   \$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${F_CC_CMD}; \\
+	fi
+
+# **** BACKEND
+backend: library if1ld if1opt if2mem if2up if2part if2gen
+if1ld:
+	cd Backend/If1ld; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${CC_CMD}
+if1opt:
+	cd Backend/If1opt; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${CC_CMD}
+if2mem:
+	cd Backend/If2mem; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${CC_CMD}
+if2up:
+	cd Backend/If2up; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${CC_CMD}
+if2part:
+	cd Backend/If2part; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${CC_CMD}
+if2gen:
+	cd Backend/If2gen; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) \${CC_CMD}
+
+# **** RUNTIME
+runtime: sharedlib
+sharedlib:
+	cd Runtime/Sharedlib; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) LIBM=\$(LIBM) \${R_CC_CMD}
+streamlib:
+	cd Runtime/Streamlib; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) LIBM=\$(LIBM) \${R_CC_CMD}
+toollib:
+	cd Runtime/Toollib; \\
+	\$(MAKE) MINIMAL=\$(MINIMAL) \$(LOCALTARGET) LIBM=\$(LIBM) \${R_CC_CMD}
+
+# **** CHECK
+check: clean_check
+	cd Check; \\
+	\$(MAKE) ANS=\$(ANS) OSC=\$(BIN_PATH)/osc DIFF=\$(DIFF)
+check_streams: clean_check
+	cd Check; \\
+	\$(MAKE) ANS=\$(ANS) OSC=\$(BIN_PATH)/osc DIFF=\$(DIFF) SFLAGS_ALL="-v -Keep -STREAMS" check_all
+check_all: clean_check
+	cd Check; \\
+	\$(MAKE) ANS=\$(ANS) OSC=\$(BIN_PATH)/osc DIFF=\$(DIFF) check_all
+check_par:
+	cd Check; \\
+	\$(MAKE) ANS=\$(ANS) OSC=\$(BIN_PATH)/osc DIFF=\$(DIFF) PROCS=\$(PROCS) check_par
+
+# **** INSTALL
+install: install_tools install_library install_frontend install_backend install_runtime
+install_all: install install_front90 install_expand90
+
+install_tools:
+	cd Tools; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${T_CC_CMD} \${PATHS}
+install_library:
+	cd Backend/Library; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS}
+install_frontend: install_front1
+install_front1:
+	cd Frontend/Front1; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS}
+install_front90:
+	if [ -d Frontend/Front90 ]; then cd Frontend/Front90; \\
+	   \$(MAKE) install \$(ALLMASKS) -i \${PATHS}; \\
+	fi
+install_expand90:
+	if [ -d Frontend/Expand90 ]; then cd Frontend/Expand90; \\
+	   \$(MAKE) install \$(ALLMASKS) -i \${PATHS}; \\
+	fi
+install_backend: install_if1ld install_if1opt install_if2mem install_if2up install_if2part install_if2gen 
+install_if1ld:
+	cd Backend/If1ld; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS}
+install_if1opt:
+	cd Backend/If1opt; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS}
+install_if2mem:
+	cd Backend/If2mem; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS}
+install_if2up:
+	cd Backend/If2up; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS}
+install_if2part:
+	cd Backend/If2part; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS}
+install_if2gen:
+	cd Backend/If2gen; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS}
+install_runtime: install_sharedlib
+install_sharedlib:
+	cd Runtime/Sharedlib; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS} LIBM=\$(LIBM) "AR=\${AR}" "RANLIB=\${RANLIB}"
+install_toollib:
+	cd Runtime/Toollib; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS} LIBM=\$(LIBM) "AR=\${AR}" "RANLIB=\${RANLIB}"
+install_streamlib:
+	cd Runtime/Streamlib; \\
+	\$(MAKE) install \$(ALLMASKS) -i \${PATHS} LIBM=\$(LIBM) "AR=\${AR}" "RANLIB=\${RANLIB}"
+
+# **** LINT
+lint_library:
+	cd Backend/Library;	\$(MAKE) lint \${CC_CMD}
+lint_if1ld:
+	cd Backend/If1ld;	\$(MAKE) lint \${CC_CMD}
+lint_if1opt:
+	cd Backend/If1opt;	\$(MAKE) lint \${CC_CMD}
+lint_if2mem:
+	cd Backend/If2mem;	\$(MAKE) lint \${CC_CMD}
+lint_if2up:
+	cd Backend/If2up;	\$(MAKE) lint \${CC_CMD}
+lint_if2part:
+	cd Backend/If2part;	\$(MAKE) lint \${CC_CMD}
+lint_if2gen:
+	cd Backend/If2gen;	\$(MAKE) lint \${CC_CMD}
+lint_sharedlib:
+	cd Runtime/Sharedlib;	\$(MAKE) lint \${R_CC_CMD}
+lint_toollib:
+	cd Runtime/Toollib;	\$(MAKE) lint \${R_CC_CMD}
+lint_streamlib:
+	cd Runtime/Streamlib;	\$(MAKE) lint \${R_CC_CMD}
+lint_tools:
+	cd Tools;		\$(MAKE) lint \${T_CC_CMD}
+
+# **** TAR
+ 
+tar:
+	cd ..; tar cvf OSC.tar OSC
+compress:
+	cd ..; compress OSC.tar
+tar.Z: tar compress
+
+# **** CLEAN
+clean: clean_runtime clean_check clean_tools clean_backend clean_frontend
+clean_all: clean clean_toollib clean_streamlib clean_front90 clean_expand90 
+	rm -f sinstall.res Makefile
+clean_runtime: clean_sharedlib
+clean_sharedlib:
+	cd Runtime/Sharedlib;	\$(MAKE) clean LIBM=\$(LIBM)
+clean_toollib:
+	if [ -d Runtime/Toollib ]; then cd Runtime/Toollib; \\
+	   \$(MAKE) clean LIBM=\$(LIBM); \\
+	fi
+clean_streamlib:
+	if [ -d Runtime/Streamlib ]; then cd Runtime/Streamlib; \\
+	   \$(MAKE) clean LIBM=\$(LIBM); \\
+	fi
+clean_check:
+	cd Check;		\$(MAKE) clean
+clean_tools:
+	cd Tools;		\$(MAKE) clean
+
+clean_backend: clean_library \\
+  clean_if1ld clean_if1opt clean_if2mem clean_if2up clean_if2part clean_if2gen
+clean_library:
+	cd Backend/Library;	\$(MAKE) clean
+clean_if1ld:
+	cd Backend/If1ld;	\$(MAKE) clean
+clean_if1opt:
+	cd Backend/If1opt;	\$(MAKE) clean
+clean_if2mem:
+	cd Backend/If2mem;	\$(MAKE) clean
+clean_if2up:
+	cd Backend/If2up;	\$(MAKE) clean
+clean_if2part:
+	cd Backend/If2part;	\$(MAKE) clean
+clean_if2gen:
+	cd Backend/If2gen;	\$(MAKE) clean
+
+clean_frontend: clean_front1 
+clean_front1:
+	cd Frontend/Front1;	\$(MAKE) clean
+clean_front90:
+	if [ -d Frontend/Front90 ]; then cd Frontend/Front90; \\
+	   \$(MAKE) clean; \\
+	fi
+clean_expand90:
+	if [ -d Frontend/Expand90 ]; then cd Frontend/Expand90; \\
+	    \$(MAKE) clean; \\
+	fi
+#
+EOF
+
+echo "*------------------------------------------------------------"
+echo "* Responses (also in sinstall.res)"
+cat sinstall.res
+echo "*------------------------------------------------------------"
+
+echo ""
+echo "* Makefile has been built."
+echo "* Please check it over to ensure it is as you wish."
+echo "* When you are satisfied, enter \"make all\" to build and install osc."
+echo "* After installation, you may enter \"make check\" to run a test suite."
+echo "* \"make check_all\" runs a more complete test suite and continues"
+echo "* through errors. \"make check_par PROCS=3\" checks three processors."
+
+
+if [ ! "(" -w $BIN_PATH -a -w $MAN_PATH ")" ]
+then
+  echo ""
+  echo " **********************************************************"
+  echo " * * * * * * * * * * *  W A R N I N G * * * * * * * * * * *"
+  echo " **********************************************************"
+  echo "You do not have installation privileges, you may wish to do"
+  echo "a make local, then su to root, then make install."
+fi
+
+exit 0

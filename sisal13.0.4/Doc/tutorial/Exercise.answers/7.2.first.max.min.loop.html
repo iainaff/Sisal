@@ -1,0 +1,50 @@
+<H4>Exercise 7.2: First Maximum and Minimum Loop</H4>
+Given:  a one-dimensional array, <TT>A</TT>, of real values;<BR>
+Compose: a for-initial loop that finds the first instance of the minimum and maximum values present 
+in the array, and returns these values and their index positions.
+
+<PRE>for initial
+   i := array_liml(A);
+   max_val := A[i];
+   min_val := A[i];
+   max_ind := i;
+   min_ind := i;
+while i < array_limh(A) repeat
+   i := old i + 1;
+   max_val, max_ind := if A[i] >  old max_val then
+			  A[i], i
+		       else
+			  old max_val, old  i
+		       end if;
+   min_val, min_ind := if A[i] <  old min_val then
+			  A[i], i
+		       else
+			  old min_val, old  i
+		       end if;
+returns value of max_val
+	value of max_pos
+	value of min_val
+	value of min_ind
+end for </PRE>
+
+<BR><BR>
+<A HREF="../Exercises/17.Exercises.7.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,38 @@
+<H4>Exercise 7.1: Newton Square Root Loop</H4>
+Given:  a real value <TT>Y</TT>, and the formula for Newton's square root algorithm,<BR>
+x(i) = (Y/x(i-1) + x(i-1))/2, where x(0)=Y/2;<BR>
+Given: termination critierion: |Y - x(i)**2| < epsilon, a real value;<BR>
+Compose: a for-initial loop that calculates successive approximations x(i) until the termination criterion is met, and returns the final value of the approximation as well as the number of approximations, x(i), i >0, that have been calculated.<BR>
+
+<PRE>for initial
+   x    := Y / 2.0;
+  count := 0
+while abs(Y - x*x) > epsilon repeat
+   x := (Y/old x + old x) / 2.0;
+   count := old count + 1
+returns value of x
+        value of count
+end for
+</PRE>
+
+<BR><BR>
+<A HREF="../Exercises/17.Exercises.7.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

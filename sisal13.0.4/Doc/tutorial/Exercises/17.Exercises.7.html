@@ -1,0 +1,57 @@
+<H2>17. Exercise Set 7</H2>
+<H4>Exercise 7.1: Newton Square Root Loop</H4>
+Given:  a real value <TT>Y</TT>, and the formula for Newton's square root algorithm,<BR>
+x(i) = (Y/x(i-1) + x(i-1))/2, where x(0)=Y/2;<BR>
+Given: termination criterion: |Y - x(i)**2| < epsilon, a real value;<BR>
+Compose: a for-initial loop that calculates successive approximations x(i) until the termination criterion is met, and returns the final value of the approximation as well as the number of approximations, x(i), i >0, that have been calculated.<BR>
+<A HREF="../Exercise.answers/7.1.newt.root.loop.html">Click here for a sample answer.</A>
+
+<H4>Exercise 7.2: First Maximum and Minimum Loop</H4>
+Given:	a one-dimensional array, <TT>A</TT>, of real values;<BR>
+Compose: a for-initial loop that finds the first instance of the minimum and maximum values present in the array, and returns these values and their index positions.<BR>
+<A HREF="../Exercise.answers/7.2.first.max.min.loop.html">Click here for a sample answer.</A>
+
+<H4>Exercise 7.3: Successive Relaxation Loop</H4>
+Given:  a two-dimensional array, <TT>A</TT>, of real values;<BR>
+Given:  a predefined termination test function <TT>converged(x,y,eps)</TT> ,which takes two conformable two_dimensional arrays, <TT>x</TT>, and <TT>y</TT>, and a real value <TT>eps</TT>, and  returns a Boolean value if its metric is met with respect to its third argument;<BR>
+Compose: a function containing a for_initial loop that uses the function from exercise 16 to successively relax <TT>A</TT> until convergence occurs, and returns the converged value of A and the number of relaxations that have occurred.<BR>
+Hint: Since the convergence function requires two arrays, one could use a bottom-tested loop...<BR>
+<A HREF="../Exercise.answers/7.3.relax.loop.html">Click here for a sample answer.</A>
+
+<H4>Exercise 7.4: Conway's Game of Life</H4>
+Given:  a two-dimensional array, <TT>Board</TT>, of integer cell values, zero for a dead cell and positive nonzero for a live one;<BR>
+Given:  the boundaries cells around the edge of <TT>Board</TT> are always dead;<BR>
+Given:  the rules by which a non-boundary cell lives or dies:
+<PRE>     if three or fewer neighbor cells are alive, then cell dies;
+     if five or more neighbors cells are alive then cell dies;
+     if four neighbor cells are alive, then increment current cell value;</PRE>
+Compose:  a program that plays evolves the <TT>Board</TT> array until some input number of steps are completed, and returns an array of all the values taken on by <TT>Board</TT>.<BR>
+<A HREF="../Exercise.answers/7.4.life.prog.html">Click here for a sample answer.</A>
+<BR><BR><BR>
+
+<BR><BR>
+<H4><A HREF="../16.Seq.loops.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="../18.0.Comp.run.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="../00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

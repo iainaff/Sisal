@@ -1,0 +1,191 @@
+<H2>18. Compiling and Running Sisal Programs</H2>
+
+Up to this point we have been dealing with Sisal and a pedagogical tool. But 
+since it is intended to support real-world programming on contemporary 
+uniprocessor and multiprocessor systems, we should discuss how to compile 
+and run Sisal programs, using the Optimizing Sisal Compiler (OSC) and runtime 
+system. OSC is available for most Unix systems, and provides for parallel 
+execution on a number of shared memory systems. Prototype versions of OSC 
+exist for distributed memory and multithreaded systems, but performance and 
+robustness on these systems is not likely to be as high as on shared memory 
+systems. A later section will describe how to acquire and install the Sisal 
+system software, For now, we will assume the compiler is available and 
+describe how it works in actual use.<P>
+
+
+Assuming that the user has a Sisal program composed and ready to compile, the 
+first step is to run it through OSC for syntax checking. Once the program is 
+syntactically correct, it is guaranteed to be semantically correct, and is 
+likely to be at least close logically to what the programmer intended. So, 
+let us take a minute to discuss the overall structure of most Sisal programs 
+by looking at an example. Then we will describe how to compile and run the 
+example on a real parallel computer.<P>
+
+
+The program accessible through the following anchor is a standard example, 
+used to illustrate the structure of a typical technical application written 
+in Sisal. The reader may wish to bring up a second window so it can be viewed 
+alongside its description.<P>
+
+
+<A HREF="18.1.traprule2.sis.html">Trapezoidal Rule Integrator</A><P>
+
+
+Looking at the commentary at the head of the program, and at the main 
+function (function "main), we can see that the program is an integration 
+approximator, that recursively refines an initial number of subdivisions of 
+an integration interval by halving the width of each subinterval (doubling 
+their number) and using the total area of the trapezoidal approximation for 
+each subinterval as the definite integral. This process stops when either a 
+sufficient number or recursive refinements have taken place, or when a 
+convergence test is past. The arguments to the program are the x-values of 
+the integration interval endpoints, the convergence tolerance, and the 
+initial number if subintervals. The outputs are the integral approximation, 
+the number of refinement steps or iterations taken, the number of 
+subintervals finally use to produce the final answer, and the total number of 
+subinterval area values calculated. The function being integrated must be 
+inserted into the code of this simple sample program; there is one present 
+already, a polynomial, whose integral can readily be calculated by hand as a 
+check on the program's operation.<P>
+
+
+In structure, the program has a sequential outer loop, the initial clause of 
+which computes the initial approximation, given the initial number of 
+subintervals. In the loop body, the subintervals are refined and another 
+approximation is calculated. The convergence test is at the bottom of the 
+loop, and uses both the freshly computed approximation and the most recent 
+previous one to determine convergence. The outer sequential loop contains a 
+for-loop which ranges over the number of subintervals currently being used. 
+In this loop a function named "trap_area" is called to calculate the area of 
+one trapezoid. Function "f" is called by "trap_area" to calculate the 
+function values at the trapezoidal endpoints. The doubling of the number of 
+subintervals in each iteration of the outer loop causes the range of the for-
+loop to double, increasing the amount of work that is exploitable for 
+parallel execution. This doubling justifies the use for an iteration ceiling 
+in the convergence test, to make sure the program does not run away with 
+itself under pathological numerical conditions, and generate an unbounded 
+amount of work, swamping the runtime system in the process. The code in the 
+file accessed by the above anchor should be in shape for compilation. The 
+contents of the file accessible below are sample inputs for the program, once 
+it is ready to run.<P>
+
+
+<A HREF="18.2.traprule2.input.html">Trapezoidal integrator program 
+input</A><P>
+
+
+The shell actions and results of compiling and executing the program can be 
+seen by clicking on the following anchor:<P>
+
+
+<A HREF="18.3.traprule2.comp.ex.html">Compiling and executing the trapezoidal 
+integrator program</A><P>
+
+
+The first line shows OSC being invoked, with no arguments other than the name 
+of the source file. The Optimizing Sisal Compiler has a large number of 
+options allowing in-depth control of the entire multi-phasic compilation and 
+optimization process. These options are documented in the "OSC" man pages 
+which are installed during the compiler installation process. The compilation 
+proceeds through various stages, translating Sisal source into a data flow 
+graph language, called IF1, translating that into an annotated memory 
+management graph language called IF2, and finally producing C code; the 
+target machine's compiler is then invoked to complete the process and leave 
+an executable memory image, called "s.out" by default, containing the runtime 
+system for I/O and parallel task management. The compiler can be ordered to 
+return varying amounts of information to the terminal. Of particular interest 
+are syntax error messages, which are not shown in this example.<P>
+
+
+When compilation is completed, execution is ordered by typing the name of the 
+executable, which in this case is the default "s.out." Extensive options also 
+exist for controlling the execution, and these, too, are documented in the 
+"s.out" man pages which are automatically installed during compiler 
+installation. In this example, no options are present. The runtime system 
+presents a startup message to the terminal, and then waits for inputs from 
+the Unix input channel "standard Input," since no file name was given. The 
+inputs are typed in manually on the next line, and execution proceeds. Again, 
+no output file name was given, output is sent to the Unix output channel 
+"standard output", and appears on the terminal. The outputs are those 
+specified in the program: (1) the array of subinterval approximations - 
+eleven of them, since we asked for ten iterations to be taken; (2) the total 
+number of approximations steps, including the first one in the initial clause 
+of the outer loop;  (3) the total number of subintervals used to compute the 
+final answer; and, (4) and the total number of area evaluations performed in 
+the program's execution. The odd form of the array of area approximations is 
+due to the fact that Sisal has a syntax for its inputs and outputs. This is 
+because, since all objects are dynamic, their boundaries must be denoted for 
+proper handling on input, and because one Sisal program's output is 
+immediately suitable for use as input to other Sisal programs. The name of 
+the simple I/O language is "Fibre," and more information on it can be found 
+in the Fibre manual [47].
+
+
+Next to observe are the results of more complex executions:<P>
+
+
+<A HREF="18.4.traprule2.comp.ex.par.html">Executing the trapezoidal 
+integrator program in parallel</A><P>
+
+
+In this file, we see the results of a parallel execution. First, the input is 
+put into a file for convenience, using the Unix "cat" command. Next, 
+execution is performed with the names of input and output files specified. 
+Then execution is performed again with options "-r -w1 -z". These tell the 
+runtime system to turn on execution performance monitoring, run with one 
+worker process, and suppress output, respectively. The next execution uses 
+the same options, except for "-w4", which specifies the use of four worker 
+processes. This allows the exploitation of parallelism, with the runtime 
+system slicing the available loops and partitioning the work to the worker 
+processes. Finally, see the display of the execution info file, "s.info," 
+through the use of the Unix "more" command. This file contains the worker 
+process execution times and memory usages for the two executions made with 
+the "-r" option specified. The sequential run shows the single-worker cpu 
+time is shown as 0.08 seconds, and each of the worker cpu times for the four-
+worker run are shown as 0.02 seconds. This indicates that the compiler and 
+runtime system did a good job of exploiting the available parallelism, and 
+the result was an execution speedup of four.<P>
+
+<BR><BR>
+<H4><A HREF="Exercises/17.Exercises.7.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="19.0.Sisal.IO.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+
+If you have any questions about this page, or want more information about the
+
+Sisal Language Project, contact:
+
+<HR>
+
+<ADDRESS>
+
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+
+</ADDRESS>
+
+<P>
+
+
+The Sisal Language Project has been approved as a Designated Unclassified 
+Subject Area (DUSA) K19222, as of 07 August, 1991.
+
+<P>
+
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+
+<BR>
+
+<STRONG>
+
+UCRL-MI-122601
+
+</STRONG>
+

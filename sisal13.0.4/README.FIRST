@@ -1,0 +1,32 @@
+This is the last distribution from Lawrence Livermore National Lab of
+the optimizing Sisal compiler ``OSC'' from the now disbanded Sisal
+group there, augmented with electronic copies of documentation and
+examples which didn't accompany the LLNL distribution.  In addition, a
+Sisal mode for the emacs editor has been included.  The distribution
+has a new copyright which is available in the main directory in
+COPYRIGHT.NEW.
+
+Sisal is a functional language for numerical programming.  It was
+originally intended to be a vehicle to support parallel programming,
+and it largely succeeded in this endeavor for shared memory
+multiprocessors.  It is also a very ``safe'' language, and is useful
+even in non-parallel environments for this reason.  Interestingly,
+with all the backend optimization done by the compiler, it is
+generally about as efficient in execution as equivalent Fortran and C
+programs in spite of the functional language semantics.
+
+Though bugs undoubtably remain, my experience is that this
+distribution of OSC is quite robust and usable for a wide variety of
+numerical projects.
+
+Sisal is actually a preprocessor for Fortran or C, or a mixture of the
+two.  Sisal programs can be called by Fortran or C programs and vice
+versa.  This allows the rather primitive native I/O system of Sisal to
+be circumvented so that the language can be used to do real work.
+
+The priceless help of Jim McGraw of LLNL has been instrumental in
+saving this excellent piece of software and its documentation from
+oblivion and making it available to the Linux community.
+
+D. J. Raymond
+raymond@kestrel.nmt.edu

@@ -1,0 +1,53 @@
+<H4>6.1.3 A Few Examples of Array and Record Use</H4>
+Array and record types make composing readable Sisal programs easy and convenient. The syntax rules for using them correctly arise immediately from the semantic rules we have already touched on: every Sisal statement is an expression, and all expressions return specific values of specific types. Consider the following example:
+<PRE>let x_diff := x[1] - x[2];
+    y_diff := y[1] - y[2];
+    xd_sq := x_diff * x_diff;
+    yd_sq := y_diff * Y_diff
+in  sqrt( xd_sq + yd_sq )
+end let
+</PRE>
+This is the calculation of the magnitude of separation of two two-space vectors. The  vectors are named <TT>x</TT> and <TT>y</TT>, and their components are indexed in the usual way, using square brackets to separate the index expressions from the value names. Alternatively, we could represent the vectors as records, whose fields contain the components, and the calculation would them be as follows:
+<PRE>let x_diff := v1.x - v2.x;
+    y_diff := v1.y - v2.y;
+    xd_sq := x_diff * x_diff;
+    yd_sq := y_diff * Y_diff
+in  sqrt( xd_sq + yd_sq )
+end let
+</PRE>
+Here we have the two records, named <TT>v1</TT> and <TT>v2</TT>, with fields in each named <TT>x</TT> and <TT>y</TT>. The record notation allows us to name the fields, and refer to them by use of the record and field names separated by a period. A third alternative we could use would allow a combination of these two notations, as follows:
+<PRE>let x_diff := vectors[1].x - vectors[2].x;
+    y_diff := vectors[1].y - vectors[2].y;
+    xd_sq := x_diff * x_diff;
+    yd_sq := y_diff * Y_diff
+in  sqrt( xd_sq + yd_sq )
+end let
+</PRE>
+Here we have an array, named <TT>vectors</TT>, whose elements are records. We index the individual records as array elements, and their components as record fields. But both these examples assume aggregates that already exist. How does one go about creating them?<P>
+
+<BR><BR>
+<H4><A HREF="06.1.2.Record.types.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="06.1.4.Record.creation.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

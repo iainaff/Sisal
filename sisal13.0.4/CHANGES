@@ -1,0 +1,693 @@
+-- Change log
+This file lists changes made to the OSC compiler system.  PLEASE READ
+IT BEFORE YOU INSTALL OR RUN OSC.  Every version has numerous changes
+that can affect your performance.  If you experience problems, please
+contact sisal-bugs@sisal.llnl.gov right away.  If you have suggestions
+for improving the system, please contact us too.  Many of the changes
+in the latest versions were put there in response to user requests.
+You can make a difference.
+
+				  Thanks,
+
+				  Pat Miller
+				  Scott Denton
+
+				  CRG/OSC Development Crew
+				  Lawrence Livermore National Laboratory
+				  L-306
+				  Livermore, CA 94550
+
+				  patmiller@llnl.gov
+				  smd@llnl.gov
+
+				  (510) 423-0309
+
+As of July 1994, OSC 13.0, in order to distinguish stable versions,
+the following scheme has been implemented: Versions 1.x.y, where x is 
+an even number, are stable versions with only bug fixes applied as y is 
+incremented.  So from version 1.0.2 to 1.0.3, there are only bug fixes, 
+and no new features.  Versions 1.x.y, where x is an odd number, are 
+beta-quality releases for developers only; they are unstable and may 
+crash, since new features added to them all the time. 
+
+------------------------------------------------------------
+Post-OSC 13.0
+13.0.4 -- bugfix
+
+FILE declarations -- 25 Nov 2000
+	In Backend and in Runtime, declarations of the form
+	FILE *input = stdin; were found to be illegal by the
+	latest gcc on linux.  In all cases, replaced with
+	FILE *input = NULL; and with input = stdin; in the
+	appropriate routine.  (I hope!) -- D. J. Raymond
+
+
+------------------------------------------------------------
+OSC 13.0
+
+*** User's Overview:
+
+Installation directory
+  More conventional location for installation of files is used:
+  bin, include, lib, man
+
+LINUX Version
+  Dave Raymond's (raymond@kestrel.nmt.edu) LINUX fixes merged with
+  mainline release. 
+
+Apple MachTen, Sun Solaris, and Cray T3D Single Processor Version
+  These additional ports were added.
+
+CPP choice error
+  The default for CPP was n, but hitting return turned it on anyway.
+
+*** Developer's Note:
+
+exp(6,2) bug
+  This was implemented using pow from the math lib with results
+  being truncated rather than rounded.
+
+spprun
+  This is now a Bourne shell script rather than a C-shell script.
+  Note that the expected arguments are now a little different.
+
+config.h
+  Many system specfic header differences are collected into one file.
+
+sinstall
+  Working our way to pulling in more of the machine specific user
+  selectable options (compile options, etc.) out of C source into
+  this installation.  Beginnings of cross compile for Cray T3D.
+
+Array of Basic Records Temporary Assignment Error
+  An optimization eliminating a structure build for access of array of
+  single use simple records was incorrectly implemented.  Generated code 
+  is now reorded to reuse a register temporary only after it was available.
+
+Parser command line length
+  The current parser is temporarily patched to accept longer command
+  lines from the "osc" controller.  This parser will be replaced with
+  the Sisal 90 parser as soon as available.
+
+------------------------------------------------------------
+OSC 12.9.2
+
+*** User's Overview:
+
+Recursive Union I/O Bug
+  If you used recursive unions, OSC 12.9 had a problem creating the I/O
+  routines associated with their input and output.  It got stuck in a
+  infinite recursive loop.  This resulted in large (multi-megabyte) source
+  files being created.  This is fixed.
+
+Noclobber problem
+  If noclobber was set in the CSH, one of the scripts would leave root.i
+  files laying about which prevented you from rerunning the compiler.  This
+  has been corrected.
+
+String Formated FIBRE for array[character]:
+  The default is now to output array[character] items whose lower
+  bound is 1 in string (quoted) format.  To override, use the
+  -nostrings option
+
+-nostrings option:
+  See above.
+
+Core dump for -help option:
+  Would happen for both osc and s.out.  This is fixed.
+
+Temp files:
+  Many temp files were left about when the compiler shut down
+  prematurely (either from an error in compilation or because
+  of a user interrupt).  These files are now properly scavanaged.
+
+-SliceThrottle:
+  The old default was to apply the Minimum Slice thickness runtime
+  throttle to sequentially execute thin loops that had been marked
+  for concurrent execution.  This behavior is no longer the default.
+  To get the 12.9.1 behavior, use -SliceThrottle.
+
+Cray Compiler Version:
+  Because Cray changed the options used to control the Standard C
+  compiler, sinstall now need to know what version of scc is running.
+  use scc -V to find this information out. (930804)
+
+*** Developer's Note:
+
+ErrorLiterals:
+  Error literals were causing the FixConstantImports function to
+  bomb.  This has been fixed.
+
+Call-order sorting:
+  The optimizer now reorders functions to reflect call order.  This was
+  necessary to fix the loader-order-sensitive problem experienced by
+  the New Mexico folks.
+
+Co-recursive routines/Inlining:
+  There was a minor bug that prevented co-recursive routines from compiling
+  properly.  If inlining is turned on, the co-recursive routines were
+  converted to self-recursive and there was no problem.  When inlining is
+  turned off for whatever reason, some names were not being defined in
+  the proper order.
+  
+Division by Constant:
+  Now, real and double precision divisions by a constant are converted
+  into multiplications by the inverse.  This is almost twice as fast
+  on RISC machines like the SGI.
+
+MAKE flag in makefile
+  Wasn't set in at least one make program (vax).  sinstall now has
+  a test to see if its correctly set and applies a fix if not.
+
+Exp for version number.
+  I've been having problems generating the printed version number from the
+  CVS version number.  I've gone to explicit version numbers in osc.c
+  and p-srt0.c
+
+.o trash files on CRAYS:
+  All trash is now properly removed.
+
+"bad argument" error on Vaxen:
+  Frontend/file2.c would not compile on a Vax under the default compiler.
+  This has been fixed.
+
+NULL cases in switch statements
+  Some uncast NULL's were used in switch statements.  This blew out the
+  IBM compiler for RS6k's
+
+------------------------------------------------------------
+OSC 12.9.1 -- Bug fixes for 12.9
+
+*** User's Overview:
+
+-iformat, -fformat, -dformat, -nformat, -cformat, -cformat2, -bformat options:
+
+  You may now control the format used to output scalar values.  For instance,
+  to pack integer values evenly spaced on a line, use
+	% s.out -iformat '%8d '
+  See the man page for more information.
+
+-timeall option:
+
+  You can now get times for all functions without having to specify
+  them separately.
+
+-usage option:
+
+  You may now specify a search list after the -usage option, e.g.
+	% osc -usage agg
+  which will return any descriptions of options which contain the
+  (case insensitve) substring ``agg''.
+
+
+GCC on the SPARC:
+
+  A byte alignment problem for doubles was causing problems with this
+  port.  It has now been fixed (I hope).
+
+Warning Suppression:
+
+  You may use the -w switch on the compile line to suppress warning
+  messages about copying and the like.
+
+Fibre Error Reporting:
+
+  Fibre errors now cause s.out to report the offending character and
+  line number.
+
+TMPDIR:
+
+  You may now choose to define a temporary directory to hold OSC's
+  intermediate files.  Good choices are . (dot), /tmp, or /usr/tmp.
+  If you choose a directory, the intermediates are created with names
+  like /tmp/tmp21376_7.part, otherwise the are named like foo.part.
+  If you have the environment var TMPDIR set, it will be used even
+  if you don't select this option during setup (can be overriden
+  at setup).
+
+-tmpdir option:
+
+  Can override the default or environment setting for the temporary
+  directory.
+
+Error Checking Default:
+
+  Bounds checking is turned on by default (it used to be off).  When
+  -O is selected, bounds checking is turned off as before.
+
+HP Targets:
+
+  Now available in the sinstall script.
+
+*** Developer's Note:
+
+Make check:
+
+  A check target has been added to the Top level makefile created
+  by sinstall.  After running the install, the command
+	% make check
+  will compile a few programs to make sure things appear to be working
+  OK.
+
+Alignment problem on the SPARC:
+
+  The default alignment used to be sizeof(long).  On the SPARC, this
+  worked out to be on 4 byte boundaries.  This caused bus errors when
+  doubles were accessed on non-8 byte boundaries.
+
+Name clash for non-inlined functions:
+
+  When a function wasn't inlined, it would create C code to instantiate
+  and call it.  For example, the Sisal function reduce would appear as
+  _REDUCE in the C code.  Unfortunately, there could be macros defined
+  outside the Sisal runtime (but in header files referenced by it) using
+  the same names!  Now, the compiler generates code to #undef the macro
+  name before it is used.
+
+Filename problem with temporary directory:
+
+  If the programmer specified a temp directory, or if the TMPDIR
+  environment variable were set, then errors would be reported as
+  occurring in the temporary names rather than the original names.  This
+  has been fixed.
+
+Bounds checking/if2up: function not found error
+
+  Occasionly, a function call would be left dangling when -bounds was
+  selected.  That is, the call would be there, but the function body was
+  not.  This often would happen with multiple calls to simple functions
+  of constant arguments.
+
+Library filename shortening:
+
+  Several object file archivers were having problems with the long
+  filenames in Backend/Library.  Now, all filenames are 15 characters or
+  fewer (although the routine names can still be longer, the first 13
+  characters of each routine are unique).
+
+sinstall:
+
+  You may now choose different optimization levels for the runtime and
+  installed code.  You also get a list of your answers suitable for
+  re-running sinstall:
+  % sinstall
+  * This script will ask some questions about your system and build a
+  ...
+  ********* List of your answers... (also in sinstall.res)
+  ...
+  * Makefile has been built.
+  * Please check it over to ensure it is as you wish.
+  * When you are satisfied, enter "make all" to build and install osc.
+  % sinstall sinstall.res # to do it again
+
+Start/Stop FunctionTimer Macros:
+
+  When you specify -time <func-name> on the osc command line, you
+  instruct the Backend to insert timer macros into code generated for
+  that function.  You can now OVERRIDE that definition to insert your
+  own timing routines with
+
+  % osc -time F foo.sis -cc=-DStartFunctionTimer=MyStart \
+    -cc=-DStopFunctionTimer=MyStop
+
+  The macros should take a single constant character string as input.
+  Doing this is of course, dangerous, but it can be useful.  Please
+  enclose the code in MyStop within a critical section for safety
+  during parallel executions
+
+GCC Support:
+
+  Fixed some problems with GCC port.  You may now select a different
+  compiler for the Frontend.  This helps on some systems where GCC
+  creates a Frontend that core dumps (use cc).
+
+
+HPUX:
+
+  Added patches to support HPUX on HP workstations.
+  
+LINUX:
+
+  Added patches to better support LINUX systems.
+
+NeXT support:
+
+  Added an #ifdef to support NeXT on the generic installation.
+
+Removing Extra Dependency Edges:
+
+  OSC would sometimes create several dependency edges between two nodes.
+  While this didn't really hurt the OSC implementation, it did hurt
+  other developers who targeted fine grained architectures.  It also
+  made some of the intermediate files larger.
+
+LoopSlice Name clash:
+
+  Some loops would not be renamed when split or modified by IF1OPT.
+  Now (I hope) all loops have unique ID's.
+
+------------------------------------------------------------
+OSC 12.9 -- Major restructuring (2 April 1993)
+
+User's Overview:
+
+  OSC's model has been changed somewhat.  THIS IS VERY IMPORTANT
+  IF YOU ARE TRYING TO RECREATE TIMING RESULTS.  OSC now will
+  not optimize the object code unless asked for.  You must
+  specify % osc -O foo.sis to get full optimizations.  This
+  speeds the development cycle, but users must be aware that
+  they are now responsible for using the -O flag.  Additionally,
+  the loop parallelism model has been changed.  Before, all
+  concurrent loops were blocked into even partitions (or gss
+  partitions).  Now, you may select a strided loop model instead
+  (see -strided).  More new loop models are being developed.
+  The upshot of this is that you can choose the model at EITHER
+  compile time OR runtime.  The default is runtime choice.  This
+  means the compiler emits generic loop code which is slightly
+  less efficient than the code emitted by OSC 12.8, but is more
+  flexible.  You can choose the loopstyle at compile time to
+  recover this efficiency.  See the manpage.  Additionally, the
+  way blocks are partitioned by the runtime has been minorly
+  modified.  This is only a problem if your loops load balancing
+  is very sensitive to scheduling.  If the work does not evenly
+  divide into the number of processors, then the extra ones go
+  to the first partitions rather than the last.  For example, if
+  you were partioning a loop that runs from 1 to 10 on 3
+  processors, OSC 12.9 will schedule that as 1-4, 5-7, 8-10.
+  OSC 12.8 scheduled it as 1-3, 4-6, 7-10.  Now there is a new
+  concept attached to loops: The idea of a MinSlice throttle.
+  The partitioner computes what it thinks is the thinest a
+  concurrent loop should be to parallelize, and if (at runtime)
+  the loop is too thin, it will be run in serial.  To turn this
+  off, use the -NoSliceThrottle option in osc.  Also, s.out and
+  osc now have a -usage option which will give short overviews
+  of all options (including secret options not in the man
+  pages).  Additionally, the -info option has been extended to
+  allow selection of various pieces of info rather than the
+  massive dump that normally comes out.  One of the nice things
+  this does is to let you see WHY LOOPS DON'T PARALLELIZE AND
+  VECTORIZE. See the man page.  S.out now allows you to choose
+  an info file name other than s.info (to avoid those annoying
+  catenation problems).  S.out also allows command line
+  arguments.  so % s.out -X 1 2 3 is the same as
+  % echo "1 2 3" | s.out.  There is also a new speedups profiler
+  called xspeedups that will graph speedup information using xgraph.
+  Finally, you can now use FIBRE stream format for stream inputs
+  (you used to have to specify streams in array format because
+  all streams were internally converted to strict arrays).
+
+  You may also now set some default options by using UNIX environment
+  variables.  For instance, setting and calling (/bin/csh)
+    % setenv OSC_OPTIONS "-O -cpp -o a.out"
+    % osc foo.sis
+    % osc goo.sis
+  is the same as calling
+    % osc -O -cpp -o a.out foo.sis
+    % osc -O -cpp -o a.out goo.sis
+  The environment is always read and parsed first.  This way, you
+  can set personal preferences by in a .login or .cshrc file.
+
+Developer's Note:
+
+  OSC's has undergone a tremendous restructuring.  The many
+  redundant parts of the backend have been merged into a
+  single cohesive library (Backend/Library).  Now, instead
+  of six IF1.h and IF2.h files, there is a single IFX.h
+  file. The way pragmas are used has been unified and
+  simplified (see ReadPragmas.c in the library).  The ways
+  options are specified to osc (Tools) and s.out (Runtime)
+  has been automated.  If you wish to change options, you
+  can either hack the machine generated source (not
+  recommended) or you can get the generator source
+  (PARSEOPTS).
+
+Changes...
+
+Compiler Banner
+
+  OSC now displays a banner showing the version number during
+  compilation much like s.out displays the version number during
+  runtime.  The installer also allows you to set a banner prefix (see
+  the version prefix question in the sinstall script).  Locally, we use
+  the version prefix to denote our Production, Experimental, and
+  Volatile versions of OSC so that users know what version they are
+  compiling with.
+
+Better Optimization for SGI:
+
+  The SGI default now uses -O3 and -Olimit 999999 to get better
+  optimization the compiled code and -O2 to get better in the runtime.
+  Note: this extra optimization means it takes longer to compile than
+  with the old optimiztion.  So, to get OSC compiles to go faster, the
+  -O is no longer the default (for backend files produced from sisal
+  files by osc). See -O in the osc man page.
+
+Support for GCC:
+
+  Made some minor internal mods that now allow you to select the
+  GNU gcc compiler.  On some platforms (particularly the Sun3),
+  this will give you much better performance.  Please note that
+  there may still be problems.  For instance, an incompatibility
+  causes a GCC generated frontend to core dump on our SGI box.
+  I'll look into a total fix for 13.0.
+
+Minimal installation:
+
+  There is now a script that will install OSC in much less
+  disk space.  You can get by with as little as 5 meg of
+  empty disk.  The persistent installation is only 2.6 meg
+  without source.  The script is called OSC_small_installer.
+  You should pick it up when you get the tarfile.
+
+Xspeedups tool
+
+  A new tool to help plot multi-cpu runtimes and compute speedup curves
+  is now available.  Its output can be piped to xgraph.
+    % xspeedups 1 4 s.out -z infile | xgraph
+
+Loop Map Format Change
+
+  There have been substantial changes in the loop map report.  Some things
+  have been simplified and more information is reported.
+    FUNCTION main [cost=6.36439e+17] [apl=1] [pbsy=1]
+       4:1  CONCURRENT Forall [sam,51][cost=14000/500]              calc_grid
+       2:1  SEQUENTIAL Forall [sam,587][cost=6000]                  main
+       3:1  CONCURRENT Forall [sam,587][cost=5.0e+13/1]             main
+       7:2    CONCURRENT Forall [sam,578][cost=5.0e+10/1]           main
+      12:3      SEQUENTIAL Forall [sam,73][cost=56000]              init_bound
+       8:3      SEQUENTIAL Forall [sam,158][cost=5.0e+07]           Poisson
+      25:   For initial [sam,505][cost=6.4e+17]                     main
+      26:1  ^ CONCURRENT Forall [sam,591][cost=6.4e+14/1]           main
+      27:2  |   CONCURRENT Forall [sam,592][cost=6.4e+11/1]         main
+      ^  ^  |        ^              ^   ^        ^       ^           ^
+      |  |  |        |              |   |        |       |           |
+      1  2  3        4              5   6        7       8           9
+
+   1) This is the unique identifier for the loop.  These numbers are
+      asssigned after the function inlining is done (see first map
+      if -info is selected).  The loop holds this identifier through
+      all phases.  If you use the -info= -cvinfo= options, you can
+      get loop fusion information in terms of these identifiers AND
+      reasons for vectorization and parallelization failure (try
+      -info=1,4 -cvinfo=1,4).
+
+   2) This is the ``nested parallelism depth''.  It corresponds to
+      the -n# option.  It is only reported for ``Forall'' loops.
+
+   3) ``For initial'' loops are always sequential.  The only modifier
+      that may appear is TASK to indicate a stream producer.
+      However, non-strict streams will not be turned on until v13.0.
+
+   4) Before the partitioning step, this field will always be marked
+      SEQUENTIAL or THIN-COPY (conditional expression moved out of a
+      loop with one or zero iterations). After that step, this field
+      marks how the loop is to be executed (THIN-COPY, CONCURRENT,
+      VECTOR, or SEQUENTIAL).
+
+   5) File name (here sam.sis)
+
+   6) Approximate line number.  For loops, this is often the line
+      AFTER the actual for statement.
+
+   7) Static estimate of loop cost.  Costs under a million are
+      printed as integers, and over using exponential notation.
+
+   8) Minimum slice estimate.  This is the static estimate of how
+      many iterations thick a loop must be before slicing is
+      worthwhile.  This is used as a RUNTIME throttle (see
+      -NoMinSliceThrottle in osc man page).  Suppose the MSE were 3.
+      The runtime system will insure that all slices are AT LEAST 3
+      iterations thick.  This implies that there needs to be at
+      least 6 bodies before any slicing is done (if there are
+      only five, one slice would have to have less than 3).
+
+   9) Originating function for the loop.
+
+Stream input:
+
+  Input values that are defined to be streams can now be input in FIBRE
+  stream format.  Before, one had to input them as arrays (there was an
+  internal conversion).  This caused a lot of confusion especially among
+  novice users.
+
+Lint Support:
+
+  There are now lint targets in all subdirectory Makefiles.
+
+Duplicates removed:
+
+  There is now a unified library across all the backend
+  pieces.
+
+Info mask:
+
+  The compiler information output is now selected via a
+  mask (the -info option works as before, but gives a
+  dramatically reduced amount of information).
+
+Function Tracepointing:
+
+  There is now functionality to trace and breakpoint
+  functions.  The information can be dumped periodically or
+  at a particular call and it can be dumped in Fibre or a
+  TWINE debugger restart file.
+
+Line number 9999999/THINCOPY:
+
+  The compiler now flags some loops with conditionals as
+  type THINCOPY.  This replaces the nebulous source line
+  9999999.  These loops are actually conditional bodies
+  that are lifted from larger loops and will execute either
+  once or never.
+
+Compile time patch:
+
+  Sometimes the developers must put special purpose patches
+  in the compiler to allow certain users to run.  This
+  occurs when a bug fix will drastically impact other
+  users, but is needed in its dangerous version.  Right
+  now, there is only one compile time patch installed to
+  fix a nasty recursive function reference counting error.
+  If this bug occurs, try -patch=1 on the osc command line.
+  (Dave Raymond, this means you).
+
+Loop reporting:
+
+  All compound operations (loops and conditionals) are
+  given a unique identifier right after function inlining.
+  This ID number stays with the operation all the way
+  through OSC's backend steps.  This will allow you to
+  trace optimizations like loop fusion and spawning better.
+  The ID is reported when you use the -info or -info=1 flag
+  in OSC.
+
+Renamed file:
+
+  The sisal.h file in the runtime directory was changed
+  to sisalrt.h
+
+C comments in source code:
+
+  Sisal source lines can be inserted as C comments in the
+  code generated by the backend.  See the -% option.
+
+ArrayPrefixSize(A):
+
+  Before, this was generating code that core dumped.  It
+  now properly works the same as ArraySize(A) (since OSC
+  doesn't support error values, the two have equivalent
+  definitions).
+
+LoopStyle:
+
+  Parallel loops can now be compiled as one of four styles:
+  Blocked, Guided-Self-Scheduled, Strided, and
+  Runtime-decision.  The later allows any of the former to
+  be chosen at runtime (with an s.out option).
+
+Loop Report Feedback file and Dollar Formulas:
+
+  These are experimental options that will be expanded upon
+  in later releases.
+
+Makefile targets:
+
+  All subdirectory Makefiles support targets: local
+  optional and all.  Making local will now just create
+  the minimal executables required for installation.
+  To select other targets in the subdirectories, use
+  % make LOCALTARGET=optional
+
+Minimal Installation:
+
+  If you're tight on space, you can now use a % make MINIMAL=1 local.
+  This actually deletes the source code as the
+  compilation proceeds.  THIS IS DANGEROUS IF YOU DON'T
+  KEEP THE SOURCE AROUND.  This change supports the new
+  minimal installation script found in the anonymous FTP
+  directory which safely does the install while
+  maintaining the release.
+
+Timestamp:
+
+  All intermediate IF1 and IF2 files now carry timestamps.
+
+-usage/-help:
+
+  These options give short, one line descriptions of each
+  option in both s.out and osc.
+
+-O option:
+
+  The default is now not to try to improve the .c code
+  generated by the backend.  To get that, use the -O option.
+
+-oo option:
+
+  OSC now prevents the overwrite of source files with the
+  absolute executable.  If the executable has a ``sisal''
+  extension (like .sis, .if1, .c, etc...) it may not be
+  named with the -o option.  The -oo option does allow
+  those files to be targeted.
+
+Override s.info file in s.out:
+
+  To use a different info file, specify
+  % s.out infile outfile infofile
+
+Command line inputs:
+
+  You may specify simple arguments on the s.out command line by
+  using the -X option.  It must be the last option on the line.
+  If sufficient arguments aren't specified, then more will be
+  read from stdin.
+
+------------------------------------------------------------
+OSC 12.8 -- Minor touch ups
+
+Moved the OSC manual out of the release.  It is now available
+separately via anonymous FTP.
+
+Aggressive Vectorization:
+  Added an -aggvector option to the compiler.  OSC would
+  not fuse vector loops on the Crays.  This was done in the
+  belief that they would be split out to individual vector
+  units anyway.  However, this prevents concurrent vector
+  loops from being formed.  This option allows it.  See the
+  Man page.
+
+Bug 921002:
+  Added a bug fix to keep the runtime from over scavenging space
+  in recursive function calls (Dave Raymond)
+
+Bug 921004:
+  Had problem on the Cray's when computing MAXINT for use in
+  integer min/max reductions.
+
+Bug 921005:
+  There was an error in the EXP folding optimization.  The EXP
+  call was changed to a chain of multiplies, but one of the
+  temporaries was being misassigned.
+
+------------------------------------------------------------
+OSC 12.7 -- Base line version

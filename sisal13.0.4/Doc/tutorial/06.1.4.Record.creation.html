@@ -1,0 +1,49 @@
+<H4>6.1.4 Record Creation</H4>
+To illustrate record creation, we will use the example declarations we used earlier:
+<PRE>type element_record = record [ name : array [ character ];
+                               number : integer;
+                               weight : real ]
+type atomic_table = array [ element_record ];
+</PRE>
+When creating items of record types, we specify the matched pairs of field names and contents, in the order given in the type definition. Here are examples:
+<PRE>let hydrogen := record element_record [ name: "Hydrogen"; number: 1;
+                                            weight: 1.0 ];
+    helium   := record element_record [ name: "Helium"; number: 2; 
+                                        weight: 4.0 ];
+    element_115 := record element_record [ name: ""; number: 115;
+                                           weight: -999.999];
+    column1 := array atomic_table [ 1: hydrogen, helium, element_115 ]
+
+in hydrogen, helium, element_115, column1
+end let</PRE>
+
+Here we see three records being created, each of which has its type, <TT>element_record</TT>,  specified along with it. This is sometimes optional, but it's a good practice to adopt, nonetheless, as it helps clarify the code to human readers. The first two records, <TT>hydrogen</TT> and <TT>helium</TT> have their field names and values specified in the order given in the original declaration, and with reasonable values. The field names must be paired with the field values, with a colon separating each name and value, and a semicolon separating the pairs, as in the definition of the type. In the third record, <TT>element_115</TT>, we see and empty string used for the name and a negative value for the weight, used as flag values. This is still a legal record, since all the fields are specified in order and with correct types.<P>
+
+The fourth item created and returned above is an array named <TT>column1</TT> of type <TT>atomic_table</TT>. We will see more about creating arrays in the next section.<P>
+
+<BR><BR>
+<H4><A HREF="06.1.3.Agg.examples.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="06.1.5.Array.creation.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

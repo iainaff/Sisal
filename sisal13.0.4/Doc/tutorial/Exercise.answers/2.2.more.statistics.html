@@ -1,0 +1,59 @@
+<H4>Exercise 2.2:  More Statistics</H4>
+<PRE>Given: four three-element arrays, a, b, c, and d, all containing real numbers;
+       the formulas for the mean and standard deviation
+            mean = (a+b+c+d)/4;
+            standard deviation = (((a-mean)**2 + (b-mean)**2 +
+                                   (c-mean)**2 + (d-mean)**2) / 3)**0.5</PRE>
+Compose: a let-in statement that returns an array of records, each containing the mean and standard deviation of one of the given sets of numbers.<BR>
+<PRE>let mean_a := (a[1] + a[2] + a[3])/3.0;
+    mean_b := (b[1] + b[2] + b[3])/3.0;
+    mean_c := (c[1] + c[2] + c[3])/3.0;
+    mean_d := (d[1] + d[2] + d[3])/3.0;
+
+    a_diff_sq_sum := (a[1] - mean_a) * (a[1] - mean_a) +
+                     (a[2] - mean_a) * (a[2] - mean_a) +
+                     (a[3] - mean_a) * (a[3] - mean_a);
+    b_diff_sq_sum := (b[1] - mean_b) * (b[1] - mean_b) +
+                     (b[2] - mean_b) * (b[2] - mean_b) +
+                     (b[3] - mean_b) * (b[3] - mean_b);
+    c_diff_sq_sum := (c[1] - mean_c) * (c[1] - mean_c) +
+                     (c[2] - mean_c) * (c[2] - mean_c) +
+                     (c[3] - mean_c) * (c[3] - mean_c);
+    d_diff_sq_sum := (d[1] - mean_d) * (d[1] - mean_d) +
+                     (d[2] - mean_d) * (d[2] - mean_d) +
+                     (d[3] - mean_d) * (d[3] - mean_d);
+
+    sigma_a := sqrt( a_diff_sq_sum / 2.0 );
+    sigma_b := sqrt( b_diff_sq_sum / 2.0 );
+    sigma_c := sqrt( c_diff_sq_sum / 2.0 );
+    sigma_d := sqrt( d_diff_sq_sum / 2.0 );
+
+    a_record := [ mean: mean_a; st_dev: sigma_a ];
+    b_record := [ mean: mean_b; st_dev: sigma_b ];
+    c_record := [ mean: mean_c; st_dev: sigma_c ];
+    d_record := [ mean: mean_d; st_dev: sigma_d ];
+
+in  array [ 1: a_record, b_record, c_record, d_record ]
+end let</PRE>
+
+<BR><BR>
+<A HREF="../Exercises/07.Exercises.2.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

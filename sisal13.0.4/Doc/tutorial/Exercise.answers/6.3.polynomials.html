@@ -1,0 +1,58 @@
+<H4>Exercise 6.3: Polynomial  Evaluation Program</H4>
+Given:  a two-dimensional array, <TT>C</TT>, of real valued polynomial coefficients, each row of which contains the coefficients of a single polynomial;<BR>
+Given: for each row of <TT>C</TT>, the index of each coefficient's position is the exponent of x for that term;<BR>
+Given: a one-dimensional array <TT>X</TT> of real valued polynomial unknowns, with each element corresponding to the unknown for the whole set of polynomials;<BR>
+Compose: a function of <TT>C</TT> and <TT>X</TT> that evaluates each polynomial with each unknown, and returns the two-dimensional array containing in each row the value of each polynomial for one of the unknowns.<BR>
+
+<PRE>define multi_poly
+%$entry = multi_poly
+
+type Poly_Coeffs = array [ real ];        % Coefficients of one polynomial     
+type Many_Polys = array [  Poly_Coeffs ]; % Coefficients of many polynomials
+type Unknowns = array [ real ];           % Values for X, the polynomial unknown
+type Values = array [ real ];             % Values of all polys for one unknown
+type Many_Values = array [ Values ];      % Values of all polys for all unknowns
+
+function eval_poly( coeffs : Poly_Coeffs; x_val := real returns Values )
+   for c in coeffs at i
+      term := c * exp(x_val, real(i))
+   returns value of sum term
+   end for
+
+end function % eval_poly
+
+function multi_poly( C : Many_Polys; X : Unknowns returns Many_Values )
+
+   for x_val in X
+      row_of_poly_vals := 
+         for coeffs in C
+            poly_value := eval_poly(coeffs, x_val)
+         returns array of poly_value
+         end for                     % one row of result array - all polys for one x
+   returns array of row_of_poly_vals
+   end for
+
+end function % multi_poly
+</PRE>
+
+<BR><BR>
+<A HREF="../Exercises/15.Exercises.6.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

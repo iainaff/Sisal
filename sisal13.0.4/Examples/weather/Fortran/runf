@@ -1,0 +1,20 @@
+#!/bin/csh
+echo sfx weather.f
+
+echo "weather.f -AS -Ocgi"
+make -f Makefilegic
+echo "-c1"
+execute -c1 a.out 
+/bin/rm alf
+echo "-c5"
+execute -c5 a.out 
+/bin/rm -f *.o alf
+
+echo "weather.f -AS -Ovcgi"
+make -f Makefilegicv
+echo "-c1"
+execute -c1 a.out 
+/bin/rm alf
+echo "-c5"
+execute -c5 a.out 
+/bin/rm -f *.o alf

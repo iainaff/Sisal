@@ -1,0 +1,18 @@
+c
+c   parameter statements
+c
+c      parameter (ires=6,ix=18,iy=22)
+c      parameter (ires=12,ix=34,iy=40)
+c      parameter (ires=15,ix=48,iy=40)
+c      parameter (ires=18,ix=58,iy=48)
+c      parameter (ires=24,ix=76,iy=64)
+      parameter (ires=30,ix=96,iy=80)
+c
+c     parameter (ires=31,ix=96,iy=80)
+c     parameter (ires=10,ix=32,iy=28)
+c     parameter (ires=2,ix=8,iy=6)
+
+      parameter (ixh=ix/2,iyh=iy/2)
+      parameter (jxx=ires+2,jx=ires+1,mx=ires+1)
+      parameter (jxxmx=jxx*mx,jxmx=jx*mx,mxmx=mx*mx,mx2=mx*2)
+      parameter (jxmx2=jxmx*2,jxxmx2=jxxmx*2)

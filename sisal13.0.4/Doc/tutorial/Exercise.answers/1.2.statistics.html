@@ -1,0 +1,49 @@
+<H4>Exercise 1.2:  Statistics</H4>
+<PRE>Given: four values, <TT>a</TT>, <TT>b</TT>, <TT>c</TT>, and <TT>d</TT>, all real numbers;
+       the formulas for the mean and standard deviation
+            mean = (a+b+c+d)/4;
+            standard deviation = (((a-mean)**2 + (b-mean)**2 +
+                                   (c-mean)**2 + (d-mean)**2) / 3)**0.5</PRE>
+Compose: a let-in statement that returns the mean and standard deviation of the given set of numbers.<BR>
+<PRE>let mean := (a + b + c + d) / 4.0;
+    a_diff := a - mean;
+    b_diff := b - mean;
+    c_diff := c - mean;
+    d_diff := d - mean;
+
+    a_diff_sq := a_diff * a_diff;
+    b_diff_sq := b_diff * b_diff;
+    c_diff_sq := c_diff * c_diff;
+    d_diff_sq := d_diff * d_diff;
+
+    diff_sq_sum := a_diff_sq + b_diff_sq +
+                   c_diff_sq + d_diff_sq;
+
+    sigma := sqrt( diff_sq_sum / 3.0 )
+
+in  mean, sigma
+
+end let
+</PRE>
+
+<BR><BR>
+<A HREF="../Exercises/05.Exercises.1.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

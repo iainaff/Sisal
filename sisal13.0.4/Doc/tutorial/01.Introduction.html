@@ -1,0 +1,69 @@
+<H2>1. Introduction - What is Sisal?</H2>
+Sisal is a functional parallel programming language. It combines modern language features with readable syntax and mathematically sound semantic foundations to provide the easiest vehicle for parallel programming. Its optimizing compiler and runtime support system software provide portability, high performance, and determinate execution behavior. It is available on all Unix-based uniprocessor and shared memory multiprocessor systems, and developmental versions exist for several distributed memory systems, as well.</FONT>
+
+<H3>Why do we think you should be interested in Sisal?</H3>
+Anyone who's written a computer program knows the extent to which attention to detail is required in order to succeed at it. Much of this detail is due to factors that are not present in the problem being solved, arising from what computer scientists would call the "model of computation" that underlies the programming language being used. Unfortunately, the standard computational model on which most languages are based is not an easy one to deal with. The primal operations are quite simple, and their order is a prime determinant of the outcome of a program. On the other hand, most scientific or technical programming is based on mathematics, which is quite powerful, and in a typical "statement" of mathematics, such as a derivation, the order of the expressions does not affect the truth of the ultimate equation. It seems reasonable, therefore, that a programming language based on mathematics could offer some leverage in the programming process - make the programmer's job simpler and the expression of the ideas in the program more straightforward. That is exactly what this text deals with - a programming language that is closer to mathematics than most, called Sisal. Sisal is a simple language. Mathematicians tend to like it. However, if you have any experience programming in languages like Fortran, Cobol, C, or Pascal, there is a change of mind-set necessary in learning to use it. The effort is not great, and we think the results  are well worth it. 
+
+<H3>Call Our Bluff!</H3>
+Read the following code and decide what you think it does. Then click on the button underneath it to see if you're correct.<P>
+<PRE>define main
+
+type OneDim = array [ real ];
+type TwoDim = array [ OneDim ];
+
+function generate( n : integer
+                   returns TwoDim, TwoDim )
+
+   for i in 1, n cross j in 1, n
+   returns array of real(i)/real(j)
+           array of real(i)*real(j)
+   end for
+end function % generate
+
+function doit( n : integer; A, B : TwoDim
+               returns TwoDim )
+
+   for i in 1, n cross
+       j in 1, n
+      c := for k in 1, n
+              t := A[i,k] * B[k,j]
+            returns value of sum t
+            end for
+   returns array of c
+   end for
+end function % doit
+
+function main(  n : integer returns TwoDim )
+
+let A, B := generate( n )
+in  doit( n, A, B )
+end let
+
+end function % main</PRE>
+
+<H4><A HREF="Exercise.answers/0.1.bluff.answer.html">Click here for the answer</A></H4>
+<BR><BR>
+<H4><A HREF="02.Par.other.virtues.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR>
+<BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

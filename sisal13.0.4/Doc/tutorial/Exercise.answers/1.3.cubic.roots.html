@@ -1,0 +1,43 @@
+<H4>Exercise 1.3:  Cubic Roots</H4>
+<PRE>Given: two real values, <TT>a</TT>, and  <TT>b</TT>, coefficients of the cubic
+            equation x**3 + ax + b = 0;<BR>
+       the formulas for the roots x = C + D,
+                                      -(C + D)/2 + 3**0.5*(C - D)/2, and
+                                      -(C + D)/2 - 3**0.5*(C - D)/2,
+            where C = (-b/2 + ((b**2)/4 + (a**3)/27)**0.5)**(1/3), and
+                  D = (-b/2 + ((b**2)/4 - (a**3)/27)**0.5)**(1/3);</PRE>
+Compose: a let-in statement that returns the roots of the cubic equation.<BR>
+<PRE>x1, x2, x3 :=
+let term1   := -b / 2.0;
+    term2   := b * b / 4.0;
+    term3   := a * a * a / 27.0;
+    radical := sqrt(term2 + term3);
+    C       := exp(term1 + radical, 1.0/3.0);
+    D       := exp(term1 - radical, 1.0/3.0);
+in  C + D,
+    -(C + D)/2.0 + sqrt(3.0) * (C - D)/2.0,
+    -(C + D)/2.0 - sqrt(3.0) * (C - D)/2.0
+end let 
+</PRE>
+
+<BR><BR>
+<A HREF="../Exercises/05.Exercises.1.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

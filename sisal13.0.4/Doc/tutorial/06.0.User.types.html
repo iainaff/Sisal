@@ -1,0 +1,54 @@
+<H2>6. User-Defined Types and Dynamic Values</H2>
+Another area where we offer convenience to the programmer is in specifying  data types. Sisal comes with the standard complement of built-in data types, as described above, but these can be used to build further types. Arrays and records are the two most important sorts of user-defined date types. But before we describe this, a bit more Sisal philosophy is necessary to set the stage for it.<P>
+
+In conventional programming languages, programmers use "variables" as names in their programs. These names are, strictly speaking, equivalent to storage locations. When a variable name is used, it implicitly means that the value stored in that location is wanted. This is why statements such as "<TT>I = I + 1</TT>" make sense in languages like as Fortran. It means that the contents of location "<TT>I</TT>" are being changed by an addition operation.<P>
+
+In Sisal, however, names refer to values, not locations. We really do not care about storage in Sisal, so the location of a value is unimportant to us; only the values themselves concern us in writing Sisal code.  A statement such as the increment operation above is incorrect in Sisal, both syntactically and semantically. The name  "<TT>I</TT>" must correspond to a value, and if a new or different value is desired, it must be given a new name. But this need not be as awkward in practice as it may seem to be in concept. It is consistent with mathematical convention. In Sisal programs, values and their associated names have transitory natures, existing only between the times of their creation and their final use by other program elements.<P>
+
+Here's the the let-in example we last dealt with:<P>
+<PRE>let one := sin(x)*sin(x) + cos(x)*cos(x);
+    two := sqrt(one+one+one+one)
+    three := one + two
+in  one, two, three, sqrt(two)
+end let</PRE>
+
+In it, the names "one", "two", and "three" are defined and used, and are then discarded. They are said to be undefined outside the scope of that statement. This dynamism, while familiar to mathematicians, is quite foreign to most programmers, and takes some getting used to. User-defined data types in Sisal reflect the dynamic nature of the language as well as names, but in a slightly different way.<P>
+
+<H3>6.1 Aggregate Data Types</H3>
+The most important of the Sisal data types are the aggregates, that is, array and record types. The use of aggregates in Sisal, as in other languages, give the programmer leverage in manipulating program data with minimal effort at naming. They allow giving  ensembles of data single names, and grouping similar data items in intuitive ways. They also allow easy identification of the potential for parallel execution, as we will see in the section on loops. First, though, we briefly describe the two sorts of aggregate data types.<P>
+
+<H4><A HREF="06.1.1.Array.types.html">6.1.1 Array Types</A></H4>
+
+<H4><A HREF="06.1.2.Record.types.html">6.1.2 Record Types</A></H4>
+
+<H4><A HREF="06.1.3.Agg.examples.html">6.1.3 A Few Examples of Array and Record Use</A></H4>
+
+<H4><A HREF="06.1.4.Record.creation.html">6.1.4 Record Creation</A></H4>
+
+<H4><A HREF="06.1.5.Array.creation.html">6.1.5 Array Creation</A></H4>
+<BR><BR><BR><BR>
+<H4><A HREF="Exercises/05.Exercises.1.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/07.Exercises.2.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+<BR><BR><BR>
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

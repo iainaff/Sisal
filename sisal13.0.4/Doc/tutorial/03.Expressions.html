@@ -1,0 +1,141 @@
+<H2>3. Sisal Syntax: Expressions</H2>
+All Sisal statements are expressions, in exactly the same way that "2+3" is one; it has a well-defined value that can be substituted for the original expression with no loss of meaning. Each statement of the Sisal language, in actual, correct use in a program, has a well-defined value. We say the statements "return" these values, as the result of their having executed; but the truth is, the program statements and the values they return, are exactly equivalent to each other. Exchanging one for the other has no effect on the results of the rest of the program.<P>
+
+This idea may not sound strange, but in fact it does not hold in all programming languages; some, such as Fortran and C, allow program expressions or statements to have "side effects" in addition to their explicit values. Sisal is a "functional" language, and its property of "referential transparency" prevents side effects and guarantees a specific and well-defined meaning for each statement.<P>
+
+The principle of referential transparency derives from mathematics. In mathematical derivations, there is often much substitution of equivalent expressions for each other, in the search for the most concise or useful rendering of a truth. Coding in Sisal is very much like doing math, in its reliance on functions and substitutable expressions, and there is usually a straightforward transformation from mathematical notation to Sisal code. This will become clearer as we explore the nature of the language.<P>
+
+<H3>3.1 Expressions</H3>
+All Sisal statements are expressions, and all expressions evaluate to well-defined values. An expressions is a combination of identifiers and operators that is equivalent to a value. Examples of Sisal expressions range from the obvious to the arcane. All of the following are correct Sisal expressions:<P>
+
+<CENTER><TT>1.3<BR>
+26<BR>
+"hello world"<BR>
+2 + 3 * 2<BR>
+1.5 * 3.14159 / 2.0</TT></CENTER><BR>
+
+These illustrate arithmetic operations on the usual sorts of numeric values, and they work just like intuition says they should. Operational precedence in Sisal is just what it is in other languages, which is to say that the value of the fourth expression above is eight, not ten. Mixing modes or operand types is not correct in Sisal. The following are not correct Sisal expressions:<P>
+
+<CENTER><TT>1.3 + 26<BR>
+5 * "good-bye"<BR>
+3.14159 / 2</TT></CENTER><BR>
+
+Two possible corrections for the first one above are<P>
+
+<CENTER><TT>1.3 + 26.0<BR>
+1.3 + real(26)</TT></CENTER><BR>
+
+and two for the third one above are<P>
+
+<CENTER><TT>3.14159 * 0.5<BR>
+3.14159 / 2.0</TT></CENTER><BR>
+
+There is no possible correct way to multiply a character string by an integer, so the second expression above is uncorrectable.<P>
+
+All Sisal statements are expressions; each returns one or more values, and each can be used within any other Sisal expression. For instance, the following will look familiar:<P>
+
+<CENTER><TT>Fibonacci(2 + 3) + Factorial(4 * 5)</TT></CENTER><BR>
+
+These are, of course, merely calls to (presumably) user-defined functions, with expressions for arguments; one also presumes they each return a single numeric values and can thus be added. Such function and expression nesting can be carried on to any depth, and the result of evaluating an expression or function call can be substituted at the site of invocation without changing the resulting value. This is the principle of "referential transparency", the mathematical foundation we have alluded to. This principle is all-important, and we will refer to it often. Sisal expressions are quite flexible. For example, the following is also a legal Sisal expression:<P>
+
+<CENTER><TT>1 + (if X > Y then 2 else 3 end if)</TT></CENTER><BR>
+
+Here, we have put parentheses in to simplify reading the statement, but they are not required. The if-statement compares the magnitudes of X and Y to determine which of two values to return. The value of the if-statement is then added to 1 to produce the value of the overall expression. The value of this entire expression cannot be determined without the values of <TT>X</TT> and <TT>Y</TT>, but it will have a definite value if they are defined.<P>
+
+All this said, it remains to describe the elements that can make up Sisal expressions and then go on to the statements available to the programmer. This is available in detail in the Sisal language manual, <A HREF="23.1.Sisal.bibliography.html#sisal.manual.1">[33]</A>. Here we will merely give some general rules.<P>
+
+<H3>3.2 Expression rules</H3>
+
+0)  All legal Sisal expressions have values, and all values have types. The basic arithmetic types are predefined and available, as discussed below. There are also predefined Boolean and character types. Programmers can also make up their own data types, as in other languages, such as Pascal, but we will save discussing user-defined data types for a later section.<P>
+
+1)  The normal alphabetic letters and numbers, along with the underscore character, can be used to make up Sisal identifiers.<P>
+
+<CENTER><TT>anIdentifier<BR>
+Another_identifier</TT></CENTER><BR>
+
+2)  Identifiers can represent single values or function calls, and their names are significant up to 31 characters.<P>
+
+<CENTER><TT>a_value := calculate_function(x,y,z)</TT></CENTER><BR>
+
+3)  Case is not significant.<P>
+
+<CENTER><TT>The_Identifier</TT></CENTER><BR>
+is the same name as<BR>
+<CENTER><TT>tHE_iDENTIFIER</TT></CENTER><BR>
+
+4)  Numerical values are integers, reals, or double_reals. Integers do not contain decimal points. Reals either contain decimal points or are expressed in scientific notation, with the letter "e" denoting the exponent of ten. Double_reals must be expressed in scientific notation, and must have the letter "d" denoting the exponent. The numeric literals<P>
+<CENTER>
+<TT>1.<BR>
+1.0<BR>
+1e0<BR>
+1.e0<BR>
+1.0e0</TT><BR>
+</CENTER>
+<BR>
+are all reals, and the literals <BR>
+<BR>
+<CENTER>
+<TT>1d0<BR>
+1.d0<BR>
+1.0d0</TT><BR>
+</CENTER>
+<BR>
+
+are all double_reals.<P>
+
+5)  Mixed mode arithmetic is forbidden. Explicit type casting is required. The casting operators are simply the names of the desired result types, used as functions. For example, to cast the <TT>integer</TT> value 10 into types <TT>real</TT> and <TT>double_real</TT>, use
+<BR>
+<BR>
+<CENTER><TT>real(10)</TT></CENTER>
+and
+<BR>
+<BR>
+<CENTER><TT>double_real(10)</TT></CENTER>
+respectively.<P>
+
+To cast <TT>reals</TT> and <TT>double_reals</TT> into <TT>integers</TT>, there are three functions: <TT>integer</TT>, <TT>trunc</TT>, and <TT>round</TT>. Their operation is described in the Sisal language manual. The differences among them are in the way they treat signed operands.<P>
+
+6)  The standard arithmetic operators <TT>+</TT>, <TT>-</TT>, <TT>*</TT>, and <TT>/</TT> are available for numeric values and expressions. The divide operator produces truncated <TT>integer</TT> results when applied to <TT>integers</TT>. Raising a number to a power is accomplished by way of the "<TT>exp(b,e)</TT>" function, which raises the value "<TT>b</TT>" to the power "<TT>e</TT>". The two arguments to <TT>exp</TT>  may be any combination of numeric types. The type of the result will be the higher type of the two arguments, where <TT>double_real</TT> is higher than <TT>real</TT> which is higher than <TT>integer</TT><P>
+
+7) The standard mathematical library functions are available in Sisal via an underlying C math library. These include trigonometric, exponential, and logarithmic functions. Variants are available for all numeric types.<P>
+
+8)  Boolean values and expressions are possible (and common) in Sisal. The primitive Boolean elements are "<TT>true</TT>" and "<TT>false</TT>". The  Boolean operators are "<TT>&</TT>" (and), "<TT>|</TT>" (or), and "<TT>~</TT>" (not).<P>
+
+9)  Logical operations producing Boolean values are available in Sisal. The logical operators are
+<PRE>
+     >        (greater than)
+     >=       (greater than or equal to)
+     <        (less than)
+     <=       (less than or equal to)
+     =        (equal to)
+     ~=       (not equal to)</PRE>
+
+10)  Character and string values, expressions, and aggregates are possible in Sisal, and their correct uses are described in the Sisal language manual.<P>
+
+The above syntax resembles that of many modern programming languages. Other parts of Sisal syntax, such as if-statements, will also look familiar. However, the style in which such statements are combined will deviate slightly from expectations, so the next aspects of Sisal are areas in which it deviates significantly enough from more common imperative languages that they deserve sections for themselves.
+<BR><BR>
+<H4><A HREF="02.Par.other.virtues.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="04.More.syntax.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,186 @@
+OSC: SISAL 1.2 NATIVE COMPILER AND DEBUGGER
+
+See "Frontend/Front1/sisal.5" for an overview of the SISAL language.
+See "CHANGES" for release number information.
+
+
+This distribution contains compiler and run-time library software for
+executing SISAL programs on the machines/operating systems listed below.
+Specifically, this compiler accepts SISAL source (.sis files) or 
+the intermediate form produced by the frontend for SISAL (.if1 files).
+The included software consists of:
+
+--osc, a SISAL compiler that accepts .sis or .if1 files (invoking the frontend,
+  to produce the .if1 files), invokes machine independent IF1 
+  and IF2 optimizers to improve code quality, invokes the "middle end" to 
+  produce C, and finally invokes cc to turn the C into executable code.
+  
+  Osc also accepts .c and .s files generated from earlier executions of osc.
+  
+--A run time support library for SISAL programs.  It supports array
+  operations, storage management and parallel execution.
+  On a Sequent Balance, you may choose to install this software to work
+  with "gang scheduling" software that is available from another
+  source--see below.  Osc relies on this library during loading.
+  The library is written entirely in C (NO ASSEMBLY LANGUAGE PRESENT!),
+  but is UNIX dependent (gettimeofday, getrusage (or times), etc.).
+
+--A utility program for running on different numbers of processors 
+  to generate speedup curves.
+  
+--Man pages for osc and its utilities.
+
+  
+AUTHOR(S): sisal (frontend parser):  Rea Simpson (Modified by David Cann)
+           osc driver and utilities: David Cann
+	   if1opt:                   Daivd Cann
+	   if2mem:                   David Cann and S. Harikrishnan*
+	   if2up:                    David Cann
+	   if2part:                  David Cann
+	   if2gen:                   David Cann
+	   sdbx:                     David Cann
+	   dsa:                      Rod Oldehoeft and David Cann**
+	   current run time:         David Cann***
+
+	   Work after 8/92:	     Patrick Miller
+                                     Scott Denton
+
+          *[Designed by John Ranelletti]
+         **[Redesign of early version by Bruce Bigler]
+        ***[Redesign of early versions by Bruce Votipka and Tam Richert]
+
+
+Current ports (in order of quality of testing):
+	SGI IRIS (R3000) running IRIX 4.0.5, 4 processor
+		cc and f77
+		gcc 2.5.8 (mips-sgi-irix4.0.5)
+	Cray C90 running UNICOS 7.C, 16 processor
+		cc, cf77
+	Meiko CS-2 (SPARC) running Solaris 2.1, 1 processor
+		cc
+		gcc 2.5.6 (sparc-sun-solaris2.1)
+	IBM workstation (RS6000) running AIX, 1 processor, 
+		cc and f77
+		gcc 2.3.3 (rs6000-ibm-aix)
+	Sun 3 (MC68020) running Sun UNIX 4.2 Release 3.4, 1 processor
+		cc
+	Sun Sparc 10 (SPARC) running Solaris 2.3, 1 processor
+		cc
+	DEC Decstation (R3000) running ULTRIX V4.3 R 44, 1 processor
+		cc (problem with branches > 32K)
+		gcc 2.3.3 (mips-dec-ultrix4.1)
+        Apple Macintosh running MachTen 2.1.1 (BSD 4.3), 1 processor
+		gcc 2.3.3
+        PC x486 running LINUX Slackware
+		gcc 2.5.8
+	Cray T3D (YMP/ALPHA) running UNICOS, 1 processor
+		cc
+
+Previous ports:
+	Alliant FX series running Concentrix, cc
+	Cray Y-MP or X-MP running UNICOS, cc
+	Cray 2 running UNICOS, cc
+	Encore Multimax running Umax, cc
+	HP9000 Series300,400,700 running HPUX (cc, gcc) 
+	PC (Intel x486) running MS-DOS, gcc
+	IBM Power4 (RS6000) running AIX, cc
+	Sequent Balance running DYNIX, cc
+	Sequent Symmetry running DYNIX, cc
+	SGI Challenge running IRIX, cc
+	Sun Sparc running Sun OS
+
+CSU DISCLAIMER
+
+Copyright (c) 1987, 1988 by Colorado State University.  None of this
+software is derived from any software that is licensed.
+
+We grant permission to you to use this software as you wish, subject
+to the following restrictions:
+
+1. You, your heirs, executors, administrators, and assigns release and
+   forever discharge Colorado State University and the authors of this
+   software from any and all lawsuits, actions, claims or demands by
+   reason of any damage, loss, death or injury to yourself or to your
+   property arising from the use of this software, notwithstanding
+   that the same may have been contributed to or occasioned by the
+   negligence of Colorado State University or the authors of this
+   software.
+
+2. You must not misrepresent the origin of this software, either by
+   explicit claim or omission.
+
+3. If you alter this software, you must mark changes plainly, and you
+   must not then represent it as the original software.  If you improve it,
+   we would like to know what you have done.
+
+
+LLNL DISCLAIMER
+
+Neither the United States Government nor the University of California
+nor any of their employees, makes any warranty,  expressed or implied,
+or assumes any legal liability or responsibility for the accuracy,
+completeness, or usefulness of any information, product, or process
+disclosed, or represents that its use would not infringe privately
+owned rights.  Reference herein to any specific commercial products,
+process, or service by trade name, trademark manufacturer, or
+otherwise, does not necessarily constitute or imply its endorsement,
+recommendation, or favoring by the United States Government or the
+University of California.  The views and opinions of authors expressed
+herein do not necessarily state or reflect those of the United States
+Government nor the University of California, and shall not be used for
+advertising or product endorsement purposes.
+
+
+INSTALLATION PROCEDURE
+
+1. Read the software from tape onto the disk of the host machine
+   using tar.  We use the term PATH for the complete directory
+   name into which you have read this software.
+
+2. Move to PATH, and enter "sh sinstall".  This interactive
+   script will produce the Makefile after asking some questions.
+   When Makefile is built, you should examine at least the first
+   part of it to make sure that the right things will happen.
+   You may type "make check" to verify the compilation.
+   "make check_all" runs a more complete test suite and continues
+   through errors. "make check_par PROCS=3" checks three processors.
+
+3. Once you've built PATH/Makefile, you're ready to install.
+   If you have the power to write into the directories you specified
+   for executables and man pages:
+   a) Enter "make all >& LOGFILE".
+   b) Examine LOGFILE for errors.
+
+   If you do not have the power to write in the installation and man
+   page directories, as is usually the case for "/usr/local/bin" and
+   "/usr/local/man", do this instead:
+
+   a) Enter "make local >& LOGFILE".
+   b) Examine LOGFILE for errors.
+   c) Find a SUPER USER to execute the following: "make install >& LOGFILE".
+   d) Again examine LOGFILE for errors.
+
+4. Now the directory PATH has directories with these contents:
+
+   Tools	Support Utilities
+   Frontend	All SISAL to IF1 compilation source files
+   Backend	All IF1 to native code compilation source files
+   Runtime	All runtime source files
+   ../bin	A possible home for executables after installation
+   ../lib	A possible home for runtime library after installation
+   ../include	A possible home for header file (.h) after installation
+   ../man	A possible home for manual pages after installation
+   
+To obtain a man page, you can use
+     psroff -man -Pprinter mandirectory/manfile.1
+for the paper version, or
+     nroff -man mandirectory/manfile.1 | more
+to see it on your terminal.  In the above, "printer" is the name of
+the printer where the man page will appear, "mandirectory" is the path
+you specified for the man page directory, and "manfile" is the command
+whose man page you need.
+
+
+BUG REPORTS
+
+Please mail bug reports to sisal-bugs@sisal.llnl.gov.

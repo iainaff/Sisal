@@ -1,0 +1,27 @@
+<H3> The Answer:</H3>
+If you determined that the code on the previous page generated and then multiplied two n x n matrices, you were correct. The details of function <TT>generate</TT> are unimportant; we simply needed two matrices, so we built them there, according to a completely ad hoc formula. Function <TT>doit</TT> multiplies them. Function <TT>main</TT> simply invokes the other two functions to accomplish this.
+
+<H2> So What's the Point?</H2>
+The point is twofold. First, you probably recognized what the code does, which shows that Sisal is easy to read and expressive. Second, the program, which runs on just about anything from a PC to a Cray, is not just a program, but a parallel program. The fact that there's no reference in it to execution environment, number of processors, or any other machine feature, nor to any sort of parallization primitive, shows that Sisal is able to automatically manage the parallelism in your program and the resources of the system executing it. It's no idle boast to say that this program will give linear speedups on a Cray C-90, when a large matrix size is used.<P>
+
+<BR><BR>
+<A HREF="../01.Introduction.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

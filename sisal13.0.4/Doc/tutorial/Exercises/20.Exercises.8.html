@@ -1,0 +1,61 @@
+<H2>20. Exercise Set 8</H2>
+These exercises are more extensive and less well defined than those given previously, to offer the reader more freedom in adapting them to her or his immediate purposes in learning the Sisal language. Also, no suggested answers are provided for them. However, the Sisal project staff stands ready to assist sincere efforts. To reach us, see the section titled <A HREF="../23.0.For.more.info.html">For More Information...</A>
+
+<H4>Exercise 8.1: Computing Pi</H4>
+
+Assuming that you already have a good machine-precision value for Pi, write a program that will determine what value of N will provide equivalent precision on your computer, using the classical expression <PRE>             n  (-1)^(i+1)
+     pi/4 = sum ----------
+            i=1   (2i-1)
+</PRE>
+
+<H4>Exercise 8.2 Computing the Mandelbrot Set</H4>
+
+Given the Mandelbrot formula<PRE>     z(n+1) = z(n)**2 + c,</PRE> write a program that accepts coordinates of a rectangular region of the complex plane, a size for each dimension in points, and a value for c as inputs, and then iterates every point in your region until |z| >2, counting the iterations needed for each point. The output should be the array of iteration counts.
+
+<H4>Exercise 8.3 Bubble Sort</H4>
+
+Write a program that sorts a set of values via the bubble sort method. This method iteratively compares adjacent pairs of values, swapping them is the smaller value has the higher index value; this causes the smaller (or larger) values to bubble up (or down) depending on which direction through the index range the search is started at. This iteration occurs N-1 times, for a set of N values being sorted. A standard refinement has the final index position treated removed from the next phase, since it has received its correct value, already; so, each phase is one position shorter than the previous one.
+
+<H4>Exercise 8.4 Compound Interest with Increasing Principal</H4>
+
+The formula for the value of a savings account with a principal p, which is invested at compound interest, with an annual rate r, for m years, compounded n times per year is<PRE>     c * (1+r/n)**(m/n).</PRE> Assuming a savings plan which takes the principal p by amount s very year, write a program that takes p, r, m, n, s , and the number of years, y, as inputs, and computes the total value of the savings program at the end of each year.
+
+
+<H4>Exercise 8.5 Prime Factorizations</H4>
+Every integer has a unique factorization into primes. Given that the largest prime factor of any integer will be one half its value, and given also a large list of primes which you supply as input, write a program that, given an argument number, generates an array of counts corresponding to the input list of factors, where each count is the number or times the corresponding prime occurs in the prime factorization of the argument number. For instance, the input list of primes might be [1: 2 3 5 7 11 13 17 19 23 ], and the argument number and their factorizations might be 
+<PRE>46 and [1: 1 0 0 0 0 0 0 0 1 ]
+42 and [1: 1 1 0 1 0 0 0 0 0 ]
+24 and [1: 3 1 0 0 0 0 0 0 0 ]</PRE>
+You might want to take an array of numbers as input and return an array of factorizations. You might also want to calculate the array or primes, to get values that reach or exceed half the argument number.
+
+<H4>Exercise 8.6 Triangular System Solution</H4>
+Given an upper triangular coefficient matrix for a linear system, along with a vector of right-hand side values for the system, write a program that solves for the values of the unknowns using the back-substitution method. For instance, for a 4 by 4 system the last
+unknown is calculated as<PRE>     x(4 ) = b(4)/ a(4,4); and </PRE><PRE>     x(3) = 1/a(3,3)*(b(3)-x(4*a(4,4).</PRE>Your program should be general enough for any size system, even one that is over-specified (has more equations than unknowns), and the output should the be array of values for the unknowns.
+
+<BR><BR>
+<H4><A HREF="../19.0.Sisal.IO.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="../21.Advanced.features.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="../00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

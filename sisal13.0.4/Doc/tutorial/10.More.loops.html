@@ -1,0 +1,142 @@
+<H2>10. More on Loops</H2>
+In this section, we tackle some advanced aspects of looping. While we're going to do this in the context of parallel loops, for simplicity's sake, most of what we say will also apply to sequential, or iterative, looping, which we are saving for a later section. We have already seen two forms of range generators, and two forms of returns clauses. Sisal has more to offer in both of these areas. As in all languages, looping constructs can be nested to effectively any depth. Nested looping is one way to generate multidimensional arrays. There are also many ways to return values, both simple and compound, from loops. Here we will explore these topics in a bit more detail, since they add greatly to the power of the language in expressing algorithms and exploiting parallelism.
+
+<H3>10.1 Range Generators</H3>
+The possibilities for simple loop range generators extends to the combination of the two we have already seen. For simplicity, we will show examples of the three together before describing them.<P>
+
+<PRE>        for i in 1, n
+
+        for a in a_array
+
+        for a in a_array at i</PRE>
+
+Here, we see the two familiar forms followed by a new hybrid form. The first one, as we have said, generates a set of independent values, all named <TT>i</TT>, from the inclusive range [1,n]. The second generates a set of independent values, all named <TT>a</TT>, from the aggregate named <TT>a_array</TT>. The third generates both the element <TT>a</TT>, from the aggregate <TT>a_array</TT>, and the index of <TT>a</TT>, <TT>i</TT>, in the index range of <TT>a_array</TT>. This last form may seem strange, but it is useful in situations where the index range of an array is not known ahead of time.<P>
+
+In addition to the above simple range generators, we can have compound or multidimensional ones, such as the following:<P>
+
+<PRE>        for i in m, n cross j in p, q
+
+        for a in a_array cross b in b_array
+
+        for k in r, s dot m in x, y
+
+        for c in c_array dot d in d_array</PRE>
+
+Here we have the first two forms of simple range generator combined into compound generators. The keywords "dot" and "cross" determine how the index or element value sets will be formed. In the first example, we have an index value set consisting of the cross product of the ranges from the two simple generators. In other words, every value of <TT>i</TT> in the range [m,n] will be paired with every value of <TT>j</TT> in the range [p,q]. In the second example, we have another cross product, with every element <TT>a</TT> from <TT>a_array</TT> paired with every element <TT>i</TT> from <TT>b_array</TT>.<P>
+
+In the dot-product range generators, we again have a pairing of values, but no value from either set is used more than once. In the third example, the first value of <TT>k</TT> will be r, and it will be paired with the first value of <TT>l</TT>, which will be x. The second values of <TT>k</TT> and <TT>l</TT> will be r+1 and x+1, respectively; this continues until the smaller-sized range is completely used up, at which point the loop's range is complete. Similarly, in the fourth example, the first value of <TT>c</TT> will be the first element of <TT>c_array</TT>, and it will be paired with the first element of <TT>d_array</TT>. In the case of arrays, when we use the term "first element" we mean the element with the lowest index.<P>
+
+These compound ranges are very powerful, and they can be extended effectively without limit. Semantically, compound ranges are equivalent to loop nests. The following two loops are equivalent in range and in the types of values they return:<P>
+
+<PRE>for i in m, n cross j in p, q
+   x := i + j
+returns array of x
+        value of sum x
+end for
+
+for i in m, n
+   x_array, x_scalar := for j in p, q
+                           x := i + j
+                        returns array of x
+                                value of sum x
+                        end for
+returns array of x_array
+        value of sum x_scalar
+end for</PRE>
+
+Each of the above two loops produces a two-dimensional array and a scalar. The index range of the arrays are [m, n] by [p, q], and the elements in corresponding positions of the arrays are identical.<P>
+
+Just to make certain all this is clear, we should consider a few more examples. The following loop sums all the elements of a two_dimensional array:<P>
+
+<PRE>for i in 1, num_rows cross j in 1, num_columns
+returns value of sum a[i,j]
+end for</PRE>
+
+The next example returns the vector consisting of the major diagonal of a two_dimensional array:<P>
+<PRE>for i in 1, num_rows dot j in 1, num_columns
+returns array of a[i,j]
+end for</PRE>
+
+The above example is a bit tricky. Since the array <TT>a</TT> may not be square (i.e., have the same number of rows as it does columns), the resulting vector will actually be the major diagonal of the largest square subarray of array <TT>a</TT>.<P>
+
+Here's another tricky example, the transposition of a rectangular array:<P>
+<PRE>for j in 1, num_columns cross i in 1, num_rows
+returns array of a[i,j]
+end for</PRE>
+
+The above deserves careful study. It hasn't been emphasized yet, but the shape of an array returned by a loop nest is strictly determined by the order of the ranges of the loops as well as the ranges themselves. The array <TT>a</TT>, above, has shape [1, num_rows] by [1, num_columns], which is to say it has <TT>num_rows</TT> rows and <TT>num_columns</TT> columns. We want the resulting transposed array to have <TT>num_columns</TT> rows and <TT>num_rows</TT> columns, and to have as it's [i,j]-th element the [j,i]-th element of <TT>a</TT>. We must build the array in the shape we want, so we specify the outer loop to run over the desired index range for rows, and the inner loop to run over the that for columns. We then must be careful to access the elements of the original array, <TT>a</TT>, so as to avoid addressing outside of its index ranges. If we do all that correctly, the resulting value returned by the loop will be correctly transposed in size, shape, and element values. The reader should take the time firmly understand the above loop before proceeding with the next set of exercises.<P>
+
+<H3>10.2 Returns Clauses</H3>
+We have also merely scratched the surface in the area of returns clauses. We have seen the use of the "array of" aggregation and the "value of sum" reduction. There are also "value of" and "stream of" aggregations, which we will not go into at this point, and reductions of the form "value of product", value of least", "value of greatest", and "value of catenate". The sum, product, least, and greatest reductions produce scalars, and operate on numeric and Boolean types. Here's an example of their use in a nonnumeric context:<P>
+
+<PRE>for B_val in Boolean_array
+returns value of sum B_val
+        value of product B_val
+end for </PRE>
+
+This loop's return clause performs the inclusive "or" and the "and" functions of the elements of <TT>Boolean_array</TT>. The <TTvalue of sum b_val</TT> reduction performs a Boolean summation, which returns true if any of its operands are true, and <TTvalue of product b_val</TT> reduction performs a Boolean multiplication, returning true only if all its operands are true.<P>
+
+The catenate reduction produces a flattened aggregate. This latter point is nontrivial. If a two-level loop produces an array via the "array of" aggregation, it will be a two-dimensional array, with ranges corresponding to those of the loops. If, on the other hand, it returns "value of catenate", the resulting array will be one-dimensional, consisting of all the rows produced by the inner loop joined together into a larger vector. A few examples at this point would likely be helpful.<P>
+
+The following loop finds the largest and smallest elements of a three-dimensional array:<P>
+<PRE>for a_two_d in a_three_d cross
+    a_one_d in a_two_d cross
+    a_elt in 1, a_one_d
+
+returns value of least a_elt
+        value of greatest a_elt
+end for</PRE>
+
+The following loop flattens a three-dimensional array into a one_dimensional vector by concatenating all its rows together:<P>
+<PRE>for row_plane in a_3d_array cross
+    row in row_plane
+
+returns value of catenate row
+end for </PRE>
+
+The number of elements of the array resulting from the above loop will be the sum of the numbers of elements in each row of <TT>a_3d_array</TT>. The index range will begin at the index range of the first row and proceed upward from there.<P>
+
+<H3>10.3 Masked Returns Clauses</H3>
+The returns clause is capable of aggregating and reducing values computed in its for-loop, and it can also exercise selection criteria in determining which values to so treat. This is accomplished with one or more "masks," which are simply predicates that can be applied to the loop-generated values before further action is taken on them by the returns clause. These masks take the form of the keywords "when" or "unless" followed by a logical expression. The truth value of the logical expression interacts with the chosen mask keyword to determine whether the loop-generated values will be among those returned. Here's an example of a masked loop:<P>
+
+<PRE>for val in an_array
+returns value of sum 1 when val > 0.0
+end for </PRE>
+
+The above loop sums a set of integer ones corresponding to the positive elements of <TT>an_array</TT>. This is a simple way of counting the positive elements. Another common way to use masked returns clauses is in weeding out values from a set to be aggregated and returned, such as the following situation:<P>
+
+<PRE>for i in 1, number_of_values
+    new_val := deep_thought( value[i] )
+returns array of new_val unless new_val > upper_val | new_val < lower_val
+end for </PRE>
+
+The above loop returns an array of only those instances of <TT>new_val</TT> that fall within the desired range [<TT>lower_val</TT>, <TT>upper_val</TT>]. The array so generated will not have any empty elements; every element in its index range will have a corresponding legal value, but its index range will not necessarily be equal to that of the loop, so care must be taken in subsequent dealings with it.<P>
+
+The for-loop is incapable of doing the sorts of calculations that involve information moving between the instances of the loop's calculation, such as iterative convergence calculations. It is also incapable, as we now know it, of doing the more general form of looping across irregular index ranges or value sets. The first of these problems will be dealt with when we discuss the other form of Sisal loop statement, and the second when we deal with advanced looping concepts. For now, let us do a few exercises that will expose more of the power of Sisal loops.<P>
+
+<BR><BR>
+<H4><A HREF="Exercises/09.Exercises.3.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/11.Exercises.4.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,43 @@
+<H4>Exercise 6.2: Relaxation Function</H4>
+Given:  a two-dimensional array, <TT>A</TT>, of real values<BR>
+Compose: a function of <TT>A</TT> that performs one relaxation step, returning the new array whose values at each position [i, j]  are the average of the values from <TT>A</TT> of that position and that position's eight nearest neighbors, [i+/-1, j+/-1].<BR>
+Note: Keep the edges of the input system constant, relax only the elements of the system having eight neighbors, and return only the relaxed subsystem.
+the portion that has been relaxed.<BR>
+<PRE>type OneDim = array [ real ];
+type TwoDim = array [ OneDim ];
+ 
+function main( A : TwoDim returns TwoDim )
+ 
+for i in array_liml(A)   +1, array_limh(A)   -1 cross
+    j in array_liml(A[i])+1, array_limh(A[i])-1
+   avg := (A[i,j]      + A[i, j-1] + A[i, j+1] +
+           A[i+1, j-1] + A[i+1, j] + A[i+1, j+1] +
+           A[i-1, j-1] + A[i-1, j] + A[i-1, j+1]) / 9.0
+returns array of avg
+end for
+ 
+end function
+
+</PRE>
+
+<BR><BR>
+<A HREF="../Exercises/15.Exercises.6.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

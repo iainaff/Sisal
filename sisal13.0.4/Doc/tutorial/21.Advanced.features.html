@@ -1,0 +1,53 @@
+<H2>21. Advanced Features</H2>
+
+Sisal has a number of other features which deserve mention here, even though detailed description of them is beyond the scope of this tutorial. We will briefly describe several of them, and give a reference to a document or person to use as a source for further information.
+
+<H3>21.1 Union Types</H3>
+In order to produce data structures that can take on a recursive structure, such as lists and trees, it is necessary that Sisal have a data structuring ability equivalent to Pascal's variant records. Sisal's equivalent of this is the Union Type; it allows multiple forms of data to occur under a single type, identified by a tag that can be tested by user code. This allows, for instance, a tree to be constructed of a union type consisting of internal nodes or leaf nodes. For more information on Union Types, see the Sisal Language Manual <A 
+HREF="23.1.Sisal.bibliography.html#sisal.manual.1">[33]</A>.
+
+<H3>21.2 Streams</H3>
+Sisal includes a data type that allows producers and consumers of information to execute simultaneously on a shared structure, called a Stream. Streams are homogeneous aggregates, like arrays, except that they can be accessed only for their first element or all but their first element. This allows the construction of programs that operate on continuous values to or from other programs or outside environments. For more information on Streams, see the Sisal Language Manual <A HREF="23.1.Sisal.bibliography.html#sisal.manual.1">[33]</A>.
+
+<H3>21.3 Debugging</H3>
+Debugging functional programs, despite the tendency to make fewer mistakes in composing them, tends to be somewhat difficult, mainly because functional language semantics makes input and output difficult, at best. However, we have developed a state-of-the-art symbolic debugging system, incorporating its own compiler and graph interpreter. This debugging system is called Twine, and it is supported as an experimental tool. For more information on Twine, see <A HREF="23.1.Sisal.bibliography.html#miller.cedeno">[36]</A>.
+
+<H3>21.4 Mixed Language Programming</H3>
+It is possible to merge programs in Fortran or C with Sisal code, in order to best use the features of each language, via a facility called the Foreign Language Interface. For instance, Sisal can be used to exploit parallelism in an algorithm, while the imperative languages can be used for I/O or access to special purpose libraries. For more information on mixed language programming and the Foreign Language Interface, see <A HREF="23.1.Sisal.bibliography.html#cann.3">[10]</A>
+
+<H3>21.5 Distributed Memory Sisal</H3>
+The currently available version of the Optimizing Sisal Compiler (OSC) and Runtime System support parallelism only on computer systems having a shared memory programming model. These include such common computers as multiprocessor Sparcs, SGI's, Crays, and even a few machines with physically distributed memory that can be used in a shared address space mode, such as the BBN TC-2000, nCube, and Encore Multimax. However, prototype versions of Sisal exist for machines with only distributed memory programming models, such as the Thinking Machines CM-5 and Cray T3D. For more information on Distributed Memory Sisal, see <A HREF="23.1.Sisal.bibliography.html#beard">[1]</A>.
+
+<H3>21.6 Newer Versions of Sisal</H3>
+Since the currently available Sisal language, Sisal 1.2, is based on a design that is approaching ten years of age, we are continuously exploring improvements and enhancements to it as an exercise in language design. However, our intentions are to produce a working programming language with a high performance compiler and support software. To this end, we produced a paper language, Sisal 2.0, to foster debate as to what features were appropriate and useful for a real language. For more information on Sisal 2.0, see [4]. We are also working on a much expanded version of Sisal, called Sisal-90, that will arrive on the scene sometime in the next year, with a compiler and other support software. This new version will not only contain more modern features, but will be much more expandable that the current version, while retaining enough syntactic similarity with the Sisal 1.2 to allow some automatic translation assistance. It will continue to use our intermediate form languages, IF1 and IF2, and will continue to utilize the powerful optimization back-end of our current compiler. The Sisal-90 manual is in preparation; for more information on Sisal-90, contact the author of this tutorial, or see the section titled <A HREF="23.0.For.more.info.html">23. For More Information...</A>
+
+<H3>21.7 Performance Monitoring Tools</H3>
+Developing parallel programs seems to be only the first part of the parallel programming problem. After the program is running correctly, it must be tuned for efficient utilization of machine resources, such as memory and communications bandwidth. To support this, we are working on experimental tools designed to provide the programmer feedback as to how a program is running on a parallel system. To learn more about this effort, contact the author of this tutorial, or see the section titled <A HREF="23.0.For.more.info.html">23. For More Information...</A>
+
+<BR><BR>
+<H4><A HREF="Exercises/20.Exercises.8.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="22.How.to.get.it.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,54 @@
+<H4>6.1.5 Array Creation</H4>
+Arrays offer the greatest number of options for data creation. They are most often created in loops, in which context they offer great power to the programmer in the expression of parallelism. However, they can also be created in other ways. Since we have not yet discussed loops, we will illustrate the other creation methods, using the declarations of array types we used above: 
+<PRE>type float = double_real;
+type One_Dim_R = array [ float ];
+type One_Dim_I = array [ integer ];
+type Two_Dim_I = array [ One_Dim_I ];
+</PRE>
+With these declarations, we can define a set of arrays in the following code:
+<PRE>
+let x := array One_Dim_R [ 1,4: 1d0, 2d0, 3d0, 4d0 ];
+    a := array One_Dim_I [ 0,4: 1, 3, 5, 7, 9 ];
+    b := array           [ 1: 2, 4, 6, 8 ];
+    c := array Two_Dim_I [ 3: a, b, a ]
+    d := array_fill( 2, 10, 0d0 );
+    e := array One_Dim_I [];
+in  foo(x[2], a, b, c[4,4], d, e)
+end let
+</PRE>
+Several arrays are created here, in several ways, and in all but one of the six cases we see specific type names given in the creation statements. Specifying the type name is optional, but is considered by some to be a good practice to adopt, for purposes of code documentation. One thing to note about this practice is the tendency of beginning Sisal programmers to become confused about which type names to use in array creation statements. The type specified is always the array type, NOT the element type. This is a standard sort of error to make, and since the compiler can usually infer the array type from the creation statement,  that array type name can be omitted, as in the definition of the array <TT>b</TT>. Some find that doing it this way reduces the chances of type errors.<P>
+
+The first three one-dimensional arrays are created through explicit enumeration of their index ranges, and contents, and the first two also have their types specified. First, the array  <TT>x</TT> is created by explicitly specifying its type, <TT>One_Dim_R</TT>, its index range, 1 through 4, and the specific elements it contains, the double_real values given inside the square brackets. The element values, as well as the lower and upper bounds of the index range, are separated by commas, and the range is separated from the elements by a colon. Then the arrays <TT>a</TT> and <TT>b</TT> are created, both of type <TT>One_Dim_I</TT>, but with the type unstated in the case of  <TT>b</TT>, and both with different index ranges and different elements. Array <TT>a</TT> has both the lower and upper bounds of its index range specified, while array <TT>b</TT> has only its lower index value given; both are legal.<P>
+
+The fourth array, <TT>c</TT>, is two-dimensional, making it an array of arrays, and we see this hierarchical form in its creation. It, too, is created by enumeration, but its contents are themselves arrays; its first and third rows are copies of the array <TT>a</TT>, and its second row is a copy of the array <TT>b</TT>.  The optional upper bound is omitted. Important points to note about this example are that the individual rows of array <TT>c</TT> are of different sizes and have different index ranges. Two-d structures more commonly have the same index ranges throughout their component substructures. But when differing ranges are desired, they tend to be very convenient and useful. The arrays so constructed are known as "ragged arrays."<P>
+
+The fifth array created above, <TT>d</TT>, is created by a Sisal primitive function that returns an array as specified by its three arguments, which are, its lower index bound, its number of elements, and the element value. In this case, array <TT>d</TT> contains ten elements, with index range 2 through 11, all with value 0d0. <P>
+
+The sixth array, <TT>e</TT>, is created empty. The intention with such is usually to fill them in one element at a time later on in the code, but for now we show only how to create them. Here, the type name is needed, as there is no other way to tell what type of array value is being created and named. The index range given is empty, but technically the actual range is from 1 to zero, or "[1,0]". This brings up an interesting point regarding array indexing in Sisal. Array indices can take on any integer values, but they must be monotonically increasing. The range [0,3] is legal, as is the range [-1,2], but the range [-1,-3] is not legal. Any array whose upper index (also called its upper bound) is less than its lower index (or lower bound) is an empty array, regardless of the values of the upper and lower bounds. When an empty array is created without explicit bounds, it is given the range [1,0] by default. It is also, of course, possible to have an array with only one element, and in this case, the upper and lower bounds are the same, and default to [1,1]. It is important to remember when creating arrays in Sisal that an array's index range is an integral part of its value.<BR>
+
+<BR><BR>
+<H4><A HREF="06.1.4.Record.creation.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/07.Exercises.2.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,70 @@
+<H2>12. Advanced Array Operations</H2>
+
+The exercises involving arrays up to this point may have made the point that further smoothing is needed in how Sisal handles arrays. There are indeed facilities to make array operations friendlier. For instance, we can acquire the size and bounds of arrays by using the Sisal primitives <TT>array_size()</TT>, <TT>array_liml()</TT>, and <TT>array_limh()</TT>, respectively. These primitives allow us to form loops such as the following:<P>
+
+<PRE>for i in array_liml(X), array_limh(X) cross
+    j in array_liml(X[i]), array_limh(X[i])
+    q := deep_thought(x, i, j)
+returns array of q
+end for</PRE>
+
+This sort of thing can be very useful when dealing with ragged arrays. For instance, the situation often develops in the modeling of physical systems that a system array with unchanging boundaries must be evolved and returned with the original boundaries. In the following example, we will use the Sisal operator for array concatenation, "<TT>||</TT>".<P>
+
+<PRE>let new_core   := evolve(system_array);        % new system with no boundaries
+    top_indx   := array_liml(system_array);    % positions of top and bottom
+    btm_indx   := array_limh(system_array);    %   boundaries from old system
+
+    new_top    := system_array[top_indx];      % actual top boundary
+    new_btm    := system_array[btm_indx];      % actual bottom boundary
+
+    left_indx  := array_liml(system_array[1]); % positions of left and right
+    right_indx := array_limh(system_array[1]); %   boundaries from old system
+                                               %   (all rows have same indices)
+
+    long_core  := for row in core at i         % add side boundaries to all rows
+
+                      left_bound_elt    := system_array[ i, left_indx ];
+                      left_bound_array  := array [ 1: left_bound_elt ]; 
+                      right_bound_elt   := system_array[ i, right_indx ];
+                      right_bound_array := array [ 1: right_bound_elt ]
+
+                  returns array of left_bound_array || row  || right_bound_array
+                  end for;
+
+    long_tall  := new_top || long_core || new_btm   % add top and bottom
+
+in  long_tall   % The newly evolved system, complete with boundaries.
+end let</PRE>
+
+This elegant bit of code builds a new system array in three steps. First, function "<TT>evolve</TT>" is invoked with the old system array as its argument, and the new system array is returned. Then the short rows of the new array are made the correct length by concatenating the boundaries from the rows of the old system array onto them in a for-loop. In the loop we see that the values <TT>left_bound_elt</TT> and <TT>right_bound_elt</TT> are made into arrays of one element. This is necessary, as the concatenation operator requires that both its arguments be arrays. Finally, the top and bottom rows of the old system array are concatenated onto the widened core of the new system array. The result of these steps is an array the same size and shape as the old system array.<P>
+
+This example also includes a use of the hybrid range generator "<TT>row in core at i</TT>". Use of this form of generator relieves us of the need to specify the index range of the array <TT>core</TT>, and yet still gives us an index value to use in the array index expressions within the loop.<P>
+
+These techniques are so powerful and useful that we will explore them further in an exercise.<P>
+
+<BR><BR>
+<H4><A HREF="Exercises/11.Exercises.4.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/13.Exercises.5.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,82 @@
+<H4>Exercise 7.3: Successive Relaxation Loop</H4>
+Given:  a two-dimensional array, <TT>A</TT>, of real values;<BR>
+Given:  a predefined termination test function <TT>converged(x,y,eps)</TT> ,which takes two conformable two_dimensional arrays, <TT>x</TT>, and <TT>y</TT>, and a real value <TT>eps</TT>, and  returns a Boolean value if its metric is met with respect to its thirdd argement;<BR>
+Compose: a function containing a for_initial loop that uses the function from exercise 16 to successively relax <TT>A</TT> until convergence occurs, and returns the converged value of A and the number of relaxations that have occurred.<BR>
+Hint: Since the convergence function requires two arrays, one could use a bottom-tested loop...<BR>
+NOTE:ÊUnlike the previous exercise involving relaxation, the entire system array here should be relaxed. The averaging forumla should be modified to account for fewer neighbors are the edges of the system.
+ 
+<PRE>type OneDim = array [ real ];
+type TwoDim = array [ OneDim ];
+
+function relax ( A : TwoDim returns TwoDim )
+
+for i in array_liml(A),    array_limh(A) cross
+    j in array_liml(A[i]), array_limh(A[i])
+% NOTE:ÊThis form of the code in this loop should vectorize.
+   top_row  := i = array_liml(A);
+   btm_row  := i = array_limh(A);
+   lft_side := j = array_liml(A[i]);
+   rgt_side := j = array_limh(A[i]);
+
+   top_val, cnt1 := if top_row then 0.0, 0
+                               else A[i-1,j], 1 end if;
+   btm_val, cnt2 := if btm_row then 0.0, cnt1
+                               else A[i+1,j], cnt1+1 end if;
+   lft_val, cnt3  := if lft_side then 0.0, cnt2
+                                 else A[i,j-1], cnt2+1 end if;
+   rgt_val, cnt4 := if rgt_side then 0.0, cnt3
+                                else A[i,j+1], cnt3+1 end if;
+   lft_btm_val, cnt5 := if lft_side | btm_row then 0.0, cnt4
+                                              else A[i+1,j-1], cnt4+1 end if;
+   rgt_btm_val, cnt6 := if rgt_side | btm_row then 0.0, cnt5
+                                              else A[i+1,j+1], cnt5+1 end if;
+   lft_top_val, cnt7 := if lft_side | top_row then 0.0, cnt6
+                                              else A[i-1,j-1], cnt6+1 end if;
+   rgt_top_val, cnt8 := if rgt_side | top_row then 0.0, cnt7
+                                              else A[i-1,j+1], cnt7+1 end if;
+   divisor := real(cnt8+1);
+   avg := (A[i,j]      +
+           top_val     + btm_val     + lft_val     + rgt_val +
+           lft_btm_val + rgt_btm_val + lft_top_val + rgt_top_val) / divisor
+returns array of avg
+end for
+end function % relax
+
+function successive_relaxation( A : TwoDim returns TwoDim, integer )
+for initial
+   relaxed_A  := A;
+   step_count := 0;
+repeat
+   relaxed_A  := relax(old relaxed_A );
+   step_count := old step_count + 1;
+
+until converged(relaxed_A, old relaxed_A, eps)
+returns value of relaxed_A
+        value of step_count
+end for
+
+end function % successive_relaxation
+
+</PRE>
+
+<BR><BR>
+<A HREF="../Exercises/17.Exercises.7.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,133 @@
+<H2>19. Sisal I/O</H2>
+
+There remains one more topic to cover, that of dealing with I/O in Sisal programs. The general topic of I/O in functional programs is one of hot debate and current research. This is because reading and writing are inherently non-functional. These operations are in fact supposed to have side-effects, so they cannot be done within a program, at least not with the freedom to be found in imperative languages. While these matters are being addressed, and there are interim work-arounds for the most needed forms of I/O, the designers of Sisal 1.2 took a conservative tack in implementing the I/O facilities they added to the language. To preserve functional semantics, the I/O that can be done in Sisal is either a bit stiff or a bit uncertain. We will look at both of these areas in the following sections, starting with the formal and ending with the informal.
+
+
+<H3>19.1 Sisal I/O: The Fibre Syntax</H3>
+
+We have already seen how I/O is done in general in Sisal programs. The main function gets all the inputs as its arguments or parameters, and produces all the outputs as its results. This is workable for programs of the sort that we have seen in our examples - numerical, scientific ones that tend to transform their inputs into their outputs without much I/O needed during processing.
+But what we haven't explored are effects of Sisal's dynamic objects on exactly how input data and output results are specified.<P>
+
+Since all arrays are of dynamic size, when one or more arrays are provided as inputs, they must be distinguishable from each other and from other inputs. If a number of values are provided, some of which are array elements, there is no way for the compiler or runtime systems to predict how many of them belong to the arrays. We solve this problem, maintaining the freedom to change input array sizes, by using a separate small language for the inputs (and outputs) of Sisal code. This language, called "Fibre", has its own small set of syntax rules that allow Sisal's I/O routines to determine the boundaries of aggregates. As one might imagine, this syntax is quite simple, and is completely documented in <A HREF="23.1.Sisal.bibliography.html#skedzielewski.yates.fibre">[47]</A>.<P>
+
+<H4>19.1.1 Scalars</H4>
+In a nutshell, numbers of all types are specified the same as in program expressions (see sections 3 and 4). Boolean values are specified by the single unquoted characters T and F. Characters are specified by embedding them in single quote characters, such as 'Q'. (Nonprinting characters are specified using quoted character pairs that begin with the backslash character \; for details on this, the reader is referred to the Fibre manual.) Fibre also allows for commentary, in the form of text begun with the pound sign character # and continuing to the end of the line. The specification of aggregates is where the syntactic elements come into play.<P>
+
+<H4>19.1.2 Arrays</H4>
+Arrays in Fibre look very much like they do in Sisal expressions. They begin with an opening square bracket, [, followed by a lower index bound; next is an optional comma and upper bound; then, a colon, to separate the bound(s) from the elements; the elements are separated by one or more spaces, and a final closing square bracket ] closes the array. Here are a few examples to illustrate this:
+
+<PRE>   [1: ]
+   [4,2: ] 
+   [0: 21 22 23 ]
+   [ 1 : 1.0 2.0 3.0 4.0 ]
+   [ 1, 4 : 1.0 2.0 3.0 4.0 ]
+   [ 0, 5: 'h' 'e' 'l 'l' 'o' '!' ]
+   </PRE>
+
+
+The first two arrays are empty; the first has lower bound 1 and upper bound 0, by default; the second has specified bounds, but the lower is greater than the upper. The third one is an array of integers with lower bound 0 and (implied) upper bound 2. The fourth is an array of reals with lower bound 1 and upper bound 4. The fifth is the same array as the fourth, but with the upper bound specified rather than implied. The sixth example is an array of characters. Obviously, the spacings of the brackets and bounds are free-form; white space is not significant and arrays may break across line boundaries.
+
+Arrays of characters can be represented with a special string notation using double quotes, as follows:
+<PRE>" Sisal is cool!"</PRE> is the same array as
+<PRE>[1: ' ' 'S' 'i' 's' 'a' 'l' ' ' 'i' 's' ' ' 'c' 'o' 'o' 'l' '!' ]<PRE>
+
+Similarly, multidimensional arrays also look just like they do in program code. Since each element of a two-or-greater-dimensional array is itself an array, the above rules are applied recursively. Here are a few more examples of this:
+
+<PRE> [1: [1:] ]
+   [1: [ 1: 10 20 30 40]
+       [ 3: 5 10 15 ]
+       [ 2, 3: 101 102 ] ]
+   [ 1, 2 : [ 1, 2 : 1d0 2.0d0 ] [ 3.0d0 4d0 ] ]
+   [ 1, 2: [ 1: 'g' 'o' 'o' 'd' ] [ 1: 'b' 'y' 'e' ] ]
+   [ 1: [ 1: [ 1: [ 1: 11 12 13 ]
+                  [ 1: 21 22 23 ] ]
+             [ 1: [1 : 31 32 33 ] ] ]
+        [ 1: [ 1: [1: 41 42 43 ] ] ] ]</PRE>
+
+The first is a non-empty two-dimensional empty whose only element is an empty one-dimensional array. (This sort of thing can get confusing, so caution is urged!) The second example is a two-dimensional array of integers; note that the individual row arrays have different index ranges. The third example is a two-dimensional array of double_reals. The fourth is a two-dimensional array of characters. The last example shows a four-dimensional array of integers. Indents and line breaks, while optional, can help clarify complex aggregates.
+
+<H4>19.1.2 Records</H4>
+Record syntax involves using angle brackets, <>, to mark record boundaries, which causes the Fibre syntax to deviate from the Sisal syntax; in Sisal code, records are enclosed in square brackets. Field names are not needed, but the field values must be specified in order. So, given the declarations
+
+<PRE>   type complex = record [ re, im : real ];
+   type label = record [ name, addr1, addr2, city, state : array [ char ]; zip : integer ]; </PRE>
+
+ and a program whose outermost function expected two arguments, of type complex and label, respectively, we could have the following Fibre data:
+
+<PRE><3.1416, 2.1828>
+<"DeBoni" "LLNL" "P.O. Box 808" Livermore "CA" 94550></PRE>
+
+<H4>19.1.3 Other aggregates</H4>
+Sisal syntax also allows for two other kinds of aggregate data types, streams and unions. Since we didn't treat these types in this tutorial, we will not do so here, either. The reader is referred to the Sisal Language Manual <A HREF="23.1.Sisal.bibliography.html#sisal.manual.1">[33]</A> and the Fibre manual <A HREF="23.1.Sisal.bibliography.html#skedzielewski.1.Fibre">[47]</A> for more information.<P>
+
+<H3>19.2 Using Fibre</H3>
+
+Fibre is the syntax for both input and output. When executing a program, as we saw in section 18, data can be provided directly from the keyboard, and execution will not begin until the Fibre parser recognizes all the values it was told by the compiler to expect. or, it can be put into a file and directed to the executable, as we also saw. This is generally the most convenient method, since most programs have more than just a few input values. But there's also another virtue to doing it this way. If input and output come from and go to files, the output file from one run can easily become the input file for a subsequent one. This requires forethought in program design, to insure that everything needed as input is also produced as output, but it's a good idea to return all major inputs as outputs, anyway, for purposes of documenting the run.<P>
+
+The only real downside to using Fibre is the fact that there currently are only minimal facilities  for formatting output in Sisal's support software. This means that the user is often presented with array outputs with one element per line. Some editing is usually required to change output files into readable form, and sometimes the number of lines can make this troublesome. However, there is a very useful trick that one of the Sisal users came up with, which deserves mentioning, even thought its details are outside the scope of this tutorial. So we will describe it briefly in the next section, and let the interested programmer experiment or ask us for further guidance on it.<P>
+
+<H3>19.3 Sisal I/O: The Real World</H3>
+
+While the Fibre I/O language is simple and useful, it tends to feel incomplete on first exposure, sine the requirements of real-world programming and its needs for I/O services are generally more complicated. Some of this can be addressed, but a significant portion is a set of unanswered questions. Let us briefly describe these matters and then go on to some real-world expedients we can resort to, to get around them.
+
+<H4>19.3.1 Getting Output</H4>
+Real scientific and numerical programs tend not to produce a single result at termination time. Rather, they usually produce output continuously, as they proceed toward termination. for at least two purposes. First, they often generate a sequence of partial answers, which either aggregate to or point to the complete result. This can take the form of a series of approximations to a final result, as in convergence algorithms; or, it can be a sequence of completely evolved simulated systems, at intermediate steps between initiation and completion. In either case, the intermediate results are of interest for two reasons. They can be useful in charting the progress of a program and perhaps identifying where it goes wrong (or gets interesting in unexpected ways); and, they can prevent having to restart a lengthy simulation run at the beginning, after an abnormal termination due to hardware problems.<P>
+
+In both cases, it is a good idea to produce all the intermediate values as well as the final one. In Sisal, the typical technical program is composed as a sequential outer loop containing a set of parallel loops. The outermost loop steps the algorithm, using the results of one step as input to the next. It is no greater problem to return "array of system", that it is to return "value of system" at the bottom of the outer loop, and this is an obvious way to produce the intermediate steps' values. However, this array result will still not appear until the program terminates, since it is not fully formed until then, so this is at best a partial solution. Further, it adds to the problem by causing the answers produced by such programs to require a potentially unbounded amount of space to store them as they are built.<P>
+
+<H4>19.3.2 Stream Output</H4>
+The "stream" data type was originally designed to provide another part of the solution. Streams, unlike arrays, are produced sequentially by elements, not all at once. This allows the storage requirements to be bounded by the size of a small number of the stream elements ("system", in our current example ). If the outer sequential loop of a program were to return "stream of system", then in theory, each element "system" would be available as it was completed by an iteration of the loop. However, in the current implementation of the Optimizing Sisal Compiler and Runtime System, streams are not built this way; instead they are treated as arrays, for practical reasons involving program performance,  optimization, and efficiency. A limited form of stream data types is now being designed for reimplementation, and future versions of the compiler should handle them acceptably. For now, streams can be used, but will act as arrays. So the problem remains unanswered.<P>
+
+<H4>19.3.3 Peek Output</H4>
+However, the needs for intermediate output, added to the requirements of debugging Sisal programs, stimulated the introduction of a "meta-feature" into Sisal, called "peek". This is a primitive that serves no purpose in the language, and is used in programs only to provide quick-and-dirty output. Basically, peek is called with a single argument, any value name or expression, and it returns an integer which can be subsequently ignored. Peek is used not for its results, though, but for its side effects, which are to write the value of its argument to the Unix output file called "standard error." This normally appears at the terminal, but can also be directed into a file along with other program output. We will offer no examples of peek's use here, because it is dangerous, not in changing program results or causing abnormal terminations, but because calls to peek are sometimes removed by the optimization stages of the compiler. This is because its results are usually not used, and so have no effect on program execution. When they survive optimization, the calls to peek are often reordered, along with other sections of code, so results sometimes do not come out in the order expected.Still, when used with discipline, for simple debugging or saving intermediate values, peek can be useful and even dependable.<P>
+
+<H4>19.3.4 Advanced Output Trickery</H4>
+The I/O trick we alluded to above, for producing intermediate results in intelligible form, is this. Sisal has a very advanced feature, called the Foreign Language Interface, that allows what we call "mixed language programming." This allows the integration of Sisal code with Fortran and/or C, with appropriate data being passed into and out of the Sisal runtime system. The data so passed is NOT in Fibre form, which allows I/O to be done with relative ease from outside of Sisal. The very clever user we mentioned above figured out how to invoke X-Windows display software from within an outer program shell written in C. He then let the outer program invoke a Sisal program to solve a big problem with parallel execution, and return solution data to the outer program. The outer program then displayed the answers using X graphics. Carried a bit further, the outer sequential loop could be written in the outer program, so that the intermediate results of each invocation of the Sisal program could be displayed as soon as they were returned from the Sisal portion of the program.<P>
+
+We strongly believe that using multiple languages, at various levels within a program's structure, to do work appropriate for the language and level represents a strong approach to the problem of parallel programming in general. It also adds to the programmer's burden the need for fluency in multiple languages as well as the interfaces among them. But this is grist for the research mill, and we believe that acceptable solutions are in the offing.
+
+
+<BR><BR>
+<H4><A HREF="18.4.traprule2.comp.ex.par.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/20.Exercises.8.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+
+If you have any questions about this page, or want more information about the
+
+Sisal Language Project, contact:
+
+<HR>
+
+<ADDRESS>
+
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+
+</ADDRESS>
+
+<P>
+
+
+The Sisal Language Project has been approved as a Designated Unclassified 
+Subject Area (DUSA) K19222, as of 07 August, 1991.
+
+<P>
+
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+
+<BR>
+
+<STRONG>
+
+UCRL-MI-122601
+
+</STRONG>
+
+

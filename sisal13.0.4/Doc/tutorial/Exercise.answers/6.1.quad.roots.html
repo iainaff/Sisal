@@ -1,0 +1,40 @@
+<H4>Exercise 6.1: Quadratic Roots Function</H4>
+Given:  three real values, <TT>a</TT>, <TT>b</TT>, and <TT>c</TT>, and the furmula for the roots of a quadratic equation<BR>
+<TT>x1 = b + (b**2-4ac)**0.5/2a</TT> and<BR>
+<TT>x2 = b - (b**2-4ac)**0.5/2a</TT>;<BR>
+Compose: a function of <TT>a</TT>, <TT>b</TT>, and <TT>c</TT> that calculates and returns the roots or some flag values if the roots cannot be calculated.<BR>
+
+<PRE>
+function quad.roots( a, b, c : real returns real, real )
+let denom = 2.0 * a;
+    discrim := b * b - 4.0 * a * c;
+
+in  if discrim >= 0.0 then
+       b + sqrt( discrim ) / denom,
+       b - sqrt( discrim ) / denom
+    else -9.99e99, -9.99e99
+    end if
+end let
+end function</PRE>
+
+<BR><BR>
+<A HREF="../Exercises/15.Exercises.6.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

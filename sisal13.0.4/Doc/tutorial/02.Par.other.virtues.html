@@ -1,0 +1,41 @@
+<H2>2. Parallel Programming and Other Virtues</H2>
+It's been said that programming computers is the most difficult abstract endeavor ever attempted by human beings. Those who have written complex programs, such as large scientific modeling codes, can certainly attest to this. Now, however, we are attempting to do something even harder, namely write programs for concurrent execution on multiple processors. Parallelism adds a new dimension to those already present within programs.<P>
+
+In a sequential program, the order of operations and the locations of data are specified, albeit, often implicitly, thanks to the abstractions available in modern programming languages. Parallelism, or what operations can go on simultaneously, and how they can interact, is the third dimension. The added complexity of parallelism can be staggering. That's why we advocate programming in <STRONG>a language with mathematical foundations</STRONG>. Such a formal basis allows compilers and run-time support systems to correctly analyze the program code and make intelligent decisions about what is safe to execute in parallel.<P>
+
+And safety, in the form of program correctness, is of paramount importance, here. The number of ways programs can go wrong undetectably is already very large. Parallelism adds the possibility of "race conditions", or time-dependent behavior, to our problems. Such misbehaviors may be extremely difficult to find, because they may not show up in every execution, every execution environment, or on every platform. Mathematical semantics and careful analysis can either spot such dangers or guarantee that they cannot happen. This is the case with Sisal.<P>
+
+In fact, Sisal carries a very important guarantee: <STRONG>Sisal programs are determinate, regardless of platform or environment.</STRONG> This means that a Sisal program will produce the same answers, regardless of what computer it executes on, or how many processors (how much parallelism) it uses. This is because the Sisal language is based on mathematical principles that give syntactically correct Sisal programs very definite formal meanings.<P>
+
+If the Sisal compiler accepts a program, it has extracted complete information about what the program does and how its parts interact. In languages such as Fortran or C, compilers typically "understand" what the parts do, but not how they interact. The Sisal compiler is able to use its complete information to automatically reason about how execute the program, without possibility of order-dependent or time-dependent errors. This enables the parallelism in the program to be exploited with certainty of correctness. Determinacy, and the automatic management of parallelism, remove a huge burden from the shoulders of the programmer.<P>
+
+But these are not Sisal's only advantages. It is also a very good language for rapid prototyping. Sisal programs tend to be shorter, and easier to read and modify, other languages. Sisal programmers tend to be able to write code faster, since they must describe only what the computation is, not the order it must proceed in.<P>
+
+Another very important advantage is that <STRONG>Sisal code can be mixed with C or Fortran</STRONG>, to effect hybrid applications, where each language can be used for the parts of the work it excels at. For instance, one might chose to use mathematical solver libraries written in Fortran from within the parallel kernel of a Sisal program. Similarly, one might compose the computational kernel of a program in Sisal, so it can deal with the parallelism present in the application, while keeping the outer shell in another language, for purposes of user interaction, problem setup, and file I/O. We will attempt to demonstrate many of these claims in subsequent sections of this tutorial, and references will be provided to other sources for further information.<P>
+<BR>
+
+<H4><A HREF="01.Introduction.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="03.Expressions.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

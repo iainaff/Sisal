@@ -1,0 +1,79 @@
+<H2>4. More Syntax</H2>
+Expressions in Sisal go beyond arithmetic sort, as we have already seen; mathematical and computer science considerations arise. For instance, the mathematical notion of a conditional expression - one whose value varies based on a predicate - is very useful. Also useful is the idea of nested scope; scope is a concept applied to names that are associated with values, and it specifies the region in which such an association is valid. We will describe the application of these ideas to Sisal here, and use them to introduce the concept of "arity" as it applies to Sisal programming.<P>
+
+<H3>4.1 Arity and Conditionals</H3>
+All Sisal constructs are expressions, and all expressions have values, but sometimes one value is not enough. Therefore, Sisal expressions can return multiple values. The number of values returned by an expression is called its "arity." Following is an example of a conditional assignment of multiple arity:<P>
+<PRE>ROOT1, ROOT2 :=
+    if DISCRIM > 0.0 then
+        sqrt( DISCRIM ) / DENOM,
+        -sqrt( DISCRIM ) / DENOM
+    else
+        0.0, 0.0
+    end if</PRE>
+
+The if-statement above has arity of two, meaning it returns two values. This code fragment is a multi-assignment of two values to two names. Each  branch of the if-statement within the assignment must return two values. Further, the corresponding result values in each branch must have the same types; this means that if an if-statement's then-clause returns two values, say an integer and an array of reals, in that order, then the else-clause must also return an integer and an array of reals, in that order. In the example above, both values are of type real, as seen by the literal zeroes in the else-branch. In any multiple-valued expression, the number of returned values must equal the number of names they are assigned to, and the names and values associate from left to right. This means that the statement we are considering, above, is equivalent to the following:<P>
+<PRE>ROOT1 := if DISCRIM > 0.0 then
+            sqrt( DISCRIM ) / DENOM
+         else
+            0.0
+         end if;
+ROOT2 := if DISCRIM > 0.0 then
+            -sqrt( DISCRIM ) / DENOM
+         else
+            0.0
+         end if;</PRE>
+
+In a multiple-valued expression (also termed a multi-expression), the individual component expressions or values are separated by commas, as shown above. The reader is cautioned not to become confused by the semicolons in the program text; semicolons are statement separators. The rules for constructing and evaluating expressions, even those of multiple arity, are likely to be intuitive to anyone with a background in basic mathematics.<P>
+
+<H3>4.2 Let-In Statements</H3>
+One problem with languages like Sisal is that they tend to be wordy. A large or complex expression that is used several times in succession can needlessly clutter an otherwise clear program. Sisal takes another hint from mathematical convention in allowing a convenience notation known as the "let-in statement." It basically allows the programmer to associate a name with the value of an expression, and then use the name as often and wherever is handy. Here's an example of this:<P>
+<PRE>let one := sin(x)*sin(x) + cos(x)*cos(x);
+    two := sqrt( one+one+one+one)
+    three := one + two
+in  one, two, three, sqrt(two)
+end let</PRE>
+
+This shows the names "<TT>one</TT>", "<TT>two</TT>", and "<TT>three</TT>" being assigned values in the let-clause, and demonstrates the utility of the let-in statement. The name "<TT>one</TT>" gets a value based on several function calls; "<TT>two</TT>" gets a value that uses the value of "<TT>one</TT>"; and  "<TT>three</TT>" gets a value based on both the previous values. Then in the in-clause, all three names are used to specify four values, which constitute the value of the let-in statement. This let-in statement has arity four.<P>
+
+The if-statement and the let-in statement typify statements that can have multiple arity. The let-in statement brings us to the idea of nested scopes. Each instance of a let-in statement constitutes a scope wherein names may be assigned to values, or defined. Names used in such a way are invisible outside the let-in statement in which they are defined. This allows names to be reused inside nested scopes, and such nesting can go on to effectively any depth. Here is an absurd example of such a legal (but unwise) nesting:<P>
+
+<PRE>let x := 1;
+    y := let x := 2;
+             y := 3
+         in  x + y
+         end let
+in x + y
+end let</PRE>
+
+The value of this nested pair of let-in statements is 6, and in spite of its tendency to confuse human readers, it is legal Sisal syntax. Many clearer and more compelling uses for statement nests can be found, and will readily occur to an experienced Sisal programmer.<P>
+
+In both the if-statement and the let-in statement, the statements are terminated by an end-if and end-let, respectively. These  bracketing keywords  help both the compiler and the reader keep track of where they are in the code, and establishes the pattern for all Sisal statement types. Each of these two statement types can be used together and nested in any convenient way, as long as commas, semicolons, and end-keywords are placed correctly. <P>
+
+The best way to appreciate such syntactic elements is to use them, so let us now go on to some exercises.<P>
+
+<BR><BR>
+<H4><A HREF="03.Expressions.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/05.Exercises.1.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

@@ -1,0 +1,60 @@
+<H4>Exercise 5.1: Thick Boundaries</H4>
+Given: a system array with constant boundaries of size k, that is to be evolved by a given function "<TT>evolve</TT>", which returns only the core of the new system array;<BR>
+Compose: a code fragment that evolves the system and puts the boundary rows and columns onto the core system returned by function "<TT>evolve</TT>".<P>
+
+<PRE>let new_core   := evolve(system_array); % returns only the core of the new system
+    top_indx   := array_liml(system_array);
+    btm_indx   := array_limh(system_array);
+
+    new_top    := for i in top_indx, top_indx+k-1
+                      top_bound_row := system_array[i]
+                  returns array of top_bound_row
+																	 end for;
+    new_btm    := for i in btm_indx-k+1, btm_indx
+                      btm_bound_row := system_array[i]
+                  returns array of btm_bound_row
+																	 end for;
+
+    left_indx  := array_liml(system_array[1]); % assume all rows have same range
+    right_indx := array_limh(system_array[1]);
+
+    long_core  := for row in new_core at i
+                      left_bound_elts  := for j in left_indx, left_indx+k-1
+                                              left_elts  := system_array[i,j]
+                                          returns array of left_elts
+                                          end for;
+                      right_bound_elts := for j in right_indx-k+1, right_indx
+                                              right_elts := system_array[i,j]
+                                          returns array of right_elts
+                                          end for;
+
+                  returns array of left_bound_elts || row || right_bound_elts
+                  end for;
+    long_tall  := new_top || long_core || new_btm
+
+in  long_tall % The newly evolved system, complete with boundaries.
+end let</PRE>
+
+Note: If you came close to an answer equivalent to this one, you're to be congratulated. This is a nontrivial piece of Sisal coding, and indicates a good understanding of all that's gone before. If you didn't, don't be discouraged. This sort of coding requires a change of mind-set from that needed for programming in other languages. We believe that, once you make the shift to thinking functionally, the Sisal language will make you a faster and more productive programmer. If you require further proof of this, try writing the above code fragment in your favorite imperative language, and see if you think it's shorter, neater, or easier to read.<P>
+
+<BR><BR>
+<A HREF="../Exercises/13.Exercises.5.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

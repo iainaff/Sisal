@@ -1,0 +1,74 @@
+===============================================================================
+IF Library data structures and functions
+===============================================================================
+
+When IFRead routines complete, a data structure is built with the
+following rules:
+
+1.  Two-way linked lists of pointers connect structures.  A NULL
+    pointer indicates the end of the list.
+
+2.  The top-level structure is the module list.  Variable glstop
+    is an empty graph at the head.  The successor graph module 
+    (ususally a function graph) is reached with glstop->gsucc.  
+    Subsequent modules are reached with graph->gsucc.  The graph
+    module list may be retracted with graph->gpred.
+
+3.  The first node within a graph is reached with graph->nsucc.
+    The next node following the first node when read is reached 
+    with the node->nsucc pointer.  The preceding node is reached 
+    with the node->npred pointer.  These links are not edges. 
+
+4.  In a compound graph, the subgraphs are reached with the 
+    graph->gsucc and graph->gpred pointers.
+
+5.  The label field on a node is a number unique among nodes in the 
+    enclosing graph.
+
+6.  The source for an edge is edge->src (NULL for a literal, eport==-1).  
+    The destination is edge->dst.
+
+7.  The first edge out of a node is node->exp.  Its associated port
+    number is node->exp->eport.  An eport of -1 indicates the source
+    is the literal node->exp->CoNsT.  The next edge out is 
+    node->exp->esucc.  A backwards link is available in edge->epred.
+
+9.  The first edge into a node is node->imp.  Its port number is 
+    node->imp->iport.  Retrace with edge->ipred.  
+
+9.  The first edge out of a graph boundary to a node is graph->exp.
+    Its port number is graph->exp->eport.  The next edge out is
+    graph->exp->esucc.  Backwards is edge->epred.  
+
+10. The first edge from a node into the graph boundary is graph->imp.  
+    Port number is graph->imp->iport.  Also edge->ipred is available.
+
+11. The edges are not ordered by port number in the link list; use
+    FindImport(node, port_number) or Find Export(node, port_number).
+
+12. Information about types is found in node->info, graph->info, and
+    edge->info.  Details of this are TBD.
+
+===============================================================================
+
+To traverse all nodes:
+
+void traverse_modules(void)
+{
+    PNODE graph;
+    IFRead();
+    for (graph=glstop->gsucc; graph!=NULL; graph = graph->gsucc)
+        traverse_graph(graph);
+}
+
+void traverse_graph(PNODE graph)
+{
+    PNODE node, next_node, subgraph;
+    for (node=graph->nsucc; node; node=next_node) {
+        PRINTF("found a node\n");
+        if (IsCompound(node)) {
+            for (subgraph=node->gsucc; subgraph!=NULL; subgraph=subgraph->gsucc)
+                traverse_graph(subgraph);
+        }
+        next_node = node->nsucc;
+}

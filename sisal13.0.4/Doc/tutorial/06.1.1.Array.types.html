@@ -1,0 +1,48 @@
+<H4>6.1.1 Array Types</H4>
+In Sisal, as in other languages, arrays are collections of elements of homogeneous types. In Fortran, for example, an array type is specified by the number of dimensions it has, and by its static size at compile-time. An array defined to be of size 100 by 50 can never change size or shape. In Sisal, the number of dimensions an array contains is specified by its type, but its sizes in each dimension are completely dynamic. But let's take this in small steps; consider the Sisal type declarations shown below.<P>
+
+<PRE>type float = double_real;
+type One_Dim_R = array [ float ];
+type One_Dim_I = array [ integer ];
+type Two_Dim_I = array [ One_Dim_I ];</PRE>
+
+
+The first statement defines a convenient type-name, "<TT>float</TT>", by which to refer to values of type <TT>double_real</TT>. The second defines a convenient type-name for an array whose elements are of type <TT>float</TT>. The third line specifies a type that is an array of <TT>integer</TT> elements, and the fourth line specifies an array of elements which are themselves one-dimensional arrays; this fourth type is an example of what we mean by a two-dimensional array in Sisal.<P>
+
+Note that in the array type declarations, no sizes are specified; this is because size and index range are not characteristics of array types, but only of specific values which are instances of array types. Arrays of type  <TT>One_Dim_R</TT> can have as many elements as desired in the program; they can also have any index range the programmer finds expedient, as long as the upper index bound is at least as large as the lower bound. The same is true for arrays of type <TT>Two_Dim_I</TT>. Furthermore, the one-dimensional arrays making up the rows of a two-dimensional array can all have different sizes and index ranges, leading to what are called "ragged arrays".<P>
+
+These matters will be made clearer in the examples to follow. For the moment, the key point to focus on is that all values are dynamic and transitory in Sisal programs. If a statement returns, or evaluates to, a value that is a one-dimensional array, that array's size and index range are defined solely by the statement whose value it is; and, the value itself exists only until it is finally consumed by a further statement in the program.<P>
+
+One other matter concerning arrays should be mentioned at this time: indexing and logical structure. We have just seen that a two-dimensional array may be considered an array of one-dimensional arrays. This inductive hierarchical structuring continues into greater numbers of dimensions; for instance, a three-dimensional array is an array of two-dimensional arrays. When indexing an array, the elements accessed get smaller (or simpler) as more indices are specified from left to right. For instance, if we have the type declarations shown above, and array A is of type <TT>Two_Dim_I</TT>, then A[6] is the sixth row of A, and A[4,7] is the seventh element of the fourth row. It is also correct syntax to specify this element as A[4][7], which clarifies thae fact that we are specifying the seventh element of the fourth element of A.<P> 
+
+There is no notation in Sisal for specifying a single column of a two-dimensional array, nor is there a correct notation for omitting the left or middle index from an access to a three dimensional array. Indices must be supplied from the left and omitted, if they are not all supplied, from the right.<P>
+
+Similarly, suppose we add the following declaration to the above set:<P>
+<PRE>type Three_Dim_I = array [ Two_Dim_I ];</PRE>
+And suppose we have an array B of type <TT>Three_Dim_I</TT>. If we index as B[i], we are specifying the two-dimensional array formed by all the i-th rows of each plane. The B[i,j]-th element is the row of all the elements from row i, column j, in each plane. This indexing treatment is termed "row_major," and means that in walking through an array of any dimensionality, the leftmost array index varies fastest and the rightmost varies slowest. This is consistent with the indexing conventions found in the C language but not the same as in Fortran.<P>
+
+<H4><A HREF="06.0.User.types.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="06.1.2.Record.types.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

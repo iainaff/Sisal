@@ -1,0 +1,51 @@
+c  Common blocks for model variables
+      common /spcomp/ p(jxmx),e(jxmx),c(jxmx),z(jxmx),zmean,h(jxmx),
+     &		      zdiff(jxmx),p1(jxmx)
+      common /spuv/   u(jxxmx),v(jxxmx)
+      common/spcmpt/pt(jxmx),ct(jxmx),zt(jxmx)
+      common/hold/pm(jxmx),cm(jxmx),zm(jxmx)
+      common/grcomp/pg(ix),ug(ix),vg(ix),pug(ix),pvg(ix),eg(ix),
+     &		    zg(ix),zug(ix),zvg(ix)
+      common/grcpnh/pugn(mx2),pvgn(mx2),ugn(mx2),vgn(mx2),egn(mx2),
+     &		    zugn(mx2),zvgn(mx2)
+      complex p,pt,pm,e,c,ct,cm,z,zt,zm,h,u,v,zdiff
+      complex pf(ixh),uf(ixh),vf(ixh),puf(ixh),pvf(ixh),ef(ixh)
+      complex zf(ixh),zuf(ixh),zvf(ixh)
+      dimension pri(jxmx2),ptri(jxmx2),eri(jxmx2)
+      dimension zri(jxmx2),ztri(jxmx2),cri(jxmx2),ctri(jxmx2)
+      dimension uri(jxxmx2), vri(jxxmx2)
+      equivalence (p(1),pri(1)), (e(1),eri(1))
+      equivalence (pg(1),pf(1)) ,(ug(1),uf(1)) , (vg(1),vf(1)) 
+      equivalence (zg(1),zf(1)) ,(zug(1),zuf(1)) , (zvg(1),zvf(1)) 
+      equivalence (pt(1),ptri(1)), (ef(1),eg(1))
+      equivalence (zdiff(1),zri(1)), (zt(1),ztri(1))
+      equivalence (c(1),cri(1)), (ct(1),ctri(1))
+      equivalence (u(1),uri(1)), (v(1),vri(1))
+      equivalence (pug(1),puf(1)) , (pvg(1),pvf(1)) 
+ 
+c  Common blocks for coefficients
+      common /loc/ epsi(jxxmx),ksq(mx2),ilat,ilath,ilong
+      common/index/kmjx(mx),kmjxx(mx)
+      common/legpol/alp(jxxmx),w(iy),wocs(iy),coa(iy),sia(iy),delta(iy)
+      common/param/ww,tw,asq,grav
+      common/coeffs/hdiff,hdrag,vnu
+      common /fft / trigf(ixh),trigb(ixh),ifax(10),nfax
+      complex trigf,trigb
+
+c  Common blocks for control variables, switches etc
+      common/condit/delt,kount,imp,istart,izon,ilin
+      common /hdr/ ihdta,ifdd,ifmm,ifyy,ifhh,ibdd,ibmm,ibyy,ibhh,
+     *             ihkont,ihir,ihirmx,ihilat,ihlong,ihdelt,ihprgt,
+     *             ihnlev,slevs(10),ihtopo
+      common /io/ indcb,odcb
+      common /spect/ ir,irmax,irmax1,irmax2
+      common /levpos/ ihem,ih
+      common /cdta/      diffi,idelt,itopo,idumpt,iglobe,ireset,
+     *             kountp,ktotal,itdel,nostst,itrunc
+      common/first/ifirst,itflag
+c	Pau added
+	common/pau/ill
+c	-----------------
+      dimension idata(28)
+      equivalence (idata(1),ihdta)
+      integer odcb

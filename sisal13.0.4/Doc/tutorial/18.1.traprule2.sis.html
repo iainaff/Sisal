@@ -1,0 +1,103 @@
+%<PRE>
+define main
+
+% This module is a trapezoidal rule integration program.
+% For any supplied function f(X:double_real), it takes
+% double real inputs defining endpoints of the interval
+% to be integrated over, a double real tolerance, and an
+% integer count of sub-intervals to divide the interval
+% into. It returns an array of double_real values of the
+% numerical value of the definite integral over the interval,
+% the number of refinement iterations made, the number of
+% subintervals actually used to arrive at the final result,
+% and the total number of subinterval area calculations made.
+
+type One_Dim_D = array [ double_real ];
+type Two_Dim_D = array [ One_Dim_D ];
+
+% INSERT FUNCTION F HERE
+%
+%===============================================================
+
+function f( x : double_real returns double_real )
+
+15.0d0 * x * x * x - 6.375d0 * x * x + 11.9d0 * x - 33.999d0
+
+end function %% f
+
+%===============================================================
+
+function trap_area( left_end, right_end : double_real
+                    returns double_real )
+% Calculates the area of a trapezoid
+let     h     := right_end - left_end;
+        f_avg := ( f(left_end) + f(right_end) )/2.0d0
+
+in      h * f_avg
+
+end let
+end function %% trap_area
+
+%===============================================================
+
+function main( a, b : double_real;	   % Endpoints of integration
+                                      %    interval
+	              epsilon : double_real;	% tolerance
+	              initial_n : integer;	  % Initial number of
+                                      %    subintervals
+
+               returns One_Dim_D,	    % values of approximation
+                                      %    of definite integral
+		                     integer,		     % iteration counter
+		                     integer )	     % number of subintervals
+                                      %    finally used
+for initial
+	  N :=	initial_n;
+   Total_N := N;
+  	Cnt :=	1;
+	  H :=	(b - a) / double_real(N);
+	  Area :=	for i in 1, N
+        		    ai := a + double_real(i-1) * h;
+        	    	bi := ai + h;
+   		      returns value of sum trap_area( ai,  bi )
+   		      end for
+repeat
+  	N :=	old N * 2;
+   Total_N := old Total_N + N;
+  	Cnt :=	old Cnt + 1;
+  	H :=	old H / 2.0d0;
+  	Area :=	for i in 1, N
+        		    ai := a + double_real(i-1) * h;
+        	    	bi := ai + h;
+   	      	returns value of sum trap_area( ai, bi )
+	         	end for
+
+until abs( area - old area ) < epsilon | Cnt > 12
+
+returns array of Area
+  	     value of Cnt
+  	     value of N
+        value of Total_N
+end for
+
+end function %% main
+%</PRE>
+
+%<BR><BR>
+%<H4><A HREF="18.0.Comp.run.html">Previous Section</A></H4>
+%<BR><BR>
+%<H4><A HREF="18.2.traprule2.input.html">Next Section</A></H4>
+%<BR><BR>
+%<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+%<BR><BR><BR>
+
+% <PRE>
+% If you have any questions about this page, or want more information about the
+% Sisal Language Project, contact:</PRE><HR><ADDRESS>
+% John Feo at (510) 422-6389 or feo@diego.llnl.gov, or<BR>
+% Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+% </ADDRESS><P><PRE>
+% The Sisal Language Project has been approved as a Designated Unclassified
+% Subject Area (DUSA) K19222, as of 07 August, 1991.</PRE>
+% <a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a><BR>
+% <STRONG>UCRL-MI-122601</STRONG>

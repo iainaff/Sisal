@@ -1,0 +1,334 @@
+<H2>16. Sequential Looping with For-Initial Loops</H2>
+
+In this section we will discuss the sequential or iterative looping construct 
+in Sisal. Unlike the for-loop, in which all instances of the loop body are 
+independent, the Sisal "for-initial" loop involves the explicit passing of 
+information between consecutive instances of the loop body. This is 
+visualized as a graph with a sequence of nodes, representing loop bodies, and 
+the arcs between them representing the data dependencies between the loop 
+bodies. The bodies (nodes) bear what we term a "producer-consumer" 
+relationship to one another, and this establishes their interdependency. 
+Syntactically, the data calculated in one body that is to be made available 
+to the next body is identified in the consuming body by use of the keyword 
+"old" before the identifier name. But it will be much easier to explain by 
+example, so consider the following:<P>
+
+<H3>16.1 Two-Body Loops</H3>
+
+The for-initial loop consists of two major parts, the initial-clause and the 
+loop body proper. One way to think of this type of loop is to consider that 
+the initial clause is the first "iteration", or the first actual loop body 
+that gets executed; after it executes exactly once, zero or more instances of 
+the loop body proper execute. The need for a distinguished first "iteration" 
+is easy to explain by example, and we will look at one directly. However, for 
+the moment, keep in mind that the loop must always return a specified number 
+of results of specified types. These results are initially generated in the 
+initial-clause, and then may get further treatment in the loop body proper, 
+if it executes. With this in mind, consider the following example:<P>
+
+<PRE>for initial
+   i := array_liml(A);
+   tmp := A[i];
+   running_sum := tmp
+while i < array_limh(A) repeat
+   i := old i + 1;
+   tmp := A[i];
+   running_sum := old running_sum + tmp
+returns value of running_sum
+        array of running_sum
+end for</PRE>
+
+In this example we first see the loop keywords  "<TT>for initial</TT>" which 
+identify it as a sequential loop, and which open what we call the "initial 
+clause" of the loop. This clause contains the initial definitions of the 
+loop-carried values, "<TT>i</TT>", and "<TT>running_sum</TT>", which 
+implement the data dependencies between the contiguous body instances.<P>
+
+Like the body of a for-loop, the initial clause of a for-initial loop can 
+also contain the definitions of loop-local names, which are temporary 
+identifiers used subsequently in the calculation but not passed between loop 
+bodies; this is the purpose of "<TT>tmp</TT>". Next, we see the iteration 
+termination test. This is a predicate, evaluating to a Boolean value, which 
+uses either the "<TT>while</TT>" or "<TT>until</TT>" keyword to specify how 
+the test is to be applied. The termination test can be at either the top or 
+the bottom of the loop body; in this case it is at the top, and we refer to
+this form of loop as "top-tested."  If it were at the bottom of the loop
+body, we would call it a "bottom-tested loop", and the keyword
+"<TT>repeat</TT>" would still be used to demarcate the top of the loop body.<P>
+
+The body of this loop shows the use of the keyword "<TT>old</TT>" to specify 
+data passed in from previous bodies. In fact, it is more technically correct 
+to call them "scopes" than "bodies", but the effect is the same. The 
+statement  "<TT>i := old i + 1</TT>" specifies that the value named 
+"<TT>i</TT>" from the previous scope (i.e. "<TT>old i</TT>") is to be 
+incremented by one and assigned the name "<TT>i</TT>" in this scope. While 
+this may look like a violation of the single-assignment rule, it actually is 
+not; the values named "<TT>i</TT>" and "<TT>old i</TT>" are two different 
+entities, having independent existences, except for the value of the former 
+being determined by the latter. The same thing holds for 
+"<TT>running_sum</TT>", and we refer collectively to all of the instances of 
+"<TT>i</TT>", "<TT>old i</TT>", "<TT>running_sum</TT>", and "<TT>old 
+running_sum</TT>" as the  "loop-carried values  '<TT>i</TT>' and 
+'<TT>running_sum</TT>'", respectively.<P>
+
+So, the way the values are passed between the loop bodies is like this. The
+first time the statement "<TT>i := old i + 1</TT>" in loop body is executed,
+the meaning of "<TT>old i</TT>" is that value of "<TT>i</TT>" defined in the
+initial clause of the loop. Subsequent to this, it means that value of
+"<TT>i</TT>" defined in the most recent body before the current one. The
+ordering of the loop bodies' execution is totally determined by the effects
+of the termination test and the loop-carried values. Notice that the
+identifier "<TT>tmp</TT>" does not appear with the modifier keyword
+"<TT>old</TT>"; this is because its value is not passed between loop bodies,
+but is calculated anew in each body. This "loop-local" identifier is similar
+to those temporaries that are defined in the bodies of parallel for-loops,
+in that each instance of  it is independent of all the others, and we simply
+allow the reuse of its name for the convenience of the programmer.<P>
+
+At the end of the body we see the returns clause, just like that of the for-
+loop. It can contain the same aggregation and reduction operations, which can 
+operate on any or all of the loop-carried values; they can also contain the 
+same Boolean masks, using the keywords "<TT>when</TT>" or "<TT>unless</TT>", 
+to allow operation on subsets of the instances of any or all of the loop-
+carried values. The loop above returns both a value and an array; it adds up 
+all the elements of the array "<TT>A</TT>", aggregates all the running 
+subtotals into an array, and returns the total and the array of subtotals.<P>
+
+<H3>16.2 One-Body Loops</H3>
+
+Now we need to return to the philosophy of sequential loops, to make sure all 
+their ramifications are well explained. The for-initial loop is an 
+expression, and all expressions have values. A given loop must return the 
+same number and types of results, regardless of how many or few times it 
+"iterates". If the body of the loop above never executes, because the array 
+"<TT>A</TT>" is empty and the termination criterion is met the first time it 
+is encountered, then the loop will still try to return the same two values. 
+If we are sure that the array "<TT>A</TT>" contains at least one value, then 
+the loop as written above will behave correctly, and there will be an initial 
+i-th element to be assigned to the name "<TT>tmp</TT>"; otherwise, that array 
+reference in the initial-clause will fail with an address-out-of-range 
+runtime error. This situation must be planned for carefully! In the case 
+above, the initial clause is actually the first real instance of the body of 
+the loop. In other circumstances, we might want to program the loop so that 
+the initial-clause sets up the values to be returned in the case where the 
+body is not executable. In such situations, we are actually providing, in the 
+initial-clause, default values to be returned if the body does not execute, 
+and these default values can be considered the identity elements for the 
+operations in the returns clause. In this a case, the loop might change to 
+that shown below:<P>
+
+<PRE>for initial
+   i := array_liml(A) - 1;
+   tmp := 0;
+   running_sum := tmp
+while i < array_limh(A) & array_size(A) ~= 0 repeat
+   i := old i + 1;
+   tmp := A[i];
+   running_sum := old running_sum + tmp
+returns value of running_sum
+        array of running_sum
+end for</PRE>
+
+In the above version of the loop, we use the initial-clause to set up for the 
+actual loop body, defining the first value of the loop index, "<TT>i</TT>" as 
+one less than the lower bound of the array, and the value of 
+"<TT>running_sum</TT>" as zero. Then, the loop body uses a value for 
+"<TT>i</TT>" that is legal within the array, if the termination test allows 
+the body to execute. The returns clause in this version will return zero and 
+an array containing the single element zero, if the loop body does not 
+execute. The previous version would have failed with a run-time error, if 
+this had occurred. We also see, in the second version, that the termination 
+test is altered, to allow for the array "<TT>A</TT>" to be empty and to have 
+a lower bound that is greater than its upper bound by more than one. Recall 
+that an empty array can have any bounds as long as the lower bound is greater 
+than its upper bound; it is possible that an algorithmically-generated array 
+might have bounds of, say [-5, 0 ], due to unexpected behavior of the code 
+the generates it. The addition of the array-size primitive protects the loop 
+against this possibility.<P>
+
+<H3>16.3 Sequential Array Manipulation</H3>
+
+But suppose we did not want to return an array containing the single element 
+"0", as shown above, in the case of the body not executing; a more reasonable 
+thing to return in this case might be an empty array. This can be done if we 
+can define an empty array and then go on to fill it one or more elements at a 
+time. This is possible in Sisal, and the code below shows another version of 
+the loop that accomplishes it:<P>
+
+<PRE>for initial
+   i := array_liml(A) - 1;
+   tmp := 0;
+   running_sum := tmp;
+   running_sum_array := array []
+while i < array_limh(A) & array_size(A) ~= 0 repeat
+   i := old i + 1;
+   tmp := A[i];
+   running_sum := old running_sum + tmp;
+   running_sum_array := array_addh(old running_sum_array, running_sum)
+returns value of running_sum
+        value of running_sum_array
+end for</PRE>
+
+Here we have added another loop-carried value, "<TT>running_sum_array</TT>", 
+which is initialized to an empty array in the initial clause and returned in 
+the returns clause. In the body, we see it is operated on by the Sisal 
+primitive "<TT>array_addh</TT>"; this primitive extends the array given as 
+its first argument, at the upper end of its index range, by one element whose 
+value is the second argument. This affects both the contents of the array and 
+its index bounds, and is a very handy primitive to have in such a case as 
+this. Note that in the returns clause, the second value being returned is now 
+generated by a "value-of" operation, rather than by an operation. Since the 
+array we wish to return was created in the initial-clause and is being 
+incrementally filled by the loop body, we simply return the "last" version of 
+it generated by the loop as a whole. While the incremental expansion of this 
+array as the loopexecutes would normally be a source of inefficiency, the 
+Optimzing Sisal Compiler is able to optimize such programs so that the 
+structure is built in place quite efficiently.<P>
+
+As one might expect by now, there is also a primitive to extend an array at 
+the bottom end of its index range, as well as primitives to change one or 
+more elements of an array, to shrink arrays at either end, and primitives to 
+adjust the index range of arrays. These are specified in the following table, 
+along with all the other array operations we have already seen; in the table, 
+"<TT>A</TT>" is an array, "<TT>v</TT>" is a value of the proper type for 
+elements of "<TT>A</TT>", and "<TT>low</TT>" and "<TT>high</TT>" are 
+integers:<P>
+
+<PRE>array primitive           effect
+========================================================
+array_size(A)            get number of elements
+array_limh(A)            get upper bound
+array_liml(A)            get lower bound
+array_addh(A,v)          extend at high end
+array_addl(A,v)          extend at low end
+array_remh(A)            remove at high end
+array_reml(A)            remove at low end
+array_adjust(A,low,high) set both bounds
+array_setl(A,low)        set lower bound
+A[ i : v ]               change value at index i to v
+A[ i: u, v, w ]          change values at indices 
+                            i, i+1, and i+2 to 
+                            u, v, and w, respectively
+A[ i: u; j: v ]          change values at indices i and j
+                            to u and v, respectively</PRE>
+
+The above primitives allow us to operate on arrays in useful ways, and are 
+most often used in sequential loops, such as we have been discussing. 
+However, they can also occur in other code, such as let-in statements, and it 
+bears emphasizing that the arrays they produce are different values from 
+those they operate on. In other words, we could have the following code:<P>
+
+<PRE>let A := array [ 1: 5, 10, 15, 20, 25];
+    B := array_addl(A, -5);
+    C := array_addh(A, 30);
+    D := array_reml(A);
+    E := array_adjust(A, 3, 4);
+    F := A[ 1: -5; 3: -15, -20 ]
+in  A, B, C, D, E, F
+end let</PRE>
+
+The above let-in statement returns the following values:<P>
+
+<PRE>array [ 1: 5, 10, 15, 20, 25]       % The array A
+array [ 0: -5, 5, 10, 15, 20, 25 ]  % B = A with new first element and 
+                                    %     lower bound
+array [ 1: 5, 10, 15, 20, 25, 30 ]  % C = A with new last element and 
+                                    %     upper bound
+array [ 2: 10, 15, 20, 25 ]         % D = A minus first element, with new 
+                                    %     lower bound
+array [ 3: 15, 20 ]                 % E = A minus several elements, with 
+                                    %     new bounds
+array [ 1: -5, 10, -15, -20, 25 ]   % F = A with several elements changed
+</PRE>
+
+Note that none of the operations on "<TT>A</TT>" changes its value; Rather, 
+they produce new values of array types whose elements and index ranges are 
+related to those of their argument array.<P>
+
+<H3>16.4 Termination Tests and the Generation of the "old" Value</H3>
+
+The need to pass values between consecutive instances of a loop body, and in 
+so doing, define an identifier "old {name}" and simultaneously undefine an
+identifier {name} requires some careful timing. In the case of a top-tested loop,
+it is not possible to reference both {name} and "old {name}" in the termination
+test, because the the first time the test is evaluated, only one of these values
+is defined. The redefinition of names of loop-carried values takes place 
+immediately after the termination test. In the case of the loop shown 
+schematically below,<P>
+
+<PRE>        for initial
+           val := initial_value
+        while {test(val)} repeat
+           val := f(old val)
+        returns val
+        end for</PRE> 
+
+the value associated with the name "<TT>val</TT>" changes its name to
+"<TT>old val</TT>" right after "<TT>test(val)</TT>" is executed, and the
+named "<TT>val</TT>" becomes undefined at the same time. Note that the
+test can contain references to "<TT>val</TT>" but not "<TT>old val</TT>",
+since the latter is not defined the first time the test is encountered.
+This form of loop is called a "top-tested loop."<P>
+
+If a test which refers to both names is desired, it must be placed at the
+bottom of the loop body, as in the following example:<P>
+
+<PRE>        for initial
+           val := initial_value
+        repeat
+           val := f(old val)
+        while {test(val, old val)} 
+        returns val
+        end for</PRE> 
+
+The first time "<TT>test(val, old val)</TT>" is executed, both names are
+defined, since the former was just calculated and the latter was calculated
+in the initial clause. Immediately after the test, the value named
+"<TT>val</TT>" changes its name to "<TT>old val</TT>" and the value
+"<TT>val</TT>" becomes undefined at the same time. This form of loop is
+called a "bottom-tested loop."<P>
+
+Next are a few exercises intended to cement the concepts discussed above.<P> 
+
+<BR><BR>
+<H4><A HREF="Exercises/15.Exercises.6.html">Previous Section</A></H4>
+<BR><BR>
+<H4><A HREF="Exercises/17.Exercises.7.html">Next Section</A></H4>
+<BR><BR>
+<H4><A HREF="00.Contents.html">Table of Contents</A></H4>
+<BR><BR><BR>
+
+
+If you have any questions about this page, or want more information about the
+
+Sisal Language Project, contact:
+
+<HR>
+
+<ADDRESS>
+
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+
+</ADDRESS>
+
+<P>
+
+
+The Sisal Language Project has been approved as a Designated Unclassified 
+Subject Area (DUSA) K19222, as of 07 August, 1991.
+
+<P>
+
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+
+<BR>
+
+<STRONG>
+
+UCRL-MI-122601
+
+</STRONG>

@@ -1,0 +1,128 @@
+<H4>Exercise 7.4: Conway's Game of Life</H4>
+Given:  a two-dimensional array, <TT>Board</TT>, of integer cell values, zero for a dead cell and positive nonzero for a live one;<BR>
+Given:  the boundaries cells around the edge of <TT>Board</TT> are always dead;<BR>
+Given:  the rules by which a non-boundary cell lives or dies:
+<PRE>     if three or fewer neighbor cells are alive, then cell dies;
+     if five or more neighbors cells are alive then cell dies;
+     if four neighbor cells are alive, then increment current cell value;</PRE>
+Compose:  a program that plays evolves the <TT>Board</TT> array until some input number of steps are completed, and returns an array of all the values taken on by <TT>Board</TT>.<BR>
+
+<PRE>%==========================================================================
+
+define main
+
+% John Conways Game of Life. Values of the Board cells are 0, for dead
+% cells, or positive integers for live cells.
+% Each cell has 8 neighbors; boundaries always contain dead cells.
+% On each iteration, the cells are updated as follows:
+%  -- If a cell has more than four live neighbors, then it should die.
+%  -- If a cell has fewer than four live neighbors, then it should die.
+%  -- If a cell has exactly four live neighbors, then 
+%        if it is deal, then it should be born;
+%        if is alive, then it should stay alive.
+%  -- If a cell stays alive in a step, its value incremented by one.
+% The simulation of life iterates "Iterations" times.
+% The board rows are all indexed from 1 to N, and the columns are all
+% indexed from 1 to M; M and N may not be equal.
+
+type OneDim = array [ integer ];
+type TwoDim = array [ OneDim ];
+type ThreeDim = array [ TwoDim ];
+
+%==========================================================================
+
+function decide( B : TwoDim; I : integer; J : integer returns integer )
+% This function decides which cells should live or die.
+
+  %----------------------------------------------------------
+  function test( B : TwoDim; p, q : integer returns integer )
+     % This embedded function deterimines if a given cell is
+     % currently alive; it returns numeric values, 1 for alive
+     % and 0 for dead, so its results can be added by its
+     % caller to similar results for other cells.
+
+     if B[p, q] > 0 then 1 else 0 end if
+  end function % test
+  %----------------------------------------------------------
+
+  % count the neighbors of cell [I,J]
+  let Neighbor_count := test(B,I-1,J-1) + test(B,I-1,J) + test(B,I-1,J+1) +
+                        test(B,I,  J-1) +                 test(B,I,  J+1) +
+                        test(B,I+1,J-1) + test(B,I+1,J) + test(B,I+1,J+1)
+
+  % change its state, if necessary
+  in  if     ( Neighbor_count >= 5 ) then 0
+      elseif ( Neighbor_count  = 4 ) then B[i,j] + 1
+      elseif ( Neighbor_count <= 3 ) then 0
+      end if 
+  end let
+end function % decide
+
+%==========================================================================
+
+function evolve( B : TwoDim returns TwoDim )
+  let
+    Num_Rows  := array_size(B);
+    Num_Cols  := array_size(B[1]);
+    First_row := B[1];
+    Last_row  := B[Num_Rows];
+
+    Core      := % evolve the central portion of B
+                 for I in 2, Num_Rows-1
+                    Mid_row  := % evolve the central portion of row I
+                                for J in 2, Num_Cols-1
+                                returns array of decide(B,I,J)
+                 returns array of Mid_row
+                 end for;
+             
+    Long_Core := % add the left and right boundaries to each core row
+                 for m in 2, Num_Rows-1
+                    Long_Row := array_addl( Mid_row, 0 );
+                 returns array of array_addh( Long_Row, 0 )
+                 end for
+
+  in  % add the top and bottom boundary rows to the long core
+      array_addl(array_addh(Core,Last_row),First_row)
+  end let
+end function % evolve
+
+%==========================================================================
+
+function main( Iterations : integer; Board : TwoDim returns Three_Dim )
+
+   for initial
+      Count := Iterations;
+      B := Board;
+   while ( Count > 0 ) repeat
+      Count := old Count - 1;
+      B := evolve( old B ); 
+   returns array of B
+   end for
+
+end function % main
+
+%==========================================================================
+</PRE>
+
+
+<BR><BR>
+<A HREF="../Exercises/17.Exercises.7.html">Previous Section</A><BR><BR><BR>
+
+If you have any questions about this page, or want more information about the
+Sisal Language Project, contact:
+<HR>
+<ADDRESS>
+John Feo at (510) 422-6389 or feo@diego.llnl.gov, or
+Tom DeBoni at (510) 423-3793 or deboni@llnl.gov.
+</ADDRESS>
+<P>
+
+The Sisal Language Project has been approved as a Designated Unclassified Subject Area (DUSA) K19222, as of 07 August, 1991.
+<P>
+
+
+<a href="http://www.llnl.gov/disclaimer.html">LLNL Disclaimer</a>
+<BR>
+<STRONG>
+UCRL-MI-122601
+</STRONG>

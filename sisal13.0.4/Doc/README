@@ -1,0 +1,39 @@
+This directory contains various forms of documentation for the
+Optimizing SISAL Compiler (OSC).  The man pages are in ../Tools.
+
+fibreref.ps: A postscript copy of version 1.1 of ``Fibre, the Native
+I/O System for Sisal'' by Frederick Koehl.  This describes the
+(primitive) input-output system native to SISAL.
+
+oscmanual.ps: A postscript copy of ``The Optimizing SISAL Compiler,
+Version 12.0'' by David Cann.  This is the manual for the OSC
+compiler.  Come here and to the man page to learn the compiler's ins
+and outs.  The current OSC version is 13.0.3, but little or nothing
+visible to the user has changed since version 12.0.
+
+retire.ps: A postscript copy of ``Retire Fortran?  A Debate Rekindled''
+by David Cann.  This contains interesting performance information on
+Sisal vs. Fortran.
+
+sisalintro.ps: A postscript version of ``SISAL 1.2: A Brief
+Introduction and Tutorial'' by David Cann.  This is the place to
+go to learn how to use the language.
+
+sisalref.ps: A postscript version of the ``Sisal Reference Manual'' by
+James McGraw et al.  This is the ultimate reference on the Sisal 1.2
+language and was provided by David Kaplan at the Naval Research Labs
+from original sources.  (kaplan@ait.nrl.navy.mil).  He expressed a
+desire to hear about errors discovered in the manual so that he can
+fix them.  Certain things such as the VAX-based pragmas in the
+appendices are out of date.
+
+sisalref.pdf: A PDF version of the above manual.
+
+tutorial/Tutorial.html: The entry point to the ``SISAL Tutorial'' by
+John Feo and Tom DeBoni.  Some of the links in this web document may
+be out of date.  In particular, the Sisal project no longer exists at
+LLNL.  You may or may not be able to download the OSC code from LLNL,
+but if you have the full current distribution, there is no need to do
+so!  The document is still quite useful.
+
+D. J. Raymond
