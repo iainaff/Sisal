@@ -41,6 +41,144 @@ static int eccnt = 0;            /* COUNT OF CONVERTED ERROR CONSTANTS    */
 static int rgcnt = 0;            /* COUNT OF MOVED RangeGenerate NODES    */
 static int nlog  = 0;            /* COUNT OF NORMALIZED LOGICAL NODES     */
 
+/**************************************************************************/
+/* LOCAL  **************     HoistTestSubgraph     ************************/
+/**************************************************************************/
+/* The contents of a test can be computed outside the compound            */
+/**************************************************************************/
+static void HoistTestSubgraph(PNODE test_graph) {
+  PNODE compound;
+  PNODE parent;
+  PNODE n;
+  PNODE n1;
+  PEDGE e;
+  PEDGE e1;
+
+  compound = FindEnclosing(test_graph);
+  parent = FindEnclosing(compound);
+  for(n=test_graph->nsucc; n; n = n1) {
+    n1 = n->nsucc;
+
+    RemoveNode(n,test_graph);
+    InsertNode(compound,n);
+
+  }
+}
+
+/**************************************************************************/
+/* LOCAL  **************     ConvertIfThenElse     ************************/
+/**************************************************************************/
+/*  */
+/**************************************************************************/
+static void ConvertIfThenElse(PNODE node) {
+  PNODE test_graph = node->C_SUBS;
+  PNODE then_graph = test_graph->gsucc;
+  PNODE else_graphs = then_graph->gsucc;
+  PNODE else_graph;
+    PNODE elseif;
+    PNODE subgraph;
+    PNODE next_subgraph;
+    PNODE lastg;
+  PEDGE e;
+  PNODE subg;
+  PNODE G;
+  int i;
+  int tag;
+  PNODE not_node;
+  PNODE int_node;
+  PNODE n1;
+  PEDGE condition;
+  PALIST L;
+
+  NormalizeNodes(test_graph);
+  HoistTestSubgraph(test_graph);
+	    
+  /* Not the test  */
+  not_node = NodeAlloc(1,IFNot);
+  LinkNode(test_graph,not_node);
+  condition = test_graph->imp;
+  UnlinkImport(condition);
+  LinkImport(not_node,condition);
+  AttachEdge(not_node,1,test_graph,1,ihead,0);
+
+  RemoveNode(not_node,test_graph);
+  InsertNode(node,not_node);
+
+  /* Convert integer to boolean */
+  int_node = NodeAlloc(1,IFInt);
+  LinkNode(test_graph,int_node);
+  condition = test_graph->imp;
+  UnlinkImport(condition);
+  LinkImport(int_node,condition);
+  AttachEdge(int_node,1,test_graph,1,ihead->next->next->next,0);
+
+  RemoveNode(int_node,test_graph);
+  InsertNode(node,int_node);
+
+  /* ----------------------------------------------- */
+  /* We either have a single else or a bunch of test */
+  /* truepart, falsepart graphs.  We need to convert */
+  /* to SELECT if we have the chain                  */
+  /* ----------------------------------------------- */
+  if ( else_graphs->gsucc ) {
+    
+    else_graph = NodeAlloc(0,IFSGraph);
+    else_graph->G_DAD = node;
+
+    elseif = NodeAlloc(1,IFIfThenElse);
+    LinkNode(else_graph,elseif);
+
+    /* ----------------------------------------------- */
+    /* Pull out the remaining test thenpart elseparts  */
+    /* ----------------------------------------------- */
+    lastg = elseif;
+    tag = 0;
+    L = 0;
+    for(subgraph = else_graphs; subgraph; subgraph = next_subgraph) {
+      next_subgraph = subgraph->gsucc;
+      UnlinkGraph(subgraph);
+      LinkGraph(lastg,subgraph);
+      subgraph->G_DAD = elseif;
+      if ( L ) {
+	L = LinkAssocLists(L,AssocListAlloc(tag++));
+      } else {
+	L = AssocListAlloc( tag++ );
+      }
+      lastg = subgraph;
+    }
+    elseif->C_SCNT = tag;
+    elseif->C_ALST = L;
+
+    /* ----------------------------------------------- */
+    /* Wire in all inputs and all outputs              */
+    /* ----------------------------------------------- */
+    for(e=node->imp; e; e=e->isucc) {
+      AttachEdge(else_graph,e->iport, elseif,e->iport, e->info, 0);
+    }
+    for(e=lastg->imp; e; e=e->isucc) {
+      if ( !FindExport(elseif,e->iport) ) {
+	AttachEdge(elseif,e->iport, else_graph,e->iport,e->info, 0);
+      }
+    }
+
+    /* ----------------------------------------------- */
+    /* Replace with the new else-part                  */
+    /* ----------------------------------------------- */
+    LinkGraph(then_graph,else_graph);
+
+    L = AssocListAlloc( 0 );
+    L = LinkAssocLists( L, AssocListAlloc( 1 ));
+    L = LinkAssocLists( L, AssocListAlloc( 2 ));
+
+    node->C_SCNT = 3;
+    node->C_ALST = L;
+
+  }
+
+  node->type = IFSelect;
+}
+
+
 
 /**************************************************************************/
 /* LOCAL  **************    SimplifyGenerates      ************************/
@@ -1629,11 +1767,17 @@ StartForall:
 
                 break;
 
+	case IFIfThenElse:
+	  ConvertIfThenElse(n);
+	  /* FALL THROUGH TO SELECT */
+
             case IFSelect:
                 if ( !IsNodeListEmpty( n->S_TEST ) )
                     Error1( "SELECT TEST SUBGRAPHS NOT NORMALIZED" );
 
                 RemoveIntNode( n );
+
+	  /* FALL THROUGH TO TAGCASE */
 
             case IFTagCase:
                 for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
@@ -1674,6 +1818,7 @@ StartForall:
 
                 break;
 
+
             case IFNoOp:
 	      if ( native ) {
 		PEDGE e;
@@ -1699,8 +1844,7 @@ StartForall:
 		  }
 		}
 	      }
-
-                break;
+	      break;
 
             case IFBindArguments:
                 if ( native )
