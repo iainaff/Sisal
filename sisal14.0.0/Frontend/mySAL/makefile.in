@@ -27,7 +27,7 @@ endif
 
 lexer.c: lexer.l
 	$(RM) $@
-	flex -o$@ $<
+	flex -L -o$@ $<
 
 parser.c: parser.y
 	$(RM) $@

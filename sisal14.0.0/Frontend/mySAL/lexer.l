@@ -80,10 +80,41 @@ quote	 ['\"]
 "//"[^\n]* { DONOTRETURN(); }
 
 
+{quote}<EOF> {
+    yyterminate();
+}
+
+\" {
+   yymore();
+   BEGIN(insideString);
+}
+
+<insideString>\\\" {
+   yymore();
+}
+<insideString>\" {
+   BEGIN(INITIAL);
+   RETURNS( yyLookup("stringLiteral") );
+}
+<insideString>. {
+   yymore();
+}
+<insideString>\n {
+   /*   cerr << mFilename << ": " << mLine << ": unterminated string " << yytext; */
+   yytext[yyleng-1] = '"';
+   BEGIN(INITIAL);
+   RETURNS( yyLookup("stringLiteral") );
+}
+
+"/*"			BEGIN(comment);
+<comment>[^*\n]*	
+<comment>"*"+[^*/\n]*	
+<comment>\n		
+<comment>"*"+"/"	BEGIN(INITIAL);
+
 . {
   RETURNS( yytext[0] );
 }
-
 
 %%
 

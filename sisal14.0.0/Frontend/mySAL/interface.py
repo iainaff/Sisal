@@ -16,6 +16,8 @@ def consumeComments(x):
 
 character = {"'('" : 'lparen',
              "')'" : 'rparen',
+             "'['" : 'rbracket',
+             "']'" : 'lbracket',
              "','" : 'comma',
              "';'" : 'semicolon',
              "':'" : 'colon',
@@ -23,6 +25,7 @@ character = {"'('" : 'lparen',
              "'-'" : 'minus',
              "'*'" : 'times',
              "'/'" : 'slash',
+             "'$'" : 'dollar',
              }
 current = None
 tokens = s[1].split()
@@ -40,7 +43,7 @@ while tokens:
     # Read a clause
     clause = []
     while tokens:
-        if tokens[0] not in [';','|','{']:
+        if tokens[0][:1] not in [';','|','{','%']:
             try:
                 name = character[tokens[0]]
             except:
@@ -70,6 +73,11 @@ while tokens:
                 all[-1][1].append(clause)
                 tokens = tokens[1:]
                 clause = []
+
+            # if %prec xxxx, then we ignore!
+            elif tokens[0] == '%prec':
+                tokens = tokens[2:]
+
             else:
                 raise 'oops'
 

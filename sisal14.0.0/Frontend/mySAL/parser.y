@@ -34,10 +34,27 @@
 %token defines
 %token integerLiteral
 %token doubleLiteral
+%token stringLiteral
 %token function_
 %token returns_
+
 %token integer_
+%token boolean_
 %token double_
+%token string_
+%token boolean_array_
+%token integer_array_
+%token double_array_
+%token string_array_
+%token boolean_matrix_
+%token integer_matrix_
+%token double_matrix_
+%token string_matrix_
+%token boolean_slab_
+%token integer_slab_
+%token double_slab_
+%token string_slab_
+
 %token if_ then_ else_
 %token let_ in_
 %token end_
@@ -50,20 +67,24 @@
 %token initial_
 %token while_
 %token repeat_
+
 %token equals
 %token notequals
 %token less
 %token lessequals
 %token greater
 %token greaterequals
+%token not_
 
-
+%nonassoc equals notequals less lessequals greater greaterequals
 %left ','                        
 %left '+' '-'
 %left '*' '/' div_ mod_
-%nonassoc equals notequals less lessequals greater greaterequals
-%left dot_
+%right '^'
+%left '['
 %left cross_
+%left dot_
+%left UNARY
 
 %%
 program : prologue functionList { ACTION } ;
@@ -78,11 +99,14 @@ functionList : function { ACTION }
 /* Functions					   */
 /* ----------------------------------------------- */
 function :
-		function_ id '(' openScope optParameters returns_ typeList ')' expression closeScope end_ function_ id { ACTION }
-	|	function_ id '(' openScope optParameters returns_ typeList ')' semi closeScope { ACTION }
-	|	main_ '(' openScope optParameters returns_ typeList ')' expression closeScope end_ main_ { ACTION }
+		openScope functionPrototype expression end_ function_ id closeScope { ACTION }
+	|	openScope functionPrototype in_ id semi closeScope { ACTION }
+	|	openScope functionPrototype semi closeScope { ACTION }
+	|	openScope main_ '(' optParameters returns_ typeList ')' expression  end_ main_ closeScope { ACTION }
 	| 	error { ERROR }
 ;
+
+functionPrototype : function_ id '(' optParameters returns_ typeList ')' { ACTION } ;
 
 openScope : { ACTION } ;
 closeScope : { ACTION } ;
@@ -109,7 +133,21 @@ typeList :
 
 type :
 		integer_ { ACTION }
+	|	boolean_ { ACTION }
 	|	double_ { ACTION }
+	|	string_ { ACTION }
+	|	boolean_array_ { ACTION }
+	|	integer_array_ { ACTION }
+	|	double_array_ { ACTION }
+	|	string_array_ { ACTION }
+	|	boolean_matrix_ { ACTION }
+	|	integer_matrix_ { ACTION }
+	|	double_matrix_ { ACTION }
+	|	string_matrix_ { ACTION }
+	|	boolean_slab_ { ACTION }
+	|	integer_slab_ { ACTION }
+	|	double_slab_ { ACTION }
+	|	string_slab_ { ACTION }
 ;
 
 /* ----------------------------------------------- */
@@ -120,24 +158,30 @@ expression :
 	|	expression ',' singleton { ACTION }
 	;
 
-singleton		:
+singleton :
 		idExpr { ACTION }
 	|	integerConst { ACTION }
 	|	doubleConst { ACTION }
+	|	stringConst { ACTION }
 	|	ifExpr { ACTION }
 	|	letExpr { ACTION }
 	|	forExpr { ACTION }
 	|	forInitialExpr { ACTION }
 	|	infix { ACTION }
+	|	prefix { ACTION }
 	|	paren { ACTION }
 	| 	functionCall { ACTION }
+	| 	dollarCall { ACTION }
+	| 	arrayIndex { ACTION }
 	| 	error { ERROR }
 ;
+arrayIndex : singleton '[' expression ']' { ACTION } ;
 
 infix :		singleton '+' singleton { ACTION }
 	|	singleton '-' singleton { ACTION }
 	|	singleton '*' singleton { ACTION }
 	|	singleton '/' singleton { ACTION }
+	|	singleton '^' singleton { ACTION }
 	|	singleton equals singleton { ACTION }
 	|	singleton less singleton { ACTION }
 	|	singleton lessequals singleton { ACTION }
@@ -147,12 +191,25 @@ infix :		singleton '+' singleton { ACTION }
 	|	singleton mod_ singleton { ACTION }
 ;
 
+prefix :
+		'-' singleton { ACTION } %prec UNARY
+	|	not_ singleton { ACTION } %prec UNARY
+	;
+
 paren : '(' expression ')' { ACTION } ;
-functionCall : id '(' optExpression ')' { ACTION } ;
+functionCall : legalFunctionName '(' optExpression ')' { ACTION } ;
+legalFunctionName :
+		id { ACTION }
+	|	type { ACTION }
+;
+
+dollarCall : '$' id { ACTION } ;
+
 optExpression : { ACTION } | expression { ACTION } ;
 idExpr : id { ACTION } ;
 integerConst :	integerLiteral { ACTION } ;
 doubleConst :	doubleLiteral { ACTION } ;
+stringConst :	stringLiteral { ACTION } ;
 
 /* ----------------------------------------------- */
 /* If statement					   */
@@ -198,7 +255,7 @@ idList :
 /* ----------------------------------------------- */
 /* Forall statement				   */
 /* ----------------------------------------------- */
-forExpr : for_ openScope rangeExpr optNameList returns_ arrayReturns end_ for_ { ACTION } ;
+forExpr : for_ openScope rangeExpr optNameList returns_ arrayReturns end_ for_ closeScope { ACTION } ;
 
 rangeExpr : 	rangeClause { ACTION }
 	|	rangeExpr dot_ rangeExpr { ACTION }
