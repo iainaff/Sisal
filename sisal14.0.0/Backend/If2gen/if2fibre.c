@@ -695,8 +695,12 @@ PNODE f;
   /* DUMP THE INPUT DRIVER */
   FPRINTF( output, "\n%s ReadFibreInputs()\n", mi->tname );
   FPRINTF( output, "{\n" );
+  FPRINTF( output, "  int previous_io_state = sisal_file_io;\n");
   FPRINTF( output, "  register %s *args = ", mi->sname );
   FPRINTF( output, "(%s*) Alloc( sizeof( %s ) );\n", mi->sname, mi->sname );
+
+  FPRINTF( output, "  /* Set file I/O flag for input... */\n");
+  FPRINTF( output, "  sisal_file_io = %d;\n",stream_io);
 
   for ( c = 1, i = mi->F_IN; i != NULL; i = i->L_NEXT, c++ ) {
     SPRINTF( buf, "args->In%d", c );
@@ -707,6 +711,7 @@ PNODE f;
       PrintReadOp( 2, buf, i->L_SUB );
     }
 
+  FPRINTF( output, "  sisal_file_io = previous_io_state;\n");
   FPRINTF( output, "  return( (%s) args );\n}\n", mi->tname );
 
   ClearTouchFlags();
@@ -829,8 +834,11 @@ void PrintWriteFibreOutputs( f )
 
   FPRINTF( output, "\nvoid WriteFibreOutputs( args )\n");
   FPRINTF( output, "%s args;\n{\n", mi->tname );
+  FPRINTF( output, "  int previous_io_state = sisal_file_io;\n");
   FPRINTF( output, "  register %s *p = (%s*) args;\n", mi->sname, mi->sname );
 
+  FPRINTF( output, "  /* Set file I/O flag for input... */\n");
+  FPRINTF( output, "  sisal_file_io = %d;\n",stream_io);
   for ( c = 1, i = mi->F_OUT; i != NULL; i = i->L_NEXT, c++ ) {
     SPRINTF( buf, "(p->Out%d)", c );
 
@@ -840,7 +848,7 @@ void PrintWriteFibreOutputs( f )
       PrintWriteOp( 2, buf, i->L_SUB );
     }
   }
-
+  FPRINTF( output, "  sisal_file_io = previous_io_state;\n");
   FPRINTF( output, "}\n" );
 }
 

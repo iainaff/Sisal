@@ -22,10 +22,14 @@ void if1ld(charStarQueue** if1Files,
 
            int forFortran,
            int forC,
+	   int separateCompilation,
+
            charStarQueue** entries,
            charStarQueue** entriesForC,
            charStarQueue** entriesForFORTRAN,
            charStarQueue** reductionFunctions,
+
+
            char* QStamps
            ) {
    char loader[MAXPATHLEN];
@@ -48,6 +52,7 @@ void if1ld(charStarQueue** if1Files,
    if ( profile ) enqueue(&argv,"-W");
    if ( forFortran ) enqueue(&argv,"-F");
    if ( forC ) enqueue(&argv,"-C");
+   if ( separateCompilation ) enqueue(&argv,"-S");
    while(entries && *entries) {
       entry = dequeue(entries);
       enqueue(&argv,"-e");

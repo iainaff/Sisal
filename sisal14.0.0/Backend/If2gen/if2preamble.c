@@ -222,7 +222,7 @@ static void PrintGlobals()
                  n->G_NAME );
         FPRINTF( output, "  (POINTER) (Storage%d - (%s)), %s, %d",
                  gid, n->imp->CoNsT, n->imp->CoNsT, s           );
-        FPRINTF( output, ", &Phys%d, 0, 0, %d\n  );\n", gid, n->exp->sr + 9 );
+        FPRINTF( output, ", &Phys%d, 0, 0, %d\n  );\n", gid, n->exp->sr + 1000000000 );
 
         FPRINTF( output, "\nstatic shared POINTER %s = (POINTER) &%sData;\n",
                  n->G_NAME, n->G_NAME                                      );
@@ -608,7 +608,7 @@ void PrintFilePrologue()
   FPRINTF( output, "#define _INTRINSICS_ 1\n\n" );
 
   FPRINTF( output, "#include \"sisal.h\"\n\n" );
-  FPRINTF( output, "int sisal_file_io = %d;\n\n",stream_io);
+  FPRINTF( output, "extern int sisal_file_io;\n\n");
 
 
   /* ------------------------------------------------------------ */
@@ -633,13 +633,13 @@ void PrintFilePrologue()
     Pmark = TRUE;               /* Not doing what I expect, PJM! */
     if ( f->mark == 's' && IsIGraph( f ) && Pmark ) {
       FPRINTF( output, 
-              "extern int RecompileTheModuleDefining%s;\n",
+	       "/* extern int RecompileTheModuleDefining%s; */\n",
               f->G_NAME );
       FPRINTF( output, 
-              "static int *%sValue = &RecompileTheModuleDefining%s;\n\n",
+	       "/* static int *%sValue = &RecompileTheModuleDefining%s; */\n\n",
               f->G_NAME, f->G_NAME );
     } else if (Pmark && IsXGraph( f ) && f->mark == 's' ) {
-      FPRINTF( output, "int RecompileTheModuleDefining%s;\n\n", f->G_NAME );
+      FPRINTF( output, "/* int RecompileTheModuleDefining%s; */\n\n", f->G_NAME );
     }
   }
   /* ------------------------------------------------------------ */
@@ -1045,6 +1045,9 @@ PNODE f;
 
   if ( gdata )
     FPRINTF( output, "  InitGlobalData();\n" );
+
+  FPRINTF( output, "  /* Set file I/O flag for output... */\n");
+  FPRINTF( output, "  sisal_file_io = %d;\n",stream_io);
 
   if ( sdbx ) {
     FPRINTF( output, "SdbxCurrentFunctionList = MyFunctionList;\n" );

@@ -32,10 +32,13 @@ extern void if1ld PROTO((charStarQueue** if1Files,
                          
                          int forFortran,
                          int forC,
+			 int separateCompilation,
+
                          charStarQueue** entries,
                          charStarQueue** entriesForC,
                          charStarQueue** entriesForFORTRAN,
                          charStarQueue** reductionFunctions,
+
                          char* QStamps
                          ));
 

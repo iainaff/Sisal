@@ -74,6 +74,7 @@ static int showSource; /* -% (false) Show comments in generated source code */
 static int forC; /* -forC (false) Compile to call from C  */
 static int forFORTRAN; /* -forFORTRAN (false) Compile to call from FORTRAN */
 static int suppressWarnings; /* -w  --warn (false) Suppress warning messages */
+static int separateCompilation; /* -module  --module (false) Suppress warning messages */
 static int optimize; /* -<no->opt (true) Control Sisal backend optimization (on by default) */
 static int concurrent; /* -<no->concur (true) Build for serial or concurrent (default) */
 static int vector; /* -<no->vector (false) Generate code for vectorized loops (off by default) */
@@ -169,6 +170,9 @@ static option_t options[] = {
     {"-w","--warn",defaultFalse,"Suppress warning messages",
      "Suppress warning messages",
      &suppressWarnings,0,0,0},
+    {"-module","--module",defaultFalse,"Compile as separate module",
+     "Separate compilation module flag",
+     &separateCompilation,0,0,0},
     {"-<no->opt",0,defaultTrue,"Control Sisal backend optimization (on by default)",
      "Control Sisal backend optimization (on by default)",
      &optimize,0,0,0},
@@ -446,10 +450,13 @@ int main(int argc, char** argv) {
 
             forFORTRAN,
             forC,
+	    separateCompilation,
+
             &entries, /* Mark these as entry points */
             &externC, /* Foriegn externals */
             &externFORTRAN, /* Foriegn externals */
             &reductionFunctions, /* Reduction functions (not currently supported) */
+
             "-FUR" /* Q stamp to apply to merged executable */
             );
       enqueue(&monoFiles,result);

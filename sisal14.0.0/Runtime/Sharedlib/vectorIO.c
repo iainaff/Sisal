@@ -13,6 +13,7 @@
 #include "sisalrt.h"
 
 int     FibreStrings = TRUE;
+int     sisal_file_io = 0;
 
 #define GenericReadArray(scalartype,reader,term)\
 { \
