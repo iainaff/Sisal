@@ -413,80 +413,6 @@ char **argv;
 }
 
 /**************************************************************************/
-/* LOCAL  **************     ConvertIfThenElse     ************************/
-/**************************************************************************/
-/* Convert IfThenElse form (boolean branch) to Select (integer branch)    */
-/**************************************************************************/
-static void ConvertIfThenElse(PNODE node) {
-  PNODE C;
-  PNODE sg;
-  PNODE G;
-  PNODE lastn;
-  PNODE n;
-  PNODE n1;
-  PNODE test_graph;
-  PEDGE e;
-  PEDGE condition;
-  PEDGE e2;
-  int label;
-  int port;
-
-  if ( IsSimple(node) ) {
-    /* Nothing */
-  } else if ( IsCompound(node) ) {
-    C = node;
-    for( sg=C->C_SUBS; sg; sg = sg->gsucc ) ConvertIfThenElse(sg);
-    if ( C->type == IFIfThenElse ) {
-      /* ----------------------------------------------- */
-      /* if test then G1 else G2 end if -->              */
-      /* select (int(not(test))) G1/G2                   */
-      /* ----------------------------------------------- */
-      test_graph = C->C_SUBS;
-
-      for(n1=test_graph->nsucc; n1; n1=test_graph->nsucc) {
-	RemoveNode(n1,test_graph);
-	InsertNode(C,n1);
-      }
-
-      /* Not the test  */
-      n1 = NodeAlloc(1,IFNot);
-      LinkNode(test_graph,n1);
-      condition = test_graph->imp;
-      UnlinkImport(condition);
-      LinkImport(n1,condition);
-
-      AttachEdge(n1,1,test_graph,1,ihead->next,0);
-
-      RemoveNode(n1,test_graph);
-      InsertNode(C,n1);
-
-      /* Convert boolean to an integer */
-      n1 = NodeAlloc(1,IFInt);
-      LinkNode(test_graph,n1);
-      condition = test_graph->imp;
-      UnlinkImport(condition);
-      LinkImport(n1,condition);
-
-      AttachEdge(n1,1,test_graph,1,ihead->next->next->next,0);
-
-      RemoveNode(n1,test_graph);
-      InsertNode(C,n1);
-
-      C->type = IFSelect;
-
-      if ( C->C_SUBS->gsucc->gsucc->gsucc ) {
-	fprintf(stderr,"No ifthen elseif else yet\n");
-	exit(33);
-	/* TODO: support ifelse */
-      }
-    }
-  } else {
-    G = node;
-    for(n=G->G_NODES; n; n = n->nsucc) ConvertIfThenElse(n);
-  }
-}
-
-/**************************************************************************/
 /* GLOBAL **************            main           ************************/
 /**************************************************************************/
 /* PURPOSE: IMPROVE THE QUALITY OF THE IF1 INPUT FILE BY PERFORMING THE   */
@@ -544,12 +470,6 @@ char **argv;
   if ( IsStamp( OFFSETS ) )
     Error1( "OFFSETS ASSIGNED---NoOp NODES NOT IMPLEMENTED" );
 
-  /* ----------------------------------------------- */
-  /* This assumes Select not IfThenElse...           */
-  /* ----------------------------------------------- */
-  for(f=glstop->gsucc; f; f = f->gsucc) {
-    ConvertIfThenElse(f);
-  }
 
   /* START BY CLEANING EVERYTHING UP! */
   StartProfiler();
