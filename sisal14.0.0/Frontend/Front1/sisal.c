@@ -21815,6 +21815,7 @@ int line, col;
   symtblbucket *sym;
   errorrecord *errorrec;
   tcstacklistrec *tclist;
+  tcstacklistrec *save_tclist;
 
   if (semtrace)
     printf(" In CheckTagNames\n");
@@ -21825,8 +21826,9 @@ int line, col;
   names = namel->UU.namelist;
   tclist = semtclist->UU.tcstacklist;
   ttype = NULL;
+  save_tclist = tclist; /* BUGFIX for lists of tags 6/9/03 */
   while (names != NULL) {
-    tclist = findtag(names->name, tclist);
+    tclist = findtag(names->name, save_tclist);
     if (tclist == NULL) {
       errorrec = newerrorptr(nameundeftc);
       errorrec->UU.errorstr = names->name;

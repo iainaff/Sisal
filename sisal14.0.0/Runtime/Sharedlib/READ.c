@@ -13,6 +13,9 @@ int RecompileTheModuleDefining_STDIN = 0;
 #undef _ARGV
 void         _ARGV();
 int RecompileTheModuleDefining_ARGV = 0;
+#undef _EXIT
+void         _EXIT();
+int RecompileTheModuleDefining_EXIT = 0;
 
 struct Args12 {   
 struct ActRec *FirstAR; int Count;   
@@ -27,6 +30,11 @@ POINTER Out1;
 struct Args14 {   
 struct ActRec *FirstAR; int Count;   
   POINTER In1;    POINTER Out1;   int Out2;
+  };
+
+struct Args15 {   
+struct ActRec *FirstAR; int Count;   
+  int In1; POINTER In2;    int Out1;
   };
 
 extern char** sisal_save_argv;
@@ -132,4 +140,15 @@ void _STDIN( void* args )
   }
   
   ((struct Args13*)args)->Out1 = val;
+}
+
+
+void _EXIT(struct Args15* args) {
+  ARRAYP message = (ARRAYP)(args->In2);
+  int i;
+  for(i=0;i<message->Size;++i) {
+    fputc(((char*)(message->Base+message->LoBound))[i],stderr);
+  }
+  fputc('\n',stderr);
+  exit(args->In1);
 }
