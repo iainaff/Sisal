@@ -8,13 +8,7 @@
 
 #include "SisalLexer.hh"
 #include "SisalParser.hh"
-#include "ifx.hh"
-
-#include "node.hh"
-#include "module.hh"
-#include "PublicFunction.hh"
-
-#include "SP.hh"
+#include "IFCore.hh"
 
 using namespace sisalc;
 
@@ -22,20 +16,53 @@ extern int ssparse(void*);
 
 int main(int argc, char** argv) {
    try {
+      assert(argc > 1);
       ifstream in;
       in.open(argv[1]);
-      SisalLexer lexer(argv[1],&in);
+      if ( !in ) {
+         cerr << "error: File " << argv[1] << endl;
+         perror("error: ");
+         exit(1);
+      }
+
+      sisalc::SisalLexer lexer(argv[1],&in);
       SisalParser parser(&lexer);
    
       cerr << "-- Start parsing" << endl;
       int stat = ssparse(&parser);
       cerr << "-- End parsing " << stat << endl;
+      if ( stat ) exit(stat);
 
-      cerr << "Detected " << parser.modules.size() << " modules" << endl;
-      for(int i=0; i < parser.modules.size(); ++i) {
-         cerr << "module " << i << " is " << endl;
-         cout << *(parser.modules[0]);
+      // -----------------------------------------------
+      // Find the occurrance of the main program
+      // -----------------------------------------------
+      Function* main = 0;
+      for( cluster::moduleIterator mPtr = parser.Modules.begin();
+           mPtr != parser.Modules.end();
+           ++mPtr) {
+         main = (*mPtr)->findFunction("main");
+         if ( main ) {
+            cerr << "Found main in module " << (*mPtr)->name() << endl;
+            break;
+         }
       }
+      if ( !main ) {
+         cerr << "Error: no main program found" << endl;
+         exit(1);
+      }
+
+      // -----------------------------------------------
+      // Starting with that function, type bind and
+      // mark as used all necessary functions
+      // -----------------------------------------------
+      main->typeBinding();
+
+
+      // -----------------------------------------------
+      // Dump the active parts of the cluster
+      // -----------------------------------------------
+      cout << parser.Modules;
+
       return stat;
 
    } catch( const char* msg ) {
@@ -43,32 +70,3 @@ int main(int argc, char** argv) {
    }
 }
 
-#if 0
-   
-   MODULE m = module::ctor("foobar");
-   m->addStamp(stamp('F',"Open source frontend"));
-
-   INFO I = info::ctor();
-   m->addInfo(I);
-
-   INFO I2 = info::ctor();
-   m->addInfo(I2);
-
-   GRAPH G = PublicFunction::ctor("foobar");
-   m->addGraph(G);
-   G->setType(I);
-
-   NODE N = node::ctor(100);
-   G->addNode(N);
-
-   EDGE E = edge::ctor(I);
-   N->attachInput(E,1);
-   G->attachOutput(E,1);
-
-   EDGE E2 = edge::ctor(I);
-   G->attachInput(E2,1);
-   N->attachOutput(E2,1);
-
-   cout << *m;
-
-#endif

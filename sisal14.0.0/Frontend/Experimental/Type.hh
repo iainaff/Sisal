@@ -1,3 +1,11 @@
+/**************************************************************************/
+/* FILE   **************          Type.hh          ************************/
+/************************************************************************ **/
+/* Author: Patrick Miller February 17 2001                                */
+/* Copyright (C) 2001 Patrick J. Miller                                   */
+/**************************************************************************/
+/*  */
+/**************************************************************************/
 #ifndef TYPE_HH
 #define TYPE_HH
 
@@ -7,13 +15,13 @@
 #include "semanticBase.hh"
 using sisalc::semanticBase;
 
-#include "info.hh"
-using sisalc::INFO;
+#include "IFCore.hh"
+using sisalc::info;
 
 class Type : public semanticBase {
 public:
    Type() {}
-   Type(INFO result) {value(result);}
+   Type(info* result) {value(result);}
 
    virtual string self() const { return "Type"; }
 
@@ -24,12 +32,12 @@ public:
       }
    }
    
-   INFO value() {
+   info* value() {
       assert( mSupport.size() > 0 );
       return mSupport[0];
    }
 
-   void value(INFO x) {
+   void value(info* x) {
       if ( mSupport.size() == 0 ) {
          mSupport.push_back(x);
       } else {
@@ -37,15 +45,15 @@ public:
       }
    }
 
-   void support(INFO x) {
+   void support(info* x) {
       if ( mSupport.size() == 0 ) {
-         mSupport.push_back(info::null);
+         mSupport.push_back(0);
       }
       mSupport.push_back(x);
    }
 
-   typedef vector<INFO>::iterator iterator;
-   typedef vector<INFO>::const_iterator const_iterator;
+   typedef vector<info*>::iterator iterator;
+   typedef vector<info*>::const_iterator const_iterator;
    iterator begin() { return mSupport.begin(); }
    iterator end() { return mSupport.end(); }
    const_iterator begin() const { return mSupport.begin(); }
@@ -53,7 +61,7 @@ public:
       
 
 protected:
-   vector<INFO> mSupport;
+   vector<info*> mSupport;
 };
 
 #endif

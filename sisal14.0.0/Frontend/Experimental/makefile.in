@@ -8,8 +8,13 @@
 #**************************************************************************#
 
 sources = ifront.cc parser.cc lexer.cc semanticBase.cc \
-	IFObject.cc node.cc graph.cc literal.cc edge.cc \
-	info.cc module.cc stamp.cc SisalParser.cc
+	SisalParser.cc \
+	IFObject.cc \
+	cluster.cc module.cc \
+	node.cc compound.cc graph.cc Function.cc \
+	edge.cc literal.cc FatEdge.cc \
+	info.cc ArrayInfo.cc FunctionInfo.cc TupleInfo.cc \
+	IFCall.cc IFGraph.cc
 
 localFiles = .depends
 
@@ -48,3 +53,9 @@ ifront.o: ifront.cc parser.cc
 
 clean:
 	$(RM) -r $(objects) $(patsubst %.cc,%.cc.C,$(sources)) lexer.cc parser.cc ifront .depends
+
+regressionTest:
+	for sis in ${patsubst %.sis,%,${wildcard regression/*.sis}}; do \
+	  echo sicaly $$sis; \
+	  sicaly $$sis; \
+	done

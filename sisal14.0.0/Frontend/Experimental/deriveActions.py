@@ -8,6 +8,7 @@ charMap = { "'('" : 'LPAREN_',
             "'['" : 'LBRACKET_',
             "']'" : 'RBRACKET_',
             "','" : 'COMMA_',
+            "':'" : 'COLON_',
             "';'" : 'SEMI_',
             "'.'" : 'PERIOD_',
             }
@@ -25,6 +26,8 @@ for i in range(0,len(data)):
         method = data[i]
         call = string.split(method,'->')[1]
         [name,dollarArgs] = string.split(call,'(')
+        if name == 'labelType':
+            print dollarArgs
         # Count the number of $ arguments
         n = len(string.split(dollarArgs,'$'))-1
         # Count the total number of arguments
@@ -32,7 +35,8 @@ for i in range(0,len(data)):
             n2 = len(string.split(dollarArgs,','))
         else:
             n2 = 0
-
+        if name == 'labelType':
+            print n,n2
         j = i
         while j >= 1 and data[j-1] != ':' and data[j-1] != '|':
             j = j-1
@@ -67,7 +71,7 @@ while 1:
     
 # Add replacement prototypes
 for name,argNames,proto,n in protos:
-    hhFile.write('   virtual semanticBase* %s;\n'%proto)
+    hhFile.write('      virtual semanticBase* %s;\n'%proto)
 
 # Required blank line
 hhFile.write('\n')
@@ -95,17 +99,21 @@ for name,argNames,proto,n in protos:
             if arg[-1] == '2': arg = arg[:-1]
             if arg[-1:] == '_' or arg[-7:] == 'LITERAL' or arg == 'ID' or arg == 'PUBLIC':
                 T = 'token'
+            elif arg == 'ERROR':
+                continue # Nothing to check
             else:
                 T = string.lower(arg)
                 T = string.split(T,'_')
                 for i in range(len(T)):
                     T[i] = string.upper(T[i][0])+T[i][1:]
                 T = string.join(T,'')
-            print '   %s* %s = dynamic_cast<%s*>(%s);'%(T,string.lower(argName),T,argName),
             if argName[:3] != 'OPT':
-                print '   assert(%s);'%(string.lower(argName))
+                print '   assert(%s);\t'%argName,
+            print ' %s* %s = dynamic_cast<%s*>(%s);'%(T,string.lower(argName),T,argName),
+            if argName[:3] != 'OPT':
+                print ' assert(%s);'%(string.lower(argName))
             else:
-                print '   assert(!%s || %s);'%(argName,string.lower(argName))
+                print ' assert(!%s || %s);'%(argName,string.lower(argName))
 
         print '   return 0;'
         print '}'

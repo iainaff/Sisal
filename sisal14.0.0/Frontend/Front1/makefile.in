@@ -10,7 +10,7 @@
 sources = sisal.c
 versionedExecutables = sisal
 data = etabl.bin ptabl.bin
-man = sisal.5
+man5 = sisal.5
 
 include @top_level_directory@/Include/makefile.inc
 

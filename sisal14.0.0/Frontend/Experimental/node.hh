@@ -1,85 +1,71 @@
+/**************************************************************************/
+/* FILE   **************          node.hh          ************************/
+/************************************************************************ **/
+/* Author: Patrick Miller February 17 2001                                */
+/* Copyright (C) 2001 Patrick J. Miller                                   */
+/**************************************************************************/
+/*  */
+/**************************************************************************/
 #ifndef NODE_HH
 #define NODE_HH
 
-#include "SP.hh"
-#include <vector>
+// Do not include on its own, only as part of IFCore
+#ifndef IFCORE_HH
+error "Include only as part of IFCore.hh";
+#endif
 
-#include "IFObject.hh"
-namespace sisalc {
+// -----------------------------------------------
+// A node is a collection of input edges (single
+// input) and output edges (many).  All interesting
+// work is done by a "implementation" which is
+// a helper class that defines behaviors for the
+// node.
+// -----------------------------------------------
 
-   // -----------------------------------------------
-   // forward dependencies
-   // -----------------------------------------------
-   class graph;
-   class edge;
+class node : public IFObject {
+public:
+   node();
+   node(unsigned int);
+   node(const char*,string fileName="",int sourceLine=0);
+   node(NodeImplementation*);
 
-   class node : public IFObject {
-   public:
-      // -----------------------------------------------
-      // Constructors with SP<> shadows
-      // -----------------------------------------------
-      node();
-      static SP<node> ctor() {return SP<node>(new node);}
+   struct ltCharP {bool operator()(const char* s1, const char* s2) const {return strcmp(s1, s2) < 0;}};
+   virtual map<const char*,NodeImplementation*,ltCharP>* nameTable() const;
+   virtual map<unsigned int,NodeImplementation*>* opcodeTable() const;
+  
+   virtual bool valid() const;
+   virtual void writeSelf(ostream& os) const;
+   virtual int label() const;
 
-      node(unsigned);
-      static SP<node> ctor(unsigned opcode) {return SP<node>(new node(opcode));}
+   static int registration(NodeImplementation*);
+   void attachInput(edge*,unsigned int);
+   void attachOutput(edge*,unsigned int);
+   void setGraph(graph*);
 
-      node(const char*);
-      static SP<node> ctor(const char* name) {return SP<node>(new node(name));}
+   graph* parent() { return mParent; }
+   const graph* parent() const { return mParent; }
 
-      ~node();
+   Function* function();
+   const Function* function() const;
 
-      // -----------------------------------------------
-      // Reference counted registration
-      // -----------------------------------------------
-   protected:
-      SP<node> mSelf;
-   public:
-      void self(SP<node>);
-      SP<node> self() const;
-      static SP<node> null;
+   void typeBinding();
 
-      // -----------------------------------------------
-      // Output
-      // -----------------------------------------------
-      virtual void writeSelf(ostream&) const;
-      virtual bool valid() const;
+   int inArity() const { return mInputs.size(); }
+   int outArity() const { return mOutputs.size(); }
 
-      // -----------------------------------------------
-      // IF Labeling
-      // -----------------------------------------------
-      //int offset(?) const;
-      virtual unsigned int label() const;
-   protected:
-      virtual char letter() const { return 'N'; }
-      virtual int i1() const;
-      virtual int i2() const;
-      
-      // -----------------------------------------------
-      // Interconnect
-      // -----------------------------------------------
-   public:
-      void setParent(SP<graph>);
-      SP<graph> parent() { return mParent; }
+   edge* input1() { assert(inArity() >= 1); return mInputs[0]; }
+   edge* input2() { assert(inArity() >= 2); return mInputs[1]; }
+   vector<edge*> output1() { assert(outArity() >= 1); return mOutputs[0]; }
+   vector<const info*> signature() const;
+protected:
+   virtual char letter() const { return 'N'; }
+   virtual int i1() const;
+   virtual int i2() const;
 
-      void attachInput(SP<edge>,int);
-      void attachOutput(SP<edge>,int);
+   NodeImplementation* mImplementation;
+   graph* mParent;
+   vector< edge* > mInputs;
+   vector< vector< edge* > > mOutputs;
+};
 
-   protected:
-
-      typedef struct { const char* name; unsigned int opCode;} operation_t;
-
-      const char* name() const;
-      unsigned int lookup(const char*);
-
-      virtual const operation_t* getTable() const;
-
-      unsigned mOpCode;
-      SP<graph> mParent;
-      vector< SP<edge> > mInputs;
-      vector< vector< SP<edge> > > mOutputs;
-   };
-
-   typedef SP<node> NODE;
-}
 #endif

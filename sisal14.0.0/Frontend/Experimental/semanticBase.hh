@@ -14,7 +14,8 @@ namespace sisalc {
            mEndLine(endLine), mEndColumn(endColumn)
       {}
 
-      virtual void error(const char*) const;
+      virtual void errorEcho(const char*) const;
+      virtual void error(const char*,bool showSelf=false) const;
       virtual string self() const { return string(""); }
       virtual void append(semanticBase*) { throw "No appends"; }
       string fetchLine() const;

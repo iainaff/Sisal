@@ -1,26 +1,27 @@
 /**************************************************************************/
-/* FILE   **************          edge.hh          ************************/
+/* FILE   **************        Function.hh        ************************/
 /************************************************************************ **/
 /* Author: Patrick Miller February 17 2001                                */
 /* Copyright (C) 2001 Patrick J. Miller                                   */
 /**************************************************************************/
 /*  */
 /**************************************************************************/
-#ifndef EDGE_HH
-#define EDGE_HH
+#ifndef FUNCTION_HH
+#define FUNCTION_HH
 
 // Do not include on its own, only as part of IFCore
 #ifndef IFCORE_HH
 error "Include only as part of IFCore.hh";
 #endif
 
-class edge : public IFObject {
+class Function : public graph {
 public:
    // -----------------------------------------------
    // Constructors
    // -----------------------------------------------
-   edge();
-   edge(const info*);
+   Function(const char*, unsigned int);
+   Function(const string&, unsigned int);
+   Function(const string&, const char*);
 
    // -----------------------------------------------
    // Output
@@ -28,33 +29,27 @@ public:
    virtual bool valid() const;
 
    // -----------------------------------------------
-   // IF Labeling
+   // Info to care about
    // -----------------------------------------------
-protected:
-   virtual char letter() const { return 'E'; }
-   virtual int i1() const;
-   virtual int i2() const;
-   virtual int i3() const;
-   virtual int i4() const;
-   virtual int i5() const;
-
-   // -----------------------------------------------
-   // Interconnect
-   // -----------------------------------------------
-public:
-   void setDestination(node*,int);
-   void setSource(node*,int);
+   string name() const { return mName; }
+   void name(const string& name) { mName = name; }
    void setType(const info*);
-
    const info* type() const { return mType; }
+   void typeBinding();
+
+   void setModule(module* M) { mParent = M; }
+   module* parent() { return mParent; }
+   const module* parent() const { return mParent; }
 
 protected:
-   node* mSource;
-   int mSourcePort;
-   node* mDestination;
-   int mDestinationPort;
+   virtual char letter() const;
+   virtual int i1() const;
+   virtual string sValue() const { string s("\""); s += mName; s+="\""; return s; }
    const info* mType;
+   string mName;
 
+   module* mParent;
 };
 
 #endif
+

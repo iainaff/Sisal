@@ -1,77 +1,61 @@
+/**************************************************************************/
+/* FILE   **************          graph.hh         ************************/
+/************************************************************************ **/
+/* Author: Patrick Miller February 17 2001                                */
+/* Copyright (C) 2001 Patrick J. Miller                                   */
+/**************************************************************************/
+/*  */
+/**************************************************************************/
 #ifndef GRAPH_HH
 #define GRAPH_HH
 
-#include "SP.hh"
-#include <vector>
-using std::vector;
-
-#include "node.hh"
-#include "info.hh"
-
-namespace sisalc {
-
-   // -----------------------------------------------
-   // forward dependencies
-   // -----------------------------------------------
-   class node;
-   class info;
-
-   class graph : public node {
-   public:
-      // -----------------------------------------------
-      // Constructors with SP<> shadows
-      // -----------------------------------------------
-      graph();
-      static SP<graph> ctor() { return SP<graph>(new graph); }
-
-      graph(unsigned);
-      static SP<graph> ctor(unsigned x) { return SP<graph>(new graph(x)); }
-
-      graph(const char*);
-      static SP<graph> ctor(const char* x) { return SP<graph>(new graph(x)); }
-
-      // -----------------------------------------------
-      // Reference counted registration
-      // -----------------------------------------------
-   protected:
-      SP<graph> mSelf;
-   public:
-      void self(SP<graph> p);
-      SP<graph> self() const;
-      static SP<graph> null;
-
-      // -----------------------------------------------
-      // Output
-      // -----------------------------------------------
-      virtual void writeSelf(ostream&) const;
-      virtual bool valid() const;
-
-      // -----------------------------------------------
-      // IF Labeling
-      // -----------------------------------------------
-      int offset(const SP<node>) const;
-      virtual unsigned int label() const { return 0; }
-
-   protected:
-      virtual char letter() const { return 'G'; }
-      virtual int i1() const;
-      virtual int i2() const { return -1; }
-
-      // -----------------------------------------------
-      // Interconnect
-      // -----------------------------------------------
-   public:
-      virtual void addNode(SP<node>);
-      void setType(SP<info>);
-
-   protected:
-      SP<info> mType;
-      vector< SP<node> > mNodes;
-
-      virtual const operation_t* getTable() const;
-   };
-
-   typedef SP<graph> GRAPH;
-}
+// Do not include on its own, only as part of IFCore
+#ifndef IFCORE_HH
+error "Include only as part of IFCore.hh";
 #endif
 
+// -----------------------------------------------
+// A graph is like a node, but inputs to the
+// graph are the results (because they flow
+// into to the graph).  Initial conditions are
+// the outputs (because they flow out of the
+// graph).  Graphs have their own implementation
+// set.
+// -----------------------------------------------
+
+class graph : public node {
+public:
+   graph();
+   graph(unsigned int);
+   graph(const char*);
+
+   virtual bool valid() const;
+   virtual void writeSelf(ostream&) const;
+   int offset(const node*) const;
+
+   virtual map<const char*,NodeImplementation*,node::ltCharP>* nameTable() const;
+   virtual map<unsigned int,NodeImplementation*>* opcodeTable() const;
+   static int registration(NodeImplementation*);
+
+   void addNode(node*);
+   void typeBinding();
+
+   // -----------------------------------------------
+   // Traversal
+   // -----------------------------------------------
+   typedef vector<node*>::iterator iterator;
+   typedef vector<node*>::const_iterator const_iterator;
+   iterator begin() { return mNodes.begin(); }
+   const_iterator begin() const { return mNodes.begin(); }
+   iterator end() { return mNodes.end(); }
+   const_iterator end() const { return mNodes.end(); }
+
+protected:
+   virtual char letter() const { return 'G'; }
+   virtual int i1() const;
+   virtual int i2() const;
+
+   vector< node* > mNodes;
+};
+
+#endif

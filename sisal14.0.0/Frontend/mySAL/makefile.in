@@ -1,0 +1,54 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#**************************************************************************#
+#* Author: Patrick Miller August 19 2001				  *#
+#* Copyright (C) 2001 Patrick J. Miller					  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+sources = lexer.c parser.c
+
+localFiles = .depends main.o mysalTest mysalparser.py
+
+include /home/pjmiller/sourceforge/sisal14.0.0/Include/makefile.inc
+CXXFLAGS+= -g
+CFLAGS+= -g
+
+ifeq ("${wildcard .depends}","")
+.depends:
+	mkdir .depends
+endif
+
+ifneq ("${wildcard .depends/*}","")
+include ${wildcard .depends/*}
+endif
+
+lexer.c: lexer.l
+	$(RM) $@
+	flex -o$@ $<
+
+parser.c: parser.y
+	$(RM) $@
+	bison -vo$@ $<
+
+mysalTest: $(objects) main.o
+	$(LD-CXX) -o $@ $^
+
+clean:
+	$(RM) -rf $(objects) $(localFiles)
+
+test: $(localFiles) mysalTest
+	cat test.sis
+	mysalTest test.sis
+
+regressionTest:
+	for sis in ${patsubst %.sis,%,${wildcard regression/*.sis}}; do \
+	  echo sicaly $$sis; \
+	  sicaly $$sis; \
+	done
+
+
+mysalparser.py: parser.y interface.py
+	python interface.py > $@

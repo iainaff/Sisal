@@ -21,7 +21,7 @@
 
 %option c++
 %option prefix="ss"
-%option yyclass="SisalLexer"
+%option yyclass="sisalc::SisalLexer"
 %option yymore
 
 whitespace [ \t\n]
@@ -193,13 +193,13 @@ string makePrintable(const string& s) {
     }
     return result;
 }
-SisalLexer::SisalLexer(const char* name,istream* arg_yyin, ostream* arg_yyout )
+sisalc::SisalLexer::SisalLexer(const char* name,istream* arg_yyin, ostream* arg_yyout )
     : ssFlexLexer(arg_yyin,arg_yyout), parser(0), mFilename(name),
     mLine(1), mColumn(1), mEndLine(1), mEndColumn(0)
 {
 }
 
-void SisalLexer::columnLineAdjust() {
+void sisalc::SisalLexer::columnLineAdjust() {
    mLine = mEndLine;
    mColumn = mEndColumn;
 

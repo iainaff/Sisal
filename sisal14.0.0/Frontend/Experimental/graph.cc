@@ -1,89 +1,96 @@
 #include <assert.h>
-#include "graph.hh"
+#include "IFCore.hh"
+#include "FunctionInfo.hh"
+#include <algorithm>
 
 namespace sisalc {
 
-   GRAPH graph::null(0,true);
-
    graph::graph() {
-      mOpCode = 1000; 
+      mParent = this;
    }
 
-   graph::graph(unsigned opCode) {
-      mOpCode = opCode;
+   graph::graph(unsigned int opcode)
+      : node((*opcodeTable())[opcode])
+   {
+      mParent = this;
+      cerr << "Bulid a graph " << opcode << " with impl " << mImplementation << endl;
       assert(valid());
    }
 
    graph::graph(const char* s)
+      : node((*nameTable())[s])
    {
-      mOpCode = lookup(s);
+      mParent = this;
+      cerr << "Bulid a graph " << s << " with impl " << mImplementation << endl;
+      assert(valid());
    }
 
-   static graph::operation_t definitions[] = {
-      {"SGraph",1000},
-      {"LGraph",1001},
-      {"UGraph",1002},
-      {"XGraph",1003},
-      {"FLGraph",1004},
-      {"RLGraph",1005},
-      {0,0}
-   };
-
-   const graph::operation_t* graph::getTable() const {
-      return definitions;
-   }
 
    void graph::writeSelf(ostream& os) const {
       assert(valid());
 
       node::writeSelf(os);
-      for(vector< SP<node> >::const_iterator itr = mNodes.begin();
+      for(vector< node* >::const_iterator itr = mNodes.begin();
           itr != mNodes.end();
           ++itr) {
          // I had better own this thing!
-         assert((*itr)->parent().get() == this);
+         assert((*itr)->parent() == this);
          (*itr)->writeSelf(os);
       }
       os << endl;
    }
 
-   void graph::addNode(SP<node> N) {
+   void graph::addNode(node* N) {
       mNodes.push_back(N);
-      N.get()->setParent(mSelf);
+      N->setGraph(this);
    }
 
-   void graph::setType(INFO I) {
-      mType = I;
-   }
-
-   int graph::offset(const SP<node> N) const {
-      for(vector< SP<node> >::const_iterator itr = mNodes.begin();
-          itr != mNodes.end();
-          ++itr) {
-         if  ( N.get() == (*itr).get() ) return itr - mNodes.begin() + 1;
-      }
-      return 0;
+   int graph::offset(const node* N) const {
+      if ( N == this ) return 0;
+      vector< node* >::const_iterator position = 
+         find(mNodes.begin(), mNodes.end(), N);
+      assert(position != mNodes.end());
+      return position - mNodes.begin() + 1;
    }
    
    int graph::i1() const {
-      if ( mType.get() ) {
-         mType->label();
-      } else {
-         return 0;
-      }
+      return 0;
    }
 
-   void graph::self(GRAPH p) {
-      node::self(p);
-      assert(p.get()==this);
-      mSelf = p; 
-   }   
-   GRAPH graph::self() const {
-      assert(mSelf.get() == this);
-      return mSelf;
+   int graph::i2() const {
+      return -1;
    }
 
    bool graph::valid() const {
       return true;
+   }
+
+/**************************************************************************/
+/* GLOBAL **************        typeBinding        ************************/
+/************************************************************************ **/
+/*  */
+/**************************************************************************/
+   void graph::typeBinding() {
+      cerr << "Bind graph\n";
+      assert(false);
+   }
+
+/**************************************************************************/
+/* GLOBAL **************        registration       ************************/
+/************************************************************************ **/
+/*  */
+/**************************************************************************/
+   static map<const char*,NodeImplementation*,node::ltCharP>* byName = 0;
+   map<const char*,NodeImplementation*,node::ltCharP>* graph::nameTable() const { return byName; }
+   static map<unsigned int,NodeImplementation*>* byOpcode = 0;
+   map<unsigned int,NodeImplementation*>* graph::opcodeTable() const { return byOpcode; }
+   int graph::registration(NodeImplementation* x) {
+      if ( byName == 0 ) byName = new map<const char*,NodeImplementation*,ltCharP>;
+      if ( byOpcode == 0 ) byOpcode = new map<unsigned int,NodeImplementation*>;
+
+      (*byName)[x->name()] = x;
+      (*byOpcode)[x->opcode()] = x;
+
+      return 1234; // Result doesn't really matter
    }
 }

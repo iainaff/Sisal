@@ -97,17 +97,34 @@ USE_DEFINE : use_ id
 FUNCTION_FORWARD : forward_ function_ id 
 	;
 
-FUNCTION_DEFINE :
-	optPUBLIC function_ id '(' ARG_TYPE returns_ RETURNS_TYPE ')' EXPRESSION end_ function_ optID optINTERFACE_LIST
+FUNCTION_DEFINE : optPUBLIC function_ id '(' OPTARG_TYPE returns_ RETURNS_TYPE ')' EXPRESSION end_ function_ optID optINTERFACE_LIST
 {
    $$ = mParser->functionDefine($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13);
 }
+        |       optPUBLIC function_ id '(' error ')' EXPRESSION end_ function_ optID optINTERFACE_LIST
+{
+   $$ = mParser->functionError($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,"bad args");
+   yyclearin;
+}
                 ;
 
-ARG_TYPE : { $$ = 0; }
+OPTARG_TYPE:	{ $$ = 0; }
+        |       ARG_TYPE
+                ;
+
+ARG_TYPE : 	LABELED_TYPE
+        |       LABELED_TYPE ';' ARG_TYPE { $$ = mParser->mergeArguments($1,$2,$3); }
 		;
 
-RETURNS_TYPE : TYPE { $$ = mParser->returnsType($1); ; }
+LABELED_TYPE :  idLIST ':' TYPE { $$ = mParser->labelType($1,$2,$3); }
+                ;
+
+idLIST :	id { $$ = mParser->idList($1); }
+        |       idLIST ',' id { $$ = mParser->idList($1,$2,$3); }
+        |       error { $$ = mParser->idListError($1); }
+                ;
+
+RETURNS_TYPE :  TYPE { $$ = mParser->returnsType($1); ; }
         |       TYPE ',' RETURNS_TYPE { $$ = mParser->returnsType($1,$2,$3); }
                 ;
 
@@ -140,6 +157,8 @@ INTERFACE :	'=' stringLiteral in_ stringLiteral
 /* Expressions                                   */
 /*-----------------------------------------------*/
 EXPRESSION : 	LITERAL { $$ = $1; }
+        |       id { $$ = mParser->simpleExpression($1); }
+        |       id '(' optEXPRESSION ')' { $$ = mParser->functionCall($1,$2,$3,$4); }
         |       EXPRESSION ',' EXPRESSION { $$ = mParser->commaOperator($1,$2,$3); }
         |       EXPRESSION '+' EXPRESSION
         |       EXPRESSION '-' EXPRESSION
@@ -168,6 +187,11 @@ optID:  	{ $$ = 0; }
 
 optINTERFACE_LIST : { $$ = 0; }
 	|       INTERFACE_LIST
+                ;
+
+
+optEXPRESSION : { $$ = 0; }
+        |       EXPRESSION
                 ;
 
 %%

@@ -1,73 +1,67 @@
+/**************************************************************************/
+/* FILE   **************         module.hh         ************************/
+/************************************************************************ **/
+/* Author: Patrick Miller February 15 2001                                */
+/* Copyright (C) 2001 Patrick J. Miller                                   */
+/**************************************************************************/
+/*  */
+/**************************************************************************/
 #ifndef MODULE_HH
 #define MODULE_HH
 
-#include <string>
-#include <vector>
-#include "info.hh"
-#include "stamp.hh"
-#include "node.hh"
-#include "graph.hh"
+// Do not include on its own, only as part of IFCore
+#ifndef IFCORE_HH
+error "Include only as part of IFCore.hh";
+#endif
 
-namespace sisalc {
+// -----------------------------------------------
+// A module is a collection of types, stamps, and
+// functions.  The module optionally belongs to a
+// cluster
+// -----------------------------------------------
+class module : public IFObject {
+public:
+   module();
+   module(const string&);
+   module(const char*);
 
-   class info;
-   class graph;
-   class node;
+   // -----------------------------------------------
+   // Output
+   // -----------------------------------------------
+   virtual void writeSelf(ostream&) const;
+   virtual bool valid() const;
+   int offset(const info*) const;
 
-   class module {
-   public:
-      // -----------------------------------------------
-      // Constructors with SP<> shadows
-      // -----------------------------------------------
-      module();
-      static SP<module> ctor() { return SP<module>(new module); }
+   // -----------------------------------------------
+   // Accessors
+   // -----------------------------------------------
+   void addInfo(info*);
+   void addFunction(Function*);
+   void addStamp(const stamp&);
+   void addStamp(char, const string&);
+   void addStamp(char, const char*);
+   
+   void setCluster(cluster* C) { mCluster = C; }
+   cluster* parent() { return mCluster; }
+   const cluster* parent() const { return mCluster; }
 
-      module(const string&);
-      static SP<module> ctor(const string& s) { return SP<module>(new module(s)); }
+   // -----------------------------------------------
+   // Lookup
+   // -----------------------------------------------
+   string name() const { return mName; }
+   virtual Function* findFunction(const char*);
+   virtual Function* findFunction(const string&);
+   virtual Function* findFunction(const string& name, vector<const info*>);
 
-      module(const char*);
-      static SP<module> ctor(const char* s) { return SP<module>(new module(s)); }
+    info* integer();
 
-      // -----------------------------------------------
-      // Reference counted registration
-      // -----------------------------------------------
-   protected:
-      SP<module> mSelf;
-   public:
-      void self(SP<module> p);
-      SP<module> self() const;
-      static SP<node> null;
+protected:
+   virtual char letter() const { return 'M'; }
+   cluster* mCluster;
+   string mName;
+   vector< info* > mInfos;
+   vector< stamp > mStamps;
+   vector< Function* > mFunctions;
+};
 
-      // -----------------------------------------------
-      // Output
-      // -----------------------------------------------
-      void writeSelf(ostream& os) const;
-      bool valid() const;
-
-      // -----------------------------------------------
-      // IF Labeling
-      // -----------------------------------------------
-      int offset(const SP<info>) const;
-      int offset(const SP<graph>) const;
-      int label() const;
-
-      // -----------------------------------------------
-      // Interconnect
-      // -----------------------------------------------
-      void addInfo(SP<info>);
-      void addStamp(stamp);
-      void addStamp(char x,const char* msg) { addStamp(stamp(x,msg)); }
-      void addStamp(char x,const string& msg) { addStamp(stamp(x,msg)); }
-      void addGraph(SP<graph>);
-
-   protected:
-      string mName;
-      vector<SP<info> > mInfo;
-      vector<stamp> mStamp;
-      vector<SP<graph> > mGraph;
-   };
-
-   ostream& operator<<(ostream& os, const module& object);
-   typedef SP<module> MODULE;
-}
 #endif

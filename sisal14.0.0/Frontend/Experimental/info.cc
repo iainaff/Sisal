@@ -1,37 +1,89 @@
-#include "info.hh"
+/**************************************************************************/
+/* FILE   **************          info.cc          ************************/
+/************************************************************************ **/
+/* Author: Patrick Miller February 17 2001                                */
+/* Copyright (C) 2001 Patrick J. Miller                                   */
+/**************************************************************************/
+/*  */
+/**************************************************************************/
+#include "IFCore.hh"
 
 namespace sisalc {
-   INFO info::null(0,true); // Info locked to null
 
-   info::info(TypeCode kind) : mKind(kind) {
+   /**************************************************************************/
+   /* GLOBAL **************            info           ************************/
+   /************************************************************************ **/
+   /*  */
+   /**************************************************************************/
+   info::info(TypeCode kind) : mKind(kind), mInfo1(0), mInfo2(0) {
    }
 
+   /**************************************************************************/
+   /* GLOBAL **************           valid           ************************/
+   /************************************************************************ **/
+   /*  */
+   /**************************************************************************/
    bool info::valid() const {
-      return 1;
+      return true;
    }
-   void info::setParent(MODULE m) {
+   /**************************************************************************/
+   /* GLOBAL **************         setParent         ************************/
+   /************************************************************************ **/
+   /*  */
+   /**************************************************************************/
+   void info::setParent(module* m) {
+      static int indent = -1;
+      indent++;
+      char buf[100];
+      buf[0] = 0;
+      for(int i = 0; i < indent; ++i) strcat(buf,"   ");
+      
       mParent = m;
-      if ( mInfo1.get() ) mInfo1->setParent(m);
-      if ( mInfo2.get() ) mInfo2->setParent(m);
+      if ( mInfo1 ) mInfo1->setParent(m);
+      if ( mInfo2 ) mInfo2->setParent(m);
+
+      indent--;
    }
 
-   void info::self(INFO p) {
-      assert(p.get()==this);
-      mSelf = p;
-   }
-   INFO info::self() const {
-      assert(mSelf.get() == this);
-      return mSelf;
-   }
-
+   /**************************************************************************/
+   /* GLOBAL **************           label           ************************/
+   /************************************************************************ **/
+   /*  */
+   /**************************************************************************/
    int info::label() const {
-      assert(mParent.get());
-      return mParent->offset(self());
+      assert(mParent);
+      return mParent->offset(this);
    }
 
    int info::i1() const { return label(); }
    int info::i2() const { return mKind; }
-   int info::i3() const { return (mInfo1.get())?mInfo1->label():-1; }
-   int info::i4() const { return (mInfo2.get())?mInfo2->label():-1; }
+   int info::i3() const { return (mInfo1)?mInfo1->label():-1; }
+   int info::i4() const { return (mInfo2)?mInfo2->label():-1; }
+
+   /**************************************************************************/
+   /* GLOBAL **************            list           ************************/
+   /************************************************************************ **/
+   /*  */
+   /**************************************************************************/
+   vector<const info*> info::list() const {
+      vector<const info*> result;
+      for(const info* P = this; P; P = P->mInfo2) {
+         result.push_back(P->mInfo1);
+      }
+      return result;
+   }
+
+   /**************************************************************************/
+   /* GLOBAL **************           names           ************************/
+   /************************************************************************ **/
+   /*  */
+   /**************************************************************************/
+   vector<string> info::names() const {
+      vector<string> result;
+      for(const info* P = this; P; P = P->mInfo2) {
+         result.push_back(P->spragma("na"));
+      }
+      return result;
+   }
 }
 

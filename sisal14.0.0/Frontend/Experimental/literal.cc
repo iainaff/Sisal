@@ -2,30 +2,24 @@
 
 namespace sisalc {
 
-   void literal::self(SP<literal> p) {
-      edge::self(p);
-      assert(p.get()==this);
-      mSelf = p;
-   }
-   SP<literal> literal::self() const {
-      assert(mSelf.get() == this);
-      return mSelf;
-   }
-
    literal::literal()
-      : edge(info::null), mValue("")
+      : mValue("")
    {}
    
-   literal::literal(SP<info> type, const string& value)
+   literal::literal(const string& s)
+      : mValue(s)
+   {}
+   
+   literal::literal(const info* type, const string& value)
       : edge(type), mValue(value)
    {}
    
-   literal::literal(SP<info> type, const char* value)
+   literal::literal(const info* type, const char* value)
       : edge(type), mValue(value)
    {}
    
    bool literal::valid() const {
-      return mSelf.get() == this;
+      return true;
    }
 
    int literal::i1() const {
@@ -36,7 +30,7 @@ namespace sisalc {
       return -1;
    }
 
-   string literal::value() const {
+   string literal::sValue() const {
       string result;
       result += "\"";
       result += mValue;
