@@ -18,7 +18,9 @@ void linker(char* loader,
             charStarQueue** objectFiles,
             charStarQueue** loadOptions,
             char* LDFLAGS,
-            char* linkWithF77
+            char* linkWithF77,
+            int forFORTRAN,
+            int forC
             ) {
    charStarQueue* argv = 0;
    char* entry = 0;
@@ -29,8 +31,10 @@ void linker(char* loader,
    enqueue(&argv,"-o");
    enqueue(&argv,target);
 
-   sprintf(srt0,"%s/srt0.o",libdir);
-   enqueue(&argv,srt0);
+   if ( ! ( forFORTRAN || forC ) ) {
+      sprintf(srt0,"%s/srt0.o",libdir);
+      enqueue(&argv,srt0);
+   }
 
    while(objectFiles && *objectFiles) {
       entry = dequeue(objectFiles);

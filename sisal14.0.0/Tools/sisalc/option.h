@@ -20,7 +20,7 @@
 typedef struct option {
    char* name;
    char* alternate;
-   int (*matcher)(int,char***,struct option*);
+   int (*matcher)(int,char*,char***,struct option*);
    char* oneLineDoc;
    char* manDoc;
    int* param0;
@@ -29,20 +29,24 @@ typedef struct option {
    charStarQueue** queue;
 } option_t;
 
-extern int defaultTrue PROTO((int,char***, option_t*));
-extern int defaultFalse PROTO((int,char***, option_t*));
-extern int defaultInitialized PROTO((int,char***, option_t*));
-extern int suffixedFile PROTO((int,char***, option_t*));
-extern int fetchStringEqual PROTO((int,char***, option_t*));
-extern int fetchStringNext PROTO((int,char***, option_t*));
-extern int appendQueue PROTO((int,char***, option_t*));
-extern int prefixedOption PROTO((int,char***, option_t*));
-extern int catchAll PROTO((int,char***, option_t*));
+extern int defaultTrue PROTO((int,char*,char***, option_t*));
+extern int defaultFalse PROTO((int,char*,char***, option_t*));
+extern int defaultInitialized PROTO((int,char*,char***, option_t*));
+extern int suffixedFile PROTO((int,char*,char***, option_t*));
+extern int fetchStringEqual PROTO((int,char*,char***, option_t*));
+extern int fetchStringNext PROTO((int,char*,char***, option_t*));
+extern int appendQueue PROTO((int,char*,char***, option_t*));
+extern int prefixedOption PROTO((int,char*,char***, option_t*));
+extern int catchAll PROTO((int,char*,char***, option_t*));
 
+extern int optionHelp PROTO((int,char*,char***, option_t*));
+extern int optionHTML PROTO((int,char*,char***, option_t*));
+extern int optionMAN PROTO((int,char*,char***, option_t*));
+
+extern int overviewOption PROTO((int action,char*,char*** argP, option_t* option));
 extern void setOptionDefaults PROTO((option_t* options));
 
 extern void exitIfNotFound PROTO((char* bad));
-extern void optionScan PROTO((int argc, char** argv, option_t* options, void (*handler)(char*)));
+extern void optionScan PROTO((char* program, int argc, char** argv, option_t* options, void (*handler)(char*)));
 
-extern void optionUsage PROTO((FILE* outf));
 #endif

@@ -55,5 +55,39 @@ configuration:
 	autoconf
 	autoheader --localdir=Include
 
+.PHONY: tests
+tests:
+	$(MAKE) -C Tests
+
 clean:
 	$(MAKE) target=clean
+	$(MAKE) -C Tests clean
+
+%.tgz:
+	dirname=`pwd | tr / '\012' | tail -1`; \
+	cd ..; \
+	files=""; \
+	for e in `find $$dirname -type d -print`; do \
+		if test -r $$e/CVS/Entries; then \
+			for f in `egrep ^/ $$e/CVS/Entries | tr / ' ' | cut -d ' ' -f 2`; do \
+				newfile=`echo $$e/$$f | sed 's^$$dirname/^^'`; \
+				if test -e $$newfile; then files="$$files $$newfile"; fi; \
+			done; \
+		fi; \
+	done; \
+	tar cf - $$files | gzip > $$dirname/$@
+
+uncontrolled:
+	for e in `find $$dirname -type d -print`; do \
+		if test -r $$e/CVS/Entries; then \
+			for n in `cd $$e; echo *`; do \
+			    if test -f $$n; then \
+				if grep -q /$$n/ $$e/CVS/Entries; then \
+					true; \
+				 else \
+					echo $$e/$$n; \
+				fi; \
+			    fi; \
+			done; \
+		fi; \
+	done

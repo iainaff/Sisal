@@ -21,13 +21,13 @@
 #define GET_Tmp(y)        (Tmp = atoi( &(argv[idx][(y)]) ))
 
 char    *SINFOFile      = "s.info";     /* Default information file */
-char    *iformat        = "%d\n";
-char    *fformat        = "%.6e\n";
-char    *dformat        = "%15e\n";
-char    *nformat        = "nil\n";
-char    *cformat        = "'%c'\n";
-char    *cformat2       = "'\\%03o'\n";
-char    *bformat        = "%c\n";
+char    *iformat        = "%d ";
+char    *fformat        = "%.6e ";
+char    *dformat        = "%15e ";
+char    *nformat        = "nil ";
+char    *cformat        = "'%c' ";
+char    *cformat2       = "'\\%03o' ";
+char    *bformat        = "%c ";
 
 char  *av [1024];               /* COMMAND LINE OF CURRENT COMPILATION PHASE */
 

@@ -167,9 +167,12 @@ PINFO  i;
      indent, indent );
 
 /* PRINT REFERENCE COUNTS FOR DEBUG */
+#ifdef VERBOSE
  PrintIndentation( indent );
  FPRINTF( output, "  fprintf( FibreOutFd, \" # DRC=%%d PRC=%%d\\n\", arr->RefCount, arr->Phys->RefCount );\n" );
-
+#else
+ FPRINTF( output, "  fprintf( FibreOutFd, \"\\n\" );\n" );
+#endif
 
   PrintIndentation( indent );
   FPRINTF( output, "  Indent++;\n" );

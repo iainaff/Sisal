@@ -13,7 +13,38 @@
 #include "sisalInfo.h"
 #include "option.h"
 
-typedef enum { SETDEFAULT=0, CHECKARG=1 } actions;
+typedef enum { SETDEFAULT=0, CHECKARG=1, DOC=2 } actions;
+typedef enum { TEXT = 0, HTML=1, MAN=2 } textType;
+
+static textType helpKind = TEXT;
+static char* oneLineDoc = 0;
+static char* manDoc = 0;
+
+static void escapedString(char* s) {
+   for(;s && *s;++s) {
+      switch (helpKind) {
+      case MAN:
+         switch(*s) {
+         case '-': fputs("\\-",stdout); break;
+         default: fputc(*s,stdout);
+         }
+         break;
+      case HTML:
+         switch(*s) {
+         case '<': fputs("&lt;",stdout); break;
+         case '>': fputs("&gt;",stdout); break;
+         default: fputc(*s,stdout);
+         }
+         break;
+      default: fputc(*s,stdout);
+      }
+   }
+}
+
+static void escapedLine(char* s) {
+   escapedString(s);
+   fputc('\n',stdout);
+}
 
 /**************************************************************************/
 /* LOCAL  **************          matches          ************************/
@@ -91,9 +122,10 @@ static char* matchEqual(char* arg, option_t* option) {
 /* Set or reset a boolean flag.  An extra input is the correct default    */
 /* sense the operation (0 for false, 1 for true)                          */
 /**************************************************************************/
-static int booleanFlag(int action,char*** argP, option_t* option,int normalSense) {
+static int booleanFlag(int action,char* program,char*** argP, option_t* option,int normalSense) {
    char* arg = (argP)?(**argP):0;
    int sense = normalSense;
+
    switch (action) {
    case SETDEFAULT:
       *(option->param0) = normalSense;
@@ -104,6 +136,8 @@ static int booleanFlag(int action,char*** argP, option_t* option,int normalSense
          (*argP)++;
          return 1;
       }
+      break;
+   case DOC:
       break;
    default:
       exit(1);
@@ -116,8 +150,8 @@ static int booleanFlag(int action,char*** argP, option_t* option,int normalSense
 /**************************************************************************/
 /* For default True flags                                                 */
 /**************************************************************************/
-int defaultTrue(int action,char*** argP, option_t* option) {
-   return booleanFlag(action,argP,option,1);
+int defaultTrue(int action,char* program,char*** argP, option_t* option) {
+   return booleanFlag(action,program,argP,option,1);
 }
 
 /**************************************************************************/
@@ -125,8 +159,8 @@ int defaultTrue(int action,char*** argP, option_t* option) {
 /**************************************************************************/
 /* For default False flags                                                */
 /**************************************************************************/
-int defaultFalse(int action,char*** argP, option_t* option) {
-   return booleanFlag(action,argP,option,0);
+int defaultFalse(int action,char* program,char*** argP, option_t* option) {
+   return booleanFlag(action,program,argP,option,0);
 }
 
 /**************************************************************************/
@@ -135,7 +169,7 @@ int defaultFalse(int action,char*** argP, option_t* option) {
 /* For non-defaulted integer flags (using atoi())                         */
 
 /**************************************************************************/
-int defaultInitialized(int action,char*** argP, option_t* option) {
+int defaultInitialized(int action,char* program,char*** argP, option_t* option) {
    char* arg = (argP)?(**argP):0;
    char* equal = 0;
    switch (action) {
@@ -149,6 +183,9 @@ int defaultInitialized(int action,char*** argP, option_t* option) {
          return 1;
       }
       break;
+   case DOC:
+      escapedString(" <number>");
+      break;
    default:
       exit(1);
    }
@@ -160,7 +197,7 @@ int defaultInitialized(int action,char*** argP, option_t* option) {
 /**************************************************************************/
 /* For flags in the form -foo=xxx where we only want one value            */
 /**************************************************************************/
-int fetchStringEqual(int action,char*** argP, option_t* option) {
+int fetchStringEqual(int action,char* program,char*** argP, option_t* option) {
    char* arg = (argP)?(**argP):0;
    char* equal = 0;
    switch (action) {
@@ -174,6 +211,9 @@ int fetchStringEqual(int action,char*** argP, option_t* option) {
          return 1;
       }
       break;
+   case DOC:
+      escapedString("=<string>");
+      break;
    default:
       exit(1);
    }
@@ -185,7 +225,7 @@ int fetchStringEqual(int action,char*** argP, option_t* option) {
 /**************************************************************************/
 /* For flags of the form -xxx zooper                                      */
 /**************************************************************************/
-int fetchStringNext(int action,char*** argP, option_t* option) {
+int fetchStringNext(int action,char* program,char*** argP, option_t* option) {
    char* arg = (argP)?(**argP):0;
    switch (action) {
    case SETDEFAULT:
@@ -200,6 +240,9 @@ int fetchStringNext(int action,char*** argP, option_t* option) {
          return 1;
       }
       break;
+   case DOC:
+      escapedString(" <string>");
+      break;
    default:
       exit(1);
    }
@@ -211,7 +254,7 @@ int fetchStringNext(int action,char*** argP, option_t* option) {
 /**************************************************************************/
 /* For flags in the form -foo=xxx where we only want all values           */
 /**************************************************************************/
-int appendQueue(int action,char*** argP, option_t* option) {
+int appendQueue(int action,char* program,char*** argP, option_t* option) {
    char* arg = (argP)?(**argP):0;
    char* equal = 0;
    switch (action) {
@@ -225,6 +268,9 @@ int appendQueue(int action,char*** argP, option_t* option) {
          return 1;
       }
       break;
+   case DOC:
+      escapedString("=<string>");
+      break;
    default:
       exit(1);
    }
@@ -236,7 +282,7 @@ int appendQueue(int action,char*** argP, option_t* option) {
 /**************************************************************************/
 /* For matching particular file suffixes (e.g. *.c)                       */
 /**************************************************************************/
-int suffixedFile(int action,char*** argP, option_t* option) {
+int suffixedFile(int action,char* program,char*** argP, option_t* option) {
    char* arg = (argP)?(**argP):0;
    char* suffix = 0;
    char* argSuffix = 0;
@@ -253,6 +299,8 @@ int suffixedFile(int action,char*** argP, option_t* option) {
          return 1;
       }
       break;
+   case DOC:
+      break;
    default:
       exit(1);
    }
@@ -264,7 +312,7 @@ int suffixedFile(int action,char*** argP, option_t* option) {
 /**************************************************************************/
 /* For matching when only the first few letters must match (e.g. -Ifoo)   */
 /**************************************************************************/
-int prefixedOption(int action,char*** argP, option_t* option) {
+int prefixedOption(int action,char* program,char*** argP, option_t* option) {
    char* arg = (argP)?(**argP):0;
    int prefixLen = 0;
    switch (action) {
@@ -278,6 +326,9 @@ int prefixedOption(int action,char*** argP, option_t* option) {
          return 1;
       }
       break;
+   case DOC:
+      escapedString("<string>");
+      break;
    default:
       exit(1);
    }
@@ -289,7 +340,7 @@ int prefixedOption(int action,char*** argP, option_t* option) {
 /**************************************************************************/
 /* Just match anything                                                    */
 /**************************************************************************/
-int catchAll(int action,char*** argP, option_t* option) {
+int catchAll(int action,char* program,char*** argP, option_t* option) {
    char* arg = (argP)?(**argP):0;
    switch (action) {
    case SETDEFAULT:
@@ -298,6 +349,8 @@ int catchAll(int action,char*** argP, option_t* option) {
       enqueue(option->queue,arg);
       (*argP)++;
       return 1;
+   case DOC:
+      break;
    default:
       exit(1);
    }
@@ -315,7 +368,7 @@ void setOptionDefaults(option_t* options) {
    /* member on the option object                     */
    /* ----------------------------------------------- */
    for(; options->name; ++options) {
-      options->matcher(SETDEFAULT,0,options);
+      options->matcher(SETDEFAULT,0,0,options);
    }
 }
 
@@ -335,13 +388,13 @@ void exitIfNotFound(char* bad) {
 /* Scan through the argv list and look for options.  If not found, apply  */
 /* a handler function (if provided).                                      */
 /**************************************************************************/
-void optionScan(int argc, char** argv, option_t* options, void (*handler)(char*) ) {
+void optionScan(char* program, int argc, char** argv, option_t* options, void (*handler)(char*) ) {
    int i;
    option_t* opt;
    char** last = argv+argc;
    while(argv < last) {
       for(opt=options; opt->name; ++opt) {
-         if ( opt->matcher(CHECKARG,&argv, opt) ) goto Found;
+         if ( opt->matcher(CHECKARG,program,&argv, opt) ) goto Found;
       }
       if (handler) handler(argv[i]);
    Found:
@@ -349,6 +402,229 @@ void optionScan(int argc, char** argv, option_t* options, void (*handler)(char*)
    }
 }
 
-void optionUsage(FILE* out) {
-   fprintf(out,"Not done\n");
+
+static void header(char* program, char* doc) {
+   switch (helpKind) {
+   case TEXT:
+      printf("%s -- %s\n",program,doc);
+      break;
+   case HTML:
+      printf("<HEAD>\n");
+      printf("<HTML>\n");
+      printf("<HEAD>\n");
+      printf("<TITLE>");
+      escapedString(program);
+      escapedString(" -- ");
+      escapedString(doc);
+      printf("</TITLE>\n");
+      printf("</HEAD>\n");
+      printf("<BODY>\n");
+      printf("<H1>");
+      escapedString(program);
+      escapedString(" -- ");
+      escapedString(doc);
+      printf("</H1>\n");
+      break;
+   case MAN:
+      printf(".TH %s 1\n",program);
+      printf(".SH NAME\n");
+      escapedString(program);
+      escapedString(" -- ");
+      escapedLine(doc);
+      break;
+   default:
+      exit(1);
+   }
+}
+
+static void synopsis(char* program) {
+   switch (helpKind) {
+   case TEXT:
+      printf("usage: %s ",program);
+      break;
+   case HTML:
+      break;
+   case MAN:
+      printf(".SH SYNOPSIS\n");
+      printf(".B ");
+      escapedLine(program);
+      break;
+   default:
+      exit(2);
+   }
+}
+
+static void synopsisOf(option_t* option) {
+   switch (helpKind) {
+   case TEXT:
+   case MAN:
+      printf("[ %s",option->name);
+      option->matcher(DOC,0,0,option);
+      fputs(" ]",stdout);
+      break;
+   case HTML:
+      break;
+   default:
+      exit(3);
+   }
+}
+
+static void commandLineOptions(char* program) {
+   switch (helpKind) {
+   case TEXT:
+      fputc('\n',stdout);
+      break;
+   case HTML:
+      printf("<TABLE BORDER NOSAVE>\n");
+      break;
+   case MAN:
+      fputc('\n',stdout);
+      printf(".SH DESCRIPTION\n");
+      escapedLine(manDoc);
+      fputc('\n',stdout);
+      fputc('\n',stdout);
+      printf("Options:\n\n");
+      break;
+   default:
+      exit(4);
+   }
+}
+
+static void commandLineOf(option_t* option) {
+   char buf[1024];
+   switch (helpKind) {
+   case TEXT:
+      if ( option->alternate ) {
+         sprintf(buf,"%s,%s",option->name,option->alternate);
+      } else {
+         sprintf(buf,"%s",option->name);
+      }
+      while ( strlen(buf) < 20) strcat(buf," ");
+      printf("  %s %s\n",buf,option->oneLineDoc);
+      break;
+   case HTML:
+      printf("<TR><TD>");
+      escapedString(option->name);
+      option->matcher(DOC,0,0,option);
+      if (option->alternate) {
+         printf("<BR>");
+         escapedString(option->alternate);
+         option->matcher(DOC,0,0,option);
+      }
+      printf("</TD><TD>");
+      escapedString(option->manDoc);
+      printf("</TD></TR>\n");
+      break;
+   case MAN:
+      printf(".TP 13\n");
+      printf(".B ");
+      escapedString(option->name);
+      option->matcher(DOC,0,0,option);
+      if (option->alternate) {
+         fputc(' ',stdout);
+         escapedString(option->alternate);
+         option->matcher(DOC,0,0,option);
+      }
+      fputc('\n',stdout);
+      fputc('\n',stdout);
+      escapedLine(option->manDoc);
+      fputc('\n',stdout);
+      break;
+      
+   default:
+      exit(5);
+   }
+}
+
+static void description(char* doc) {
+   switch (helpKind) {
+   case TEXT:
+      break;
+   case HTML:
+      break;
+   case MAN:
+      break;
+   default:
+      exit(6);
+   }
+}
+
+
+static void body(option_t* opt) {
+   switch (helpKind) {
+   default:
+      opt->matcher(DOC,0,0,opt);
+   }
+}
+
+static void trailer() {
+   switch (helpKind) {
+   case HTML:
+      printf("</TABLE>\n");
+      printf("</BODY>\n");
+      break;
+   default:
+      ;
+   }
+}
+
+static int helpText(int action,char* program,char*** argP, option_t* option,textType kind) {
+   option_t* opt;
+   char* arg = (argP)?(**argP):0;
+
+   switch (action) {
+   case SETDEFAULT:
+      break;
+   case CHECKARG:
+      if ( strcmp(arg,option->name) == 0 ||
+           ( option->alternate && strcmp(arg,option->alternate) == 0 )
+           ) {
+         helpKind = kind;
+         header(program,oneLineDoc);
+
+         synopsis(program);
+         for(opt=option; opt->name; ++opt) {
+            synopsisOf(opt);
+         }
+         description(manDoc);
+
+         commandLineOptions(program);
+         for(opt=option; opt->name; ++opt) {
+            commandLineOf(opt);
+         }
+      
+         trailer();
+         exit(0);
+      }
+      break;
+   case DOC:
+      break;
+   default:
+      exit(1);
+   }
+   return 0;
+}
+
+int overviewOption(int action,char* program,char*** argP, option_t* option) {
+   switch (action) {
+   case SETDEFAULT:
+      oneLineDoc = option->oneLineDoc;
+      manDoc = option->manDoc;
+      break;
+   case CHECKARG:
+      break;
+   default:
+      exit(1);
+   }
+   return 0;
+
+}
+int optionHelp(int action,char* program,char*** argP, option_t* option) {
+   return helpText(action,program,argP,option,TEXT);
+}
+int optionHTML(int action,char* program,char*** argP, option_t* option) {
+   return helpText(action,program,argP,option,HTML);
+}
+int optionMAN(int action,char* program,char*** argP, option_t* option) {
+   return helpText(action,program,argP,option,MAN);
 }

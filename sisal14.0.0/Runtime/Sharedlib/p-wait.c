@@ -47,6 +47,9 @@ static void DoDependentWork()
 
 }
 
+#ifndef YIELD_IF_REQUIRED
+#define YIELD_IF_REQUIRED()
+#endif
 
 void Wait( Event ) 
 int Event;
@@ -54,7 +57,7 @@ int Event;
   switch ( Event ) {
     case FOR_NOTHING:
         DoDependentWork();
-
+        YIELD_IF_REQUIRED();
       break;
 
     case FOR_SHUTDOWN:
@@ -62,6 +65,7 @@ int Event;
       {
           DoDependentWork();
           FLUSHLINE(SisalShutDown);
+          YIELD_IF_REQUIRED();
       }
 
       break;

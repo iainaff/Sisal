@@ -7,7 +7,7 @@
 #*  *#
 #**************************************************************************#
 
-local: directories $(localFiles) $(executables) $(versionedExecutables) ${data} ${man} $(libraries) $(includes)
+local: directories $(localFiles) $(executables) $(versionedExecutables) ${data} ${man} ${info} $(libraries) $(includes)
 all: local install
 
 SHELL = @SHELL@

@@ -121,7 +121,9 @@ extern void linker PROTO((char* loader,
                           charStarQueue** objectFiles,
                           charStarQueue** loadOptions,
                           char* LDFLAGS,
-                          char* linkWithF77
+                          char* linkWithF77,
+                          int forFORTRAN,
+                          int forC
                           ));
 
 #endif

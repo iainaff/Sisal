@@ -37,7 +37,13 @@ void if1ld(charStarQueue** if1Files,
    enqueue(&argv,"-o");
    enqueue(&argv,mono);
 
-   if ( forFortran || forC ) enqueue(&argv,"-S");
+   if ( forFortran ) {
+      enqueue(&argv,"-F");
+   } else if ( forC ) {
+      enqueue(&argv,"-C");
+   } else {
+      /* enqueue(&argv,"-S"); */
+   }
    if ( !warning ) enqueue(&argv,"-w");
    if ( profile ) enqueue(&argv,"-W");
    if ( forFortran ) enqueue(&argv,"-F");

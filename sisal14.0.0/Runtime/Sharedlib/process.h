@@ -20,7 +20,9 @@
 #define SPAWN_COMPLEX 1
 
 #define DEFAULT_NUM_WORKERS       1
-#define DEFAULT_DSA_SIZE          2000000
+#ifndef DEFAULT_DSA_SIZE
+#define DEFAULT_DSA_SIZE          16000000
+#endif
 #define DEFAULT_XFT_THRESHOLD     100
 #define DEFAULT_LOOP_SLICES       1
 #define DEFAULT_LOOP_FACTOR       2

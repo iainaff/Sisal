@@ -13,6 +13,7 @@ sources= sisalc.c option.c charStarQueue.c \
 
 executables = sisalc
 man = sisalc.1
+info = sisalc.html sisalc.txt
 
 include @top_level_directory@/Include/makefile.inc
 
@@ -20,11 +21,23 @@ sisalc: $(objects)
 	$(LD-C) -o $@ $^
 
 clean:
-	$(RM) sisalc $(objects)
+	$(RM) sisalc sisalc.old $(objects) $(man) $(info)
 
 test: sisalc
 	./sisalc --usage
 	./sisalc -v -n foo.sis goo.sis -keep
+
+sisalc.1: sisalc
+	$(RM) $@
+	./sisalc --man > $@
+
+sisalc.html: sisalc
+	$(RM) $@
+	./sisalc --html > $@
+
+sisalc.txt: sisalc
+	$(RM) $@
+	./sisalc --help > $@
 
 Newoptions:
 	python generateOptions.py < sisalc.c > sisalc.new

@@ -72,12 +72,20 @@ POINTER val;
   register int     HiBound;
   register int     Lo2;
   register ARRAYP arr = (ARRAYP) val;
+  int saveIndent;
 
   PrintIndent;
   Lo2 = arr->LoBound;
   fprintf( FibreOutFd, "[ %d,%d:", Lo2, Lo2+(arr->Size)-1 );
+  saveIndent = Indent;
+#ifdef VERBOSE
   fprintf( FibreOutFd, " # DRC=%d PRC=%d\n", arr->RefCount, arr->Phys->RefCount );
-
+  Indent++;
+#else
+  Indent = 0;
+  fprintf( FibreOutFd, " " );
+#endif
+  
   Indent++;
   Base2 = arr->Base;
   HiBound = Lo2 + arr->Size - 1;
@@ -85,8 +93,10 @@ POINTER val;
     WriteBool( (((char*)Base2)[Lo2]) );
   }
 
-  Indent--;
+  Indent = saveIndent;
+#ifdef VERBOSE
   PrintIndent;
+#endif
   fprintf( FibreOutFd, "]\n" );
 }
 
@@ -158,7 +168,11 @@ POINTER val;
     fputc( '"', FibreOutFd );
   } else {
     fprintf( FibreOutFd, "[ %d,%d:", Lo2, Lo2+(arr->Size)-1 );
+#ifdef VERBOSE
     fprintf( FibreOutFd, " # DRC=%d PRC=%d\n", arr->RefCount, arr->Phys->RefCount );
+#else
+    fprintf( FibreOutFd, " " );
+#endif
 
     Indent++;
     for (       ; Lo2 <= HiBound; Lo2++ ) {
@@ -201,11 +215,19 @@ POINTER val;
   register int     HiBound;
   register int     Lo2;
   register ARRAYP arr = (ARRAYP) val;
+  int saveIndent;
 
   PrintIndent;
   Lo2 = arr->LoBound;
   fprintf( FibreOutFd, "[ %d,%d:", Lo2, Lo2+(arr->Size)-1 );
+  saveIndent = Indent;
+#ifdef VERBOSE
   fprintf( FibreOutFd, " # DRC=%d PRC=%d\n", arr->RefCount, arr->Phys->RefCount );
+  Indent++;
+#else
+  Indent = 0;
+  fprintf( FibreOutFd, " " );
+#endif
 
   Indent++;
   Base2 = arr->Base;
@@ -214,8 +236,10 @@ POINTER val;
     WriteDbl( (((double*)Base2)[Lo2]) );
   }
 
-  Indent--;
+  Indent = saveIndent;
+#ifdef VERBOSE
   PrintIndent;
+#endif
   fprintf( FibreOutFd, "]\n" );
 }
 
@@ -248,21 +272,30 @@ POINTER val;
     register int     HiBound;
     register int     Lo2;
     register ARRAYP arr = (ARRAYP) val;
+    int saveIndent;
 
     PrintIndent;
-  Lo2 = arr->LoBound;
+    Lo2 = arr->LoBound;
     fprintf( FibreOutFd, "[ %d,%d:", Lo2, Lo2+(arr->Size)-1 );
+    saveIndent = Indent;
+#ifdef VERBOSE
     fprintf( FibreOutFd, " # DRC=%d PRC=%d\n", arr->RefCount, arr->Phys->RefCount );
-
     Indent++;
+#else
+    Indent = 0;
+    fprintf( FibreOutFd, " " );
+#endif
+
     Base2 = arr->Base;
     HiBound = Lo2 + arr->Size - 1;
     for ( ; Lo2 <= HiBound; Lo2++ ) {
       WriteInt( (((int*)Base2)[Lo2]) );
       }
 
-    Indent--;
+    Indent = saveIndent;
+#ifdef VERBOSE
     PrintIndent;
+#endif
     fprintf( FibreOutFd, "]\n" );
 }
 
@@ -295,11 +328,19 @@ POINTER val;
   register int     HiBound;
   register int     Lo2;
   register ARRAYP arr = (ARRAYP) val;
+  int saveIndent;
 
   PrintIndent;
   Lo2 = arr->LoBound;
   fprintf( FibreOutFd, "[ %d,%d:", Lo2, Lo2+(arr->Size)-1 );
+  saveIndent = Indent;
+#ifdef VERBOSE
   fprintf( FibreOutFd, " # DRC=%d PRC=%d\n", arr->RefCount, arr->Phys->RefCount );
+  Indent++;
+#else
+  Indent = 0;
+  fprintf( FibreOutFd, " " );
+#endif
 
   Indent++;
   Base2 = arr->Base;
@@ -308,8 +349,10 @@ POINTER val;
     WriteNil( (((char*)Base2)[Lo2]) );
   }
 
-  Indent--;
+  Indent = saveIndent;
+#ifdef VERBOSE
   PrintIndent;
+#endif
   fprintf( FibreOutFd, "]\n" );
 }
 
@@ -342,11 +385,19 @@ POINTER val;
   register int     HiBound;
   register int     Lo2;
   register ARRAYP arr = (ARRAYP) val;
+  int saveIndent;
 
   PrintIndent;
   Lo2 = arr->LoBound;
   fprintf( FibreOutFd, "[ %d,%d:", Lo2, Lo2+(arr->Size)-1 );
+  saveIndent = Indent;
+#ifdef VERBOSE
   fprintf( FibreOutFd, " # DRC=%d PRC=%d\n", arr->RefCount, arr->Phys->RefCount );
+  Indent++;
+#else
+  Indent = 0;
+  fprintf( FibreOutFd, " " );
+#endif
 
   Indent++;
   Base2 = arr->Base;
@@ -355,73 +406,9 @@ POINTER val;
     WriteFlt( (((float*)Base2)[Lo2]) );
   }
 
-  Indent--;
+  Indent = saveIndent;
+#ifdef VERBOSE
   PrintIndent;
+#endif
   fprintf( FibreOutFd, "]\n" );
 }
-/* ------------------------------------------------------------ */
-#if 0  
-"  register %s val%d;\n", i->A_ELEM->tname, indent );
-
-  
-"  FibreParse( INT_ );"
-
-  
-"{"
-  
-"register int lob;"
-  
-"lob = FibreInt;"
-  
-"GET_LOOKAHEAD;"
-  
-"if ( LookAheadToken == COMMA_ ) {"
-  
-"  FibreParse( COMMA_ );"
-  
-"  FibreParse( INT_ );"
-
-  
-"  OptABld( %s, lob, 1, FibreInt, %s );\n", dst, i->A_ELEM->tname );
-
- "  ((ARRAYP)%s)->Phys->Size = 0;\n", dst ); 
-
-  
-"} else {"
-  
-"  ABld( %s, lob, 1 );\n", dst );
-  
-" }"
-  
-"FibreParse( COLON_ );"
-  
-"}"
-
-  
-"  GET_LOOKAHEAD;"
-
-  
-"  while ( LookAheadToken != %s ) {\n", del );
-
-  
-"    if ( LookAheadToken == SEMI_COLON_ )"
-
-  
-  
- "      FibreError( \"REPETITION FACILITY NOT IMPLEMENTED\" );"
-
-    PrintReadOp( indent+4, buf, i->A_ELEM );
-
-  
-"    AGather( %s, %s, %s );\n", dst, buf, i->A_ELEM->tname                );
- 
-  
-"    GET_LOOKAHEAD;"
-
-  
-"    }"
-
-  
-" }"
-/* ------------------------------------------------------------ */
-#endif
