@@ -48,8 +48,6 @@ void if1ld(charStarQueue** if1Files,
    if ( profile ) enqueue(&argv,"-W");
    if ( forFortran ) enqueue(&argv,"-F");
    if ( forC ) enqueue(&argv,"-C");
-   printf("entries is 0x%x\n",entries);
-   printf("*entries is 0x%x\n",*entries);
    while(entries && *entries) {
       entry = dequeue(entries);
       enqueue(&argv,"-e");
