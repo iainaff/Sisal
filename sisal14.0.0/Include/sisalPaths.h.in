@@ -1,0 +1,21 @@
+/****-*-c-*-***************************************************************/
+/* FILE   **************      sisalPaths.h.in      ************************/
+/* @configure_input@ */
+/**************************************************************************/
+/* Author: Patrick Miller December 23 2000                                */
+/**************************************************************************/
+/*  */
+/**************************************************************************/
+
+#define SISAL_VERSION "@version@"
+#define SISAL_PATH_PREFIX "@prefix@"
+#define SISAL_CC "@CC@"
+#define SISAL_LDFLAGS "@LIBS@ @LDFLAGS@ @parallel_link@"
+#define SISAL_CFLAGS "@CFLAGS@ @parallel_compile@"
+
+#define SISAL_FORTRAN_ENABLED @fortran_enabled@
+#define SISAL_F77 "@F77@"
+#define SISAL_F77_DASHI_OK @FDASHI_OK@
+#define SISAL_FFLAGS "@FFLAGS@"
+#define SISAL_FLIBS "@FLIBS@"
+

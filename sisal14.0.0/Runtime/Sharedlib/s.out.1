@@ -1,0 +1,345 @@
+.TH S.OUT 1
+.SH NAME
+s.out \- SISAL executable
+.SH SYNOPSIS
+.B s.out 
+[ options ] [ infile ] [ outfile ] [infofile]
+.SH DESCRIPTION
+.I S.out
+is the output file of the optimizing SISAL compiler (see \fIosc\fR(1)) and the
+link editor \fIld\fR(1).  It is executable if there were no errors and
+no unresolved externals during compilation.
+When execution begins, FIBRE input is read from
+infile (if provided) or
+standard input and is associated positionally
+with the arguments of the main SISAL
+function.  At completion, results are
+written in positional order
+to outfile (if provided) or standard output in FIBRE form.
+If an infofile is specified, then runtime timing information will be
+written to the specified file (See the \fB-r\fR option for more information).
+The character `-' implies standard input, standard output, or
+s.info if it appears as a file parameter.
+
+Options:
+
+.TP 13
+.B \-usage
+The \-usage option produces a list of all valid option flags to stdout
+(including those undocumented in this man page) with a one line
+description of the option.  OSC exits after producing the list.
+
+.\" Start options
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-wNUM
+Set the number of worker processes to
+.I NUM.
+A value greater than one makes sense only on a multiprocessor
+SISAL implementation (Cray, Encore, Sequent, Alliant, etc.).  Default:  1.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-lsNUM
+If compiled for concurrent execution
+(refer to \fIosc\fR(1)), 
+slice each concurrentized 
+.I for
+loop into
+.I NUM 
+pieces.
+That is, the parameter is a blocking factor.
+Note: When using the strided slicing algorithm (see \fB\-strided\fR),
+this parameter affects what the stride is rather than the blocking factor.
+Default:  Slice each concurrentized
+loop into
+.I W
+pieces, where 
+.I W
+is the number of workers.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-blocked
+Break loops up into clustered blocks for scheduling.  For instance,
+consider a loop with 8 iterations on 4 processors.  The blocking
+algorithm will group the first and second iterations on processor 1,
+third and fourth on processor 2, etc...  The association looks like
+1:<1,2>; 2:<3,4>; 3:<5,6>, and 4:<7,8>.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-strided
+If compiled for concurrent execution,
+slice each concurrentized 
+.I for
+loop using a strided method.  For instance, if a loop has 8 iterations on
+4 processors, with this algoritm, the association is 1:<1,5>; 2:<2,6>; 3:<3,7>,
+and 4:<4,8>.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-gss
+If compiled for concurrent execution,
+slice each concurrentized 
+.I for
+loop using guided self
+scheduling.  Here the thickness of a slice is dynamically computed as
+the number of iterations not yet scheduled divided by the
+number of workers.
+Note that the \-ls and \-gss options conflict.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-cached
+If compiled for concurrent execution,
+slice each concurrentized 
+.I for
+loop using cached scheduling.  
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-b
+If compiled for concurrent execution 
+(refer to \fIosc\fR(1)),
+use the distributed run queue system to
+bind parallel work to worker processes in a consistent and regular
+manner. 
+In the absence of gang scheduling, this option could degrade performance
+if the machine load is high.
+Default: Use the shared run queue system.
+WARNING: on the SGI this option binds processors to worker processes,
+and under heavy system loads, this can severely degrade job and system 
+throughput.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-axNUM
+Set array expansion value to
+.I NUM\.
+Each time the space for a dynamically growing array must be
+expanded, it will obtain \fINUM\fR times the number of previous
+expansions more elements.
+Programs with dynamically growing arrays may benefit from a
+larger value.  
+The expansion value is also used to prevent memory fragmentation in
+programs repeatedly building and recycling incrementally smaller or 
+larger arrays.
+Default:  100.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-dsNUM
+Initialize the shared data management pool 
+to
+.I NUM
+bytes.  An execution that terminates because of storage deadlock may
+need more dynamic memory.  Default:  2000000 bytes.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-dxNUM
+Set the exact fit storage allocation threshold to
+.I NUM
+bytes.  This eliminates the existence of
+leftover free blocks whose sizes are smaller than \fINUM\fR bytes.  
+Default: 100.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-r
+Append resource utilization information to the infofile (elapsed cpu
+time, elapsed wall clock time, memory utilization figures, etc.).
+A new file is created if the infofile does not exist.  Otherwise,
+information is catenated.
+The default info filename is s.info, but the name can be overridden by
+specifying it (after the infile and outfile) on the command line.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-iformat formatstring
+Change the integer output format string from the default (%d\\n) to
+.B formatstring.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-fformat formatstring
+Change the real output format string from the default (%.6e\\n) to
+.B formatstring.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-dformat formatstring
+Change the double output format string from the default (%15e\\n) to
+.B formatstring.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-nformat formatstring
+Change the null output format string from the default (nil\\n) to
+.B formatstring.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-cformat formatstring
+Change the printable character output format string from the
+default ('%c'\\n) to
+.B formatstring.
+NOTE:  single quotes and backslashes will always print single
+quoted and escaped.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-cformat2 formatstring
+Change the uprintable character output format string from the
+default ('\\\\%03o'\\n) to
+.B formatstring.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-bformat formatstring
+Change the boolean output format string from the default (%c\\n) to
+.B formatstring.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-tr=attribute
+The OSC Tracer allows you to trace the input values to a function
+specified with the
+.B -tr
+option in the compile.  If no functions are being traced, then this
+has no effect.
+The Tracer has several attributes which can be set by the command
+line.  All attributes can be minimally abreviated.
+.B interactive,
+.B ~interactive
+A user can interactively work with the trace points and set breakpoint entry
+attributes individually.
+The interactive tracer allows several commands when entered.  Illegal
+commands give you the help list.
+.br
+.br
+\ \ Commands with optional ID and ~ (not)
+.br
+.br
+\ \ [id]\ [~]Append\ \ \ \ \ \ \ \ : Append or overwrite
+.br
+\ \ \ \ \ \ \ \ \ \ Continue\ \ \ \ \ \ : Continue execution
+.br
+\ \ \ \ \ \ \ \ \ \ Display\ \ \ \ \ \ \ : Display trace
+.br
+\ \ [id]\ [~]File\ \ \ \ \ \ \ \ \ \ : File or screen
+.br
+\ \ \ \ \ \ \ [~]Interactive\ \ \ : Interactive or not
+.br
+\ \ \ \ \ \ \ \ \ \ List\ \ \ \ \ \ \ \ \ \ : List breakpoints
+.br
+\ \ [id]\ [~]Kill\ \ \ \ \ \ \ \ \ \ : Kill or resurrect
+.br
+\ \ [id]\ [~]Overwrite\ \ \ \ \ : Overwrite or append
+.br
+\ \ \ \ \ \ \ \ \ \ Peek\ \ \ \ \ \ \ \ \ \ : Trace to screen
+.br
+\ \ \ \ \ \ \ \ \ \ Quit\ \ \ \ \ \ \ \ \ \ : Quit s.out
+.br
+\ \ [id]\ \ \ \ Step\ n\ \ \ \ \ \ \ \ : Set step count to n
+.br
+\ \ \ \ \ \ \ [~]Twine\ \ \ \ \ \ \ \ \ : TWINE or Fibre format
+.br
+.br
+The ID and not operator are ignored where not appropriate.  When
+entering the Tracer, you will be given a prompt with the current
+breakpoint ID, current function name, and the number of times the
+breakpoint has been entered.  For more information about entries, use
+the List command.  It will show the number of times this breakpoint
+has been entered (TCount), number of times since last entered (Count),
+the breakpoint's step modifier, whether its still active, and its file
+and append modes.
+(Default \-tr=~interactive).
+
+.B file
+Function traces can be printed to files of the form funct.trace rather
+than stderr.
+(Default \-tr=~file).
+
+.B append,
+.B ~append,
+.B overwrite,
+.B ~overwrite
+Function traces (when written to files) can either be overwritten at each
+step or appended.  Overwriting is nice if you just want the last set
+of values at a function while appending is nice if you need to see all
+the values.
+(Default \-tr=append).
+.B {stepcount}
+Controls how often a breakpoint is exercised.  For instance, if the
+step is 3, then the breakpoint reports on the 3rd, 6th, 9th, etc...
+time through.  This is useful if you want a periodic report.
+(Default \-tr=1).
+
+.B break
+.B ~break
+.B go
+.B ~go
+Controls if the program will exit after hitting the first breakpoint.
+(Default \-tr=~break).
+
+.B twine,
+.B ~twine
+Tracer can dump its output either in Fibre or as a set of TWINE
+debugger commands suitable for inclusion.  For instance one could
+compile s.out to trace function F and then use the output in a TWINE
+t.out exection.
+.br
+\ \ % twine -g test.sis
+.br
+\ \ % osc -trace f test.sis
+.br
+\ \ % s.out -tr=break -tr=twine < input
+.br
+\ \ % t.out -debug
+.br
+\ \ Entering debug mode... 
+.br
+\ \ Remember... All commands are ...
+.br
+\ \ At top level
+.br
+\ \ debug-0> include f.trace;
+.br
+\ \ ...
+.br
+This will pick up execution in TWINE where OSC left off and continue
+to the end of the function.
+(Default \-tr=~twine).
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-m
+If set, terminate parsing since a slave has been started.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-nostrings
+Print all array[character] items in array format rather than
+in string (quoted) format.  Default: print eligible array[character]
+items in string format.  To be eligible, the lower bound of
+the array must be 1.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-z
+Do not print the program's output. Default: print the program's output.
+
+.\" Machine generated entry.  Do not change
+.TP 13
+.B \-X
+All remaining arguments are used as FIBRE input values.  No further
+argument parsing is done.
+.\" End options
+
+.SH IMPORTANT NOTES
+One may provide an upper bound in a FIBRE array definition to reduce
+FIBRE processing time.  Simply follow the lower bound by a comma 
+and then the upper bound; for example,  "[1,2: 10 20]".

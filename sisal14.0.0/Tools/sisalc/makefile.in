@@ -1,0 +1,32 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+sources= sisalc.c option.c charStarQueue.c \
+	sisal.c if1ld.c if1opt.c if2mem.c if2up.c if2part.c if2gen.c \
+	compile.c linker.c
+
+executables = sisalc
+man = sisalc.1
+
+include @top_level_directory@/Include/makefile.inc
+
+sisalc: $(objects)
+	$(LD-C) -o $@ $^
+
+clean:
+	$(RM) sisalc $(objects)
+
+test: sisalc
+	./sisalc --usage
+	./sisalc -v -n foo.sis goo.sis -keep
+
+Newoptions:
+	python generateOptions.py < sisalc.c > sisalc.new
+	mv sisalc.c sisalc.old
+	mv sisalc.new sisalc.c

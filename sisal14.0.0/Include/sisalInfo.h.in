@@ -1,0 +1,239 @@
+/*-*-C-*-*/
+/* @configure_input@ */
+
+#include "sisalConfig.h"
+
+#include <stdio.h>
+#include <math.h>
+#include <ctype.h>
+#include <signal.h>
+
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_SCHED_H
+#include <sched.h>
+#endif
+
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+
+#ifdef HAV_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#if TIME_WITH_SYS_TIME
+#include <sys/time.h>
+#include <time.h>
+#else
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
+#else
+#include <time.h>
+#endif
+#endif
+
+#ifdef HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef STDC_HEADERS
+#include <stdlib.h>
+#endif
+
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
+
+#ifdef HAVE_FLOAT_H
+#include <float.h>
+#endif
+
+#define SISAL_BANNER "@host@ SISAL 1.2 (@model@)"
+
+/* ----------------------------------------------- */
+/* Support non-standard support for static forward */
+/* ----------------------------------------------- */
+#ifndef BAD_STATIC_FORWARD
+#define Static static
+#define Local static
+#define staticforward static
+#else
+#define Static 
+#define Local 
+#define staticforward extern
+#endif
+
+#undef PROTO
+#ifdef HAVE_PROTOTYPES
+#define PROTO(x) x
+#else
+#define PROTO(x) ()
+#endif
+
+#ifndef HAVE_CONST
+#define const
+#endif
+
+/* ----------------------------------------------- */
+/* Pointer stuff.                                  */
+/*   The PCMCAST is a really bad idea.             */
+/* ----------------------------------------------- */
+/* This should be void*, but we do direct arithmetic on pointer!!! */
+#define POINTER char*
+#define PCMCAST char*
+
+/* ------------------------------------------------------------ */
+/* Numeric sizes                                                */
+/* ------------------------------------------------------------ */
+#ifdef INT_MAX
+#define MaxInt INT_MAX
+#else
+#define MaxInt @MaxInt@
+#endif
+
+#ifdef INT_MIN
+#define MinInt INT_MIN
+#else
+#define MinInt @MinInt@
+#endif
+
+#ifdef FLT_MAX
+#define MaxFloat FLT_MAX
+#else
+#define MaxFloat @MaxFloat@
+#endif
+
+#ifdef FLT_MIN
+#define MinFloat FLT_MIN
+#else
+#define MinFloat @MinFloat@
+#endif
+
+#ifdef DBL_MAX
+#define MaxDouble DBL_MAX
+#else
+#define MaxDouble @MaxDouble@
+#endif
+
+#ifdef DBL_MIN
+#define MinDouble DBL_MIN
+#else
+#define MinDouble @MinDouble@
+#endif
+
+#ifndef True
+#define True (1)
+#endif
+
+#ifndef False
+#define False (0)
+#endif
+
+/* ----------------------------------------------- */
+/* Keyword issues                                  */
+/* ----------------------------------------------- */
+#ifndef HAVE_SHARED_KEYWORD
+#define shared
+#endif
+
+#ifndef HAVE_VOLITILE_KEYWORD
+#define volitile
+#endif
+
+
+/* ----------------------------------------------- */
+/* Data alignment                                  */
+/* ----------------------------------------------- */
+#ifdef NON_COHERENT_CACHE
+#define ALIGN_SIZE CACHE_LINE
+#else
+#define ALIGN_SIZE sizeof(POINTER)
+#endif
+
+#define ALIGN(x,y)       ((x)((((int)y)+(ALIGN_SIZE))&(~((ALIGN_SIZE)-1))))
+#define SIZE_OF(x)       (((SIZEOF(x)/(ALIGN_SIZE))+1)*(ALIGN_SIZE))
+#define ALIGNED_INC(x,y) (((PCMCAST)y)+SIZE_OF(x))
+
+/* ----------------------------------------------- */
+/* Limits                                          */
+/* ----------------------------------------------- */
+#define MAX_ARGS_TO_SHELL @maxArgsToShell@
+#define SISAL_CLOCK_TICK @sisal_clock_tick@
+#define MAX_PROCS @max_procs@
+
+#ifndef ARGS_MAX
+#define ARGS_MAX @args_max@
+#endif
+
+#ifndef MAXPATHLEN
+#define MAXPATHLEN @max_path_length@
+#endif
+
+/* ----------------------------------------------- */
+/* Macros of dubious value                         */
+/* ----------------------------------------------- */
+#ifndef NULL
+#define NULL (0)
+#endif
+
+#undef TRUE
+#define TRUE (1)
+
+#undef FALSE
+#define FALSE (0)
+
+/* ----------------------------------------------- */
+/* Some common macros to help lint checks          */
+/* ----------------------------------------------- */
+#define FPRINTF (void)fprintf
+#define SPRINTF (void)sprintf
+#define PRINTF  (void)printf
+#define FCLOSE          (void)fclose
+#define FPUTC           (void)fputc
+#define UNGETC          (void)ungetc
+#define SIZEOF(x)       ((int)sizeof(x))
+
+/* ----------------------------------------------- */
+/* Assertion macros                                */
+/* ----------------------------------------------- */
+#if !defined(NO_ASSERTIONS) && !defined(ERROR_ASSERTIONS)
+#define ASSERT(w, x)	{if (!(w)) { char msg[1000]; SPRINTF(msg, \
+			"assert <%s> failed in %s line %d", \
+			x, __FILE__, __LINE__); Warning1( msg ); }}
+#else
+#ifdef ERROR_ASSERTIONS
+#define ASSERT(w, x)	{if (!(w)) { char msg[1000]; SPRINTF(msg, \
+			"assert <%s> failed in %s line %d", \
+			x, __FILE__, __LINE__); Error1( msg ); }}
+#else
+#define ASSERT(w, x)	{}	/* w is assertion logical, x is text */
+#endif
+#endif
+
+#define UNEXPECTED(x)	{char msg[1000]; SPRINTF(msg, \
+			"unexpected <%s> in %s line %d", \
+			x, __FILE__, __LINE__); Warning1( msg );}
+#define UNIMPLEMENTED(x) {char msg[1000]; SPRINTF(msg, \
+			"unimplemented <%s> in %s line %d", \
+			x, __FILE__, __LINE__); Warning1( msg );}
+#define ERRORINFO(y, z)	{char msg[1000]; SPRINTF(msg, "  info "); \
+			SPRINTF(&msg[7], y, z); Warning1( msg );}

@@ -1,0 +1,50 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+sources = p-worker.c p-timer.c p-spawn.c              \
+	p-wait.c p-ready.c p-ppp.c p-dsa.c          \
+	p-error.c p-signal.c p-globals.c            \
+	p-fibre.c p-util.c p-interface.c            \
+	p-init.c p-pointer.c p-sdbx.c		    \
+	p-tracer.c 				    \
+	vectorIO.c
+
+libraries = libsisal.a srt0.o
+
+includes = @top_level_directory@/Include/sisalConfig.h \
+	@top_level_directory@/Include/sisalPaths.h \
+	@top_level_directory@/Include/sisalInfo.h \
+	sisalrt.h arrays.h fibre.h interface.h \
+	locks.h process.h sisalfli.inc \
+	../@model@Model/lock-implementation.h \
+	../@model@Model/process-implementation.h \
+	../@model@Model/parallelism.h
+
+man=s.out.1
+
+include @top_level_directory@/Include/makefile.inc
+CFLAGS:=$(RUNTIMEFLAGS)
+
+libsisal.a: $(objects)
+	$(RM) $@
+	$(LD-AR) $@ $(objects)
+	$(RANLIB) $@
+
+.PHONY: newoptions
+newoptions:
+	@top_level_directory/Utilities/parseopts < options -usage "man.update" usage.h options.h
+	awk '{print} /.\\" Start options/{exit}' < s.out.1 > s.out.1.new
+	cat man.update >> s.out.1.new
+	awk '/.\\" End options/{flag=1} {if (flag) print}' < s.out.1 >> s.out.1.new
+	mv s.out.1 s.out.1.bu
+	mv s.out.1.new s.out.1
+
+
+clean:
+	$(RM) libsisal.a srt0.o $(objects)

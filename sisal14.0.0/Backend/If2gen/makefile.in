@@ -1,0 +1,22 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+versionedExecutables=if2gen
+
+sources = gen.c if2aimp.c if2array.c if2fibre.c if2free.c if2interface.c if2loop.c if2names.c if2opt.c if2preamble.c if2prebuild.c if2print.c if2record.c if2sdbx.c if2select.c if2smash.c if2temp.c if2ureduce.c if2vector.c if2yank.c ifxstuff.c
+
+includes = sisal.h
+
+include @top_level_directory@/Include/makefile.inc
+
+if2gen: $(objects)
+	$(LD-C) -o $@ $(objects) -L../Library -lifx -lm
+
+clean:
+	$(RM) $(objects) if2gen

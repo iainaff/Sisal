@@ -1,0 +1,33 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+versionedExecutables=if1opt if1pprint if1count if1check
+
+sources = opt.c AssignIDs.c callreorder.c cascade.c if1cse.c if1dead.c if1dope.c if1explode.c if1fission.c if1fold.c if1fusion.c if1gcse.c if1inline.c if1invar.c if1invert.c if1move.c if1normal.c if1parallel.c if1reduce.c if1split.c if1unroll.c ifxstuff.c util.c
+
+include @top_level_directory@/Include/makefile.inc
+
+if1opt: $(objects)
+	$(LD-C) -o $@ $(objects) -L../Library -lifx -lm
+
+IF1PPRINT_OBJECTS=pprint.o if1pprint.o ifxstuff.o util.o
+if1pprint: $(IF1PPRINT_OBJECTS)
+	$(LD-C) -o $@ $(IF1PPRINT_OBJECTS) -L../Library -lifx -lm
+
+IF1COUNT_OBJECTS=count.o if1count.o ifxstuff.o util.o
+if1count: $(IF1COUNT_OBJECTS)
+	$(LD-C) -o $@ $(IF1COUNT_OBJECTS) -L../Library -lifx -lm
+
+IF1CHECK_OBJECTS=check.o if1check.o ifxstuff.o util.o
+if1check: $(IF1CHECK_OBJECTS)
+	$(LD-C) -o $@ $(IF1CHECK_OBJECTS) -L../Library -lifx -lm
+
+clean:
+	$(RM) $(objects) pprint.o if1pprint.o count.o if1count.o check.o \
+	if1opt if1pprint if1count if1check

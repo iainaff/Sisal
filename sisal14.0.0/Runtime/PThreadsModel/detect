@@ -1,0 +1,91 @@
+#!/bin/sh
+#-*-sh-*-
+
+# --------------------------------------------------
+# Build a detector program
+# --------------------------------------------------
+cat > conftest.c <<EOF
+#include <stdio.h>
+#include <pthread.h>
+
+void* work1(void* p) {
+   return p;
+}
+
+int main() {
+   pthread_t thread;
+
+   pthread_create(&thread,0,work1,0);
+   pthread_join(thread,0);
+   return 0;
+}
+EOF
+
+pass=$1
+shift
+cc=$*
+
+case "$pass" in
+    #--------------------------------------------------
+    # Try flag combinations to make pthreads compile
+    #--------------------------------------------------
+    compile)
+	for flags in \
+	"" \
+	"-pthread" \
+	; do
+	    if $cc -c conftest.c $flags >/dev/null 2>&1; then
+		echo "$flags"
+		rm -f conftest conftest.*
+		exit 0
+	    fi
+	done
+	;;
+
+    #--------------------------------------------------
+    # Try flag combinations to make pthreads link
+    #--------------------------------------------------
+    link)
+	for flags in \
+	"" \
+	"-pthread" \
+        "-lpthread" \
+        "-L/usr/local/lib -lpthread" \
+	; do
+	    if $cc -o conftest conftest.c $flags >/dev/null 2>&1; then
+		echo "$flags"
+		rm -f conftest conftest.*
+		exit 0
+	    fi
+	done
+	;;
+
+    #--------------------------------------------------
+    # Kinda portable way to get processor count
+    #--------------------------------------------------
+    processors)
+cat > conftest.c <<EOF
+#include <unistd.h>
+#include <stdio.h>
+ 
+int main() {
+  int np = sysconf( _SC_NPROCESSORS_CONF);
+  printf("%d\n",np);
+  return 0;
+}
+EOF
+    if $cc -o conftest conftest.c >/dev/null 2>&1; then
+      echo `conftest`
+      rm -f conftest conftest.*
+      exit 0
+    fi
+    ;;
+
+    *)
+    ;;
+esac
+
+rm -f conftest conftest.*
+echo ERROR
+exit 1
+

@@ -1,0 +1,146 @@
+#**************************************************************************#
+#* File   **************      makefile.inc.in      ************************#
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#* @configure_input@
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+local: directories $(localFiles) $(executables) $(versionedExecutables) ${data} ${man} $(libraries) $(includes)
+all: local install
+
+SHELL = @SHELL@
+
+# Full version 
+version=@version@
+majorVersion:=${basename ${basename ${version}}}
+
+# Directories
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+${bindir}:
+	mkdir -p $@
+sbindir = @sbindir@
+${sbindir}:
+	mkdir -p $@
+libexecdir = @libexecdir@
+${libexecdir}:
+	mkdir -p $@
+datadir = @datadir@
+${datadir}:
+	mkdir -p $@
+sysconfdir = @sysconfdir@
+${sysconfdir}:
+	mkdir -p $@
+sharedstatedir = @sharedstatedir@
+${sharedstatedir}:
+	mkdir -p $@
+localstatedir = @localstatedir@
+${localstatedir}:
+	mkdir -p $@
+libdir = @libdir@
+${libdir}:
+	mkdir -p $@
+infodir = @infodir@
+${infodir}:
+	mkdir -p $@
+
+mandir = @mandir@
+${mandir}:
+	mkdir -p $@
+mandir1 = @mandir@/man1
+${mandir1}:
+	mkdir -p $@
+mandirl = @mandir@/manl
+${mandirl}:
+	mkdir -p $@
+mandir5 = @mandir@/man5
+${mandir5}:
+	mkdir -p $@
+
+includedir = @includedir@
+${includedir}:
+	mkdir -p $@
+oldincludedir = @oldincludedir@
+${oldincludedir}:
+	mkdir -p $@
+
+# Install directories
+sisalbindir = ${bindir}/sisal$(majorVersion)
+${sisalbindir}:
+	mkdir -p $@
+
+sisallibdir = ${libdir}/sisal$(majorVersion)
+${sisallibdir}:
+	mkdir -p $@
+
+sisaldatadir = ${datadir}/sisal$(majorVersion)
+${sisaldatadir}:
+	mkdir -p $@
+
+sisalincludedir = ${includedir}/sisal$(majorVersion)
+${sisalincludedir}:
+	mkdir -p $@
+
+objects = ${sources:.c=.o}
+
+#-----------------------------------------------
+# COMPILE and LINK
+#-----------------------------------------------
+CC=@CC@
+CFLAGS=${filter-out -O2,@CFLAGS@} -I@top_level_directory@/Include
+RUNTIMEFLAGS=-I@top_level_directory@/Runtime/@model@Model @parallel_compile@ @CFLAGS@ -I@top_level_directory@/Include
+CXX=@CXX@
+CXXFLAGS=@CXXFLAGS@
+F77=@F77@
+FFLAGS=@FFLAGS@
+
+#-----------------------------------------------
+# Helper tools
+#-----------------------------------------------
+LD-C= $(CC)
+LD-C-F77=$(CC) @FLIBS@
+LD-AR=@AR@ r
+DIFF=@DIFF@
+INSTALL=@INSTALL@
+RANLIB=@RANLIB@
+LN_S=@LN_S@
+
+.PHONY: all local clean directories install installExecutables installData
+
+directories: ${prefix} ${bindir} ${datadir} ${libdir} \
+	${sisalbindir} ${sisaldatadir} ${sisallibdir} ${sisalincludedir} \
+	${mandir1} ${mandirl} ${mandir5}
+
+install: installVersionedExecutables installExecutables installData  installLibraries installIncludes installMan
+
+installExecutables: ${executables}
+	${if ${executables},-cp ${executables} ${bindir}}
+
+installVersionedExecutables: ${versionedExecutables}
+	${if ${versionedExecutables},-cp ${versionedExecutables} ${sisalbindir}}
+
+installData: ${data}
+	${if ${data},-cp ${data} ${sisaldatadir}}
+
+installLibraries: ${libraries}
+	${if ${libraries},-cp ${libraries} ${sisallibdir}}
+
+installIncludes: $(includes)
+	${if $(includes),-cp $(includes) $(sisalincludedir)}
+
+man1=${filter %.1,${man}}
+manl=${filter %.l,${man}}
+man5=${filter %.5,${man}}
+installMan: ${man}
+	${if ${man1},-cp ${man1} ${mandir1}}
+	${if ${manl},-cp ${manl} ${mandirl}}
+	${if ${man5},-cp ${man5} ${mandir5}}
+
+

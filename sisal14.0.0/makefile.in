@@ -1,0 +1,59 @@
+#--------------------------------------------------
+# @configure_input@
+#
+# Author: Pat Miller
+# See LICENSE.SISALC
+#--------------------------------------------------
+target=all
+packages=front1 sisalc backend_library if1opt if1ld if2mem if2up if2part if2gen runtime
+local: ${packages}
+
+include @top_level_directory@/Include/makefile.inc
+
+.PHONY: front1
+front1:
+	$(MAKE) -C Frontend/Front1 $(target)
+
+.PHONY: sisalc
+sisalc:
+	$(MAKE) -C Tools/sisalc $(target)
+
+.PHONY: backend_library
+backend_library:
+	$(MAKE) -C Backend/Library $(target)
+
+.PHONY: if1opt
+if1opt:
+	$(MAKE) -C Backend/If1opt $(target)
+
+.PHONY: if1ld
+if1ld:
+	$(MAKE) -C Backend/If1ld $(target)
+
+.PHONY: if2mem
+if2mem:
+	$(MAKE) -C Backend/If2mem $(target)
+
+.PHONY: if2up
+if2up:
+	$(MAKE) -C Backend/If2up $(target)
+
+.PHONY: if2part
+if2part:
+	$(MAKE) -C Backend/If2part $(target)
+
+.PHONY: if2gen
+if2gen:
+	$(MAKE) -C Backend/If2gen $(target)
+
+.PHONY: runtime
+runtime:
+	$(MAKE) -C Runtime/Sharedlib $(target)
+
+.PHONY: configuration
+configuration:
+	autoconf
+	autoheader --localdir=Include
+
+clean:
+	$(MAKE) target=clean

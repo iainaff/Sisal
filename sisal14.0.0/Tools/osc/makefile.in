@@ -1,0 +1,34 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+executables = osc speedups xspeedups
+versionedExecutables = spp2 spprun 
+man = osc.1  speedups.1  xspeedups.1
+
+include @top_level_directory@/Include/makefile.inc
+
+local: osc spp2
+
+osc: osc.o
+	$(LD-C) -o $@ $^
+
+spp2: spp2.o
+	$(LD-C) -o $@ $^
+
+newoptions:
+	@top_level_directory@/utils/parseopts < options -usage "man.update" usage.h options.h
+	awk -e '{print} /.\\" Start options/{exit}' < osc.1 > osc.1.new
+	cat man.update >> osc.1.new
+	awk -e '/.\\" End options/{flag=1} {if (flag) print}' < osc.1 >> osc.1.new
+	mv osc.1 osc.1.bu
+	mv osc.1.new osc.1
+
+clean:
+	$(RM) osc.o spp2.o osc spp2
+

@@ -1,0 +1,24 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+versionedExecutables=if2up if2pprint
+
+sources = up.c if2ade.c if2call.c if2class.c if2const.c if2count.c if2marks.c if2migrate.c if2noop.c if2owner.c if2refcnt.c if2refcntopt.c if2replace.c if2rwset.c if2up.c ifxstuff.c
+
+include @top_level_directory@/Include/makefile.inc
+
+if2up: $(objects)
+	$(LD-C) -o $@ $(objects) -L../Library -lifx -lm
+
+IF2PPRINT_OBJECTS=pprint.o if2pprint.o ifxstuff.o
+if2pprint: $(IF2PPRINT_OBJECTS)
+	$(LD-C) -o $@ $(IF2PPRINT_OBJECTS) -L../Library -lifx -lm
+
+clean:
+	$(RM) $(objects) if2up $(IF2PPRINT_OBJECTS) if2pprint

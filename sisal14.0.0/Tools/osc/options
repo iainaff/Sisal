@@ -1,0 +1,1635 @@
+# ------------------------------------------------------------
+help
+"Same as -usage"
+{
+  PrintUsageTable(argv,idx);
+}
+
+#------------------------------------------------------------
+v
+"Verbose mode"
+-v
+Verbose mode:  echo the command lines invoking the various compiler phases.
+{
+  verbose = TRUE; 
+}
+
+#------------------------------------------------------------
+d
+"Debug mode"
+-d
+Debug mode:  echo, but do not execute, the command lines invoking the
+various compiler phases.
+{
+  debug = TRUE;
+}
+
+#------------------------------------------------------------
+nocpp
+"Do not run the C preprocessor on SISAL files"
+-nocpp 
+Do not run the C preprocessor on the named
+SISAL files.  This is the default action
+(unless overriden when the system is
+installed).
+{
+  nocpp = TRUE;
+}
+
+#------------------------------------------------------------
+cpp
+"Run the C preprocessor on SISAL files"
+-cpp
+Run the C preprocessor on the named SISAL files.  Default: do not run
+the C preprocessor.
+{
+  nocpp = FALSE;
+}
+
+#------------------------------------------------------------
+CPP
+"Run the SISAL files through the C preprocessor and stop"
+-CPP
+Run each named SISAL file through the C preprocessor and stop, leaving
+each result in `root.i', where `root' is the root of the file. This
+option implies \-cpp.
+{
+  stopCPP = TRUE;
+  nocpp = FALSE;		/* -CPP implies -cpp PJM 10/92 */
+}
+
+#------------------------------------------------------------
+D<defn>
+"Define macro for C preprocessor"
+-Dname[=val]
+Define macro
+.I name
+to the C preprocessor as if it were defined by a `#define' directive
+in SISAL source (see \fIcc\fR(1)).
+{
+  cppoptions[++cppoptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+U<defn>
+"Undefine definition for C preprocessor"
+-Uname
+Undefine macro
+.I name
+to the C preprocessor as if it were undefined by a `#undef' directive
+in SISAL source (see \fIcc\fR(1)).
+{
+  cppoptions[++cppoptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+front=<frontend>
+"Select SISAL1.2 or SISAL90 language definition"
+-front=<frontend>
+Select SISAL1.2 or SISAL90 language definition
+Default: SISAL1.2.
+{
+  if (strcmp(&argv[idx][strlen("-front=")], "SISAL90")==0) {
+    front_vers = 90;
+  }
+}
+
+#------------------------------------------------------------
+I<path>
+"Search <path> for C include files"
+-Ipath
+Establish
+.I path
+as one of the first directories searched by the C preprocessor when
+expanding `#include' directives
+in SISAL source (see \fIcc\fR(1)).
+{
+  cppoptions[++cppoptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+IF0
+"Compile to IF0 and stop"
+-IF0
+Compile the named SISAL files to IF0 and stop. No optimizations are done.
+{
+  stopIF0 = TRUE;
+}
+
+#------------------------------------------------------------
+IF1
+"Compile to IF1 and stop"
+-IF1
+Compile the named SISAL files to IF1 and stop. No optimizations are done.
+{
+  stopIF1 = TRUE;
+}
+
+#------------------------------------------------------------
+IF3
+"Add IF3 output"
+-IF3
+Compile the named SISAL files and produce an extra IF file with temporaries.
+{
+  stopIF3 = TRUE;
+}
+
+#------------------------------------------------------------
+listing
+"Produce a root.lst file for each root.sis file"
+-listing
+For each SISAL source file `root.sis' and `root.i' produce a listing
+and cross reference table and place it in `root.lst'.  Default: Do not
+produce listings and cross reference tables.
+{
+  list = TRUE;
+}
+
+#------------------------------------------------------------
+MONO
+"Stop after compiling and linking IF1 files"
+-MONO
+Compile the named SISAL files to IF1, link all the resulting and
+provided `.if1' files to form a monolithic program, and stop.  The
+resulting monolith is placed in `root.mono', where `root' is the root
+of the first file on the command line.  No optimizations are done.
+{
+  stopMONO = TRUE;
+}
+
+#------------------------------------------------------------
+hybrid
+"Generate both C and FORTRAN code"
+-hybrid
+Compile the named SISAL files and generate both C and FORTRAN.  The
+default is to generate C only.  In some situations, this can increase
+performance, especially on the Crays.  OSC places the resulting
+FORTRAN in `rootF.f', where `root' is the root of the first file on
+the command line. OSC will automatically compile the code using the
+local FORTRAN compiler (see \-FF); however, it is the user's
+responsibility to provide the appropriate and desired compilation
+options, including optimization switches, etc. (see \-ff). Note, OSC
+uses `root' when building unique FORTRAN subroutine names, and OSC
+does not destroy `rootF.f' files.
+{
+  hybrid = TRUE;
+}
+
+#------------------------------------------------------------
+%
+"Insert SISAL source line comments in the generated code"
+-%
+Keep the SISAL source lines as part of the C code.  This is helpful
+for seeing what code came from what source.
+{
+  ShowSource = TRUE;
+}
+
+#------------------------------------------------------------
+C
+"Stop after generating C code"
+-C
+Compile the named SISAL files, generate C, and Stop.  The resulting C
+is placed in `root.c', where `root' is the root of the first file on
+the command line. This option will preserve FORTRAN code generated due
+of the \-hybrid option (in `rootF.f').
+{
+  stopC = TRUE;
+}
+
+#------------------------------------------------------------
+S
+"Stop after generating assembly language"
+-S
+Compile the named SISAL files, generate assembly language, and Stop.
+The resulting assembly language is placed in `file.s', where `file' is
+the root of the first file on the command line.
+{
+  stopS = TRUE;
+  TMPDIR="";
+}
+
+#------------------------------------------------------------
+noload
+"Do not create the executable, stop with a .o file"
+-noload
+Compile the named SISAL files, generate object
+code, and Stop.  The resulting object code is
+placed in `root.o', where `root' is the root of
+the first file on the command line.
+{
+  stopc = TRUE;
+  TMPDIR="";
+}
+
+#------------------------------------------------------------
+c
+"Compile to .o file (requires -e <funct> or -main <funct>)"
+{
+  smodule = TRUE;
+  stopc = TRUE;
+  TMPDIR="";
+}
+
+#------------------------------------------------------------
+o <target>
+"Name the output <target> not s.out or <source_prefix>.o"
+-o target
+Name the final output \fItarget\fR.  The target name cannot 
+end in a sisal extension 
+(.sis, .if1, .mono, .opt, .mem, .up, .part, .costs).
+To use these extensions, use the \-oo option instead.
+Default for absolute executables: s.out.
+Default for relocatable .o: <source_prefix>.o.
+{
+  aabs = argv[idx];
+}
+
+#------------------------------------------------------------
+oo <target>
+"Just like -o, but sisal extensions are legal."
+-oo target
+Just like \-o, but sisal extensions are legal.
+{
+  NameSafety = FALSE;
+  aabs = argv[idx];
+}
+
+#------------------------------------------------------------
+main <funct>
+"Use <funct> as main entry point"
+-main funct
+Take function
+.B funct
+as a 
+.I program 
+or 
+.I module
+entry point (the default entry point is `main').
+Unlike modules, only one 
+.I program
+entry point is allowed.
+See IMPORTANT NOTES at the bottom of this man page.
+{
+  eoptions[++eoptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+e <funct>
+"Use <funct> as an entry point"
+-e funct
+Take function
+.B funct
+as a 
+.I program 
+or 
+.I module
+entry point. Entry points can also be specified
+within SISAL text using the ``%$entry=funct_list'' pragma,
+where ``funct_list'' is a comma separated list of function names;
+blanks and tabs are allowed in the list.
+{
+  eoptions[++eoptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+externC <funct>
+"Consider <funct> available as a C external"
+-externC funct
+Take function
+.B funct
+as a C external language function.
+C external language functions can also be specified
+within SISAL text using the ``%$c=funct_list'',
+where ``funct_list'' is a comma separated list of function names;
+blanks and tabs are allowed in the list.
+Default: take the function to be a 
+.I module
+entry point reference.
+See IMPORTANT NOTES at the bottom of this man page.
+{
+  coptions[++coptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+externFORTRAN <funct>
+"Consider <funct> available as a FORTRAN external"
+-externFORTRAN funct
+Take function
+.B funct
+as a FORTRAN external language function.
+FORTRAN external language functions can also be specified
+within SISAL text using the ``%$fortran=funct_list'',
+where ``funct_list'' is a comma separated list of function names;
+blanks and tabs are allowed in the list.
+Default: take the function to be a 
+.I module
+entry point reference.
+See IMPORTANT NOTES at the bottom of this man page.
+{
+  foptions[++foptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+module
+"Compile files into a callable module"
+-module
+Compile the provided files into a single 
+.I module
+callable from other 
+.I sisal
+modules and a
+.I program.
+Multiple 
+.I module
+entry points are allowed (see -e).
+Default: compile the provided files into a single 
+.I program 
+callable
+from an external language program (see -forFORTRAN and -forC) or the operating
+system (the default).
+{
+  smodule = TRUE;
+}
+
+#------------------------------------------------------------
+db <database>
+"Use <database> as inter-module data repository"
+-db database
+During 
+.I module 
+compilation, use \fIdatabase\fR as the inter-module data
+repository, which OSC's manages and uses to improve inter-module efficiency.
+If used, the same database file must be supplied for each invocation of
+OSC used to build the final executable (including compilation of the 
+.I program
+)
+Failure to do this 
+will result in a load-error. The file should only be manipulated by OSC,
+although it is human readable. WARNING: OSC does not guarantee atomic access to
+to \fIdatabase\fR.
+{
+  mdb = argv[idx];
+}
+
+#------------------------------------------------------------
+forC
+"Compile into a program callable by C"
+-forC
+Compile the provided files into a
+.I program 
+callable from C only.
+The default entry point is `main' (see -e).
+In this mode, more than one entry point is allowed.
+Files ending with `.c' are passed to the local C compiler along
+with the other files required to finalize compilation:
+See IMPORTANT NOTES at the bottom of this man page.
+The resulting executable is by default `c.out'.
+{
+  forC = TRUE;
+}
+
+#------------------------------------------------------------
+forFORTRAN
+"Compile into a program callable by FORTRAN"
+-forFORTRAN
+Compile the provided files into a
+.I program 
+callable from FORTRAN only.
+The default entry point is `main' (see -e).
+In this mode, more than one entry point is allowed.
+Files ending with `.f' are passed to the local FORTRAN compiler along
+with the other files required to finalize compilation:
+See IMPORTANT NOTES at the bottom of this man page.
+The resulting executable is by default `f.out'.
+{
+  forF = TRUE;
+}
+
+#------------------------------------------------------------
+O
+"Use enabled optimizations"
+-O
+Turn on optimizations for object code generation.  It will also
+turn off bounds (error) checking (use \-O \-bounds to run
+optimized with error checking).
+{
+  noimp = FALSE;
+  bounds = FALSE;
+}
+
+#------------------------------------------------------------
+noopt
+"Disable all optimization"
+-noopt
+Disable all optimizations:  shorthand for \-noscalar, \-noinline,
+\-nomem, \-noup, \-novector, \-noimp, \-nobounds, and \-noconcur.
+{
+  noopt = TRUE;
+  noimp = TRUE;
+  bounds = FALSE;
+}
+
+#------------------------------------------------------------
+w
+"Disable warning messages"
+-w
+Do not display OSC warnings
+{
+  Warnings = FALSE;
+}
+
+#------------------------------------------------------------
+noinline
+"Do not inline functions"
+-noinline
+Skip function inlining.  Default: all
+functions, except those part of recursive
+cycles and those that would cause an explosion
+of code, are inlined.
+{
+  noinline = TRUE;
+}
+
+#------------------------------------------------------------
+inter
+"Interactively select functions for inlining"
+-inter
+Interactively select functions for inlining; ignored if \-noinline is
+given.
+{
+  inter = TRUE;
+}
+
+#------------------------------------------------------------
+inlineall
+"Inline all functions"
+-inlineall
+Inline all functions except those part of recursive cycles.  This
+option conflicts with \-inter and \-noinline, but not \-call.
+Default: Inline all functions, except those part of recursive cycles
+and those that would cause an explosion of code.
+{
+  inlineall = TRUE;
+}
+
+#------------------------------------------------------------
+call <funct>
+"Call <funct> instead of inlining"
+-call funct
+Do not inline function
+.B funct.
+Ignored if -inter is given.
+Default: Try and inline function 
+.B funct.
+{
+  calloptions[++calloptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+time <funct>
+"Generating timing code for this function" 
+-time funct
+Generate code to time the execution of function
+.B funct, 
+reporting the data to stderr.
+This option implies "-call funct".
+{
+  calloptions[++calloptioncnt] = argv[idx];
+  timeoptions[++timeoptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+timeall
+"Generate timing code for all functions"
+-traceall
+Generate timing code for all functions.  Implies \-noinline.
+{
+  timeall = TRUE;
+  noinline = TRUE;
+}
+
+#------------------------------------------------------------
+trace <funct>
+"Generating tracing code for this function"
+-trace funct
+Generate code to trace the execution of
+function funct, reporting the data to stderr or
+the funct.trace file (See tracer interface note
+in \fIs.out.l\fR for more information).
+{
+  calloptions[++calloptioncnt] = argv[idx];
+  traceoptions[++traceoptioncnt] = argv[idx];
+}
+
+#------------------------------------------------------------
+traceall
+"Generate tracing code for all functions"
+-traceall
+Generate trace code for all functions.  Implies \-noinline.
+{
+  traceall = TRUE;
+  noinline = TRUE;
+}
+
+#------------------------------------------------------------
+fflopinfo <funct>
+"Write floating point counts in <funct> to stderr"
+-fflopinfo funct
+Generate code to gather floating point operation counts at run time 
+for function 
+.I funct
+and write
+the data to stderr.
+This option implies \-flopinfo.
+Default: do not gather floating point operation count information for 
+function 
+.I funct.
+{
+  calloptions[++calloptioncnt] = argv[idx];
+  flopoptions[++flopoptioncnt] = argv[idx];
+  flpinfo = TRUE;
+}
+
+#------------------------------------------------------------
+flopinfo
+"Write all floating point counts to s.info"
+-flopinfo
+Generate code to gather floating point operation counts at run time
+and write the data to s.info (see the \-r option in \fIs.out.l\fR).
+This option can result in increased program execution time.  The
+operations counted are +, \-, *, /, and negation, and reduction
+operations, logicals, and floating point intrinsics.  Filtered
+reductions are not counted.  Default: do not gather floating point
+operation count information.
+{
+  flpinfo = TRUE;
+}
+
+#------------------------------------------------------------
+noscalar
+"Disable scalar optimizations"
+-noscalar
+Disable all scalar optimizations.  This option
+implies \-nofuse.  Default: do all scalar
+optimizations.
+{
+  noscalar = TRUE;
+}
+
+#------------------------------------------------------------
+noifuse
+"Disable independent loop fusion"
+-noifuse
+Disable independent loop and conditional fusion.  Default: do
+independent loop and conditional fusion.
+{
+  noifuse = TRUE;
+}
+
+#------------------------------------------------------------
+nodfuse
+"Disable dependent loop fusion"
+-nodfuse
+Disable dependent loop and conditional fusion. Default: do dependent
+loop and conditional fusion.
+{
+  nodfuse = TRUE;
+}
+
+#------------------------------------------------------------
+nofuse
+"Disable all loop fusion"
+-nofuse
+This option implies \-noifuse and \-nodfuse. Default: do independent
+and dependent loop fusion (see \-noscalar). 
+{
+  noifuse = TRUE;
+  nodfuse = TRUE;
+}
+
+#------------------------------------------------------------
+noOinvar
+"Do not remove invariants from inner loops"
+-noOinvar
+Disable the invariant removal of inner loops
+from the outer loops of each function. This is
+useful when benchmarking a computational
+kernel.
+{
+  noOinvar = TRUE;
+}
+
+#------------------------------------------------------------
+u<num>
+"Unroll loops with less than <num> iterations"
+-uNUM
+Selectively unroll \fIfor\fR loops having no more than 
+.I NUM
+iterations.
+An unrolling value of zero disables loop unrolling as does -noscalar.
+Default: \-u2.
+{
+  unroll = argv[idx];
+  unroll[1] = 'U';
+}
+
+#------------------------------------------------------------
+nounroll
+"Disable loop unrolling"
+-nounroll
+Disable loop unrolling. This option is
+equivalent to \-u0 and is implied by \-noscalar.
+{
+  unroll = "-U0";
+}
+
+#------------------------------------------------------------
+nomem
+"Disable build in place analysis"
+-nomem
+Skip all subphases of build-in-place analysis,
+including attempts to preallocate storage for
+arrays returned by product-form \fIfor\fR loops. This
+option implies \-nopreb.  Default: do all
+subphases of build-in-place analysis.
+{
+  noif2mem = TRUE;
+  preb	   = "-Y0";
+}
+
+#------------------------------------------------------------
+noup
+"Disable update in place analysis"
+-noup
+Disable all phases of update-in-place analysis.
+This option implies \-nopreb.
+{
+  noif2up = TRUE;
+  preb  = "-Y0";
+}
+
+#------------------------------------------------------------
+seq
+"Compile for sequential execution"
+-seq
+Compile for sequential execution. This option is equivalent to
+providing both \-noconcur and \-novector.
+{
+  concur = FALSE;
+  novec = TRUE;
+}
+
+#------------------------------------------------------------
+p<num>
+"Assume <num> processors for partioning"
+-pNUM
+If compiling for concurrent execution, partition the program
+to use no more than 
+.I NUM
+processors.
+Default: Partition the program to use  all the
+available processors :
+a number defined during OSC installation.
+{
+  procs = argv[idx];
+  procs[1] = 'P';
+}
+
+#------------------------------------------------------------
+n<num>
+"Consider only loops nested <num> deep for concurrency"
+-nNUM
+If compiling for concurrent execution, only consider
+product-form \fIfor\fR loops 
+nested no deeper than
+.I NUM 
+for concurrent execution.
+Default: consider only the outer level
+product-form \fIfor\fR loops.
+A 
+.I NUM
+of 1 results in consideration of only the outermost loops.
+A 
+.I NUM
+of 0 is equivalent to \-noconcur.
+{
+  level = argv[idx];
+  level[1] = 'L';
+}
+
+#------------------------------------------------------------
+i<num>
+"Set assumed iteration count for loops"
+-iNUM
+If compiling for concurrent execution, assume 
+product-form \fIfor\fR loops 
+iterate an average of
+.I NUM
+times and 
+arrays comprise on the average
+.I NUM 
+elements.
+This number helps derive the execution cost estimates 
+used during program concurrentization.
+Default: 100.
+{
+  iter = argv[idx];
+  iter[1] = '@';
+}
+
+#------------------------------------------------------------
+h<num>
+"Slice loops only if cost is greater than <num>"
+-hNUM
+If compiling for concurrent execution, only slice eligible
+product-form \fIfor\fR loops with estimated execution costs greater
+than or equal to NUM. Default: 7000.
+{
+  huge = argv[idx];
+  huge[1] = 'H';
+}
+
+#------------------------------------------------------------
+maxconcur
+"Disable cost estimate.  Parallelize all eligible loops"
+-maxconcur
+Shorthand for \-h1, which results in compilation for maximal
+concurrency; that is, all \fIfor\fR loops are assumed to have
+execution costs that warrant concurrent execution.  The \-n option can
+still be used to throttle concurrentization.
+{
+  concur = TRUE;
+  huge  = "-H1.0";
+  procs = "-P4000000";
+}
+
+#------------------------------------------------------------
+noconcur
+"Disable concurrent processing"
+-noconcur
+Shorthand for ``\-n0'', which disables
+concurrentization.  Default: For concurrent
+machines, the default is to concurrentize
+loops.
+{
+  concur = FALSE;
+}
+
+#------------------------------------------------------------
+novector
+"Disable vectorization"
+-novector
+Disable loop vectorization.  Default: For
+vector machines, the default is to vectorize loops.
+{
+  novec = TRUE;
+}
+
+#------------------------------------------------------------
+cray
+"Cross compile for Cray"
+-cray
+Cross compile the named program for execution on CRAY computers.  This
+option implies \-C.
+{
+  novec = FALSE;
+  cvector = TRUE;
+  cRay = TRUE;
+  movereads = TRUE;
+  chains = TRUE;
+  newchains = TRUE;
+  stopC = TRUE;
+}
+
+#------------------------------------------------------------
+aggvector
+"Aggressively fuse independent vector loops"
+-aggvector
+Aggressively fuse independent vector loops when
+parallelizing.  The default doesn't merge these
+vectors because often it will run better that
+way on the Crays.  Choosing this option will
+put more work into fused loop slices and help
+concurrency sometimes.
+{
+  AggressiveVector =TRUE;
+}
+
+#------------------------------------------------------------
+explode
+"Aggressively explode loops"
+-explode
+Aggressively apply loop distribution regardless of the cost in
+compilation time.  Default: when compiling for vector execution OSC
+will do some loop distribution to uncover additional vectorization.
+{
+  explode = TRUE;
+}
+
+#------------------------------------------------------------
+explodeI
+"Aggressively explode innermost loops"
+-explodeI
+Aggressively apply loop distribution regardless of the cost in
+compilation time, except only consider innermost loops (see
+\-explode).
+{
+  explode  = TRUE;
+  explodeI = TRUE;
+}
+
+#------------------------------------------------------------
+icse
+"Push identical operations out of conditionals"
+-icse
+Push identical operations sequences (possibly having nonidentical
+operands) between subgraphs down and out of conditionals.  This option
+should be used with care as it will often increase program execution
+time on the Crays. It should improve execution time on machines that
+execute both branches of a conditional before discarding the unneeded
+results.
+{
+  noaggressive = FALSE;
+}
+
+#------------------------------------------------------------
+noassoc
+"Disable parallel reduction of associative operations"
+-noassoc
+Disable concurrentization and vectorization of
+loops comprising floating point reduction
+operations, and other associative
+transformations.  Note, this option does not
+guarantee that the local C compiler will not do
+associative transformations (see \-cc).
+Default: Attempt to concurrentize and vectorize
+loops defining floating point reduction
+operations, and do other associative
+transformations.
+{
+  noassoc = TRUE;
+}
+
+#------------------------------------------------------------
+pb<num>
+"Set array prebuild dimension to <num>"
+-pbNUM
+Set the array prebuilding dimension count to 
+.B NUM.
+A value of zero disables prebuilding and
+a value larger than five is treated as five.
+Default: \-pb3.
+{
+  preb = &(argv[idx][1]);
+  preb[0] = '-';
+  preb[1] = 'Y';
+}
+
+#------------------------------------------------------------
+nopreb
+"Disable array prebuilds"
+-nopreb
+Disable array prebuilding. This option is
+equivalent to \-pb0.
+{
+  preb = "-Y0";
+}
+
+#------------------------------------------------------------
+bind
+"Array descriptor data will not change in calls to SISAL"
+-bind
+Declares that the descriptor data (lower and upper bounds, etc.) and
+array addresses passed each SISAL function call from C or FORTRAN will
+never changes between invocations. However, array components may
+change between calls.  Use of this option can dramatically increase
+the performance of the interface during repetitive invocations.
+Default: Assume the descriptor data and array addresses may change
+between invocations.
+{
+  BindProcessors = TRUE;
+}
+
+#------------------------------------------------------------
+glue
+"Disable the optimization of non-inlined function calls"
+-glue
+Disable the removal, hoisting, and combining of non-inlined function
+calls.
+{
+  SISglue = TRUE;
+}
+
+#------------------------------------------------------------
+bounds
+"Generate code to check for various errors"
+-bounds
+Generate code to check for and report array subscript violations, and
+other problems such as division by zero.  This option implies
+\-novector, \-noinline, \-glue, \-noscalar, and \-nopreb.  Warning,
+this option may degrade the run time performance of the program or
+module being compiled.  Default: Check for subscript violations
+and other problems unless \-O is specified.
+{
+  bounds = TRUE;
+}
+
+#------------------------------------------------------------
+nobounds
+"Do not generate code to check for various errors"
+-nobounds
+Turn off error checking (see \-bounds).  This is the default
+unless \-O is specified.
+{
+  bounds = FALSE;
+}
+
+#------------------------------------------------------------
+sdbx
+"Generate code to interface with the symbolic debugger"
+-sdbx
+Generate code to interface with OSC's symbolic debugger.  Note that
+\-bounds and \-sdbx conflict, as one function of the symbolic debugger
+is to report subscript violations and divisions by zero.  This option
+implies \-novector, \-noconcur, \-noinline, \-glue, \-noscalar,
+\-noup, \-nomem, \-nopreb, and \-noimp. Warning, this option will
+degrade the run time performance of the program or module being
+compiled.
+{
+  sdbx = TRUE;
+  bounds = FALSE;   /* The TRUE default was interfering with other checks */
+}
+
+#------------------------------------------------------------
+copyinfo
+"Gather inforation on aggregate copying"
+-copyinfo
+Generate code to gather aggregate copy information at run time and
+write the data to s.info (see the \-r option in \fIs.out.l\fR).  This
+option can result in increased program execution time.  Default: do
+not gather copy information.
+{
+  cpyinfo = TRUE;
+}
+
+#------------------------------------------------------------
+noimp
+"Compile with the C compiler's optimizers disabled"
+-noimp
+Compile with the C compiler's optimizers disabled (see \fIcc\fR(1)).
+Default: Compile with the C compiler's optimizers enabled.
+{
+  noimp = TRUE;
+}
+
+#------------------------------------------------------------
+CC=<path>
+"Use <path> as the C compiler"
+-CC=COMPILER
+Use COMPILER to compile C source.
+{
+  cc = &argv[idx][4];
+  newcc = TRUE;
+}
+
+#------------------------------------------------------------
+cc=<directive>
+"Supply <directive> to the C compiler"
+-cc=OPTION
+Give option OPTION to the local C compiler. For example, to profile
+SISAL execution, ``-cc=-pg'' works for most Unix C Compilers.
+{
+  ccoptions[++ccoptionscnt] = &argv[idx][4];
+}
+
+#------------------------------------------------------------
+ff=<directive>
+"Give <directive> to the local FORTRAN compiler"
+-ff=OPTION
+Give option OPTION to the local FORTRAN compiler (see \-forFORTRAN).
+{
+  ffoptions[++ffoptionscnt] = &argv[idx][4];
+}
+
+#------------------------------------------------------------
+FF=<path>
+"Use <path> as the FORTRAN compiler"
+-FF=COMPILER
+Use COMPILER to compile FORTRAN source (see \-forFORTRAN).
+{
+  ff = &argv[idx][4];
+  newff = TRUE;
+}
+
+#------------------------------------------------------------
+real
+"Treat all SISAL double_real data as real data."
+-real
+Treat all SISAL double_real data as real data. Default: honor program
+declarations.  SISAL real maps to C float on the target machine.  On
+the Cray, SISAL double_real maps to C float.
+{
+  flt = TRUE;
+}
+
+#------------------------------------------------------------
+double_real
+"Treat all SISAL real data as double_real data."
+-double_real
+Treat all SISAL real data as double_real data. Default: honor program
+declarations.  Except for the Cray, SISAL double_real maps to C
+double.  On the Cray, all double_real data is treated as real (see
+\-real), and this option is ignored.
+{
+  dbl = TRUE;
+}
+
+#------------------------------------------------------------
+info
+"Produce an information listing"
+-info
+Print diagnostic information gathered during compilation to info.out.
+Default: run silently. 
+{
+  info |= ParseMap("1");
+}
+#------------------------------------------------------------
+info=<rangelist>
+"Get more information"
+-info=<range list>
+The number list contains information numbers and ranges to be produced.
+The more numbers specified, the more compilation information is produced.
+\-info=0 produces no information, \-info=1 is the same as \-info.
+Multiple instances collect.
+\-info=1,2,4 is the same as \-info=1-2,4 and is the same as \-info -info=2,4.
+.br
+\ \ \ \ 1 : Simple Optimizations Info
+.br
+\ \ \ \ 2 : Memory Optimizations Info
+.br
+\ \ \ \ 3 : Copy Optimizations Info
+.br
+\ \ \ \ 4 : Concurrentization Info
+.br
+{
+  info |= ParseMap(argv[idx]+6);
+  infos = argv[idx]+6;
+}
+
+#------------------------------------------------------------
+l<library>
+"Add a loader library"
+-lx
+During the load phase of compilation, search library `libx.a', where x
+is a string, to resolve undefined externals.  Refer to \fIld\fR(1) for
+the default search paths.
+{
+  file_ld[++ldcnt] = argv[idx];
+}
+
+
+#------------------------------------------------------------
+useloopreport <file>
+"Use loopreport from a previous compilation"
+-useloopreport file
+Tell the partitioner to use the information in the Loop Report file
+rather than use its heuristics.  See \fB\-makeloopreport\fR.
+{
+  LoopReportIn = argv[idx];
+}
+
+#------------------------------------------------------------
+makeloopreport <file>
+"Create a loop report showing the partitioner's decisions"
+-makeloopreport file
+Report information about how loops were parallelized and vectorized
+suitable for reintroduction using \fB\-useloopreport\fR.
+{
+  LoopReportOut = argv[idx];
+}
+
+#------------------------------------------------------------
+patch=<num>
+"Apply a dynamic patch to one of the backend applications"
+-patch=NUM
+Sometimes the OSC developers must insert dangerous code patches to allow
+certain users to run.
+To keep these patches from killing other users, the affected users must
+supply a magic patch number with the
+.B \-patch
+option.
+The magic patch numbers are available from the OSC development team.
+Multiple patches can be applied.
+{
+  if ( PatchCount >= sizeof(Patches)/sizeof(Patches[0]) ) {
+    Error2( argv[idx] , "-- Too many patches" );
+  }
+
+  Patches[PatchCount] = (char *) malloc(strlen(argv[idx]));
+  sprintf(Patches[PatchCount],"-p%s",argv[idx]+7);
+  PatchCount++;
+}
+
+NoSliceThrottle
+"Turn off the slice throttle feature (MinSlice estimate)"
+-NoSliceThrottle
+The partitioner makes a static estimate of the runtime cost of
+each potential parallel loop.  As part of this estimate, the partitioner
+determines the minimum slice thickness that makes parallelism worthwhile.
+The default compiler behavior is to assume slices are thick enough.
+If the estimate is bad, then 
+Use this option to turn the throttle off.
+{
+  MinSliceThrottle = FALSE;
+}
+
+SliceThrottle
+"Turn on the slice throttle feature (MinSlice estimate)"
+-SliceThrottle
+The partitioner makes a static estimate of the runtime cost of
+each potential parallel loop.  As part of this estimate, the partitioner
+determines the minimum slice thickness that makes parallelism worthwhile.
+The SliceThrottle option will insure (at runtime) that all slices are at
+least that thick.
+{
+  MinSliceThrottle = TRUE;
+}
+
+Keep
+"Keep intermediate files instead of deleting them"
+-Keep
+Do not remove the intermediate files created by OSC's backend.
+This implies that the TMPDIR feature (see ENVIRONMENT section)
+is disabled.
+{
+  Keep = TRUE;
+  TMPDIR="";
+}
+
+tmpdir <dirname>
+"Put intermediate temp files in <dirname>"
+-tmpdir dirname
+Put the intermediate files produced by OSC in
+.I dirname
+instead of the default defined at compile time or the override
+in the TMPDIR environment variable.
+.B Warning:
+If the temp dir is your working directory, then you may  overwrite
+files without warning.  File with the following extensions may be
+overwritten: .i, .mono, .opt, .mem, .up, .part, .c, and .o.
+Selecting -tmpdir "" will force all temporary files to be put in
+your working directory.
+{
+  TMPDIR = argv[idx];
+}
+
+#------------------------------------------------------------
+#------------------------------------------------------------
+alliantfx
+"Compile for Alliant architecture"
+{
+  novec = FALSE;
+  avector = TRUE;
+  alliantfx = TRUE;
+}
+
+#------------------------------------------------------------
+avector
+"Use Alliant style vectors"
+{
+  novec = FALSE;
+  avector =TRUE;
+}
+
+#------------------------------------------------------------
+tgcse
+"Force global Common Subr. Elimination"
+{
+  notgcse = FALSE;
+}
+
+#------------------------------------------------------------
+nobrec
+"Disable basic record optimization"
+{
+  nobrec = TRUE;
+}
+
+#------------------------------------------------------------
+norag
+"Generate code called by FORTRAN"
+{
+  norag = TRUE;
+}
+
+#------------------------------------------------------------
+nobipmv
+"Do not allow buffer movement in the C generator"
+{
+  bipmv = FALSE;
+}
+
+#------------------------------------------------------------
+newchains
+"Form Cray X-MP Chains"
+{
+  newchains = TRUE;
+}
+
+#------------------------------------------------------------
+nancy
+"Do not use original Cray microtasking software"
+{
+  useORTS = FALSE;
+}
+
+#------------------------------------------------------------
+nltss
+"Use NLTSS pragmas to generate vectors"
+{
+  nltss = TRUE;
+}
+
+#------------------------------------------------------------
+nodead
+"No dead code removal in optimizer"
+{
+  dead = FALSE;
+}
+
+#------------------------------------------------------------
+nobip
+"Disable BIP"
+{
+  nobip = TRUE;
+}
+
+#------------------------------------------------------------
+nochains
+"Disable vector chaining"
+{
+  chains    = FALSE;
+  newchains = FALSE;
+}
+
+#------------------------------------------------------------
+nomovereads
+"Move array read operations"
+{
+  movereads = FALSE;
+}
+
+#------------------------------------------------------------
+notgcse
+"Do not force global common subr. elimination"
+{
+  notgcse = TRUE;
+}
+
+#------------------------------------------------------------
+noamove
+"Do not apply anti-movement optimization (from compounds)"
+{
+  noamove = TRUE;
+}
+
+#------------------------------------------------------------
+nodope
+"Do not apply dope vector optimizations"
+{
+  nodope = TRUE;
+}
+
+#------------------------------------------------------------
+noinvert
+"Do not perform loop inversion optimization"
+{
+  noinvert = TRUE;
+}
+
+#------------------------------------------------------------
+nostrip
+"Do not perform return node stripping"
+{
+  nostrip = TRUE;
+}
+
+#------------------------------------------------------------
+nosplit
+"Do not preform loop splitting"
+{
+  nosplit = TRUE;
+}
+
+#------------------------------------------------------------
+noif1opt
+"Turn off IF1 code improvers"
+{
+  noif1opt = TRUE;
+}
+
+#------------------------------------------------------------
+nofiss
+"Do not attempt record fission"
+{
+  norecf = TRUE;
+}
+
+#------------------------------------------------------------
+noinvar
+"Disable invariant removal optimizer"
+{
+  noinvar = TRUE;
+}
+
+#------------------------------------------------------------
+nonormidx
+"Do not normalize array indexing"
+{
+  nonormidx = TRUE;
+}
+
+#------------------------------------------------------------
+nocse
+"Disable common subr. eliminator"
+{
+  nocse = TRUE;
+}
+
+#------------------------------------------------------------
+nosfuse
+"Disable select fusion"
+{
+  nosfuse = TRUE;
+}
+
+#------------------------------------------------------------
+nogcse
+"Do not attempt global common subr. elimination"
+{
+  nogcse = TRUE;
+}
+
+#------------------------------------------------------------
+nofold
+"Do not attempt to fold constant values"
+{
+  nofold = TRUE;
+}
+
+#------------------------------------------------------------
+nocom
+"Disable Sequent code improvement migration"
+{
+  nocom = TRUE;
+}
+
+#------------------------------------------------------------
+nomig
+"Do not migrate operations toward users"
+{
+  nomig = TRUE;
+}
+
+#------------------------------------------------------------
+nocagg
+"Do not mark constant aggregates for static building"
+{
+  nocagg = TRUE;
+}
+
+#------------------------------------------------------------
+nostr
+"Do not attempt to identify single threaded streams"
+{
+  nostr = TRUE;
+}
+
+#------------------------------------------------------------
+noaimp
+"Do not optimize array dereferences"
+{
+  noaimp = TRUE;
+}
+
+#------------------------------------------------------------
+noimp
+"Set -nvnoopt loader option for the Crays"
+{
+  noimp = TRUE;
+}
+
+#------------------------------------------------------------
+nofcopy
+"Unknown?"
+{
+  nofcopy = TRUE;
+}
+
+#------------------------------------------------------------
+L<num>
+"Set nested parallelization threshold to <num>"
+{
+  level = argv[idx];
+  level[1] = 'L';
+}
+
+#------------------------------------------------------------
+N<num>
+"Set nested parallelization threshold to <num>"
+{
+  level = argv[idx];
+  level[1] = 'L';
+}
+
+#------------------------------------------------------------
+prof
+"Generate a time execution profile of the compiler"
+{
+  prof = TRUE;
+  verbose = TRUE;
+}
+
+#------------------------------------------------------------
+progress
+"Generate progress report in C code generation"
+{
+  prog = TRUE;
+}
+
+#------------------------------------------------------------
+A<num>
+"Set loop parallelization ``At'' level to <num>"
+{
+  atlevel = argv[idx];
+}
+
+#------------------------------------------------------------
+dfuse
+"Preform dependent loop fusion"
+{
+  nodfuse = FALSE;
+}
+
+#------------------------------------------------------------
+freeall
+"Force release of all storage"
+{
+  freeall = TRUE;
+}
+
+#------------------------------------------------------------
+fuse
+"Perform loop fusion"
+{
+  noifuse  = FALSE;
+  nodfuse = FALSE;
+}
+
+#------------------------------------------------------------
+vector
+"Enable vectorization"
+{
+  novec = FALSE;
+#ifndef CRAY
+#ifndef ALLIANT
+  cvector   = TRUE;		/* RIGHT NOW, THE CRAY IS THE DEFAULT */
+  movereads = TRUE;
+  chains    = TRUE;
+  newchains = TRUE;
+#endif
+#endif
+}
+
+#------------------------------------------------------------
+DI
+"Compile to DI stye IF1"
+{
+  stopDI = TRUE;
+}
+
+#------------------------------------------------------------
+D
+"Use DEBUG version of frontend"
+{
+  debug = TRUE;
+  DeBuG = TRUE;
+}
+
+#------------------------------------------------------------
+I<num>
+"Set assumed iteration count for loops"
+{
+  iter = argv[idx];
+  iter[1] = '@';
+}
+
+#------------------------------------------------------------
+OPT
+"Stop after IF1 optimizations"
+{
+  stopOPT = TRUE;
+}
+
+#------------------------------------------------------------
+MEM
+"Stop after memory allocation phase"
+{
+  stopMEM = TRUE;
+}
+
+#------------------------------------------------------------
+UP
+"Stop after update in place analysis"
+{
+  stopUP = TRUE;
+}
+
+#------------------------------------------------------------
+xchains
+"Allow vector chaining"
+{
+  chains = TRUE;
+}
+
+#------------------------------------------------------------
+movereads
+"Move read operations (Cray)"
+{
+  movereads = TRUE;
+}
+
+#------------------------------------------------------------
+cvector
+"Get vectorization information"
+{
+  novec = FALSE;
+  cvector = TRUE;
+  movereads = TRUE;
+  chains = TRUE;
+  newchains = TRUE;
+}
+
+#------------------------------------------------------------
+concur
+"Generate concurrent code"
+{
+  concur = TRUE;
+}
+
+#------------------------------------------------------------
+Prof
+"Profile compiler execution"
+{
+  Prof = TRUE;
+  verbose = TRUE;
+}
+
+#------------------------------------------------------------
+PART
+"Stop after partitioning phase"
+{
+  stopPART = TRUE;
+}
+
+#------------------------------------------------------------
+P<num>
+"Assume <num> processors are available for partitioning"
+{
+  procs = argv[idx];
+  procs[1] = 'P';
+}
+
+#------------------------------------------------------------
+r <funct>
+"Consider <funct> available as a reduction"
+-r funct
+Take function
+.B funct
+as an array reduction function.
+The reduction must be called from a \fIforall\fR loop. Use the 
+\fIfor initial while\fR construct in the function to reduce from 
+the entire read only array argument.  The loop counter must use the 
+entire array and access only the current loop iteration array values.
+{
+  roptions[++roptioncnt] = argv[idx];         /* reduction function */
+  /* calloptions[++calloptioncnt] = argv[idx];*//* inline off */
+}
+
+#------------------------------------------------------------
+
+Loopstyle=<stylechar>
+"Set the default loop parallelism style to <stylechar>"
+-Loopstyle=C
+OSC supports several styles of loop parallelism.  The default style
+is R (Runtime decision) which defers the style decision (see
+.I s.out
+(l)).
+Other styles supported are B (Blocked), S (Strided), and G
+(Guided-self-scheduled).
+Choosing a non-runtime style lowers runtime overhead but reduces
+flexibility.
+{
+  LoopStyle[2] = argv[idx][11];
+}

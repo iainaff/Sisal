@@ -1,0 +1,27 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+versionedExecutables=if1ld
+
+sources = if1names.c if1smash.c ifxstuff.c ld.c
+
+include @top_level_directory@/Include/makefile.inc
+
+if1ld: $(objects)
+	$(LD-C) -o $@ $(objects) -L../Library -lifx -lm
+
+clean:
+	$(RM) $(objects) if1ld
+
+
+
+
+
+
+

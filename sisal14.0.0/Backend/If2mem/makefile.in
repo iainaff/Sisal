@@ -1,0 +1,20 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+versionedExecutables=if2mem
+
+sources = mem.c if2alloc.c if2clean.c if2level.c if2mem.c if2pic.c if2size.c ifxstuff.c
+
+include @top_level_directory@/Include/makefile.inc
+
+if2mem: $(objects)
+	$(LD-C) -o $@ $(objects) -L../Library -lifx -lm
+
+clean:
+	$(RM) $(objects) if2mem

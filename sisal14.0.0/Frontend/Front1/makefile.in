@@ -1,0 +1,21 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+sources = p2clib.c file1.c file2.c file3.c
+versionedExecutables = sisal
+data = etabl.bin ptabl.bin
+man = sisal.5
+
+include @top_level_directory@/Include/makefile.inc
+
+sisal: $(objects)
+	$(LD-C) -o $@ $^
+
+clean:
+	$(RM) $(objects) sisal

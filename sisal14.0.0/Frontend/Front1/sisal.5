@@ -1,0 +1,113 @@
+.TH SISAL 5
+.SH NAME
+sisal \- SISAL functional parallel programming language
+.SH SYNOPSIS
+A math-like programming language the gives you free parallelism.
+.SH DESCRIPTION
+.I SISAL
+is a functional language developed by the Computing Research Group at LLNL.
+It is a general-purpose programming language aimed at scientific/numerical
+computations that can provide good performance, portability, and automatic
+parallelism. SISAL syntax is functional, so programs are expressed as
+definitions and applications of functions with one or more inputs and outputs.
+SISAL semantics are functional, also, so no side effects are possible, and
+all program behavior is determinate, regardless of execution environment,
+system load, or number of processors executing. The result of these 
+characteristics are programs that look like those in many other modern
+programming languages, but which are mathematically sound. In practice, 
+programming in SISAL is like doing math rather than conventional programming. 
+There is no resource management, communication, or synchronization in 
+parallel execution, as the compiler and runtime system handle these 
+matters automatically. Here is a sample sisal progam for multiplying 
+two matrices:
+
+.ft 7
+.nf
+define mat_mult
+
+type One_Dim = array [ real ];
+type Two_Dim = array [ One_Dim ];
+
+function mat_mult( A, B : Two_Dim returns Two_Dim )
+let
+   n := array_size( A );
+   m := array_size( A[1] );
+in
+   for i in 1, n cross j in 1, m
+      c_ij := for k in 1, m
+              returns value of sum A[i, k] * B[k, j]
+              end for
+   returns array of c_ij
+   end for
+end let
+end function
+.ft R
+.fi
+
+This program will execute the same whether on one or many processors, and
+the number of processors used is an execute-line parameter.
+
+SISAL programs are compiled with the Optimizing SISAL Compiler, OSC, which
+generates C code, and then invokes the target machine's native C compiler to
+produce an executable, which is named "s.out" by default. The compiler is
+full-featured, and offers many options for user control of compilation and
+execution. SISAL programs can also link to Fortran and C, for mixed language
+programming. This allows use of existing libraries with SISAL programs, or
+the use of computationally intensive kernels written in SISAL with existing
+program shells.
+
+Execution is performed by invoking the executable produced by OSC, with any of
+a number of options that offer wide control of execution actions, such as
+the memory allocated, the number of cpu's, performance monitoring,
+operation counting, and I/O redirection.
+
+.SH SEE ALSO
+osc(1), s.out(5), speedups(1), xspeedups(1)
+
+.LP
+J. McGraw and S. Skedzielewski,
+.I SISAL: Streams and Iteration in a 
+.I Single Assignment Language:  
+.I Reference Manual Version 1.2,
+Lawrence Livermore National Laboratory, 1985
+.LP
+
+The compiler and runtime system are available on all three NERSC Cray systems
+as well as PC's, workstations, and several shared memory multiprocessors.
+For more information, see the man pages for the Optimizing SISAL Compiler, OSC,
+the executable and runtime system, S.OUT, and either of two performance tools,
+SPEEDUPS, and XSPEEDUPS. Add the following path to your environment variable
+MANPATH: "/usr/local/shared/sisal/Osc/man" by typing
+"setenv $(MANPATH):/usr/local/shared/sisal/Osc/man" (without the double
+quotes).Then type "man osc" "man s.out" "man speedups" or "man xspeedups".
+
+.SH CONTACTS
+For assistance with any aspect of this language, its software, or its use,
+contact the Computing Research Group at LLNL, 7000 East Ave., L-306,
+Livermore CA 94550, or by email at any of the following:
+
+.ft 7
+.nf
+sisal-info@sisal.llnl.gov           generic sisal info (BROADCAST)
+
+sisal-request@sisal.llnl.gov        sisal-info list additions
+
+sisal-bugs@sisal.llnl.gov           sisal software bug reports
+
+ssci-help@sisal.llnl.gov            SSCI consulting help
+.ft R
+.fi
+
+Also, any of the following persons are available to help, and can
+be reached by email or telephone:
+
+.ft 7
+.nf
+John T. Feo        (510) 422-6389   feo@diego.llnl.gov
+
+Thomas M. DeBoni   (510) 423-3793   deboni@diego.llnl.gov
+
+Patrick J. Miller  (510) 423-0309   miller@sisal.llnl.gov
+.ft R
+.fi
+
