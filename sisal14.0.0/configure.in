@@ -13,6 +13,11 @@ AC_SUBST(version)
 extraArguments () { shift; echo $*; }
 
 dnl -----------------------------------------------
+dnl Needed for things like conftest to work
+dnl -----------------------------------------------
+PATH=".:$PATH"
+
+dnl -----------------------------------------------
 dnl check to see if FORTRAN turned off
 dnl -----------------------------------------------
 fortran_enabled=1
