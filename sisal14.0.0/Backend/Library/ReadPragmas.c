@@ -1,3 +1,12 @@
+/**************************************************************************/
+/* FILE   **************       ReadPragmas.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/**************************************************************************/
+
 #include "world.h"
 
 
@@ -5,31 +14,31 @@
 /* GLOBAL **************        ReadPragmas        ************************/
 /**************************************************************************/
 /* PURPOSE: READ NAME, FILE, LINE, AND MARK PRAGMAS: %na=name, %sf=file,  */
-/*	    %sl=line, %fn=funct, %mk=mark, %sr=VALUE, %pm=VALUE,	  */
-/*	    %cm=VALUE, %pl=VALUE, AND %cc=COST. OTHERS ARE SILENTLY	  */
-/*	    IGNORED.                                                      */
-/*									  */
-/*	    THE NAME (name), FILE (file), AND FUNCTION (funct) MUST	  */
-/*	    MUST CONTAIN AT LEAST ONE NON-WHITE CHARACTER; THE LINE	  */
-/*	    (line) MUST BE AN UNSIGNED NUMBER; AND THE MARK MUST BE A	  */
-/*	    SINGLE NON-WHITE CHARACTER. WHEN DONE, token WILL		  */
-/*	    CONTAIN THE EOLN CHARACTER.  COST IS A DOUBLE.		  */
+/*          %sl=line, %fn=funct, %mk=mark, %sr=VALUE, %pm=VALUE,          */
+/*          %cm=VALUE, %pl=VALUE, AND %cc=COST. OTHERS ARE SILENTLY       */
+/*          IGNORED.                                                      */
+/*                                                                        */
+/*          THE NAME (name), FILE (file), AND FUNCTION (funct) MUST       */
+/*          MUST CONTAIN AT LEAST ONE NON-WHITE CHARACTER; THE LINE       */
+/*          (line) MUST BE AN UNSIGNED NUMBER; AND THE MARK MUST BE A     */
+/*          SINGLE NON-WHITE CHARACTER. WHEN DONE, token WILL             */
+/*          CONTAIN THE EOLN CHARACTER.  COST IS A DOUBLE.                */
 /**************************************************************************/
 
-#define DecodePragma(fld,converter,err)	\
-{					\
-  if ( !HaveArgument ) ReadError(err);	\
-  name = ReadString(WHITE_CHARS);	\
-  if ( *name == '\0' ) ReadError(err);	\
-  pragmas.fld = converter(name);	\
-  (void)(free(name));			\
+#define DecodePragma(fld,converter,err) \
+{                                       \
+  if ( !HaveArgument ) ReadError(err);  \
+  name = ReadString(WHITE_CHARS);       \
+  if ( *name == '\0' ) ReadError(err);  \
+  pragmas.fld = converter(name);        \
+  (void)(free(name));                   \
 }
-#define NamePragma(fld,err)		\
-{					\
-  if ( !HaveArgument ) ReadError(err);	\
-  name = ReadString(WHITE_CHARS);	\
-  if ( *name == '\0' ) ReadError(err);	\
-  pragmas.fld = name;			\
+#define NamePragma(fld,err)             \
+{                                       \
+  if ( !HaveArgument ) ReadError(err);  \
+  name = ReadString(WHITE_CHARS);       \
+  if ( *name == '\0' ) ReadError(err);  \
+  pragmas.fld = name;                   \
 }
 
 #define HashP(First,Second)      ((First-'a')*26+(Second))
@@ -39,9 +48,9 @@ void ReadPragmas()
   register char *name;
   register int   ThisLine;
   register int   oldmaxint;
-  int   	FirstLetter;	/* First char in pragma name */
-  int		SecondLetter;	/* Second char in pragma name */
-  int		HaveArgument;	/* TRUE iff pragma of form %xx=arg */
+  int           FirstLetter;    /* First char in pragma name */
+  int           SecondLetter;   /* Second char in pragma name */
+  int           HaveArgument;   /* TRUE iff pragma of form %xx=arg */
 
   PragInitPragmas( &pragmas );
 
@@ -61,8 +70,8 @@ void ReadPragmas()
     /* ------------------------------------------------------------ */
     /* Get the letters that form the pragma.  Also check if it has an */
     /* argument */
-    FirstLetter = token;	NextToken;
-    SecondLetter = token;	NextToken;
+    FirstLetter = token;        NextToken;
+    SecondLetter = token;       NextToken;
     if ( IsEqual(token) ) {
       NextToken;
       HaveArgument = TRUE;
@@ -74,155 +83,155 @@ void ReadPragmas()
     /* Choose the appropriate decoder for this combination */
     switch ( HashP(FirstLetter,SecondLetter) ) {
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* ESTIMATED COST						      */
+      /* ESTIMATED COST                                               */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('c','c'):
       DecodePragma(ccost,atof,"ILLEGAL cc PRAGMA");
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* CONSUMER MODIFY (Ref count)				      */
+      /* CONSUMER MODIFY (Ref count)                                  */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('c','m'):
       DecodePragma(cm,atoi,"ILLEGAL cm PRAGMA");
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* FUNCTION NAME						      */
+      /* FUNCTION NAME                                                */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('f','n'):
       NamePragma(funct,"ILLEGAL fn PRAGMA");
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* MARK							      */
+      /* MARK                                                         */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('m','k'):
       if ( IsWhite( token ) ) ReadError( "ILLEGAL mk PRAGMA" );
 
       switch ( token ) {
        case 'V':
-	if ( !AllowVMarks ) break;
-	pragmas.vmark = TRUE;	/* fall through */
+        if ( !AllowVMarks ) break;
+        pragmas.vmark = TRUE;   /* fall through */
        case 's': case 'c': case 'f': case 'd': case 'i': case 'e':
-	pragmas.mark = token;
-	break;
+        pragmas.mark = token;
+        break;
 
        case 'I':
-	pragmas.imark = TRUE;
-	break;
+        pragmas.imark = TRUE;
+        break;
 
        case 'p':
-	pragmas.Pmark = TRUE;
-	break;
+        pragmas.Pmark = TRUE;
+        break;
 
        case 'P':
-	pragmas.pmark = TRUE;
-	break;
+        pragmas.pmark = TRUE;
+        break;
 
        case 'R':
-	pragmas.rmark1 = RMARK;
-	break;
+        pragmas.rmark1 = RMARK;
+        break;
 
        case 'r':
-	pragmas.rmark1 = rMARK;
-	break;
+        pragmas.rmark1 = rMARK;
+        break;
 
        case 'O':
-	pragmas.omark1 = TRUE;
-	break;
+        pragmas.omark1 = TRUE;
+        break;
 
        case 'D':
-	pragmas.dmark = TRUE;
-	break;
+        pragmas.dmark = TRUE;
+        break;
 
        case 'L':
-	pragmas.lmark = TRUE;
-	break;
+        pragmas.lmark = TRUE;
+        break;
 
        case 'E':
-	pragmas.emark = TRUE;
-	break;
+        pragmas.emark = TRUE;
+        break;
 
        case 'F':
-	pragmas.fmark = TRUE;
-	break;
+        pragmas.fmark = TRUE;
+        break;
 
        case 'C':
-	pragmas.cmark = TRUE;
-	break;
+        pragmas.cmark = TRUE;
+        break;
 
        case '@':
-	pragmas.umark = TRUE;
-	break;
+        pragmas.umark = TRUE;
+        break;
 
        case 'N':
-	pragmas.nmark = TRUE;
-	break;
+        pragmas.nmark = TRUE;
+        break;
 
        case 'B':
-	pragmas.bmark = TRUE;
-	recursive = TRUE;
-	break;
+        pragmas.bmark = TRUE;
+        recursive = TRUE;
+        break;
 
        case 'W':
-	pragmas.wmark = TRUE;
-	break;
+        pragmas.wmark = TRUE;
+        break;
 
        case 'S':
-	pragmas.smark = TRUE;
-	break;
+        pragmas.smark = TRUE;
+        break;
 
        case 'Y':
         pragmas.Fmark = TRUE;
         break;
 
        default:
-	ReadError( "ILLEGAL mk PRAGMA MARK" );
+        ReadError( "ILLEGAL mk PRAGMA MARK" );
       }
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* NAME							      */
+      /* NAME                                                         */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('n','a'):
       NamePragma(name,"ILLEGAL na PRAGMA");
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* PL REFERENCE COUNT					      */
+      /* PL REFERENCE COUNT                                           */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('p','l'):
       DecodePragma(pl,atoi,"ILLEGAL pl PRAGMA");
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* PRODUCER MODIFY					      */
+      /* PRODUCER MODIFY                                              */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('p','m'):
       DecodePragma(pm,atoi,"ILLEGAL pm PRAGMA");
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* SOURCE FILE						      */
+      /* SOURCE FILE                                                  */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('s','f'):
       NamePragma(file,"ILLEGAL sf PRAGMA");
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* SOURCE LINE						      */
+      /* SOURCE LINE                                                  */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('s','l'):
-      oldmaxint = maxint;	/* 2/92 WATCH FOR sl=9999999 */
+      oldmaxint = maxint;       /* 2/92 WATCH FOR sl=9999999 */
       ThisLine = ReadInteger();
-      maxint = oldmaxint;	/* 2/92 WATCH FOR sl=9999999 */
+      maxint = oldmaxint;       /* 2/92 WATCH FOR sl=9999999 */
 
       pragmas.line = ThisLine;
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* SET REFERENCE COUNT					      */
+      /* SET REFERENCE COUNT                                          */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('s','r'):
       DecodePragma(sr,atoi,"ILLEGAL sr PRAGMA");
@@ -243,14 +252,14 @@ void ReadPragmas()
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* Compound ID number					      */
+      /* Compound ID number                                           */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('I','D'):
       DecodePragma(ID,atoi,"ILLEGAL ID PRAGMA");
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* Loop Slice formula					      */
+      /* Loop Slice formula                                           */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('L','S'):
       if ( !HaveArgument || IsWhite(token) ) ReadError("ILLEGAL LS PRAGMA");
@@ -258,7 +267,7 @@ void ReadPragmas()
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* Lazy Node/Edge						      */
+      /* Lazy Node/Edge                                               */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('L','Z'):
       if ( HaveArgument ) ReadError("ILLEGAL LZ PRAGMA");
@@ -266,7 +275,7 @@ void ReadPragmas()
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* Mininum Slice Width					      */
+      /* Mininum Slice Width                                          */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('M','S'):
       if ( !HaveArgument || IsWhite(token) ) ReadError("ILLEGAL MS PRAGMA");
@@ -274,7 +283,7 @@ void ReadPragmas()
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* Loop Parallelism Style					      */
+      /* Loop Parallelism Style                                       */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('S','T'):
       if ( !HaveArgument || IsWhite(token) ) ReadError("ILLEGAL ST PRAGMA");
@@ -283,7 +292,7 @@ void ReadPragmas()
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* Thin Copy mark for loops				      */
+      /* Thin Copy mark for loops                                     */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      case HashP('T','C'):
       if ( HaveArgument ) ReadError("ILLEGAL TC PRAGMA");
@@ -291,7 +300,7 @@ void ReadPragmas()
       break;
 
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-      /* Silently ignore others					      */
+      /* Silently ignore others                                       */
       /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
      default:
       ;
@@ -299,7 +308,33 @@ void ReadPragmas()
   }
 }
 
-/* $Log$
+/*
+ * $Log$
+ * Revision 1.1.1.1  2000/12/31 17:58:33  patmiller
+ * Well, here is the first set of big changes in the distribution
+ * in 5 years!  Right now, I did a lot of work on configuration/
+ * setup (now all autoconf), breaking out the machine dependent
+ * #ifdef's (with a central acconfig.h driven config file), changed
+ * the installation directories to be more gnu style /usr/local
+ * (putting data in the /share/sisal14 dir for instance), and
+ * reduced the footprint in the top level /usr/local/xxx hierarchy.
+ *
+ * I also wrote a new compiler tool (sisalc) to replace osc.  I
+ * found that the old logic was too convoluted.  This does NOT
+ * replace the full functionality, but then again, it doesn't have
+ * 300 options on it either.
+ *
+ * Big change is making the code more portably correct.  It now
+ * compiles under gcc -ansi -Wall mostly.  Some functions are
+ * not prototyped yet.
+ *
+ * Next up: Full prototypes (little) checking out the old FLI (medium)
+ * and a new Frontend for simpler extension and a new FLI (with clean
+ * C, C++, F77, and Python! support).
+ *
+ * Pat
+ *
+ *
  * Revision 1.9  1994/07/15  18:35:20  denton
  * Make tn a "" pragma
  *
@@ -329,4 +364,5 @@ void ReadPragmas()
  * Initial version of the IFX library.  It replaces the if[12]build.c
  * read.c timer.c util.c and write.c and if[12].h files from the
  * backend phases.
- * */
+ *
+ */

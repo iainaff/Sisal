@@ -1,3 +1,18 @@
+#ifndef PARALLELISM_H
+#define PARALLELISM_H
+
+/**************************************************************************/
+/* FILE   **************       parallelism.h       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /************************************************************************\
  * Solaris threads
 \************************************************************************/
@@ -88,7 +103,7 @@ BARRIER_TYPE *MyInitBarrier(limit)
   return bar;
 }
 
-void MyBarrier( bar )			/* from tomig.esd.mun.ca */
+void MyBarrier( bar )                   /* from tomig.esd.mun.ca */
   BARRIER_TYPE *bar;
 {
   /*
@@ -125,3 +140,4 @@ void MyBarrier( bar )			/* from tomig.esd.mun.ca */
   return;
 }
 
+#endif

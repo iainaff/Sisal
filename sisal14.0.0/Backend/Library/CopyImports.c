@@ -1,3 +1,12 @@
+/**************************************************************************/
+/* FILE   **************       CopyImports.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/**************************************************************************/
+
 #include "world.h"
 
 
@@ -20,10 +29,13 @@ int   atts;
     for ( i = n1->imp; i != NULL; i = i->isucc ) {
         ii = CopyEdge( i, NULL_NODE, n2 );
 
-	LinkImport( n2, ii );
+        LinkImport( n2, ii );
 
-	if ( atts && (!IsConst(i)) )
-	    LinkExport( i->src->copy, ii );
-	}
+        if ( atts && (!IsConst(i)) )
+            LinkExport( i->src->copy, ii );
+        }
 }
 
+/*
+ * $Log:
+ */

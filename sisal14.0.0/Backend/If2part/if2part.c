@@ -1,18 +1,28 @@
-/* if2part.c,v
+/**************************************************************************/
+/* FILE   **************         if2part.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:08  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:36  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
-int   level      = 1;		/* NESTED LOOP PARALLIZATION THRESHOLD */
-				/* We default to slicing only the outer */
-				/* level loop.  This was previously set to */
-				/* slice ALL loop levels, but was throttled */
-				/* by Active processor paralellism. */
+int   level      = 1;           /* NESTED LOOP PARALLIZATION THRESHOLD */
+                                /* We default to slicing only the outer */
+                                /* level loop.  This was previously set to */
+                                /* slice ALL loop levels, but was throttled */
+                                /* by Active processor paralellism. */
 int atlevel      = -1;       /* ONLY SLICE AT THIS PARALLEL NESTING LEVEL */
 
 static int totedges;            /* NUMBER OF COUNTED EDGES                  */
@@ -106,7 +116,7 @@ PNODE g;
 /**************************************************************************/
 /* LOCAL  ****************   GetNewActiveProcCount   **********************/
 /**************************************************************************/
-/* PURPOSE:  Find out how many processors are in use			  */
+/* PURPOSE:  Find out how many processors are in use                      */
 /**************************************************************************/
 static int GetNewActiveProcCount( f, active )
 PNODE f;
@@ -139,15 +149,15 @@ PNODE g;
 int   plvl;
 int   pbusy; /* BUSY PROCESSORS */
 {
-  register PNODE  	n;
-  register PNODE	gg;
-  register PNODE	phead = NULL;
-  register PNODE	ptail = NULL;
-  char			*reason;
-  int			active;
-  double		PerIterationCost;
-  int			StaticMinSlice;
-  char			StaticMinSliceBuffer[32];
+  register PNODE        n;
+  register PNODE        gg;
+  register PNODE        phead = NULL;
+  register PNODE        ptail = NULL;
+  char                  *reason;
+  int                   active;
+  double                PerIterationCost;
+  int                   StaticMinSlice;
+  char                  StaticMinSliceBuffer[32];
 
   AverageDistance( g );
 
@@ -164,52 +174,52 @@ int   pbusy; /* BUSY PROCESSORS */
       /* ------------------------------------------------------------ */
 
       /* ------------------------------------------------------------ */
-      /* See if we have an override set in the report		      */
+      /* See if we have an override set in the report                 */
       /* ------------------------------------------------------------ */
       if ( UpdatedLoopPragmas(n, R_SMARK) ) {
-	if ( n->smark ) {
-	  goto ConcurrentLoop;
-	} else {
-	  n->reason2 = "Serial loop set by loop report";
-	  goto SerialLoop;
-	}
+        if ( n->smark ) {
+          goto ConcurrentLoop;
+        } else {
+          n->reason2 = "Serial loop set by loop report";
+          goto SerialLoop;
+        }
       }
 
       /* ------------------------------------------------------------ */
-      /* See if the loop is too deep				      */
+      /* See if the loop is too deep                                  */
       /* ------------------------------------------------------------ */
       if ( plvl > level ) {
-	n->reason2 = "Loop nested too deep (see -n option)";
-	goto SerialLoop;
+        n->reason2 = "Loop nested too deep (see -n option)";
+        goto SerialLoop;
       }
 
       /* ------------------------------------------------------------ */
-      /* Now see if we can slice it anyway			      */
+      /* Now see if we can slice it anyway                            */
       /* ------------------------------------------------------------ */
       if ( !IsSliceCandidate( n,&reason ) ) {
-	n->reason2 = reason;
-	goto SerialLoop;
+        n->reason2 = reason;
+        goto SerialLoop;
       }
       /* ------------------------------------------------------------ */
-      /* Make sure that there is enough work to do		      */
+      /* Make sure that there is enough work to do                    */
       /* ------------------------------------------------------------ */
       if ( (n->ccost) < SliceThreshold ) {
-	n->reason2 = "Not enough work (see -h and -i options)";
-	goto SerialLoop;
+        n->reason2 = "Not enough work (see -h and -i options)";
+        goto SerialLoop;
       }
 
       /* ------------------------------------------------------------ */
       /* If the inner slice option is on, see if this is the level    */
       /* ------------------------------------------------------------ */
       if ( (atlevel != -1) && (atlevel != plvl) ) {
-	n->reason2 = "This loop level not selected (see -A option)";
-	goto SerialLoop;
+        n->reason2 = "This loop level not selected (see -A option)";
+        goto SerialLoop;
       }
 
       /* ------------------------------------------------------------ */
     ConcurrentLoop:
       /* ------------------------------------------------------------ */
-      /* Set the parallelism mark				      */
+      /* Set the parallelism mark                                     */
       /* ------------------------------------------------------------ */
       n->smark = TRUE;
 
@@ -218,16 +228,16 @@ int   pbusy; /* BUSY PROCESSORS */
       /* scheduling mechanism at runtime.                             */
       /* ------------------------------------------------------------ */
       if( level == 1 )
-		n->Fmark = TRUE;
+                n->Fmark = TRUE;
 
       /* ------------------------------------------------------------ */
-      /* Select the default parallelism style			      */
+      /* Select the default parallelism style                         */
       /* ------------------------------------------------------------ */
       n->Style = DefaultStyle;
 
       /* ------------------------------------------------------------ */
       /* Find out what we think is the minimum number of iterations   */
-      /* needed to break even on splitting			      */
+      /* needed to break even on splitting                            */
       /* ------------------------------------------------------------ */
       PerIterationCost = n->ccost / NumberOfIterations(n);
       StaticMinSlice = (int)(ceil( SliceThreshold / PerIterationCost ));
@@ -241,50 +251,50 @@ int   pbusy; /* BUSY PROCESSORS */
 
       /* ------------------------------------------------------------ */
       /* Adjust the active processor count and add it to the list of  */
-      /* parallel nodes						      */
+      /* parallel nodes                                               */
       /* ------------------------------------------------------------ */
       active = GetNewActiveProcCount( n, active );
       AppendToUtilityList( phead, ptail, n );
 
       /* ------------------------------------------------------------ */
-      /* Partition deeper nesting levels			      */
+      /* Partition deeper nesting levels                              */
       /* ------------------------------------------------------------ */
       for ( gg = n->C_SUBS; gg != NULL; gg = gg->gsucc ) {
-	PartitionGraph( gg, plvl + 1, active );
+        PartitionGraph( gg, plvl + 1, active );
       }
       break;
 
       /* ------------------------------------------------------------ */
-    SerialLoop:			/* Fall Through... */
+    SerialLoop:                 /* Fall Through... */
 
 
     case IFLoopA:
     case IFLoopB:
       /* ------------------------------------------------------------ */
-      /* OK, now we're looking for stream producers		      */
+      /* OK, now we're looking for stream producers                   */
       /* ------------------------------------------------------------ */
 
       /* ------------------------------------------------------------ */
-      /* See if the loop report overrides the computed choice	      */
+      /* See if the loop report overrides the computed choice         */
       /* ------------------------------------------------------------ */
       if ( UpdatedLoopPragmas(n, R_PMARK) ) {
-	if ( n->pmark ) {
-	  goto StreamLoop;
-	} else {
-	  n->reason2 = "Loop report set this loop to non-stream producer";
-	  goto NonStreamLoop;
-	}	      
+        if ( n->pmark ) {
+          goto StreamLoop;
+        } else {
+          n->reason2 = "Loop report set this loop to non-stream producer";
+          goto NonStreamLoop;
+        }             
       }
 
       /* ------------------------------------------------------------ */
-      /* See if we think this is a stream producer		      */
+      /* See if we think this is a stream producer                    */
       /* ------------------------------------------------------------ */
       if ( !IsStreamTask( n ) ) goto NonStreamLoop;
 
       /* ------------------------------------------------------------ */
     StreamLoop:
       n->pmark = TRUE;
-      n->reason2 = NULL;	/* clear the failure from above */
+      n->reason2 = NULL;        /* clear the failure from above */
       AppendToUtilityList( phead, ptail, n );
 
     NonStreamLoop:
@@ -293,7 +303,7 @@ int   pbusy; /* BUSY PROCESSORS */
     case IFSelect:
     case IFTagCase:
       for ( gg = n->C_SUBS; gg != NULL; gg = gg->gsucc ) {
-	PartitionGraph( gg, plvl, active );
+        PartitionGraph( gg, plvl, active );
       }
       break;
 
@@ -301,15 +311,15 @@ int   pbusy; /* BUSY PROCESSORS */
       gg = FindFunction( n->imp->CoNsT );
 
       if ( !(IsIGraph( gg ) && gg->mark == 's') )
-	if ( n->bmark )
-	  break;
+        if ( n->bmark )
+          break;
 
       if ( gg->cnum == 0 ) {
-	gg->pbusy = active;
-	gg->level  = plvl;
+        gg->pbusy = active;
+        gg->level  = plvl;
       } else {
-	gg->pbusy += active;
-	gg->level  += plvl;
+        gg->pbusy += active;
+        gg->level  += plvl;
       }
 
       gg->cnum++;
@@ -358,7 +368,7 @@ void If2Part()
 
         PartitionGraph( f, f->level, f->pbusy );
 
-	if ( RequestInfo(I_Info4,info) ) {
+        if ( RequestInfo(I_Info4,info) ) {
             FPRINTF( infoptr, " FUNCTION %s: ", f->G_NAME );
 
             if ( totedges == 0 )

@@ -1,10 +1,20 @@
-/* if2rwset.c,v
+/**************************************************************************/
+/* FILE   **************         if2rwset.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:12  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:04  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -24,20 +34,20 @@ PEDGE e;
     register PEDGE ee;
 
     switch ( e->dst->type ) {
-	case IFAElement:
-	case IFRElements:
-	    if ( (e->iport == 1) && (!IsStream( e->info )) )
-		for ( ee = e->dst->exp; ee != NULL; ee = ee->esucc ) {
-		    ee->grset = e->grset;
-		    ee->gwset = e->gwset;
+        case IFAElement:
+        case IFRElements:
+            if ( (e->iport == 1) && (!IsStream( e->info )) )
+                for ( ee = e->dst->exp; ee != NULL; ee = ee->esucc ) {
+                    ee->grset = e->grset;
+                    ee->gwset = e->gwset;
 
-		    PropagateGlobalSets( ee );
-		    }
+                    PropagateGlobalSets( ee );
+                    }
 
             break;
 
         default:
-	    break;
+            break;
         }
 }
 
@@ -75,8 +85,8 @@ PNODE scope;
         wset = SetAlloc( NULL_SET, scope );
         rset = SetAlloc( wset, scope );
 
-	if ( !IsGraph( n ) )
-	    wset->gen = rset->gen = e;
+        if ( !IsGraph( n ) )
+            wset->gen = rset->gen = e;
 
         if ( gshead == NULL )
             gshead = rset;
@@ -166,37 +176,37 @@ PNODE g;
     register PNODE sg;
 
     for ( n = g; n != NULL; n = n->nsucc )       /* g AND ITS GRAPH NODES */
-	switch ( n->type ) {
-	    case IFForall:         case IFLoopA:         case IFLoopB:
-	    case IFTagCase:        case IFSelect:        
-		for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	            BuildReadWriteSets( sg );
+        switch ( n->type ) {
+            case IFForall:         case IFLoopA:         case IFLoopB:
+            case IFTagCase:        case IFSelect:        
+                for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+                    BuildReadWriteSets( sg );
 
-	    case IFSGraph:         case IFXGraph:        case IFLGraph:
+            case IFSGraph:         case IFXGraph:        case IFLGraph:
 
-	    case IFCall:
-	    
-	    case IFAAddHAT:        case IFAAddLAT:       case IFACatenateAT:
-	    case IFAReplace:       case IFASetL:         case IFARemL:
-	    case IFARemH:          case IFAAdjust:       case IFABuildAT:
-	    case IFAFillAT:        case IFRBuild:        case IFRReplace:
-	    case IFABuild:         case IFAAddH:         case IFACatenate:
+            case IFCall:
+            
+            case IFAAddHAT:        case IFAAddLAT:       case IFACatenateAT:
+            case IFAReplace:       case IFASetL:         case IFARemL:
+            case IFARemH:          case IFAAdjust:       case IFABuildAT:
+            case IFAFillAT:        case IFRBuild:        case IFRReplace:
+            case IFABuild:         case IFAAddH:         case IFACatenate:
 
-		BuildGlobalSets( n, g );
-		BuildLocalSets(  n, g );
-		break;
+                BuildGlobalSets( n, g );
+                BuildLocalSets(  n, g );
+                break;
 
             case IFAElement:
-	    case IFRElements:
+            case IFRElements:
                 if ( !IsConst( n->imp ) )
-		    if ( IsNoOp( n->imp->src ) )
-			BuildGlobalSets( n, g );
+                    if ( IsNoOp( n->imp->src ) )
+                        BuildGlobalSets( n, g );
 
-		BuildLocalSets( n, g );
-		break;
+                BuildLocalSets( n, g );
+                break;
 
             default:
-		break;
+                break;
             }
 }
 
@@ -212,5 +222,5 @@ void If2ReadWriteSets()
     register PNODE f;
 
     for ( f = fhead; f != NULL; f = f->gsucc )
-	BuildReadWriteSets( f );
+        BuildReadWriteSets( f );
 }

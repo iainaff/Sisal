@@ -1,3 +1,18 @@
+#ifndef LOCK_IMPLEMENTATION_H
+#define LOCK_IMPLEMENTATION_H
+
+/**************************************************************************/
+/* FILE   **************   lock-implementation.h   ************************/
+/**************************************************************************/
+/* Author: Dave Raymond                                                   */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /************************************************************************\
  * POSIX threads
 \************************************************************************/
@@ -26,3 +41,5 @@ typedef struct {pthread_mutex_t lock; int count;} BARRIER_TYPE;
 #define FLUSHLINE(addr)
 #define CACHESYNC
 #define FFL
+
+#endif

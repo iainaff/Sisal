@@ -1,10 +1,20 @@
-/* if2owner.c,v
+/**************************************************************************/
+/* FILE   **************         if2owner.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:11  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:02  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -22,38 +32,38 @@ PNODE g;
 
     for ( n = g; n != NULL; n = n->nsucc ) {
         if ( IsCompound( n ) )
-	    for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	        DoSharingAnalysis( sg );
+            for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+                DoSharingAnalysis( sg );
 
         if ( n->type == IFAFill || n->type == IFAFillAT )
-	    if ( !IsBasic( n->imp->isucc->isucc->info ) ) {
-	        Sharing = TRUE;
-	        return;
-	        }
+            if ( !IsBasic( n->imp->isucc->isucc->info ) ) {
+                Sharing = TRUE;
+                return;
+                }
 
         for ( i = n->imp; i != NULL; i = i->isucc ) {
-	    if ( i->pm >= 1 ) {
-	        Sharing = TRUE;
-	        return;
-	        }
+            if ( i->pm >= 1 ) {
+                Sharing = TRUE;
+                return;
+                }
 
-	    if ( i->sr > 1 ) {
-	        Sharing = TRUE;
-	        return;
-	        }
+            if ( i->sr > 1 ) {
+                Sharing = TRUE;
+                return;
+                }
             }
 
       for ( e = n->exp; e != NULL; e = e->esucc ) {
-	  if ( e->pm >= 1 ) {
-	      Sharing = TRUE;
-	      return;
-	      }
+          if ( e->pm >= 1 ) {
+              Sharing = TRUE;
+              return;
+              }
 
-	  if ( e->sr > 1 ) {
-	      Sharing = TRUE;
-	      return;
-	      }
-	  }
+          if ( e->sr > 1 ) {
+              Sharing = TRUE;
+              return;
+              }
+          }
     }
 }
 
@@ -88,39 +98,39 @@ void If2Ownership()
     /* EXAMINE NoOp NODES TO DETERMINE UNIVERSAL OWNERSHIP                */
 
     for ( n = nohead; n != NULL; n = n->usucc )
-	switch ( n->imp->info->type ) {
-	    case IF_STREAM:
-		if ( n->imp->rmark1 != RMARK )
-		    suow = FALSE;
+        switch ( n->imp->info->type ) {
+            case IF_STREAM:
+                if ( n->imp->rmark1 != RMARK )
+                    suow = FALSE;
 
-		break;
+                break;
 
-	    case IF_ARRAY:
-		if ( n->imp->pmark )
-		    if ( n->imp->rmark1 != RMARK )
-		        auow = FALSE;
+            case IF_ARRAY:
+                if ( n->imp->pmark )
+                    if ( n->imp->rmark1 != RMARK )
+                        auow = FALSE;
 
-		break;
+                break;
 
             default:
-		break;
+                break;
             }
 
     /* STREAMS IMPORTS TO THE MAIN GRAPH MUST HAVE R MARKS                */
 
     if ( suow )
       for ( f = fhead; f != NULL; f = f->gsucc )
-	if ( IsStamp(MONOLITH) && (f->mark == 'e') ) /* NEW CANN 2/92 */
-	  for ( i = f->imp; i != NULL; i = i->isucc )
-	    if ( IsStream( i->info ) && (i->rmark1 != RMARK) )
-	      suow = FALSE;
+        if ( IsStamp(MONOLITH) && (f->mark == 'e') ) /* NEW CANN 2/92 */
+          for ( i = f->imp; i != NULL; i = i->isucc )
+            if ( IsStream( i->info ) && (i->rmark1 != RMARK) )
+              suow = FALSE;
 
     /* UPDATE ALL NoOp NODES TO REFLECT THE FINDINGS                      */
 
     if ( ststr )
         univso = suow;
     else 
-	univso = FALSE;
+        univso = FALSE;
 
     univao = auow;
 
@@ -138,15 +148,15 @@ void If2Ownership()
 
             case IF_ARRAY:
                 if ( auow )
-		    n->imp->omark1 = TRUE;
+                    n->imp->omark1 = TRUE;
 
-		/* CatenateAT BUG FIX */
-		for ( e = n->imp->src->exp; e != NULL; e = e->esucc )
-	            if ( e->eport == n->imp->eport )
-		        if ( e->pmark && !(e->wmark) ) {
-			    n->imp->omark1 = FALSE;
-		            break;
-		            }
+                /* CatenateAT BUG FIX */
+                for ( e = n->imp->src->exp; e != NULL; e = e->esucc )
+                    if ( e->eport == n->imp->eport )
+                        if ( e->pmark && !(e->wmark) ) {
+                            n->imp->omark1 = FALSE;
+                            break;
+                            }
 
                 break;
 
@@ -160,13 +170,13 @@ void If2Ownership()
       }
 
     for ( f = fhead; f != NULL; f = f->gsucc )
-	DoSharingAnalysis( f );
+        DoSharingAnalysis( f );
 
     if ( Sharing )
-	return;
+        return;
 
     for ( n = nohead; n != NULL; n = n->usucc )
-	n->imp->rmark1 = RMARK;
+        n->imp->rmark1 = RMARK;
 }
 
 

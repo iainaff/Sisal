@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************          p-util.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                       */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 /************************************************************************\
@@ -15,7 +27,7 @@ int     CompSize;
   APhys = ((ARRAYP)Array)->Phys;
 
   Phys = (PHYSP) Alloc( SIZE_OF(PHYS) +
-	 ((APhys->Size + 1 + (APhys->ExpHistory * ArrayExpansion)) * CompSize));
+         ((APhys->Size + 1 + (APhys->ExpHistory * ArrayExpansion)) * CompSize));
 
   MY_INIT_LOCK( &Phys->Mutex );
 
@@ -86,7 +98,7 @@ int     CompSize;
   MY_INIT_LOCK( &Array->Mutex );
 
   Phys = (PHYSP) Alloc( SIZE_OF(PHYS) +
-	                ((Array->Size + ArrayExpansion + 1) * CompSize) );
+                        ((Array->Size + ArrayExpansion + 1) * CompSize) );
 
   MY_INIT_LOCK( &Phys->Mutex );
 

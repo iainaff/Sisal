@@ -1,3 +1,12 @@
+/**************************************************************************/
+/* FILE   **************         CopyNode.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/**************************************************************************/
+
 #include "world.h"
 
 /**************************************************************************/
@@ -39,14 +48,14 @@ PNODE n;
       p = nn;
       
       for ( nd = n->G_NODES; nd != NULL; nd = nd->nsucc ) {
-	LinkNode( p, CopyNode( nd ) );
-	p = nd->copy;
+        LinkNode( p, CopyNode( nd ) );
+        p = nd->copy;
       }
       
       CopyImports( n, nn, TRUE );
       
       for ( nd = n->G_NODES; nd != NULL; nd = nd->nsucc )
-	CopyImports( nd, nd->copy, TRUE );
+        CopyImports( nd, nd->copy, TRUE );
       
       break;
       
@@ -62,8 +71,8 @@ PNODE n;
       p = nn;
       
       for ( g = n->C_SUBS; g != NULL; g = g->gsucc ) {
-	LinkGraph( p, CopyNode( g ) );
-	p = g->copy;
+        LinkGraph( p, CopyNode( g ) );
+        p = g->copy;
       }
       
       break;
@@ -74,3 +83,6 @@ PNODE n;
   
   return( nn );
 }
+/*
+ * $Log:
+ */

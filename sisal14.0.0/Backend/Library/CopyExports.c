@@ -1,3 +1,12 @@
+/**************************************************************************/
+/* FILE   **************       CopyExports.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/**************************************************************************/
+
 #include "world.h"
 
 
@@ -15,7 +24,10 @@ PNODE n2;
     register PEDGE e;
 
     for ( e = n1->exp; e != NULL; e = e->esucc )
-	LinkExport( n2, CopyEdge( e, n2, NULL_NODE ) );
+        LinkExport( n2, CopyEdge( e, n2, NULL_NODE ) );
 }
 
 
+/*
+ * $Log:
+ */

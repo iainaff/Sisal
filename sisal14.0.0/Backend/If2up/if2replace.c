@@ -1,10 +1,20 @@
-/* if2replace.c,v
+/**************************************************************************/
+/* FILE   **************        if2replace.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:12  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:04  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -24,7 +34,7 @@ PNODE rpl;
     register PEDGE ee;
 
     for ( ee = osrc->exp; ee != NULL; ee = ee->esucc ) {
-	if ( ee->eport != e->eport )
+        if ( ee->eport != e->eport )
             continue;
 
         if ( ee->pm != -2 )
@@ -79,71 +89,71 @@ PEDGE i;
     m = TRUE;
 
     while ( m ) {
-	m = FALSE;
+        m = FALSE;
 
-	for ( e = i->src->exp; e != NULL; e = e->esucc ) {
-	    if ( e->eport != i->eport )
-		continue;
+        for ( e = i->src->exp; e != NULL; e = e->esucc ) {
+            if ( e->eport != i->eport )
+                continue;
 
             if ( !IsCompound( e->dst ) )
-		continue;
+                continue;
 
 
-	    /* PSA ENHANCEMENT 4/25/90 5 LINES */
+            /* PSA ENHANCEMENT 4/25/90 5 LINES */
             ok = FALSE;
-	    for ( ii = i->dst->exp; ii != NULL; ii = ii->isucc )
-	      if ( ii->dst == e->dst )
-		ok = TRUE;
-	    if ( !ok ) continue;
+            for ( ii = i->dst->exp; ii != NULL; ii = ii->isucc )
+              if ( ii->dst == e->dst )
+                ok = TRUE;
+            if ( !ok ) continue;
 
             ok = TRUE;
 
-	    /* ARE ALL e IMPORTS TO e->dst READS? */
+            /* ARE ALL e IMPORTS TO e->dst READS? */
 
-	    for ( ii = e->dst->imp; ii != NULL; ii = ii->isucc ) {
-		if ( ii->eport != e->eport )
-		    continue;
+            for ( ii = e->dst->imp; ii != NULL; ii = ii->isucc ) {
+                if ( ii->eport != e->eport )
+                    continue;
 
                 if ( ii->src != e->src )
-		    continue;
+                    continue;
 
-		if ( ii->wmark ) {
-	            ok = FALSE;
-		    break;
-	            }
-		}
+                if ( ii->wmark ) {
+                    ok = FALSE;
+                    break;
+                    }
+                }
 
-	    if ( !ok )
-		continue;
+            if ( !ok )
+                continue;
 
-	    /* LETS NOT INTRODUCE A BOUNDED CYCLE! */
-	    if ( AreNodesDependent( rpl, e->dst ) )
-		continue;
+            /* LETS NOT INTRODUCE A BOUNDED CYCLE! */
+            if ( AreNodesDependent( rpl, e->dst ) )
+                continue;
 
-	    m = TRUE;
-	    break;
-	    }
+            m = TRUE;
+            break;
+            }
 
-	if ( !m )
-	    continue;
+        if ( !m )
+            continue;
 
-	src   = e->src;
-	eport = e->eport;
+        src   = e->src;
+        eport = e->eport;
 
-	for ( ii = e->dst->imp; ii != NULL; ii = si ) {
-	    si = ii->isucc;
+        for ( ii = e->dst->imp; ii != NULL; ii = si ) {
+            si = ii->isucc;
 
-	    if ( ii->eport != eport )
+            if ( ii->eport != eport )
                 continue;
 
             if ( ii->src != src )
                 continue;
 
-	    ChangeSourceNode( src, ii, rpl );
-	    }
+            ChangeSourceNode( src, ii, rpl );
+            }
 
-	CreateAndInsertAde( e->dst, rpl, BOUND );
-	}
+        CreateAndInsertAde( e->dst, rpl, BOUND );
+        }
 }
 
 
@@ -185,109 +195,109 @@ void If2Replace()
     register int   ok;
 
     for ( n = nohead; n != NULL; n = n->usucc ) {
-	elm = NULL;
-	rpl = n->exp->dst;
+        elm = NULL;
+        rpl = n->exp->dst;
 
-	switch ( rpl->type ) {
-	    case IFAReplace:
-		/* IS ONLY ONE MEMBER OF THE AGGREGATE REPLACED?          */
-		if ( rpl->imp->isucc->isucc->isucc != NULL )
-		    break;
+        switch ( rpl->type ) {
+            case IFAReplace:
+                /* IS ONLY ONE MEMBER OF THE AGGREGATE REPLACED?          */
+                if ( rpl->imp->isucc->isucc->isucc != NULL )
+                    break;
 
                 for ( e = n->imp->src->exp; e != NULL; e = e->esucc ) {
-		    if ( e->eport != n->imp->eport )
-			continue;
+                    if ( e->eport != n->imp->eport )
+                        continue;
 
                     if ( !IsAElement( e->dst ) )
-			continue;
+                        continue;
 
-		    /* IS THE DEREFERENCE RESULT AN AGGREGATE?            */
+                    /* IS THE DEREFERENCE RESULT AN AGGREGATE?            */
                     if ( !IsAggregate( e->dst->exp->info ) )
-			continue;
+                        continue;
 
-		    /* ARE THE AREPLACE AND AELEMENT INDEXES THE SAME     */
-		    if ( !AreEdgesEqual( e->dst->imp->isucc, rpl->imp->isucc ) )
-			continue;
-
-		    if ( HasWriteExport( e->dst ) ) {
-			elm = e->dst;
-			break;
-			}
-		    }
-
-		break;
-
-	    case IFRReplace:
-                for ( e = n->imp->src->exp; e != NULL; e = e->esucc ) {
-		    if ( e->eport != n->imp->eport )
-			continue;
-
-                    if ( !IsRElements( e->dst ) )
-			continue;
-
-                    /* DOES THE RElement NODE EXPORT AN AGGREGATE AND IS  */
-		    /* IT REPLACED BY THE RReplace NODE?                  */
-
-		    agg = FALSE;
-                    ok  = TRUE; 
-
-		    for ( ee = e->dst->exp; ee != NULL; ee = ee->esucc )
-			if ( IsAggregate( ee->info ) ) {
-			    agg = TRUE;
-
-			    if ( !IsImport( rpl, ee->eport + 1 ) ) {
-				ok = FALSE;
-				break;
-				}
-                            }
-
-		    if ( (!ok) || (!agg) )
-			continue;
-
-                    /* ARE ALL REPLACED AGGREGATES DEREFERENCED BY THE    */
-		    /* RElements NODE.                                    */
-
-		    ok = TRUE;
-
-		    for ( i = rpl->imp->isucc; i != NULL; i = i->isucc ) {
-			if ( !IsAggregate( i->info ) )
-			    continue;
-
-			if ( !IsExport( e->dst, i->iport - 1 ) ) {
-			    ok = FALSE;
-			    break;
-			    }
-                        }
-
-		    if ( !ok )
-			continue;
+                    /* ARE THE AREPLACE AND AELEMENT INDEXES THE SAME     */
+                    if ( !AreEdgesEqual( e->dst->imp->isucc, rpl->imp->isucc ) )
+                        continue;
 
                     if ( HasWriteExport( e->dst ) ) {
-			elm = e->dst;
-			break;
-			}
+                        elm = e->dst;
+                        break;
+                        }
                     }
 
-		break;
+                break;
 
-	    default:
-		break;
-	    }
+            case IFRReplace:
+                for ( e = n->imp->src->exp; e != NULL; e = e->esucc ) {
+                    if ( e->eport != n->imp->eport )
+                        continue;
 
-	if ( elm == NULL )
-	    continue;
+                    if ( !IsRElements( e->dst ) )
+                        continue;
 
-	FlushCompoundNodes( rpl, elm->imp );
-	ChangeSourceNode( elm->imp->src, elm->imp, rpl );
+                    /* DOES THE RElement NODE EXPORT AN AGGREGATE AND IS  */
+                    /* IT REPLACED BY THE RReplace NODE?                  */
 
-	/* ADJUST THE DEREFERENCE NODE'S EXPORTS PRODUCER MARKS AS THE    */
-	/* NODE IS NOW CONSIDERED THE GENERATOR.                          */
+                    agg = FALSE;
+                    ok  = TRUE; 
 
-	for ( e = elm->exp; e != NULL; e = e->esucc )
-	    if ( IsAggregate( e->info ) )
-		e->pm--;
+                    for ( ee = e->dst->exp; ee != NULL; ee = ee->esucc )
+                        if ( IsAggregate( ee->info ) ) {
+                            agg = TRUE;
 
-	CreateAndInsertAde( elm, rpl, BOUND );
-	rpl->nmark = TRUE;
-	}
+                            if ( !IsImport( rpl, ee->eport + 1 ) ) {
+                                ok = FALSE;
+                                break;
+                                }
+                            }
+
+                    if ( (!ok) || (!agg) )
+                        continue;
+
+                    /* ARE ALL REPLACED AGGREGATES DEREFERENCED BY THE    */
+                    /* RElements NODE.                                    */
+
+                    ok = TRUE;
+
+                    for ( i = rpl->imp->isucc; i != NULL; i = i->isucc ) {
+                        if ( !IsAggregate( i->info ) )
+                            continue;
+
+                        if ( !IsExport( e->dst, i->iport - 1 ) ) {
+                            ok = FALSE;
+                            break;
+                            }
+                        }
+
+                    if ( !ok )
+                        continue;
+
+                    if ( HasWriteExport( e->dst ) ) {
+                        elm = e->dst;
+                        break;
+                        }
+                    }
+
+                break;
+
+            default:
+                break;
+            }
+
+        if ( elm == NULL )
+            continue;
+
+        FlushCompoundNodes( rpl, elm->imp );
+        ChangeSourceNode( elm->imp->src, elm->imp, rpl );
+
+        /* ADJUST THE DEREFERENCE NODE'S EXPORTS PRODUCER MARKS AS THE    */
+        /* NODE IS NOW CONSIDERED THE GENERATOR.                          */
+
+        for ( e = elm->exp; e != NULL; e = e->esucc )
+            if ( IsAggregate( e->info ) )
+                e->pm--;
+
+        CreateAndInsertAde( elm, rpl, BOUND );
+        rpl->nmark = TRUE;
+        }
 }

@@ -1,10 +1,20 @@
-/* if2call.c,v
+/**************************************************************************/
+/* FILE   **************         if2call.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:10  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:00  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -23,8 +33,8 @@ char *nm;
     register PCALL c;
 
     for ( c = cghead; c != NULL; c = c->callee )
-	if ( strcmp( nm, c->graph->G_NAME ) == 0 )
-	    return( c );
+        if ( strcmp( nm, c->graph->G_NAME ) == 0 )
+            return( c );
 
     return( NULL );
 }
@@ -48,26 +58,26 @@ PNODE g;
     register PCALL cee; 
 
     if ( IsIGraph( g ) )
-	return;
+        return;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	if ( IsCall( n ) ) {
-	    if ( (cee = UpFindCallee( n->imp->CoNsT )) == NULL )
-		continue;
+        if ( IsCall( n ) ) {
+            if ( (cee = UpFindCallee( n->imp->CoNsT )) == NULL )
+                continue;
 
-	    r = CallAlloc( n );
+            r = CallAlloc( n );
 
-	    r->caller = c->caller;
-	    c->caller = r;
+            r->caller = c->caller;
+            c->caller = r;
 
-	    r->callee = cee;
+            r->callee = cee;
 
-	    continue;
-	    }
+            continue;
+            }
 
         if ( IsCompound( n ) )
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		UpAddCalleeReferences( c, g );
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                UpAddCalleeReferences( c, g );
         }
 }
 
@@ -89,28 +99,28 @@ static void UpMakeCallGraph()
     /* register PNODE gmain = NULL; */ /* CANN NEW 2/92 */
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
-	/* if ( f->emark ) */ /* CANN NEW 2/92 */
-	    /* gmain = f; */
+        /* if ( f->emark ) */ /* CANN NEW 2/92 */
+            /* gmain = f; */
 
-	c = CallAlloc( cfunct = f );
+        c = CallAlloc( cfunct = f );
 
-	if ( cghead != NULL )
-	    cgtail->callee = c;
+        if ( cghead != NULL )
+            cgtail->callee = c;
         else
-	    cghead = c;
+            cghead = c;
 
         cgtail = c;
 
-	/* NEW CANN: FORCE TO LOOK LIKE A RECURSIVE ENTRY POINT 2/92 */
-	if ( f->mark == 's' )
-	  f->bmark = TRUE;
-	}
+        /* NEW CANN: FORCE TO LOOK LIKE A RECURSIVE ENTRY POINT 2/92 */
+        if ( f->mark == 's' )
+          f->bmark = TRUE;
+        }
 
     for ( c = cghead; c != NULL; c = c->callee )
-	UpAddCalleeReferences( c, c->graph );
+        UpAddCalleeReferences( c, c->graph );
 
     /* if ( gmain == NULL ) */ /* CANN NEW 2/92 */
-	/* Error1( "UpMakeCallGraph: MONOLITH ENTRY POINT NOT FOUND" ); */
+        /* Error1( "UpMakeCallGraph: MONOLITH ENTRY POINT NOT FOUND" ); */
 }
 
 
@@ -132,26 +142,26 @@ PCALL callee;
     register PCALL r;
 
     if ( callee->checked ) {
-	if ( caller != NULL ) 
-	    if ( callee->graph->bmark )
-		caller->graph->bmark = TRUE;
+        if ( caller != NULL ) 
+            if ( callee->graph->bmark )
+                caller->graph->bmark = TRUE;
 
-	return;
-	}
+        return;
+        }
 
     if ( callee->color == color ) {
-	if ( caller != NULL )
-	    caller->graph->bmark = TRUE;
+        if ( caller != NULL )
+            caller->graph->bmark = TRUE;
 
-	callee->graph->bmark = TRUE;
+        callee->graph->bmark = TRUE;
 
-	return;
-	}
+        return;
+        }
 
     callee->color = color;
 
     for ( r = callee->caller; r != NULL; r = r->caller )
-	UpBreakCycles( r, r->callee );
+        UpBreakCycles( r, r->callee );
 
     callee->checked = TRUE;
 }
@@ -175,36 +185,36 @@ static void SortFunctionGraphs()
     register int   m;
 
     while ( glstop->gsucc != NULL )
-	for ( f = glstop->gsucc; f != NULL; f = sf ) {
-	    sf = f->gsucc;
+        for ( f = glstop->gsucc; f != NULL; f = sf ) {
+            sf = f->gsucc;
 
-	    m  = TRUE;
-	    r = UpFindCallee( f->G_NAME );
+            m  = TRUE;
+            r = UpFindCallee( f->G_NAME );
 
-	    if ( !IsIGraph( f ) )
-	        for ( r = r->caller; r != NULL; r = r->caller ) {
-		    if ( r->graph->bmark )
-		        continue;
+            if ( !IsIGraph( f ) )
+                for ( r = r->caller; r != NULL; r = r->caller ) {
+                    if ( r->graph->bmark )
+                        continue;
 
                     if ( r->callee->graph->sorted )
-		        continue;
+                        continue;
 
                     m = FALSE;
-		    break;
-		    }
+                    break;
+                    }
 
-	    if ( !m )
-		continue;
+            if ( !m )
+                continue;
 
-	    UnlinkGraph( f );
+            UnlinkGraph( f );
 
             if ( fhead == NULL )
-		fhead = ftail = f;
+                fhead = ftail = f;
             else
-		ftail = LinkGraph( ftail, f );
+                ftail = LinkGraph( ftail, f );
 
             f->sorted = TRUE;
-	    }
+            }
 }
 
 
@@ -222,9 +232,9 @@ void If2CallGraph()
     UpMakeCallGraph();
 
     for ( c = cghead; c != NULL; c = c->callee ) {
-	color++;
-	UpBreakCycles( NULL_CALL, c );
-	}
+        color++;
+        UpBreakCycles( NULL_CALL, c );
+        }
 
     SortFunctionGraphs();
 }

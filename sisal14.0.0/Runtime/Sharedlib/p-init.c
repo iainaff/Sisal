@@ -1,54 +1,66 @@
+/**************************************************************************/
+/* FILE   **************          p-init.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
-#include "usage.h"		/* One-liner descr. of options */
+#include "usage.h"              /* One-liner descr. of options */
 
 
-#define FIBREIN		(1)
-#define FIBREOUT	(2)
-#define SINFO		(3)
+#define FIBREIN         (1)
+#define FIBREOUT        (2)
+#define SINFO           (3)
 
 #define GET_Tmp(y)        (Tmp = atoi( &(argv[idx][(y)]) ))
 
-char	*SINFOFile	= "s.info";	/* Default information file */
-char	*iformat	= "%d\n";
-char	*fformat	= "%.6e\n";
-char	*dformat	= "%15e\n";
-char	*nformat	= "nil\n";
-char	*cformat	= "'%c'\n";
-char	*cformat2	= "'\\%03o'\n";
-char	*bformat	= "%c\n";
+char    *SINFOFile      = "s.info";     /* Default information file */
+char    *iformat        = "%d\n";
+char    *fformat        = "%.6e\n";
+char    *dformat        = "%15e\n";
+char    *nformat        = "nil\n";
+char    *cformat        = "'%c'\n";
+char    *cformat2       = "'\\%03o'\n";
+char    *bformat        = "%c\n";
 
-char  *av [1024];		/* COMMAND LINE OF CURRENT COMPILATION PHASE */
+char  *av [1024];               /* COMMAND LINE OF CURRENT COMPILATION PHASE */
 
 #if defined(NO_STATIC_SHARED)
-struct shared_s LSR;	/* READ ARGS. LOCALLY BEFORE COPYING TO DYNAMIC MEM. */
+struct shared_s LSR;    /* READ ARGS. LOCALLY BEFORE COPYING TO DYNAMIC MEM. */
 #endif
 
 /**************************************************************************/
 /* GLOBAL  **************       ParseCEscapes       ***********************/
 /**************************************************************************/
-/* PURPOSE:  Convert C string escapes into internal representation	  */
+/* PURPOSE:  Convert C string escapes into internal representation        */
 /**************************************************************************/
 char *ParseCEscapes(s)
-     char	*s;
+     char       *s;
 {
-  char	*buf = (char*)(malloc(strlen(s)+1));
-  char	*p = buf;
-  int	sum,i;
+  char  *buf = (char*)(malloc(strlen(s)+1));
+  char  *p = buf;
+  int   sum,i;
 
   while(*s) {
-    if ( *s == '\\' ) {		/* Check for escapes */
+    if ( *s == '\\' ) {         /* Check for escapes */
       s++;
       switch( *s ) {
       case '0': case '1': case '2': case '3':
       case '4': case '5': case '6': case '7':
-	/* Octal escape */
-	sum = (int)(*s++ - '0');
-	for(i=1;i<3;i++) {
-	  if ( *s < '0' || *s > '7' ) break;
-	  sum = 8*sum + (int)(*s++ - '0');
-	}
-	*p++ = (char)(sum);
-	break;
+        /* Octal escape */
+        sum = (int)(*s++ - '0');
+        for(i=1;i<3;i++) {
+          if ( *s < '0' || *s > '7' ) break;
+          sum = 8*sum + (int)(*s++ - '0');
+        }
+        *p++ = (char)(sum);
+        break;
 
       case 'n': *p++ = '\n'; s++; break;
       case 'f': *p++ = '\f'; s++; break;
@@ -57,10 +69,10 @@ char *ParseCEscapes(s)
       case 't': *p++ = '\t'; s++; break;
 
       default:
-	*p++ = *s++;
+        *p++ = *s++;
       }
     } else {
-      *p++ = *s++;		/* Just copy the character */
+      *p++ = *s++;              /* Just copy the character */
     }
   }
 
@@ -76,7 +88,7 @@ char *argv[];
   register int   idx;
   int   Tmp;
   int   FibreFileMode;
-  char	*CorrectUsage;
+  char  *CorrectUsage;
 
 #if defined(NO_STATIC_SHARED)
   /* ------------------------------------------------------------ */
@@ -89,28 +101,28 @@ char *argv[];
   FibreFileMode = FIBREIN;
 
   for ( idx = 1; idx < argc; idx++ ) {
-    CorrectUsage = NULL;	/* No error reasons yet */
+    CorrectUsage = NULL;        /* No error reasons yet */
 
     /* ------------------------------------------------------------ */
-    /* Look for filename style arguments first			    */
+    /* Look for filename style arguments first                      */
     /* ------------------------------------------------------------ */
     if ( argv[idx][0] != '-' ) {
       switch ( FibreFileMode ) {
        case FIBREIN:
-	OPEN( FibreInFd, argv[idx], "r" );
-	break;
+        OPEN( FibreInFd, argv[idx], "r" );
+        break;
 
        case FIBREOUT:
-	OPEN( FibreOutFd, argv[idx], "w" );
-	break;
+        OPEN( FibreOutFd, argv[idx], "w" );
+        break;
 
        case SINFO:
-	SINFOFile = argv[idx];
-	GatherPerfInfo = TRUE;	/* specifying a file implies -r */
-	break;
+        SINFOFile = argv[idx];
+        GatherPerfInfo = TRUE;  /* specifying a file implies -r */
+        break;
 
        default:
-	goto OptionError;
+        goto OptionError;
       }
 
       FibreFileMode++;
@@ -118,7 +130,7 @@ char *argv[];
     }
 
     /* ------------------------------------------------------------ */
-    /* Handle empty file names					    */
+    /* Handle empty file names                                      */
     /* ------------------------------------------------------------ */
     if ( argv[idx][1] == '\0' ) {
       FibreFileMode++;
@@ -126,26 +138,26 @@ char *argv[];
     }
 
     /* ------------------------------------------------------------ */
-    /* Look for -option style arguments				    */
+    /* Look for -option style arguments                             */
     /* ------------------------------------------------------------ */
 #include "options.h"
     /* ------------------------------------------------------------ */
-    /* Do not change options.h directly.  Modify the options	    */
-    /* file and run ``make newoptions''.  This will update the	    */
-    /* osc.m man page file and update options.h and usage.h	    */
-    /* This makefile target requires the parseopts tool		    */
-    /* (available separately).					    */
+    /* Do not change options.h directly.  Modify the options        */
+    /* file and run ``make newoptions''.  This will update the      */
+    /* osc.m man page file and update options.h and usage.h         */
+    /* This makefile target requires the parseopts tool             */
+    /* (available separately).                                      */
     /* ------------------------------------------------------------ */
 
   }
 
   /* ------------------------------------------------------------ */
-  /* Open performance info file if needed			  */
+  /* Open performance info file if needed                         */
   /* ------------------------------------------------------------ */
   if ( GatherPerfInfo ) OPEN( PerfFd, SINFOFile, "a" );
 
   /* ------------------------------------------------------------ */
-  /* Check GSS/LS conflict					  */
+  /* Check GSS/LS conflict                                        */
   /* ------------------------------------------------------------ */
   if ( LoopSlices == -1 )
     LoopSlices = NumWorkers;
@@ -230,19 +242,19 @@ void DumpRunTimeInfo()
   FPRINTF( PerfFd, "\n\n\n" );
   FPRINTF( PerfFd, "  Workers   DsaSize  ExactFit  DsaHelps\n" );
   FPRINTF( PerfFd, "%9d %8db %8db %9d\n\n", 
-	           NumWorkers, DsaSize, XftThreshold, DsaHelp );
+                   NumWorkers, DsaSize, XftThreshold, DsaHelp );
 
   switch ( DefaultLoopStyle ) {
    case 'G':
     FPRINTF( PerfFd, "     MemW      MemU   GssFact   ArrayEx\n" );
     FPRINTF( PerfFd, "%8db %8db %9d %9d\n\n", 
-	    StorageWanted, StorageUsed, 1, ArrayExpansion );
+            StorageWanted, StorageUsed, 1, ArrayExpansion );
     break;
 
    default:
     FPRINTF( PerfFd, "     MemW      MemU  LpSliceV   ArrayEx\n" );
     FPRINTF( PerfFd, "%8db %8db %9d %9d\n\n", 
-	    StorageWanted, StorageUsed, LoopSlices, ArrayExpansion );
+            StorageWanted, StorageUsed, LoopSlices, ArrayExpansion );
   }
 
   PrintExecutionTimes();
@@ -251,12 +263,12 @@ void DumpRunTimeInfo()
     FPRINTF( PerfFd, "\n              AtOps            AtCopies"  );
     FPRINTF( PerfFd, "               AcOps            AcCopies\n" );
     FPRINTF( PerfFd, " %18.0f  %18.0f  %18.0f  %18.0f\n\n", ATAttempts, 
-		       ATCopies, ANoOpAttempts, ANoOpCopies          );
+                       ATCopies, ANoOpAttempts, ANoOpCopies          );
 
     FPRINTF( PerfFd, "              RcOps            RcCopies" );
     FPRINTF( PerfFd, "           CharMoves\n" );
     FPRINTF( PerfFd, " %18.0f  %18.0f  %18.0f\n", RNoOpAttempts, 
-		       RNoOpCopies, ADataCopies               );
+                       RNoOpCopies, ADataCopies               );
 
     FPRINTF( PerfFd, "            RBuilds\n" );
     FPRINTF( PerfFd, " %18.0f\n", RBuilds );

@@ -1,3 +1,12 @@
+/**************************************************************************/
+/* FILE   **************        PrintLInfo.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/**************************************************************************/
+
 #include "world.h"
 
 void PrintLInfo( lvl, plvl, c, loop )
@@ -7,19 +16,19 @@ void PrintLInfo( lvl, plvl, c, loop )
      PNODE  loop;
 {
   register int i;
-  char	   lbuf[1024];		/* Assemble the loop info string */
-  char	   *lb;			/* Pointer within lbuf */
-  char	   fname[100];		/* Want to restructure the file name */
-  char	   *dotp;		/* Pointer to .sis */
-  char	   cbuf[100];		/* Holds the cost field */
-  /* char	   *source;*/		/* Source line from file.sis */
+  char     lbuf[1024];          /* Assemble the loop info string */
+  char     *lb;                 /* Pointer within lbuf */
+  char     fname[100];          /* Want to restructure the file name */
+  char     *dotp;               /* Pointer to .sis */
+  char     cbuf[100];           /* Holds the cost field */
+  /* char          *source;*/           /* Source line from file.sis */
   static int TrailingNL = FALSE; /* True iff we just double spaced */
 
   /* ------------------------------------------------------------ */
-  /* Output the source line (if it requested and available)	  */
+  /* Output the source line (if it requested and available)       */
   /* ------------------------------------------------------------ */
   if ( RequestInfo(I_Info4,info) && (IsForall(loop) || IsLoop(loop)) &&
-	(loop->smark || loop->vmark || loop->reason1 || loop->reason2) ) {
+        (loop->smark || loop->vmark || loop->reason1 || loop->reason2) ) {
  /*   if ( (IsForall(loop) || IsLoop(loop)) && (loop->F_GEN->G_NODES) ) {
       source = GetSourceLine(loop->F_GEN->G_NODES);
     } else {
@@ -32,69 +41,69 @@ void PrintLInfo( lvl, plvl, c, loop )
     TrailingNL = FALSE;
 
   /* ------------------------------------------------------------ */
-  /* Output the Compound ID #					  */
+  /* Output the Compound ID #                                     */
   /* ------------------------------------------------------------ */
   if ( IsForall(loop) ) {
     SPRINTF( lbuf, "%4d:%d   ",loop->ID,plvl);
   } else {
     SPRINTF( lbuf, "%4d:     ",loop->ID);
   }
-  lb=lbuf+6;			/* Skip past stuff */
+  lb=lbuf+6;                    /* Skip past stuff */
 
   /* ------------------------------------------------------------ */
-  /* Remove the .sis extension from the file name		  */
+  /* Remove the .sis extension from the file name                 */
   /* ------------------------------------------------------------ */
   (void)strcpy(fname,loop->file);
   dotp = strrchr(fname,'.');
   if ( dotp ) *dotp = '\0';
 
   /* ------------------------------------------------------------ */
-  /* Output the loop record					  */
+  /* Output the loop record                                       */
   /* ------------------------------------------------------------ */
   for ( i=0; i < lvl*2; i++ ) *(lb++) = ' ';
   if ( IsForall(loop) ) {
     SPRINTF( lb, "%s%s%s%s%s%s [%s,%d]",
-	    (loop->ThinCopy)? "THIN-COPY " : "",
-	    (loop->smark)? "CONCURRENT " : "",
-	    (loop->vmark)? "VECTOR " : "",
-	    (loop->pmark)? "TASK " : "",
-	    (loop->ThinCopy || loop->smark || loop->vmark || loop->pmark)
-	    ? "":"SEQUENTIAL ",
-	    c,
-	    fname, loop->line );
+            (loop->ThinCopy)? "THIN-COPY " : "",
+            (loop->smark)? "CONCURRENT " : "",
+            (loop->vmark)? "VECTOR " : "",
+            (loop->pmark)? "TASK " : "",
+            (loop->ThinCopy || loop->smark || loop->vmark || loop->pmark)
+            ? "":"SEQUENTIAL ",
+            c,
+            fname, loop->line );
   } else {
     SPRINTF( lb,"%s%s [%s,%d]",(loop->pmark)? "TASK ":"",c,fname,loop->line);
   }
 
   /* ------------------------------------------------------------ */
-  /* Add in the cost and Minimum Slice count if known		  */
+  /* Add in the cost and Minimum Slice count if known             */
   /* ------------------------------------------------------------ */
   if ( loop->ccost > 0.0 ) {
     if ( loop->MinSlice ) {
       SPRINTF( cbuf, (loop->ccost < 1e6)?"[cost=%g/%s]":"[cost=%6.1e/%s]",
-	      loop->ccost,loop->MinSlice );
+              loop->ccost,loop->MinSlice );
     } else {
       SPRINTF( cbuf, (loop->ccost < 1e6)?"[cost=%g]":"[cost=%6.1e]",
-	      loop->ccost );
+              loop->ccost );
     }
     (void)strcat(lb,cbuf);
   }
 
   /* ------------------------------------------------------------ */
-  /* Pad to at least column 64 and add the function name	  */
+  /* Pad to at least column 64 and add the function name          */
   /* ------------------------------------------------------------ */
   lb = strchr(lb,'\0');
   do { *(lb++) = ' ';} while (lb-lbuf < 64);
   (void)strcpy(lb,loop->funct);
 
   /* ------------------------------------------------------------ */
-  /* Truncate at 80 chars if too long and print			  */
+  /* Truncate at 80 chars if too long and print                   */
   /* ------------------------------------------------------------ */
   if ( (int)strlen(lbuf) > 80 ) strcpy(lbuf+79,"$");
   FPRINTF(infoptr,"%s\n",lbuf);
 
   /* ------------------------------------------------------------ */
-  /* If we know why we aren't vectorized, report it		  */
+  /* If we know why we aren't vectorized, report it               */
   /* ------------------------------------------------------------ */
   if ( loop->reason1 ) {
     for ( i=0; i < lvl*2+6; i++ ) (void)fputc(' ',infoptr);
@@ -102,7 +111,7 @@ void PrintLInfo( lvl, plvl, c, loop )
   }
 
   /* ------------------------------------------------------------ */
-  /* If we know why we aren't concurrent, report it		  */
+  /* If we know why we aren't concurrent, report it               */
   /* ------------------------------------------------------------ */
   if ( loop->reason2 ) {
     for ( i=0; i < lvl*2+6; i++ ) (void)fputc(' ',infoptr);
@@ -110,7 +119,7 @@ void PrintLInfo( lvl, plvl, c, loop )
   }
 
   /* ------------------------------------------------------------ */
-  /* Need a trailing newline to clean up some problems		  */
+  /* Need a trailing newline to clean up some problems            */
   /* ------------------------------------------------------------ */
   if (loop->reason1 || loop->reason2) {
     (void)fputc('\n',infoptr);
@@ -119,7 +128,33 @@ void PrintLInfo( lvl, plvl, c, loop )
   }  
 }
 
-/* $Log$
+/*
+ * $Log$
+ * Revision 1.1.1.1  2000/12/31 17:58:31  patmiller
+ * Well, here is the first set of big changes in the distribution
+ * in 5 years!  Right now, I did a lot of work on configuration/
+ * setup (now all autoconf), breaking out the machine dependent
+ * #ifdef's (with a central acconfig.h driven config file), changed
+ * the installation directories to be more gnu style /usr/local
+ * (putting data in the /share/sisal14 dir for instance), and
+ * reduced the footprint in the top level /usr/local/xxx hierarchy.
+ *
+ * I also wrote a new compiler tool (sisalc) to replace osc.  I
+ * found that the old logic was too convoluted.  This does NOT
+ * replace the full functionality, but then again, it doesn't have
+ * 300 options on it either.
+ *
+ * Big change is making the code more portably correct.  It now
+ * compiles under gcc -ansi -Wall mostly.  Some functions are
+ * not prototyped yet.
+ *
+ * Next up: Full prototypes (little) checking out the old FLI (medium)
+ * and a new Frontend for simpler extension and a new FLI (with clean
+ * C, C++, F77, and Python! support).
+ *
+ * Pat
+ *
+ *
  * Revision 1.10  1994/06/16  21:31:59  mivory
  * info format and option changes M. Y. I.
  *
@@ -157,4 +192,5 @@ void PrintLInfo( lvl, plvl, c, loop )
  * Initial version of the IFX library.  It replaces the if[12]build.c
  * read.c timer.c util.c and write.c and if[12].h files from the
  * backend phases.
- * */
+ *
+ */

@@ -1,10 +1,20 @@
-/* if2refcnt.c,v
+/**************************************************************************/
+/* FILE   **************        if2refcnt.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:11  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:03  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -22,10 +32,10 @@ int   v;
     register PEDGE e;
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
-	if ( !IsAggregate( e->info ) )
-	    continue;
+        if ( !IsAggregate( e->info ) )
+            continue;
 
-	e->pm = UsageCount( n, e->eport ) + v;
+        e->pm = UsageCount( n, e->eport ) + v;
         }
 }
 
@@ -43,11 +53,11 @@ int   v;
     register PEDGE i;
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	if ( !IsAggregate( i->info ) )
-	    continue;
+        if ( !IsAggregate( i->info ) )
+            continue;
 
         i->cm = v;
-	}
+        }
 }
 
 
@@ -63,8 +73,8 @@ PNODE n;
     register PEDGE e;
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
-	if ( !IsAggregate( e->info ) )
-	    continue;
+        if ( !IsAggregate( e->info ) )
+            continue;
 
         e->sr = UsageCount( n, e->eport );
         }
@@ -146,130 +156,130 @@ PNODE g;
     AssignPMPragmas( g, 0 );
       
     for ( n = g->G_NODES; n != NULL; n = n->nsucc )
-	switch ( n->type ) {
-	    case IFCall:
-		AssignCMPragmas( n, -1 );
-		AssignPMPragmas( n, -1 );
-		break;
+        switch ( n->type ) {
+            case IFCall:
+                AssignCMPragmas( n, -1 );
+                AssignPMPragmas( n, -1 );
+                break;
 
-	    case IFRElements:
-	    case IFAElement:                /* IMPORTS AN ARRAY OR STREAM */
-		n->imp->cm = -1;
-		AssignPMPragmas( n, 0 );
-		break;
+            case IFRElements:
+            case IFAElement:                /* IMPORTS AN ARRAY OR STREAM */
+                n->imp->cm = -1;
+                AssignPMPragmas( n, 0 );
+                break;
 
-	    case IFAAddH:                             /* IMPORTS A STREAM */
-	    case IFNoOp:
-		n->imp->cm = -1;
-		AssignSRPragmas( n );
-		break;
+            case IFAAddH:                             /* IMPORTS A STREAM */
+            case IFNoOp:
+                n->imp->cm = -1;
+                AssignSRPragmas( n );
+                break;
 
-	    case IFABuild:                            /* EXPORTS A STREAM */
-	    case IFRBuild:
-	    case IFABuildAT:
-	    case IFAFillAT:
-	    case IFASetL:
-	    case IFARemL:                   /* IMPORTS AN ARRAY OR STREAM */
-	    case IFARemH:
-	    case IFAAdjust:
-	    case IFRReplace:
-	    case IFAReplace:
-		AssignSRPragmas( n );
-		break;
+            case IFABuild:                            /* EXPORTS A STREAM */
+            case IFRBuild:
+            case IFABuildAT:
+            case IFAFillAT:
+            case IFASetL:
+            case IFARemL:                   /* IMPORTS AN ARRAY OR STREAM */
+            case IFARemH:
+            case IFAAdjust:
+            case IFRReplace:
+            case IFAReplace:
+                AssignSRPragmas( n );
+                break;
 
-	    case IFACatenateAT:
-		if ( n->imp->pmark )
-		    n->imp->isucc->cm = -1; 
+            case IFACatenateAT:
+                if ( n->imp->pmark )
+                    n->imp->isucc->cm = -1; 
                 else if ( n->imp->isucc->pmark )
-		    n->imp->cm = -1; 
+                    n->imp->cm = -1; 
                 else
-		    n->imp->cm = n->imp->isucc->cm = -1;
-
-		AssignSRPragmas( n );
-		break;
-
-	    case IFAAddLAT:
-            case IFAAddHAT:
-		if ( !(n->imp->pmark) )
-		    n->imp->cm = -1;
+                    n->imp->cm = n->imp->isucc->cm = -1;
 
                 AssignSRPragmas( n );
-		break;
+                break;
 
-	    case IFACatenate:                          /* IMPORTS STREAMS */
+            case IFAAddLAT:
+            case IFAAddHAT:
+                if ( !(n->imp->pmark) )
+                    n->imp->cm = -1;
+
+                AssignSRPragmas( n );
+                break;
+
+            case IFACatenate:                          /* IMPORTS STREAMS */
                 n->imp->cm = n->imp->isucc->cm = -1;
-		AssignSRPragmas( n );
-		break;
+                AssignSRPragmas( n );
+                break;
 
-	    case IFRedTree:
-	    case IFRedLeft:
-	    case IFRedRight:
-	    case IFReduce:
-		if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
-		    break;
+            case IFRedTree:
+            case IFRedLeft:
+            case IFRedRight:
+            case IFReduce:
+                if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
+                    break;
 
-	    case IFRedTreeAT:             /* Reduce?ATs RETURN AGGREGATES */
-	    case IFRedLeftAT:
-	    case IFRedRightAT:
-	    case IFReduceAT:
+            case IFRedTreeAT:             /* Reduce?ATs RETURN AGGREGATES */
+            case IFRedLeftAT:
+            case IFRedRightAT:
+            case IFReduceAT:
                 n->imp->isucc->isucc->cm = -1;
-		AssignSRPragmas( n );
-		break;
+                AssignSRPragmas( n );
+                break;
 
-	    case IFAScatter:                /* IMPORTS AN ARRAY OR STREAM */
-		n->imp->cm = -1;
+            case IFAScatter:                /* IMPORTS AN ARRAY OR STREAM */
+                n->imp->cm = -1;
                 AssignPMPragmas( n, 0 );
-		break;
+                break;
 
-	    case IFFinalValue:
-		if ( !IsAggregate( n->exp->info ) )
-		    break;
+            case IFFinalValue:
+                if ( !IsAggregate( n->exp->info ) )
+                    break;
 
-	    case IFFinalValueAT:
-		n->imp->cm = -1;
-		AssignPMPragmas( n, -1 );
-		break;
+            case IFFinalValueAT:
+                n->imp->cm = -1;
+                AssignPMPragmas( n, -1 );
+                break;
 
-	    case IFAGather:                 /* IMPORTS AN ARRAY OR STREAM */
-	    case IFAGatherAT:
-		AssignSRPragmas( n );
-		break;
+            case IFAGather:                 /* IMPORTS AN ARRAY OR STREAM */
+            case IFAGatherAT:
+                AssignSRPragmas( n );
+                break;
 
-	    case IFPeek:
-		for ( i = n->imp; i != NULL; i = i->isucc ) {
-		  if ( !IsAggregate( i->info ) )
-		    continue;
+            case IFPeek:
+                for ( i = n->imp; i != NULL; i = i->isucc ) {
+                  if ( !IsAggregate( i->info ) )
+                    continue;
 
-		  i->cm = -1;
-		  }
+                  i->cm = -1;
+                  }
                 
-		break;
+                break;
 
-	    case IFAIsEmpty:                          /* IMPORTS A STREAM */
-	    case IFASize:
-	    case IFALimL:
-	    case IFALimH:
-		n->imp->cm = -1;
-		break;
+            case IFAIsEmpty:                          /* IMPORTS A STREAM */
+            case IFASize:
+            case IFALimL:
+            case IFALimH:
+                n->imp->cm = -1;
+                break;
 
-	    case IFTagCase:
-	    case IFSelect:
-	    case IFForall:
-	    case IFLoopA:
-	    case IFLoopB:
-		AssignCMPragmas( n, -1 );
-		AssignPMPragmas( n,  0 );
+            case IFTagCase:
+            case IFSelect:
+            case IFForall:
+            case IFLoopA:
+            case IFLoopB:
+                AssignCMPragmas( n, -1 );
+                AssignPMPragmas( n,  0 );
 
-		for ( g = n->C_SUBS; g != NULL; g = g->gsucc ) {
-		    AssignCMPragmas( g, -1 );
-		    AssignReferenceCounts( g );
-		    }
+                for ( g = n->C_SUBS; g != NULL; g = g->gsucc ) {
+                    AssignCMPragmas( g, -1 );
+                    AssignReferenceCounts( g );
+                    }
 
                 break;
 
-	    default:
-		break;
-	    }
+            default:
+                break;
+            }
 }
 
 
@@ -284,5 +294,5 @@ void If2ReferenceCount()
     register PNODE f;
 
     for ( f = fhead; f != NULL; f = f->gsucc )
-	AssignReferenceCounts( f );
+        AssignReferenceCounts( f );
 }

@@ -1,3 +1,18 @@
+#ifndef INTERFACE_H
+#define INTERFACE_H
+
+/**************************************************************************/
+/* FILE   **************        interface.h        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #define COL_MAJOR 0   /* ARRAY IS COLUMN MAJOR */
 #define ROW_MAJOR 1   /*    ARRAY IS ROW MAJOR */
 
@@ -23,7 +38,9 @@ struct DimInfo {
   };
 
 extern char *SINFOFile;
-extern void InitDimInfo();
-extern void OptInitDimInfo();
-extern char* ParseCEscapes();
-extern void ParseCommandLine();
+extern void InitDimInfo PROTO((int,int,DIMINFOP,int*));
+extern void OptInitDimInfo PROTO((void));
+extern char* ParseCEscapes PROTO((char*));
+extern void ParseCommandLine PROTO((int,char**));
+
+#endif

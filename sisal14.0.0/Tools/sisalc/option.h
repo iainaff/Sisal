@@ -1,5 +1,16 @@
-#ifndef _OPTION_H
-#define _OPTION_H
+#ifndef OPTION_H
+#define OPTION_H
+
+/**************************************************************************/
+/* FILE   **************          option.h         ************************/
+/**************************************************************************/
+/* Author: Patrick Miller December 31 2000                                */
+/* Copyright (C) 2000 Patrick Miller                                      */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
 
 #include "charStarQueue.h"
 
@@ -18,20 +29,20 @@ typedef struct option {
    charStarQueue** queue;
 } option_t;
 
-extern int defaultTrue(int,char***, option_t*);
-extern int defaultFalse(int,char***, option_t*);
-extern int defaultInitialized(int,char***, option_t*);
-extern int suffixedFile(int,char***, option_t*);
-extern int fetchStringEqual(int,char***, option_t*);
-extern int fetchStringNext(int,char***, option_t*);
-extern int appendQueue(int,char***, option_t*);
-extern int prefixedOption(int,char***, option_t*);
-extern int catchAll(int,char***, option_t*);
+extern int defaultTrue PROTO((int,char***, option_t*));
+extern int defaultFalse PROTO((int,char***, option_t*));
+extern int defaultInitialized PROTO((int,char***, option_t*));
+extern int suffixedFile PROTO((int,char***, option_t*));
+extern int fetchStringEqual PROTO((int,char***, option_t*));
+extern int fetchStringNext PROTO((int,char***, option_t*));
+extern int appendQueue PROTO((int,char***, option_t*));
+extern int prefixedOption PROTO((int,char***, option_t*));
+extern int catchAll PROTO((int,char***, option_t*));
 
-extern void setOptionDefaults(option_t* options);
+extern void setOptionDefaults PROTO((option_t* options));
 
-extern void exitIfNotFound(char* bad);
-extern void optionScan(int argc, char** argv, option_t* options, void (*handler)(char*));
+extern void exitIfNotFound PROTO((char* bad));
+extern void optionScan PROTO((int argc, char** argv, option_t* options, void (*handler)(char*)));
 
-extern void optionUsage(FILE* outf);
+extern void optionUsage PROTO((FILE* outf));
 #endif

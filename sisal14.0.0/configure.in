@@ -514,7 +514,6 @@ AC_OUTPUT(makefile
 	Backend/If2part/makefile
 	Backend/If2up/makefile
 	Runtime/Sharedlib/makefile
-	Tools/osc/makefile
 	Tools/sisalc/makefile
 )
 

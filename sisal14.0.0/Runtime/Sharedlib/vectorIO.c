@@ -1,10 +1,22 @@
+/**************************************************************************/
+/* FILE   **************         vectorIO.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
-int	FibreStrings = TRUE;
+int     FibreStrings = TRUE;
 
 #define GenericReadArray(scalartype,reader,term)\
 { \
-  POINTER	val0; \
+  POINTER       val0; \
   register scalartype val6; \
   register int lob; \
  \
@@ -33,7 +45,7 @@ int	FibreStrings = TRUE;
 }
 
 /* ------------------------------------------------------------ */
-/* B O O L E A N						*/
+/* B O O L E A N                                                */
 /* ------------------------------------------------------------ */
 POINTER ReadBoolVector()
 {
@@ -69,7 +81,7 @@ POINTER val;
   Indent++;
   Base2 = arr->Base;
   HiBound = Lo2 + arr->Size - 1;
-  for (	; Lo2 <= HiBound; Lo2++ ) {
+  for ( ; Lo2 <= HiBound; Lo2++ ) {
     WriteBool( (((char*)Base2)[Lo2]) );
   }
 
@@ -80,11 +92,11 @@ POINTER val;
 
 
 /* ------------------------------------------------------------ */
-/* C H A R A C T E R						*/
+/* C H A R A C T E R                                            */
 /* ------------------------------------------------------------ */
 POINTER ReadCharVector()
 {
-  POINTER	val0;
+  POINTER       val0;
 
   switch ( FibreParse( ANY_ ) ) {
   case ARRAYB_:
@@ -113,7 +125,7 @@ POINTER val;
   register int     HiBound;
   register int     Lo2;
   register ARRAYP  arr = (ARRAYP) val;
-  int		   c;
+  int              c;
 
   PrintIndent;
   Lo2 = arr->LoBound;
@@ -121,26 +133,26 @@ POINTER val;
   HiBound = Lo2 + arr->Size - 1;
   if ( FibreStrings && Lo2 == 1 ) {
     fputc( '"', FibreOutFd );
-    for (	; Lo2 <= HiBound; Lo2++ ) {
+    for (       ; Lo2 <= HiBound; Lo2++ ) {
       c = *((char*)Base2+Lo2);
       if ( isascii(c) && isprint(c) ) {
-	if ( c == '"' ) {
-	  fputs( "\\\"",FibreOutFd);
-	} else if ( c == '\\' ) {
-	  fputs( "\\\\",FibreOutFd);
-	} else { 
-	  fputc( c, FibreOutFd );
-	}
+        if ( c == '"' ) {
+          fputs( "\\\"",FibreOutFd);
+        } else if ( c == '\\' ) {
+          fputs( "\\\\",FibreOutFd);
+        } else { 
+          fputc( c, FibreOutFd );
+        }
       } else {
-	switch ( c ) {
-	case '\b': fputs( "\\b", FibreOutFd ); break;
-	case '\n': fputs( "\\n", FibreOutFd ); break;
-	case '\f': fputs( "\\f", FibreOutFd ); break;
-	case '\r': fputs( "\\r", FibreOutFd ); break;
-	case '\t': fputs( "\\t", FibreOutFd ); break;
-	default:
-	  fprintf( FibreOutFd,"\\%03o", c & 0xff);
-	}
+        switch ( c ) {
+        case '\b': fputs( "\\b", FibreOutFd ); break;
+        case '\n': fputs( "\\n", FibreOutFd ); break;
+        case '\f': fputs( "\\f", FibreOutFd ); break;
+        case '\r': fputs( "\\r", FibreOutFd ); break;
+        case '\t': fputs( "\\t", FibreOutFd ); break;
+        default:
+          fprintf( FibreOutFd,"\\%03o", c & 0xff);
+        }
       }
     }
     fputc( '"', FibreOutFd );
@@ -149,7 +161,7 @@ POINTER val;
     fprintf( FibreOutFd, " # DRC=%d PRC=%d\n", arr->RefCount, arr->Phys->RefCount );
 
     Indent++;
-    for (	; Lo2 <= HiBound; Lo2++ ) {
+    for (       ; Lo2 <= HiBound; Lo2++ ) {
       WriteChar( *((char*)Base2+Lo2) );
     }
 
@@ -161,7 +173,7 @@ POINTER val;
 }
 
 /* ------------------------------------------------------------ */
-/*  D O U B L E							*/
+/*  D O U B L E                                                 */
 /* ------------------------------------------------------------ */
 POINTER ReadDoubleVector()
 {
@@ -208,7 +220,7 @@ POINTER val;
 }
 
 /* ------------------------------------------------------------ */
-/* I N T E G E R						*/
+/* I N T E G E R                                                */
 /* ------------------------------------------------------------ */
 POINTER ReadIntegerVector()
 {
@@ -255,7 +267,7 @@ POINTER val;
 }
 
 /* ------------------------------------------------------------ */
-/* N U L L							*/
+/* N U L L                                                      */
 /* ------------------------------------------------------------ */
 POINTER ReadNullVector()
 {
@@ -302,7 +314,7 @@ POINTER val;
 }
 
 /* ------------------------------------------------------------ */
-/* R E A L							*/
+/* R E A L                                                      */
 /* ------------------------------------------------------------ */
 POINTER ReadRealVector()
 {

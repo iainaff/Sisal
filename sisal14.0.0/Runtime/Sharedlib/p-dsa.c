@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************          p-dsa.c          ************************/
+/**************************************************************************/
+/* Author: R.R. Oldehoeft                                                 */
+/* Update: David Cann                                                     */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 /* *****                                             */
@@ -53,7 +65,7 @@ struct bot {
 
 #define   TOPSIZE     SIZE_OF(struct top)
 #define   BOTSIZE     SIZE_OF(struct bot)
-#define	  SIZETAGS    (TOPSIZE + BOTSIZE)
+#define   SIZETAGS    (TOPSIZE + BOTSIZE)
 
 
 #if !defined(NO_STATIC_SHARED)
@@ -375,7 +387,7 @@ register struct top *ptr;
         FLUSHLINE(&(bl_below->status));
         MY_SUNLOCK(&(bl_below->lock)); 
         FLUSHLINE(&(bl_below->lock)); 
-	goto tryabove;
+        goto tryabove;
         }
 
       pr = bl_below->bkwd;
@@ -385,7 +397,7 @@ register struct top *ptr;
 
       MY_SLOCK(&(pr->lock));
       if( pr->status == 'F' && pr->frwd == bl_below )
-	break;
+        break;
       FLUSH(pr,pr+sizeof(*pr));
       MY_SUNLOCK(&(pr->lock));
       FLUSHLINE(&(pr->lock));
@@ -475,11 +487,11 @@ tryabove:
 
   if(pr != cu)
   {
-  	FLUSHLINE(&(pr->frwd));
+        FLUSHLINE(&(pr->frwd));
   }
   else
   {
-	FLUSH(cu,cu+sizeof(*cu));
+        FLUSH(cu,cu+sizeof(*cu));
   }
   FLUSH(ptr,ptr+sizeof(*ptr));
   MY_SUNLOCK(&(pr->lock));
@@ -679,10 +691,10 @@ shared LOCK_TYPE *Dsa_lock;
 
 struct dsa_vars_s
 {
-	struct bot *p_dsorg;
-	struct top *p_zero_bl;
-	int *p_zb_start;
-	struct top *p_btop;
+        struct bot *p_dsorg;
+        struct top *p_zero_bl;
+        int *p_zb_start;
+        struct top *p_btop;
 };
 
 #define dsorg (Private_vars[GetProcId].p_dsorg)
@@ -947,14 +959,14 @@ register struct top *ptr;
 
       if ( bl_below->status != 'F' ) {
         FLUSHLINE(&(bl_below->status));
-	goto tryabove;
+        goto tryabove;
         }
 
       pr = bl_below->bkwd;
       FLUSHLINE(&(bl_below->bkwd));
 
       if( pr->status == 'F' && pr->frwd == bl_below )
-	break;
+        break;
       FLUSH(pr,pr+sizeof(*pr));
       }
 
@@ -1020,11 +1032,11 @@ tryabove:
 
   if(pr != cu)
   {
-  	FLUSHLINE(&(pr->frwd));
+        FLUSHLINE(&(pr->frwd));
   }
   else
   {
-	FLUSH(cu,cu+sizeof(*cu));
+        FLUSH(cu,cu+sizeof(*cu));
   }
   FLUSH(ptr,ptr+sizeof(*ptr));
 

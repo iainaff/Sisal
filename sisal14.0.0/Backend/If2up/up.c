@@ -1,10 +1,20 @@
-/* up.c,v
+/**************************************************************************/
+/* FILE   **************            up.c           ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:13  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:05  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -19,7 +29,7 @@ char infofile2[200];
 char *program    = "if2up";            /* PROGRAM NAME                    */
 
 int   sgnok      = TRUE;     /* ARE SIGNED ARITHMETIC CONSTANTS ALLOWED?  */
-int   info	 = FALSE;    /* GENERATE INFORMATION ABOUT OPTIMIZATIONS? */
+int   info       = FALSE;    /* GENERATE INFORMATION ABOUT OPTIMIZATIONS? */
 int   minopt     = FALSE;    /* ONLY PERFORM MINIMAL OPTIMIZATIONS?       */
 int   cagg       = TRUE;     /* MARK CONSTANT AGGREGATES?                 */
 int   ststr      = TRUE;     /* IDENTIFY SINGLE THREADED STREAMS?         */
@@ -39,29 +49,29 @@ static char *ofile = NULL;   /* OUTPUT FILE NAME                          */
 /*          WITH A DASH, IT IS CONSIDERED THE NAME OF A FILE.  THE FIRST  */
 /*          ENCOUNTERED FILE IS FOR IF2 INPUT.  THE SECOND ENCOUNTERED    */
 /*          FILE IS FOR IF2 OUTPUT.  ANY OTHER FILES ON THE COMMAND LINE  */
-/*          CAUSE AN ERROR MESSAGE TO BE PRINTED.			  */
-/*									  */
-/*	    FILES:							  */
-/*		0:	-> Memory managed IF2 file			  */
-/*		1:	-> Update-in-place IF2 file			  */
-/*									  */
-/*          OPTIONS:							  */
-/*		-	-> Skip a standard file (in, out, etc..)	  */
+/*          CAUSE AN ERROR MESSAGE TO BE PRINTED.                         */
+/*                                                                        */
+/*          FILES:                                                        */
+/*              0:      -> Memory managed IF2 file                        */
+/*              1:      -> Update-in-place IF2 file                       */
+/*                                                                        */
+/*          OPTIONS:                                                      */
+/*              -       -> Skip a standard file (in, out, etc..)          */
 
-/*		-c	-> DON'T MARK CONSTANT AGGREGATES		  */
-/*		-i	-> PRINT OPTIMIZATION INFORMATION TO stderr.	  */
-/*		-i<num>	-> Print more information to stderr.		  */
-/*		-l	-> DON'T MIGRATE NODES TOWARD USES		  */
-/*		-m	-> PERFORM MINIMAL OPTIMIZATIONS		  */
-/*		-p<num>	-> Apply dynamic patch <num>			  */
-/*		-s	-> SIGNED CONSTANTS AREN'T ALLOWED		  */
-/*		-t	-> DON'T IDENTIFY SINGLE THREADED STREAMS	  */
-/*		-w	-> Suppress warning messages			  */
+/*              -c      -> DON'T MARK CONSTANT AGGREGATES                 */
+/*              -i      -> PRINT OPTIMIZATION INFORMATION TO stderr.      */
+/*              -i<num> -> Print more information to stderr.              */
+/*              -l      -> DON'T MIGRATE NODES TOWARD USES                */
+/*              -m      -> PERFORM MINIMAL OPTIMIZATIONS                  */
+/*              -p<num> -> Apply dynamic patch <num>                      */
+/*              -s      -> SIGNED CONSTANTS AREN'T ALLOWED                */
+/*              -t      -> DON'T IDENTIFY SINGLE THREADED STREAMS         */
+/*              -w      -> Suppress warning messages                      */
 
-/*		-I	-> ENABLE SEQUENT CODE IMPROVEMENT MIGRATION	  */
-/*		-W	-> Profile the program				  */
+/*              -I      -> ENABLE SEQUENT CODE IMPROVEMENT MIGRATION      */
+/*              -W      -> Profile the program                            */
 
-/*		-^	-> SDBX mode					  */
+/*              -^      -> SDBX mode                                      */
 /**************************************************************************/
 
 static void ParseCommandLine( argc, argv )
@@ -78,19 +88,19 @@ char **argv;
             switch ( fmode ) {
                 case 0: 
                     if ( (fd = fopen( c, "r" )) == NULL )
-			Error2( "CAN'T OPEN", c );
+                        Error2( "CAN'T OPEN", c );
 
-		    input = fd;
+                    input = fd;
 
-		    AssignSourceFileName( c );
+                    AssignSourceFileName( c );
 
                     fmode++;
                     break;
 
                 case 1:
-		    ofile = c;
+                    ofile = c;
 
-		    fmode++;
+                    fmode++;
                     break;
 
                 default:
@@ -102,69 +112,69 @@ char **argv;
 
         switch ( *( ++c ) ) {
 
-	  /* ------------------------------------------------------------ */
-	  /* Suppress warning messages					  */
-	  /* ------------------------------------------------------------ */
-	case 'w':
-	  Warnings = FALSE;
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Suppress warning messages                                    */
+          /* ------------------------------------------------------------ */
+        case 'w':
+          Warnings = FALSE;
+          break;
 
-	  /* ------------------------------------------------------------ */
-	  /* Apply dynamic patch					  */
-	  /* ------------------------------------------------------------ */
-	case 'p':
-	  if ( *c ) AddPatch(atoi(c));
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Apply dynamic patch                                          */
+          /* ------------------------------------------------------------ */
+        case 'p':
+          if ( *c ) AddPatch(atoi(c));
+          break;
 
-	case '^':
-	  sdbx = TRUE;
-	  break;
+        case '^':
+          sdbx = TRUE;
+          break;
 
-	case '\0':
-	  fmode++;
-	  break;
+        case '\0':
+          fmode++;
+          break;
 
-	case 'W':
-	  prof = TRUE;
-	  break;
+        case 'W':
+          prof = TRUE;
+          break;
 
-	case 't':
-	  ststr = FALSE;
-	  break;
+        case 't':
+          ststr = FALSE;
+          break;
 
-	case 'l':
-	  mig = FALSE;
-	  break;
+        case 'l':
+          mig = FALSE;
+          break;
 
-	case 'c':
-	  cagg = FALSE;
-	  break;
+        case 'c':
+          cagg = FALSE;
+          break;
 
-	case 'm':
-	  minopt = TRUE;
-	  cagg   = FALSE;
-	  break;
+        case 'm':
+          minopt = TRUE;
+          cagg   = FALSE;
+          break;
 
-	case 's':
-	  sgnok = FALSE;
-	  break;
+        case 's':
+          sgnok = FALSE;
+          break;
 
-	case 'I':
-	  seqimp = TRUE;
-	  break;
+        case 'I':
+          seqimp = TRUE;
+          break;
 
-	case 'i':
-	  info = TRUE;
-	  if ( isdigit((int)(c[1])) ) info=atoi(c+1);
-	  break;
+        case 'i':
+          info = TRUE;
+          if ( isdigit((int)(c[1])) ) info=atoi(c+1);
+          break;
 
         case 'F' :
           strcpy (infofile, c+1);
           break;
 
-	default:
-	  Error2( "ILLEGAL ARGUMENT", --c );
-	}
+        default:
+          Error2( "ILLEGAL ARGUMENT", --c );
+        }
         }
 }
 
@@ -193,40 +203,40 @@ char **argv;
     ParseCommandLine( argc, argv );
 
     if (RequestInfo (I_Info3, info)) 
-	if ((infoptr = fopen(infofile, "a")) == NULL)
-		infoptr = stderr;
+        if ((infoptr = fopen(infofile, "a")) == NULL)
+                infoptr = stderr;
 
     if (RequestInfo (I_Info2, info))  {
-	strncpy (infofile2,infofile, strlen(infofile) - 1);
-	strcat (infofile2, "2");
-	if ((infoptr2 = fopen(infofile2, "a")) == NULL)
-		infoptr2 = stderr;
+        strncpy (infofile2,infofile, strlen(infofile) - 1);
+        strcat (infofile2, "2");
+        if ((infoptr2 = fopen(infofile2, "a")) == NULL)
+                infoptr2 = stderr;
     }
 
     if (info > i3 && (RequestInfo(I_Info2, info) || RequestInfo(I_Info1, info))
-	&& RequestInfo(I_Info3, info))
+        && RequestInfo(I_Info3, info))
            FPRINTF (infoptr, "\n\f\n\n");
 
     StartProfiler();
     If2Read();
     StopProfiler( "If2Read" );
 
-    (void)fclose( input );	/* AS IT MAY BE THE OUTPUT FILE */
+    (void)fclose( input );      /* AS IT MAY BE THE OUTPUT FILE */
 
     if ( !IsStamp( DFORDERED ) )
-	Error1( "IF2 INPUT IS NOT DFOrdered" );
+        Error1( "IF2 INPUT IS NOT DFOrdered" );
 
     if ( IsStamp( OFFSETS ) )
-	Error1( "OFFSETS ASSIGNED---NoOp NODES NOT IMPLEMENTED" );
+        Error1( "OFFSETS ASSIGNED---NoOp NODES NOT IMPLEMENTED" );
 
     if ( !IsStamp( NORMALIZED ) )
-	Error1( "NORMALIZATION REQUIRED" );
+        Error1( "NORMALIZATION REQUIRED" );
 
     if ( !IsStamp( BUILDINPLACE ) )
-	Error1( "MINIMAL BUILD-IN-PLACE REQUIRED" );
+        Error1( "MINIMAL BUILD-IN-PLACE REQUIRED" );
 
     /* if ( !IsStamp( MONOLITH ) ) */ /* NEW CANN 2/92 */
-	/* Error1( "MONOLITHIC INPUT REQUIRED" ); */
+        /* Error1( "MONOLITHIC INPUT REQUIRED" ); */
 
     if ( RequestInfo(I_Info3,info)  ) {
       FPRINTF( infoptr, "**** COPY ELIMINATIONS\n\n" );
@@ -237,11 +247,11 @@ char **argv;
     StopProfiler( "If2Up" );
 
     SPRINTF( ustmp, "    CSU -> UPDATE-IN-PLACE: %s%s%s%s",
-	            ( minopt )? " minopt" : "", ( cagg )?   "cagg"    : "",
-		    ( ststr )?  " ststr"  : "", ( sgnok  )? " sgnok"  : "" );
+                    ( minopt )? " minopt" : "", ( cagg )?   "cagg"    : "",
+                    ( ststr )?  " ststr"  : "", ( sgnok  )? " sgnok"  : "" );
 
     if ( univso )
-	AddStamp( UNIVSTROWNER, "    CSU -> UNIVERSAL STREAM OWNERSHIP" );
+        AddStamp( UNIVSTROWNER, "    CSU -> UNIVERSAL STREAM OWNERSHIP" );
 
     AddStamp( UPDATEINPLACE,  ustmp );
     if (RequestInfo (I_Info3, info) && infoptr!=stderr)
@@ -256,7 +266,7 @@ char **argv;
             Error2( "CAN'T OPEN", ofile );
 
             output = fd;
-	    }
+            }
 
     StartProfiler();
     If2Write();

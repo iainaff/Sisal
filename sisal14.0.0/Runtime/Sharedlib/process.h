@@ -1,3 +1,18 @@
+#ifndef PROCESS_H
+#define PROCESS_H
+
+/**************************************************************************/
+/* FILE   **************         process.h         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #define FOR_NOTHING   0
 #define FOR_SHUTDOWN  1
 
@@ -20,7 +35,7 @@ struct ActRec {
   int     SliceBounds[3];                 /* LOOP SLICE CONTROL INFO     */
   struct  ActRec *NextAR;                 /* FORWARD QUEUE LINK          */
   int     Done;                           /* IS THIS TASK DONE YET?      */
-  int	  pid;
+  int     pid;
   int     Flush;
 #if defined(NON_COHERENT_CACHE)
   char    pad[CACHE_LINE];
@@ -166,8 +181,8 @@ extern struct SdbxInfo    SdbxState;
 extern struct SdbxInfo    SdbxAction;
 extern char             **SdbxCurrentFunctionList;
 
-extern void SdbxMonitor();
-extern void SdbxHandler();
+extern void SdbxMonitor PROTO((int));
+extern void SdbxHandler PROTO((int));
 
 
 extern int p_procnum;
@@ -177,88 +192,88 @@ extern struct ActRec  **RListFrontD;
 extern int     Sequential;
 extern int     UsingSdbx;
 
-extern POINTER SharedMalloc();
-extern void    AcquireSharedMemory();
-extern void    ReleaseSharedMemory();
-extern void    StartWorkers();
-extern void    StartWorkersWithEntry();
-extern void    StopWorkers();
-extern void    AbortParallel();
+extern POINTER SharedMalloc PROTO((int));
+extern void    AcquireSharedMemory PROTO((int));
+extern void    ReleaseSharedMemory PROTO((void));
+extern void    StartWorkers PROTO((void));
+extern void    StartWorkersWithEntry PROTO((void (*entry)()));
+extern void    StopWorkers PROTO((void));
+extern void    AbortParallel PROTO((void));
 
-extern void    DumpRunTimeInfo();
-extern void    InitSisalRunTime();
+extern void    DumpRunTimeInfo PROTO((void));
+extern void    InitSisalRunTime PROTO((void));
 
-extern void    Wait();
-extern void    Sync();
+extern void    Wait PROTO((int));
+extern void    Sync PROTO((struct ActRec*,struct ActRec*));
 
-extern void    InitSpawn();
-extern void    SpawnSlices();
-extern void    OptSpawnSlices();
-extern void    OptSpawnSlicesFast();
-extern void    BuildSlices();
+extern void    InitSpawn PROTO((void));
+extern void    SpawnSlices PROTO((int, void (*ChildCode)(void),POINTER,int,int,int,int));
+extern void    OptSpawnSlices PROTO((struct ActRec*,int));
+extern void    OptSpawnSlicesFast PROTO((struct ActRec*,int));
+extern void    BuildSlices PROTO((int,struct ActRec**,int*,void (*ChildCode)(void),POINTER,int,int,int,int,int,int));
 
-extern void    EnterWorker();
-extern void    LeaveWorker();
-extern void    InitWorkers();
+extern void    EnterWorker PROTO((int));
+extern void    LeaveWorker PROTO((void));
+extern void    InitWorkers PROTO((void));
 
-extern void    SisalMain();
+extern void    SisalMain PROTO((POINTER));
 
-extern void           InitReadyList();
-extern struct ActRec *RListDeQ();
-extern void           RListEnQ();
+extern void           InitReadyList PROTO((void));
+extern struct ActRec *RListDeQ PROTO((void));
+extern void           RListEnQ PROTO((struct ActRec*,struct ActRec*));
 
-extern void    StopTimer();
-extern void    StartTimer();
+extern void    StopTimer PROTO((void));
+extern void    StartTimer PROTO((void));
 
 /* ------------------------------------------------------------ */
 
 #if defined(NO_STATIC_SHARED)
 struct shared_s
 {
-	int     NumWorkers;
-	int     DsaSize; 
-	int     BindParallelWork;
+        int     NumWorkers;
+        int     DsaSize; 
+        int     BindParallelWork;
         int     OneLevelParallel;
-	int     UseGss;
-	int     UseStride;
-	int     DEFStride;
-	int     XftThreshold;
-	int     WstWindowSize;
-	int     LoopSlices;
-	int     GatherPerfInfo;
-	int     ArrayExpansion;
-	int     NoFibreOutput;
-	int     UsePrivateMemory;
-	char    DefaultLoopStyle;
-	int	UsingSdbx;
-	int	Sequential;
+        int     UseGss;
+        int     UseStride;
+        int     DEFStride;
+        int     XftThreshold;
+        int     WstWindowSize;
+        int     LoopSlices;
+        int     GatherPerfInfo;
+        int     ArrayExpansion;
+        int     NoFibreOutput;
+        int     UsePrivateMemory;
+        char    DefaultLoopStyle;
+        int     UsingSdbx;
+        int     Sequential;
         int     *SisalShutDown;
-	struct  WorkerInfo *AllWorkerInfo;
-	BARRIER_TYPE Fb;
-	BARRIER_TYPE Sb;
-	int	UnderDBX;
-	struct  ActRecCache *ARList;
-	struct  top *caches;
+        struct  WorkerInfo *AllWorkerInfo;
+        BARRIER_TYPE Fb;
+        BARRIER_TYPE Sb;
+        int     UnderDBX;
+        struct  ActRecCache *ARList;
+        struct  top *caches;
 #if !defined(DIST_DSA)
-	struct  bot *dsorg;
-	struct  top *zero_bl;
-	int     *zb_start;
-	LOCK_TYPE *coal_lock;
-	struct  top *btop;
+        struct  bot *dsorg;
+        struct  top *zero_bl;
+        int     *zb_start;
+        LOCK_TYPE *coal_lock;
+        struct  top *btop;
 #else
         LOCK_TYPE *Dsa_lock;
 #endif
-	int	xfthresh;
-	int	maxsize;
-	char    *SharedMemory;
+        int     xfthresh;
+        int     maxsize;
+        char    *SharedMemory;
         char    *SharedBase;
-	int	SharedSize;
+        int     SharedSize;
         LOCK_TYPE *UtilityLock;
         LOCK_TYPE *SUtilityLock;
-	void	(*Entry_point)();
+        void    (*Entry_point)();
 };
 
-extern void InitSharedGlobals();
+extern void InitSharedGlobals PROTO((void));
 extern int sdebug;
 
 extern struct shared_s SR;
@@ -326,7 +341,7 @@ extern struct WorkerInfo *AllWorkerInfo;
 extern int     OneLevelParallel;
 extern LOCK_TYPE *UtilityLock;
 extern LOCK_TYPE *SUtilityLock;
-extern void (*Entry_point)();
+extern void (*Entry_point) PROTO((void));
 #if defined(DIST_DSA)
 extern LOCK_TYPE *Dsa_lock;
 #endif
@@ -334,15 +349,17 @@ extern LOCK_TYPE *Dsa_lock;
 
 /* ------------------------------------------------------------ */
 
-extern void    InitErrorSystem();
-extern int     SisalError();
+extern void    InitErrorSystem PROTO((void));
+extern int     SisalError PROTO((char*,char*));
 
-extern void    DsaInit();
-extern POINTER Alloc();
-extern void    DeAlloc();
-extern void    DoDeAllocWork();
-extern void    DeAllocToBt();
+extern void    DsaInit PROTO((void));
+extern POINTER Alloc PROTO((int));
+extern void    DeAlloc PROTO((POINTER));
+extern void    DoDeAllocWork PROTO((void));
+extern void    DeAllocToBt PROTO((POINTER));
 
-extern void    FreePointerSwapStorage();
-extern POINTER AllocPointerSwapStorage();
-extern POINTER SkiAllocPointerSwapStorage();
+extern void    FreePointerSwapStorage PROTO((POINTER,POINTER));
+extern POINTER AllocPointerSwapStorage PROTO((POINTER,int));
+extern POINTER SkiAllocPointerSwapStorage PROTO((int,POINTER,int));
+
+#endif

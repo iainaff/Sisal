@@ -1,10 +1,20 @@
-/* if2modules.c,v
+/**************************************************************************/
+/* FILE   **************        if2modules.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:08  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:35  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -44,7 +54,7 @@ int   Pmark;
   for ( change = FALSE, n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	change = change || DriveParallelMarks( sg, Pmark || n->smark );
+        change = change || DriveParallelMarks( sg, Pmark || n->smark );
       }
 
     if ( !IsCall( n ) )
@@ -82,17 +92,17 @@ void MarkParallelFunctions()
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc )
       switch( f->type ) {
-	case IFIGraph:
-	  break;
+        case IFIGraph:
+          break;
 
-	case IFLGraph:
-	case IFXGraph:
-	  change = change || DriveParallelMarks( f, (int)f->Pmark );
-	  break;
+        case IFLGraph:
+        case IFXGraph:
+          change = change || DriveParallelMarks( f, (int)f->Pmark );
+          break;
 
-	default:
-	  Error2( "MarkParallelFunctions", "ILLEGAL GRAPH NODE" );
-	}
+        default:
+          Error2( "MarkParallelFunctions", "ILLEGAL GRAPH NODE" );
+        }
     }
 }
 
@@ -168,9 +178,9 @@ void ReadModuleDataBase()
 
     if ( f->mark == 's' ) {
       if ( mdbfile == NULL ) {
-	f->Pmark = TRUE;            /* SORRY, MUST ASSUME THE WORST!!! */
+        f->Pmark = TRUE;            /* SORRY, MUST ASSUME THE WORST!!! */
         cmode = M_NODATABASE;
-	}
+        }
       else
         cmode = M_DATABASE;
 
@@ -179,9 +189,9 @@ void ReadModuleDataBase()
 
     if ( f->mark == 'e' || f->mark == 'c' || f->mark == 'f' ) {
       if ( mdbfile == NULL )
-	cmode = P_NODATABASE;
+        cmode = P_NODATABASE;
       else
-	cmode = P_DATABASE;
+        cmode = P_DATABASE;
 
       break;
       }
@@ -194,23 +204,23 @@ void ReadModuleDataBase()
 
   if ( mdbfd != NULL ) {
     while ( fscanf( mdbfd, "%s %c %d %d %d\n", 
-		    name, &kind, &cnum, &dblevel, &pbusy ) != EOF ) {
+                    name, &kind, &cnum, &dblevel, &pbusy ) != EOF ) {
 
       if ( (ce = LookupCallee( name )) == NULL ) {
         ce = MDataAlloc();
-	ce->name  = CopyString( name );
-	ce->kind  = kind;
-	ce->cnum  = cnum;
-	ce->pbusy = pbusy;
-	ce->level = dblevel;
+        ce->name  = CopyString( name );
+        ce->kind  = kind;
+        ce->cnum  = cnum;
+        ce->pbusy = pbusy;
+        ce->level = dblevel;
 
-	if ( ++cetop >= MAX_FUNCTIONS )
-	  Error2( "ReadModuleDataBase", "cetable OVERFLOW!" );
+        if ( ++cetop >= MAX_FUNCTIONS )
+          Error2( "ReadModuleDataBase", "cetable OVERFLOW!" );
 
-	cetable[cetop] = ce;
-	}
+        cetable[cetop] = ce;
+        }
       else
-	Error2( "ReadModuleDataBase", "DUPLICATE NAMES IN DATA BASE" );
+        Error2( "ReadModuleDataBase", "DUPLICATE NAMES IN DATA BASE" );
       }
 
     (void)fclose( mdbfd );
@@ -221,29 +231,29 @@ void ReadModuleDataBase()
     switch ( f->type ) {
       case IFXGraph:
         if ( (ce = LookupCallee( f->G_NAME )) == NULL )
-	  break;
+          break;
 
-	switch ( ce->kind ) {
-	  case MDB_PAR:
-	  case MDB_PARX:
-	    f->Pmark = TRUE;
-	    f->cnum  = ce->cnum;
-	    f->level = ce->level;
-	    f->pbusy = ce->pbusy;
-	    break;
+        switch ( ce->kind ) {
+          case MDB_PAR:
+          case MDB_PARX:
+            f->Pmark = TRUE;
+            f->cnum  = ce->cnum;
+            f->level = ce->level;
+            f->pbusy = ce->pbusy;
+            break;
 
-	  case MDB_SEQ:
-	  case MDB_SEQX:
-	    break;
+          case MDB_SEQ:
+          case MDB_SEQX:
+            break;
 
-	  default:
-	    Error2( "ReadModuleDataBase", "ILLEGAL KIND FIELD" );
+          default:
+            Error2( "ReadModuleDataBase", "ILLEGAL KIND FIELD" );
           }
 
-	break;
+        break;
 
       default:
-	break;
+        break;
       }
 }
 
@@ -271,70 +281,70 @@ void WriteModuleDataBase()
       case IFXGraph:
         ce = LookupCallee( f->G_NAME );
 
-	if ( ce == NULL ) {
+        if ( ce == NULL ) {
           ce = MDataAlloc();
 
-	  if ( ++cetop >= MAX_FUNCTIONS )
-	    Error2( "WriteModuleDataBase", "cetable OVERFLOW!" );
+          if ( ++cetop >= MAX_FUNCTIONS )
+            Error2( "WriteModuleDataBase", "cetable OVERFLOW!" );
 
-	  cetable[cetop] = ce;
+          cetable[cetop] = ce;
 
-	  ce->name = CopyString( f->G_NAME );
-	  ce->cnum  = f->cnum;
-	  ce->level = f->level;
-	  ce->pbusy = f->pbusy;
+          ce->name = CopyString( f->G_NAME );
+          ce->cnum  = f->cnum;
+          ce->level = f->level;
+          ce->pbusy = f->pbusy;
 
-	  if ( f->Pmark )
-	    ce->kind  = MDB_PARX;
-	  else
-	    ce->kind  = MDB_SEQX;
-
-	  break;
-	  }
-
-	/* IS f CALLED IN PARALLEL? */
-	if ( f->Pmark ) {
-	  switch ( ce->kind ) {
-	    case MDB_PAR:
-	    case MDB_PARX:
-	    case MDB_SEQ:
-	    case MDB_SEQX:
-	      ce->kind  = MDB_PARX;
-	      ce->cnum  = f->cnum;
-	      ce->level = f->level;
-	      ce->pbusy = f->pbusy;
-	      break;
-
-	    default:
-	      Error2( "WriteModuleDataBase", "ILLEGAL KIND FIELD" );
-	    }
+          if ( f->Pmark )
+            ce->kind  = MDB_PARX;
+          else
+            ce->kind  = MDB_SEQX;
 
           break;
-	  }
+          }
 
-	/* f IS CALLED SEQUENTIALLY */
+        /* IS f CALLED IN PARALLEL? */
+        if ( f->Pmark ) {
+          switch ( ce->kind ) {
+            case MDB_PAR:
+            case MDB_PARX:
+            case MDB_SEQ:
+            case MDB_SEQX:
+              ce->kind  = MDB_PARX;
+              ce->cnum  = f->cnum;
+              ce->level = f->level;
+              ce->pbusy = f->pbusy;
+              break;
 
-	switch ( ce->kind ) {
-	  case MDB_PAR:
-	    ce->kind = MDB_PARX;
-	    break;
+            default:
+              Error2( "WriteModuleDataBase", "ILLEGAL KIND FIELD" );
+            }
 
-	  case MDB_SEQ:
-	    ce->kind = MDB_SEQX;
-	    break;
+          break;
+          }
 
-	  case MDB_PARX:
-	  case MDB_SEQX:
-	    break;
+        /* f IS CALLED SEQUENTIALLY */
 
-	  default:
-	    Error2( "WriteModuleDataBase", "ILLEGAL KIND FIELD SEQ" );
-	  }
+        switch ( ce->kind ) {
+          case MDB_PAR:
+            ce->kind = MDB_PARX;
+            break;
 
-	break;
+          case MDB_SEQ:
+            ce->kind = MDB_SEQX;
+            break;
+
+          case MDB_PARX:
+          case MDB_SEQX:
+            break;
+
+          default:
+            Error2( "WriteModuleDataBase", "ILLEGAL KIND FIELD SEQ" );
+          }
+
+        break;
 
       default:
-	break;
+        break;
       }
 
   /* PROCESS IGraphs */
@@ -342,62 +352,62 @@ void WriteModuleDataBase()
   for ( f = glstop->gsucc; f != NULL; f = f->gsucc )
     switch ( f->type ) {
       case IFIGraph:
-	if ( f->mark != 's' )
-	  break;
+        if ( f->mark != 's' )
+          break;
 
         ce = LookupCallee( f->G_NAME );
 
-	if ( ce == NULL ) {
+        if ( ce == NULL ) {
           ce = MDataAlloc();
 
-	  if ( ++cetop >= MAX_FUNCTIONS )
-	    Error2( "WriteModuleDataBase", "cetable OVERFLOW!" );
+          if ( ++cetop >= MAX_FUNCTIONS )
+            Error2( "WriteModuleDataBase", "cetable OVERFLOW!" );
 
-	  cetable[cetop] = ce;
+          cetable[cetop] = ce;
 
-	  ce->name = CopyString( f->G_NAME );
-	  ce->cnum  = f->cnum;
-	  ce->level = f->level;
-	  ce->pbusy = f->pbusy;
+          ce->name = CopyString( f->G_NAME );
+          ce->cnum  = f->cnum;
+          ce->level = f->level;
+          ce->pbusy = f->pbusy;
 
-	  if ( f->Pmark )
-	    ce->kind  = MDB_PAR;
-	  else
-	    ce->kind  = MDB_SEQ;
-
-	  break;
-	  }
-
-	/* IS f CALLED IN PARALLEL? */
-	if ( f->Pmark ) {
-	  ce->cnum  = f->cnum;
-	  ce->level = f->level;
-	  ce->pbusy = f->pbusy;
-
-	  switch ( ce->kind ) {
-	    case MDB_SEQ:
-	      ce->kind = MDB_PAR;
-	      break;
-
-	    case MDB_SEQX:
-	      ce->kind = MDB_PAR;
-	      break;
-
-	    case MDB_PARX:
-	    case MDB_PAR:
-	      break;
-
-	    default:
-	      Error2( "WriteModuleDataBase", "ILLEGAL KIND FIELD" );
-	    }
+          if ( f->Pmark )
+            ce->kind  = MDB_PAR;
+          else
+            ce->kind  = MDB_SEQ;
 
           break;
-	  }
+          }
 
-	break;
+        /* IS f CALLED IN PARALLEL? */
+        if ( f->Pmark ) {
+          ce->cnum  = f->cnum;
+          ce->level = f->level;
+          ce->pbusy = f->pbusy;
+
+          switch ( ce->kind ) {
+            case MDB_SEQ:
+              ce->kind = MDB_PAR;
+              break;
+
+            case MDB_SEQX:
+              ce->kind = MDB_PAR;
+              break;
+
+            case MDB_PARX:
+            case MDB_PAR:
+              break;
+
+            default:
+              Error2( "WriteModuleDataBase", "ILLEGAL KIND FIELD" );
+            }
+
+          break;
+          }
+
+        break;
 
       default:
-	break;
+        break;
       }
 
 
@@ -409,7 +419,7 @@ void WriteModuleDataBase()
     ce = cetable[i];
 
     FPRINTF( mdbfd, "%s %c %d %d %d\n", ce->name, ce->kind,
-		    ce->cnum, ce->level, ce->pbusy       );
+                    ce->cnum, ce->level, ce->pbusy       );
     }
 
   (void)fclose( mdbfd );

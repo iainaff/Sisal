@@ -1,3 +1,17 @@
+#ifndef PROCESS_IMPLEMENTATION_H
+#define PROCESS_IMPLEMENTATION_H
+/**************************************************************************/
+/* FILE   **************  process-implementation.h ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /* AlliantModel */
 
 #define GetProcId lib_processor_number()
@@ -12,7 +26,7 @@ struct ActRec *ARs;
   MyAR = &ARs[ProcId];
 
   (*(MyAR->ChildCode))( MyAR->ArgPointer, 
-			MyAR->SliceBounds[1], MyAR->SliceBounds[2] );
+                        MyAR->SliceBounds[1], MyAR->SliceBounds[2] );
 }
 
 
@@ -22,9 +36,10 @@ static int InParallel = FALSE; /* Used by Alliant model */
     if ( InParallel ) { \
       register int Id; \
       for ( Id = 0; Id < Count; Id++ ) \
-	Transfer( Id, FirstAR ); \
+        Transfer( Id, FirstAR ); \
     } else { \
       InParallel = TRUE; \
       concurrent_call( 0, Transfer, Count, FirstAR ); \
       InParallel = FALSE; \
     }
+#endif

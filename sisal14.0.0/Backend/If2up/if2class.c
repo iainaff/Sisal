@@ -1,10 +1,20 @@
-/* if2class.c,v
+/**************************************************************************/
+/* FILE   **************         if2class.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:10  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:01  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -24,9 +34,9 @@ int   eport;
     register PEDGE e;
 
     for ( e = n->exp; e != NULL; e = e->esucc )
-	if ( e->eport == eport )
-	    if ( e->wmark )
-		return( TRUE );
+        if ( e->eport == eport )
+            if ( e->wmark )
+                return( TRUE );
 
     return( FALSE );
 }
@@ -45,8 +55,8 @@ PNODE n;
     register PEDGE i;
 
     for ( i = n->imp; i != NULL; i = i->isucc )
-	if ( IsAggregate( i->info ) )
-	    i->wmark = TRUE;
+        if ( IsAggregate( i->info ) )
+            i->wmark = TRUE;
 }
 
 
@@ -74,27 +84,27 @@ PNODE c;
         ClassifyGraphEdges( g );
 
     if ( IsForall( c ) || IsLoop( c ) )
-	if ( IsStream( c->exp->info ) )
-	    s = TRUE;
+        if ( IsStream( c->exp->info ) )
+            s = TRUE;
 
     for ( i = c->imp; i != NULL; i = i->isucc ) {
-	if ( !IsAggregate( i->info ) )
-	    continue;
+        if ( !IsAggregate( i->info ) )
+            continue;
 
         if ( s ) {
-	    i->wmark = TRUE;
-	    continue;
-	    }
+            i->wmark = TRUE;
+            continue;
+            }
 
-	if ( IsTagCase( c ) && (i->iport == 1) )
-	    continue;
+        if ( IsTagCase( c ) && (i->iport == 1) )
+            continue;
 
-	for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
-	    if ( IsWritten( g, i->iport ) ) {
-		i->wmark = TRUE;
-		break;
-		}
-	}
+        for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
+            if ( IsWritten( g, i->iport ) ) {
+                i->wmark = TRUE;
+                break;
+                }
+        }
 }
 
 
@@ -143,103 +153,103 @@ PNODE g;
     AssignWriteMarks( g );
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc )
-	switch ( n->type ) {
-	    case IFForall:
-	    case IFLoopA:
-	    case IFLoopB:
-	    case IFTagCase:
-	    case IFSelect:
-		ClassifyKImports( n );
-		break;
+        switch ( n->type ) {
+            case IFForall:
+            case IFLoopA:
+            case IFLoopB:
+            case IFTagCase:
+            case IFSelect:
+                ClassifyKImports( n );
+                break;
 
-	    case IFCall:
+            case IFCall:
                 if ( n->bmark ) {
-		    AssignWriteMarks( n );
-		    break;
-		    }
+                    AssignWriteMarks( n );
+                    break;
+                    }
 
-		f = FindFunction( n->imp->CoNsT );
+                f = FindFunction( n->imp->CoNsT );
 
-		if ( IsIGraph( f ) )
-		    break;
+                if ( IsIGraph( f ) )
+                    break;
 
                 for ( i = n->imp->isucc; i != NULL; i = i->isucc )
-		    if ( IsAggregate( i->info ) )
-			if ( IsWritten( f, i->iport - 1 ) ) {
-			    i->wmark = TRUE;
-			    }
+                    if ( IsAggregate( i->info ) )
+                        if ( IsWritten( f, i->iport - 1 ) ) {
+                            i->wmark = TRUE;
+                            }
 
-		break;
+                break;
 
-	    case IFAAddHAT:
-	    case IFAAddLAT:
-		if ( n->imp->pmark )
-		    n->imp->wmark = TRUE;
+            case IFAAddHAT:
+            case IFAAddLAT:
+                if ( n->imp->pmark )
+                    n->imp->wmark = TRUE;
 
-		n->imp->isucc->wmark = TRUE;
-		break;
+                n->imp->isucc->wmark = TRUE;
+                break;
 
-	    case IFACatenateAT:
-		if ( n->imp->pmark )
-		    n->imp->wmark = TRUE;
-		/* else if ( n->imp->isucc->pmark )
+            case IFACatenateAT:
+                if ( n->imp->pmark )
+                    n->imp->wmark = TRUE;
+                /* else if ( n->imp->isucc->pmark )
                     n->imp->isucc->wmark = TRUE; */
 
-		if ( n->imp->isucc->pmark ) /* CANN 10-4 */
+                if ( n->imp->isucc->pmark ) /* CANN 10-4 */
                     n->imp->isucc->wmark = TRUE;
 
-		break;
+                break;
 
 
-	    case IFAScatter:
-		if ( IsArray( n->imp->info ) )
-		    break;
+            case IFAScatter:
+                if ( IsArray( n->imp->info ) )
+                    break;
 
-	    case IFAGather:
-	    case IFAGatherAT:
-	    case IFFinalValue:
-	    case IFFinalValueAT:
-	    case IFRReplace:
-	    case IFRBuild:
-	    case IFAFillAT:
-	    case IFABuildAT:
-	    case IFNoOp:
-	    case IFASetL:
-	    case IFARemL:                    /* IMPORTS A STREAM OR ARRAY */
-	    case IFARemH:
-	    case IFAAdjust:
+            case IFAGather:
+            case IFAGatherAT:
+            case IFFinalValue:
+            case IFFinalValueAT:
+            case IFRReplace:
+            case IFRBuild:
+            case IFAFillAT:
+            case IFABuildAT:
+            case IFNoOp:
+            case IFASetL:
+            case IFARemL:                    /* IMPORTS A STREAM OR ARRAY */
+            case IFARemH:
+            case IFAAdjust:
             case IFAReplace:
-	    case IFABuild:                            /* EXPORTS A STREAM */
-		AssignWriteMarks( n );
-		break;
+            case IFABuild:                            /* EXPORTS A STREAM */
+                AssignWriteMarks( n );
+                break;
 
-	    case IFACatenate:                         /* IMPORTS STREAMS  */
-		AssignWriteMarks( n );
-		break;
+            case IFACatenate:                         /* IMPORTS STREAMS  */
+                AssignWriteMarks( n );
+                break;
 
-	    case IFReduce:
-	    case IFRedLeft:
-	    case IFRedRight:
-	    case IFRedTree:
-		if ( n->imp->CoNsT[0] == REDUCE_CATENATE )
-		    if ( IsStream( n->exp->info ) ) {
-		      n->imp->isucc->isucc->wmark = TRUE;
-		      ststr = FALSE;
-		      }
+            case IFReduce:
+            case IFRedLeft:
+            case IFRedRight:
+            case IFRedTree:
+                if ( n->imp->CoNsT[0] == REDUCE_CATENATE )
+                    if ( IsStream( n->exp->info ) ) {
+                      n->imp->isucc->isucc->wmark = TRUE;
+                      ststr = FALSE;
+                      }
 
-		break;
+                break;
 
-	    case IFAAddH:                             /* IMPORTS A STREAM */
-	        if ( IsAggregate( n->imp->isucc->info ) )
-		    n->imp->isucc->wmark = TRUE;
+            case IFAAddH:                             /* IMPORTS A STREAM */
+                if ( IsAggregate( n->imp->isucc->info ) )
+                    n->imp->isucc->wmark = TRUE;
 
-		/* if ( IsArray( n->imp->info ) ) */
-		n->imp->wmark = TRUE;
-		break;
+                /* if ( IsArray( n->imp->info ) ) */
+                n->imp->wmark = TRUE;
+                break;
 
-	    default:
-		break;
-	    }
+            default:
+                break;
+            }
 }
 
 
@@ -256,5 +266,5 @@ void If2Classify()
     register PNODE f;
 
     for ( f = fhead; f != NULL; f = f->gsucc )
-	ClassifyGraphEdges( f );
+        ClassifyGraphEdges( f );
 }

@@ -1,8 +1,24 @@
+#ifndef PARALLELISM_H
+#define PARALLELISM_H
+
+/**************************************************************************/
+/* FILE   **************       parallelism.h       ************************/
+/**************************************************************************/
+/* Author: Dave Raymond                                                   */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /************************************************************************\
  * POSIX threads
 \************************************************************************/
 
 int p_procnum = 0;
+static pthread_t *threads = 0;
 
 void ReleaseSharedMemory()
 {
@@ -13,6 +29,7 @@ static void* Transfer( ProcId )
 void* ProcId;
 {
   GetProcId = (long)ProcId;
+  printf("Enter worker %d\n",GetProcID);
 
 #if defined(DIST_DSA)
   if (ProcId != 0) {
@@ -20,11 +37,13 @@ void* ProcId;
   }
 #endif
 
-  EnterWorker( ProcId );
+  EnterWorker( GetProcId );
+  printf("Ready to leave worker %d\n",GetProcID);
 
-  if ( ProcId != 0 ) {
+  if ( GetProcId != 0 ) {
+     printf("Leaving thread %d\n",GetProcID);
     LeaveWorker();
-    pthread_exit( 0 );
+     printf("exit thread %d\n",GetProcID);
   }
   return NULL;
 }
@@ -40,17 +59,21 @@ int NumBytes;
     SisalError( "AcquireSharedMemory", "malloc FAILED" );
 }
 
+
 void StartWorkers()
 {
   int NumProcs = NumWorkers;
-  pthread_t *thread = malloc(NumProcs*sizeof(*thread));
+  threads = malloc(NumProcs*sizeof(*threads));
 
   while( --NumProcs > 0 ) {
-    if ( pthread_create( &thread[NumProcs], (void*)NumProcs, Transfer,
-      (void*)NumProcs ) == -1 )
-      SisalError( "StartWorkers", "create FAILED" );
+     printf("Starting thread %d\n",NumProcs);
+    if ( pthread_create( &thread[NumProcs], 0, Transfer,
+                         (void*)NumProcs ) == -1 ) {
+       SisalError( "StartWorkers", "create FAILED" );
+    }
   }
 
+     printf("Running master %d\n",NumProcs);
   Transfer( (void*)NumProcs );
 }
 
@@ -111,3 +134,4 @@ void MyBarrier( bar )
   return;
 }
 
+#endif

@@ -1,3 +1,18 @@
+#ifndef LOCK_IMPLEMENTATION_H
+#define LOCK_IMPLEMENTATION_H
+
+/**************************************************************************/
+/* FILE   **************   lock-implementation.h   ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /************************************************************************\
  * Sequential UNIX
 \************************************************************************/
@@ -6,11 +21,11 @@
 typedef unsigned char LOCK_TYPE;
 typedef int           BARRIER_TYPE;
 
-#define	MY_SLOCK(lp) {if (*lp == 'L') SisalError("","MY_SLOCK FAILED"); *lp = 'L'; }
+#define MY_SLOCK(lp) {if (*lp == 'L') SisalError("","MY_SLOCK FAILED"); *lp = 'L'; }
 #define MY_SUNLOCK(lp) {*lp = 'U';}
 #define MY_SINIT_LOCK(lp) {*lp = 'U';}
 
-#define	MY_LOCK(lp) {if (*lp == 'L') SisalError("","MY_LOCK FAILED"); *lp = 'L'; }
+#define MY_LOCK(lp) {if (*lp == 'L') SisalError("","MY_LOCK FAILED"); *lp = 'L'; }
 #define MY_UNLOCK(lp) {*lp = 'U';}
 #define MY_INIT_LOCK(lp) {*lp = 'U';}
 
@@ -25,3 +40,5 @@ typedef int           BARRIER_TYPE;
 #define FLUSHLINE(addr)
 #define CACHESYNC
 #define FFL
+
+#endif

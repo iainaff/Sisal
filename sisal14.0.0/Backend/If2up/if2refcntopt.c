@@ -1,4 +1,37 @@
-/* $Log$
+/**************************************************************************/
+/* FILE   **************       if2refcntopt.c      ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log$
+ * Revision 1.1.1.1  2000/12/31 17:58:03  patmiller
+ * Well, here is the first set of big changes in the distribution
+ * in 5 years!  Right now, I did a lot of work on configuration/
+ * setup (now all autoconf), breaking out the machine dependent
+ * #ifdef's (with a central acconfig.h driven config file), changed
+ * the installation directories to be more gnu style /usr/local
+ * (putting data in the /share/sisal14 dir for instance), and
+ * reduced the footprint in the top level /usr/local/xxx hierarchy.
+ *
+ * I also wrote a new compiler tool (sisalc) to replace osc.  I
+ * found that the old logic was too convoluted.  This does NOT
+ * replace the full functionality, but then again, it doesn't have
+ * 300 options on it either.
+ *
+ * Big change is making the code more portably correct.  It now
+ * compiles under gcc -ansi -Wall mostly.  Some functions are
+ * not prototyped yet.
+ *
+ * Next up: Full prototypes (little) checking out the old FLI (medium)
+ * and a new Frontend for simpler extension and a new FLI (with clean
+ * C, C++, F77, and Python! support).
+ *
+ * Pat
+ *
+ *
  * Revision 1.4  1993/02/24  18:39:00  miller
  * Changed the fix to the recursive memory problem (921002) to a dynamic
  * patch.
@@ -23,7 +56,9 @@
  *
  * Revision 12.7  1992/10/21  18:10:03  miller
  * Initial RCS Version by Cann
- * */
+ *
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -143,9 +178,9 @@ PNODE n;
   if ( !IsConst( n->imp ) )
     for ( e = n->imp->src->exp; e != NULL; e = e->esucc )
       if ( e->eport == n->imp->eport ) {
-	e->rmark1 = RMARK;
-	e->omark1 = TRUE;
-	}
+        e->rmark1 = RMARK;
+        e->omark1 = TRUE;
+        }
 
   n->imp->rmark1 = RMARK;
   n->imp->omark1 = TRUE;
@@ -189,10 +224,10 @@ int   sr;
     register PEDGE e;
 
     for ( e = ee->src->exp; e != NULL; e = e->esucc )
-	if ( e->eport == ee->eport ) {
-	    e->pm = pm;
-	    e->sr = sr;
-	    }
+        if ( e->eport == ee->eport ) {
+            e->pm = pm;
+            e->sr = sr;
+            }
 }
 
 
@@ -212,14 +247,14 @@ PSET  wset;
     register int   w;
 
     for ( w = 0; w <= wset->last; w++ ) {
-	ee = wset->set[w];
+        ee = wset->set[w];
 
-	if ( IsGraph( ee->dst ) )
-	    return( TRUE );
+        if ( IsGraph( ee->dst ) )
+            return( TRUE );
 
-	if ( IsAdePresent( e->dst, ee->dst ) )
-	    return( TRUE );
-	}
+        if ( IsAdePresent( e->dst, ee->dst ) )
+            return( TRUE );
+        }
 
     return( FALSE );
 }
@@ -241,12 +276,12 @@ PSET  wset;
     register int   w;
 
     for ( w = 0; w <= wset->last; w++ ) {
-	ee = wset->set[w];
+        ee = wset->set[w];
 
-	if ( !IsGraph( ee->dst ) )
-	    if ( !IsAdePresent( e->dst, ee->dst ) )
-	        return( FALSE );
-	}
+        if ( !IsGraph( ee->dst ) )
+            if ( !IsAdePresent( e->dst, ee->dst ) )
+                return( FALSE );
+        }
 
     return( TRUE );
 }
@@ -268,7 +303,7 @@ PEDGE e;
     register PEDGE ee;
 
     if ( e->cm != -1 )
-	return;
+        return;
 
     /* ------------------------------------------------------------ */
     /* Sometimes we get memory bombs with recursive programs.  This */
@@ -281,20 +316,20 @@ PEDGE e;
       /* This introduces a leak, but it will fix 921002 for now!      */
       /* ------------------------------------------------------------ */
       if ( e->dst->type == IFCall ) {
-	e->cm += 1;
-	return;
+        e->cm += 1;
+        return;
       }
     }
 
     e->cm = 0;
 
     for ( ee = e->src->exp; ee != NULL; ee = ee->esucc )
-	if ( ee->eport == e->eport ) {
-	    if ( ee->sr != -2 )
-		ee->sr--;
+        if ( ee->eport == e->eport ) {
+            if ( ee->sr != -2 )
+                ee->sr--;
             else
-		ee->pm--;
-	    }
+                ee->pm--;
+            }
 }
 
 
@@ -314,13 +349,13 @@ int   eport;
     register int   chg = FALSE;
 
     for ( e = g->exp; e != NULL; e = e->esucc )
-	if ( e->eport == eport ) {
-	    chg = TRUE;
+        if ( e->eport == eport ) {
+            chg = TRUE;
 
-	    e->pm--;
-	    e->grset->gen = e;
-	    e->gwset->gen = e;
-	    }
+            e->pm--;
+            e->grset->gen = e;
+            e->gwset->gen = e;
+            }
 
     return( chg );
 }
@@ -379,8 +414,8 @@ int   eport;
     register PEDGE e;
 
     for ( e = n->exp;  e != NULL; e = e->esucc )
-	if ( e->eport == eport )
-	    e->pm--;
+        if ( e->eport == eport )
+            e->pm--;
 }
 
 
@@ -461,7 +496,7 @@ PEDGE i;
                 if ( n->imp->eport != i->iport )
                     break;
 
-		n->imp->cm = 0;
+                n->imp->cm = 0;
                 n->lmark   = TRUE;
                 cnt++;
                 break;
@@ -471,7 +506,7 @@ PEDGE i;
             }
 
     if ( cnt == 0 ) {
-	AppendToUtilityList( dghead, dgtail, i );
+        AppendToUtilityList( dghead, dgtail, i );
     } else {
         i->cm = 0;
 
@@ -569,186 +604,186 @@ static void OptBoundaryReferenceCounts()
     register PNODE g;
 
     for ( c = chead; c != NULL; c = c->usucc ) {
-	if ( IsCompound( c ) ) {
-	    for ( e = c->exp; e != NULL; e = e->esucc )
-		if ( IsAggregate( e->info ) )
-	            e->pm--;
+        if ( IsCompound( c ) ) {
+            for ( e = c->exp; e != NULL; e = e->esucc )
+                if ( IsAggregate( e->info ) )
+                    e->pm--;
 
-	    switch ( c->type ) {
-		case IFSelect:
-		case IFTagCase:
-		    for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
-			AssignCMPragmas( g, 0 );
+            switch ( c->type ) {
+                case IFSelect:
+                case IFTagCase:
+                    for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
+                        AssignCMPragmas( g, 0 );
 
                     break;
 
                 case IFForall:
-		    AssignCMPragmas( c->F_GEN, 0 );
-		    AssignCMPragmas( c->F_RET, 0 );
+                    AssignCMPragmas( c->F_GEN, 0 );
+                    AssignCMPragmas( c->F_RET, 0 );
 
-		    for ( i = c->F_GEN->imp; i != NULL; i = i->isucc )
-			if ( IsAggregate( i->info ) )
-			    if ( IsAScatter( i->src ) )
-				i->pm = 0;
-		    
-		    break;
+                    for ( i = c->F_GEN->imp; i != NULL; i = i->isucc )
+                        if ( IsAggregate( i->info ) )
+                            if ( IsAScatter( i->src ) )
+                                i->pm = 0;
+                    
+                    break;
 
-		case IFLoopA:
-		case IFLoopB:
-		    AssignCMPragmas( c->L_RET, 0 );
-		    break;
-		}
-	    }
+                case IFLoopA:
+                case IFLoopB:
+                    AssignCMPragmas( c->L_RET, 0 );
+                    break;
+                }
+            }
 
-	switch ( c->type ) {
-	    case IFCall:
-		/* if ( c->bmark ) break; */
-		/* NEW CANN 2/92 ASSUME ALL ARE OPTIMIZED WRITES */
-		if ( c->bmark ) {
-		  for ( i = c->imp->isucc; i != NULL; i = i->isucc ) {
-		    if ( !IsAggregate( i->info ) )
-		      continue;
+        switch ( c->type ) {
+            case IFCall:
+                /* if ( c->bmark ) break; */
+                /* NEW CANN 2/92 ASSUME ALL ARE OPTIMIZED WRITES */
+                if ( c->bmark ) {
+                  for ( i = c->imp->isucc; i != NULL; i = i->isucc ) {
+                    if ( !IsAggregate( i->info ) )
+                      continue;
 
-		    i->cm = 0;
-		    }
+                    i->cm = 0;
+                    }
 
-		  break;
-		  }
+                  break;
+                  }
 
                 g = FindFunction( c->imp->CoNsT );
 
-		for ( i = c->imp->isucc; i != NULL; i = i->isucc ) {
-		    if ( !IsAggregate( i->info ) )
-			continue;
+                for ( i = c->imp->isucc; i != NULL; i = i->isucc ) {
+                    if ( !IsAggregate( i->info ) )
+                        continue;
 
-		    /* USED IN THE FUNCTION?                              */
+                    /* USED IN THE FUNCTION?                              */
                     if ( (e = FindExport( g, i->iport - 1 )) == NULL )
-			continue;
-			
-		    if ( !IsEmptySet( e->lwset ) )
-			i->cm = 0;
-		    }
+                        continue;
+                        
+                    if ( !IsEmptySet( e->lwset ) )
+                        i->cm = 0;
+                    }
 
-		break;
+                break;
 
             case IFLGraph:
-	    case IFXGraph:
-		/* if ( c->bmark ) break; */
-		/* NEW CANN 2/92 ASSUME ALL ARE OPTIMIZED WRITES */
-		if ( c->bmark ) {
+            case IFXGraph:
+                /* if ( c->bmark ) break; */
+                /* NEW CANN 2/92 ASSUME ALL ARE OPTIMIZED WRITES */
+                if ( c->bmark ) {
                   for ( e = c->exp; e != NULL; e = e->esucc ) {
                     if ( !IsAggregate( e->info ) )
-			continue;
+                        continue;
 
-		    e->pm--;
-		    e->grset->gen = e;
-		    e->gwset->gen = e;
-		    }
+                    e->pm--;
+                    e->grset->gen = e;
+                    e->gwset->gen = e;
+                    }
 
-		  break;
-		  }
+                  break;
+                  }
 
                 for ( e = c->exp; e != NULL; e = e->esucc ) {
                     if ( !IsAggregate( e->info ) )
-			continue;
+                        continue;
 
                     if ( !IsEmptySet( e->lwset ) ) {
-			e->pm--;
-			e->grset->gen = e;
-			e->gwset->gen = e;
-			}
-		    }
+                        e->pm--;
+                        e->grset->gen = e;
+                        e->gwset->gen = e;
+                        }
+                    }
 
-		break;
+                break;
 
-	    case IFSelect:
-	    case IFTagCase:
-		for ( i = c->imp; i != NULL; i = i->isucc ) {
-		    if ( !IsAggregate( i->info ) )
-		        continue;
+            case IFSelect:
+            case IFTagCase:
+                for ( i = c->imp; i != NULL; i = i->isucc ) {
+                    if ( !IsAggregate( i->info ) )
+                        continue;
 
-		    if ( !(i->wmark) )
-			continue;
+                    if ( !(i->wmark) )
+                        continue;
 
-		    i->cm = 0;
+                    i->cm = 0;
 
-		    if ( IsSelect( c ) )
-			g = c->C_SUBS->gsucc;
+                    if ( IsSelect( c ) )
+                        g = c->C_SUBS->gsucc;
                     else
-			g = c->C_SUBS;
+                        g = c->C_SUBS;
 
-		    for ( /* NOTHING */; g != NULL; g = g->gsucc )
-			if ( !ChangeToGenerator( g, i->iport ) ) {
-			    e = AddGround( g, i->iport, g, i->info, 0, -2 );
-			    e->lwset = SetAlloc( NULL_SET, g );
+                    for ( /* NOTHING */; g != NULL; g = g->gsucc )
+                        if ( !ChangeToGenerator( g, i->iport ) ) {
+                            e = AddGround( g, i->iport, g, i->info, 0, -2 );
+                            e->lwset = SetAlloc( NULL_SET, g );
 
-			    EnterInSet( e->lwset, e );
-			    }
-		    }
+                            EnterInSet( e->lwset, e );
+                            }
+                    }
 
-		break;
+                break;
 
             case IFForall:
-		for ( i = c->imp; i != NULL; i = i->isucc ) {
-		    if ( !IsAggregate( i->info ) )
-			continue;
+                for ( i = c->imp; i != NULL; i = i->isucc ) {
+                    if ( !IsAggregate( i->info ) )
+                        continue;
 
-		    if ( IsExport( c->F_BODY, i->iport ) || 
-			 IsExport( c->F_RET,  i->iport )  )
+                    if ( IsExport( c->F_BODY, i->iport ) || 
+                         IsExport( c->F_RET,  i->iport )  )
                         continue;
 
                     if ( !i->wmark )
-			continue;
-
-                    i->cm = 0;
-		    DecrementPmValues( c->F_GEN, i->iport );
-		    }
-
-		for ( i = c->F_BODY->imp; i != NULL; i = i->isucc ) {
-		    if ( !IsAggregate( i->info ) )
-			continue;
-
-                    ChangeToGenerator( c->F_RET, i->iport );
-		    i->cm = 0;
-		    }
-
-		break;
-
-            case IFLoopA:
-	    case IFLoopB:
-		for ( i = c->imp; i != NULL; i = i->isucc ) {
-		    if ( !IsAggregate( i->info ) )
-			continue;
-
-		    if ( IsExport( c->L_BODY, i->iport ) || 
-			 IsExport( c->L_RET,  i->iport )  )
                         continue;
 
                     i->cm = 0;
-		    DecrementPmValues( c->L_INIT, i->iport );
-		    }
+                    DecrementPmValues( c->F_GEN, i->iport );
+                    }
 
-		for ( i = c->L_INIT->imp; i != NULL; i = i->isucc ) {
-		    if ( !IsAggregate( i->info ) )
-			continue;
+                for ( i = c->F_BODY->imp; i != NULL; i = i->isucc ) {
+                    if ( !IsAggregate( i->info ) )
+                        continue;
+
+                    ChangeToGenerator( c->F_RET, i->iport );
+                    i->cm = 0;
+                    }
+
+                break;
+
+            case IFLoopA:
+            case IFLoopB:
+                for ( i = c->imp; i != NULL; i = i->isucc ) {
+                    if ( !IsAggregate( i->info ) )
+                        continue;
+
+                    if ( IsExport( c->L_BODY, i->iport ) || 
+                         IsExport( c->L_RET,  i->iport )  )
+                        continue;
+
+                    i->cm = 0;
+                    DecrementPmValues( c->L_INIT, i->iport );
+                    }
+
+                for ( i = c->L_INIT->imp; i != NULL; i = i->isucc ) {
+                    if ( !IsAggregate( i->info ) )
+                        continue;
 
                     if ( IsExport( c->L_BODY, i->iport ) ) {
-			if ( IsExport( c->L_RET, i->iport ) )
-			    RefBodyAndRet( c, i );
+                        if ( IsExport( c->L_RET, i->iport ) )
+                            RefBodyAndRet( c, i );
                         else
-			    RefBodyOnly( c, i );
+                            RefBodyOnly( c, i );
                         }
-		    else if ( IsExport( c->L_RET, i->iport ) )
-			RefRetOnly( c, i );
+                    else if ( IsExport( c->L_RET, i->iport ) )
+                        RefRetOnly( c, i );
                     else
-			NotRef( c, i );
+                        NotRef( c, i );
                     }
 
                 break;
 
             default:
-		break;
-	    }
+                break;
+            }
         }
 }
 
@@ -778,44 +813,44 @@ static void OptNodeReferenceCounts()
     register PEDGE ee;
 
     for ( grset = gshead; grset != NULL; grset = gwset->ssucc ) {
-	gwset = grset->ssucc;
+        gwset = grset->ssucc;
 
-	if ( IsEmptySet( gwset ) )
-	    for ( r = 0; r <= grset->last; r++ )
-		NeutralizeEdge( grset->set[r] );
-	else
-	    for ( r = 0; r <= grset->last; r++ ) {
-		e = grset->set[r];
+        if ( IsEmptySet( gwset ) )
+            for ( r = 0; r <= grset->last; r++ )
+                NeutralizeEdge( grset->set[r] );
+        else
+            for ( r = 0; r <= grset->last; r++ ) {
+                e = grset->set[r];
 
-		if ( BeforeAWrite( e, e->lwset ) )
-		    NeutralizeEdge( e );
+                if ( BeforeAWrite( e, e->lwset ) )
+                    NeutralizeEdge( e );
                 else if ( BeforeAllWrites( e, gwset ) )
-		    NeutralizeEdge( e );
-		}
+                    NeutralizeEdge( e );
+                }
 
-	if ( (e = gwset->gen) == NULL )
-	    continue;
+        if ( (e = gwset->gen) == NULL )
+            continue;
 
         if ( e->sr != -2 ) {
-	    if ( e->sr == 0 ) {
-		ee = AddGround( e->src, e->eport, gwset->graph, e->info, -2, 1);
-		ee->lwset = e->lwset;
+            if ( e->sr == 0 ) {
+                ee = AddGround( e->src, e->eport, gwset->graph, e->info, -2, 1);
+                ee->lwset = e->lwset;
 
-		EnterInSet( e->lwset, ee );
-		BindProducerPragmas( e, -2, 1 );
-		}
+                EnterInSet( e->lwset, ee );
+                BindProducerPragmas( e, -2, 1 );
+                }
 
-	    continue;
-	    }
+            continue;
+            }
 
-	if ( e->pm == -1 ) {
-	    ee = AddGround( e->src, e->eport, gwset->graph, e->info, 0, -2 ); 
+        if ( e->pm == -1 ) {
+            ee = AddGround( e->src, e->eport, gwset->graph, e->info, 0, -2 ); 
             ee->lwset = e->lwset;
 
             EnterInSet( e->lwset, ee );
-	    BindProducerPragmas( e, 0, -2 );
-	    }
-	}
+            BindProducerPragmas( e, 0, -2 );
+            }
+        }
 }
 
 

@@ -1,8 +1,23 @@
+#ifndef PARALLELISM_H
+#define PARALLELISM_H
+
+/**************************************************************************/
+/* FILE   **************       parallelism.h       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /************************************************************************\
  * Sequent
 \************************************************************************/
 
-extern char *shmalloc();
+extern char *shmalloc PROTO((int));
 
 void AcquireSharedMemory( NumBytes ) 
 int NumBytes;
@@ -88,5 +103,5 @@ void AbortParallel()
 {
   (void)kill( 0, SIGKILL );
 }
-#endif
 
+#endif

@@ -1,3 +1,17 @@
+#ifndef PARALLELISM_H
+#define PARALLELISM_H
+/**************************************************************************/
+/* FILE   **************       parallelism.h       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /************************************************************************\
  * IBM Power4
 \************************************************************************/
@@ -15,7 +29,7 @@
 
 void ReleaseSharedMemory()
 {
-	return;
+        return;
 }
 
 void AcquireSharedMemory( NumBytes ) 
@@ -54,50 +68,50 @@ extern BARRIER_TYPE *FinishBarrier;
 
 void GoneParallel()
 {
-	p6k_whoami(&p_procnum);
+        p6k_whoami(&p_procnum);
 
-	StartBarrier = &(SR.Sb);
-	FinishBarrier = &(SR.Fb);
+        StartBarrier = &(SR.Sb);
+        FinishBarrier = &(SR.Fb);
 
-	/*
-	 * so the workers will see the shared region
-	 */
-	SRp = &SR;
+        /*
+         * so the workers will see the shared region
+         */
+        SRp = &SR;
 
 #if defined(DIST_DSA)
-	if(p_procnum != 0)
-		InitDsa(DsaSize/(2*(NumWorkers - 1)), XftThreshold);
+        if(p_procnum != 0)
+                InitDsa(DsaSize/(2*(NumWorkers - 1)), XftThreshold);
 #endif
 
-	EnterWorker(p_procnum);
+        EnterWorker(p_procnum);
 
-	if(p_procnum == 0)
-	{
-		if(Entry_point == NULL)
-			SisalMain( SisalMainArgs );
-		else
-			Entry_point();
-		StopWorkers();
-	}
-	else
-	{
-		LeaveWorker();
-	}
+        if(p_procnum == 0)
+        {
+                if(Entry_point == NULL)
+                        SisalMain( SisalMainArgs );
+                else
+                        Entry_point();
+                StopWorkers();
+        }
+        else
+        {
+                LeaveWorker();
+        }
 }
 
 void StartWorkers() 
 {
-	/*
-	 * Flush cache to make sure that all shared variables are
-	 * visible
-	 */
-	FLUSHALL;
-	/*
-	 * This is SPMD.  When the other processes terminate, the call
-	 * returns.  We, therefore, can't start SisalMain in p-srt0.c
-	 * because there is no way to start all of the workers but 1, and
-	 * no way to return back to it once we have gone parallel.
-	 */
+        /*
+         * Flush cache to make sure that all shared variables are
+         * visible
+         */
+        FLUSHALL;
+        /*
+         * This is SPMD.  When the other processes terminate, the call
+         * returns.  We, therefore, can't start SisalMain in p-srt0.c
+         * because there is no way to start all of the workers but 1, and
+         * no way to return back to it once we have gone parallel.
+         */
         p6k_pcall(GoneParallel, 0xFFFF0003, 0);
 
 }
@@ -109,3 +123,4 @@ void AbortParallel()
 }
 
 
+#endif

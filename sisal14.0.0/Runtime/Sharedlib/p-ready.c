@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************         p-ready.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 
@@ -11,7 +23,7 @@ void InitReadyList()
   register int Index;
 
   ARList = (struct ActRecCache *) 
-	   SharedMalloc( SIZEOF(struct ActRecCache) * NumWorkers );
+           SharedMalloc( SIZEOF(struct ActRecCache) * NumWorkers );
 
   for ( Index = 0; Index < NumWorkers; Index++ ) {
     MY_INIT_LOCK( (&(ARList[Index].Mutex)) );
@@ -72,27 +84,27 @@ register struct ActRec *LastAR;
 
     if(OneLevelParallel)
     {
-	    while (CurrAR != EndAR) {
-	      DoTheEnQFast( CurrAR, CurrAR, &(ARList[NextPid]) );
+            while (CurrAR != EndAR) {
+              DoTheEnQFast( CurrAR, CurrAR, &(ARList[NextPid]) );
 
-	      CurrAR++;
-	      NextPid++;
+              CurrAR++;
+              NextPid++;
 
-	      if ( NextPid == NumWorkers )
-		NextPid = 0;
-	      }
+              if ( NextPid == NumWorkers )
+                NextPid = 0;
+              }
     }
     else
     {
-	    while (CurrAR != EndAR) {
-	      DoTheEnQ( CurrAR, CurrAR, &(ARList[NextPid]) );
+            while (CurrAR != EndAR) {
+              DoTheEnQ( CurrAR, CurrAR, &(ARList[NextPid]) );
 
-	      CurrAR++;
-	      NextPid++;
+              CurrAR++;
+              NextPid++;
 
-	      if ( NextPid == NumWorkers )
-		NextPid = 0;
-	      }
+              if ( NextPid == NumWorkers )
+                NextPid = 0;
+              }
     }
     return;
     }
@@ -116,8 +128,8 @@ struct ActRec *RListDeQ()
 
   if(!OneLevelParallel)
   {
-  	MY_LOCK( &(arc->Mutex) );
-  	FLUSHLINE(arc);
+        MY_LOCK( &(arc->Mutex) );
+        FLUSHLINE(arc);
   }
   /*
    * we need to take this lock so that we are locked
@@ -129,8 +141,8 @@ struct ActRec *RListDeQ()
     FLUSHLINE(&(arc->Head));
     if(!OneLevelParallel)
     {
-    	MY_UNLOCK( &(arc->Mutex) );
-    	FLUSHLINE(&(arc->Mutex));
+        MY_UNLOCK( &(arc->Mutex) );
+        FLUSHLINE(&(arc->Mutex));
     }
     return( (struct ActRec *) NULL );
   }
@@ -146,8 +158,8 @@ struct ActRec *RListDeQ()
   CACHESYNC;
   if(!OneLevelParallel)
   {
-  	MY_UNLOCK( &(arc->Mutex) );
-  	FLUSHLINE(&(arc->Mutex));
+        MY_UNLOCK( &(arc->Mutex) );
+        FLUSHLINE(&(arc->Mutex));
   }
 
   return( ThisAR );

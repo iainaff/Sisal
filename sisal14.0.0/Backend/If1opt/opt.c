@@ -148,7 +148,7 @@ static char *ofile = NULL;   /* NAME OF THE OUTPUT FILE                   */
 /*              -$      -> Inline all (nonrecursive) functions            */
 /*              -# f    -> DON'T INLINE FUNCTION f                        */
 /**************************************************************************/
-
+static void ParseCommandLine PROTO((int,char**));
 static void ParseCommandLine( argc, argv )
 int    argc;
 char **argv;
@@ -429,6 +429,7 @@ char **argv;
 /*          NAME, THE CONTENTS OF THE INPUT FILE IS OVERWRITTEN.          */
 /**************************************************************************/
 
+extern int main PROTO((int,char**));
 int main( argc, argv )
 int    argc;
 char **argv;

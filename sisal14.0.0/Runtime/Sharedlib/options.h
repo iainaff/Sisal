@@ -332,7 +332,6 @@ if (argv[idx][0] == '-' ) {                                              /* M */
     goto OptionError;                                                    /*   */
                                                                          /* N */
    case 'w':                                                             /* o */
-               printf("HERE %s\n",argv[idx]);                                                          /* g */
     if ( isdigit(argv[idx][2]) ) {                                       /* t */
                                                                          /*   */
   /* ------------------------------------------------------------ */     /* C */

@@ -1,10 +1,20 @@
-/* if2count.c,v
+/**************************************************************************/
+/* FILE   **************         if2count.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:11  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:01  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -50,209 +60,209 @@ PNODE g;
 
 
     for ( n = g; n != NULL; n = n->nsucc ) {
-	for ( i = n->imp; i != NULL; i = i->isucc ) {
-	    if ( i->cm != 0 )
-		cms++;
-	    tcms++;
+        for ( i = n->imp; i != NULL; i = i->isucc ) {
+            if ( i->cm != 0 )
+                cms++;
+            tcms++;
 
-	    if ( i->dmark )
-		ds++;
+            if ( i->dmark )
+                ds++;
 
-	    if ( i->iport == 0 )
-		dedges++;
+            if ( i->iport == 0 )
+                dedges++;
             }
 
         for ( e = n->exp; e != NULL; e = e->esucc ) {
-	    if ( IsAggregate( e->info )) {
-		if ( e->sr == 0 )
-		    tsrs++;
+            if ( IsAggregate( e->info )) {
+                if ( e->sr == 0 )
+                    tsrs++;
                 else if ( e->pm == 0 )
-		    tpms++;
-		if ( e->pl == 0 )
-		    tpls++;
-     	    if (e->eport >= 0)  {
-		if ( e->sr > 0 ) {
-		    srs++;
-		    tsrs++; }
+                    tpms++;
+                if ( e->pl == 0 )
+                    tpls++;
+            if (e->eport >= 0)  {
+                if ( e->sr > 0 ) {
+                    srs++;
+                    tsrs++; }
                 else if ( e->pm > 0 ) {
-		    pms++;
-		    tpms++; }
+                    pms++;
+                    tpms++; }
       
-		if ( e->pl > 0 ) {
-		    pls++;
-		    tpls++; }
+                if ( e->pl > 0 ) {
+                    pls++;
+                    tpls++; }
 
                 /* INVALIDATE OTHER REFERENCES SO ONLY COUNTED ONCE       */
 
-	        for ( ee = e->esucc; ee != NULL; ee = ee->esucc )
-		    if ( ee->eport == e->eport )
-		        ee->eport = -(ee->eport);
-		}
+                for ( ee = e->esucc; ee != NULL; ee = ee->esucc )
+                    if ( ee->eport == e->eport )
+                        ee->eport = -(ee->eport);
+                }
 
-	    e->eport = abs( e->eport );
-	    }
+            e->eport = abs( e->eport );
+            }
             }
 
-	for ( a = n->aimp; a != NULL; a = a->isucc )
-	    switch ( a->priority ) {
-	       case BOUND:
-		   bades++;
-		   break;
+        for ( a = n->aimp; a != NULL; a = a->isucc )
+            switch ( a->priority ) {
+               case BOUND:
+                   bades++;
+                   break;
 
                case HIGH_PRI:
-		   hades++;
-		   break;
+                   hades++;
+                   break;
 
                default: 
-		lades++; 
-		break; 
-		} 
-	switch ( n->type ) {
-	    case IFDefArrayBuf:
-		if ( !(n->cmark) )
-		    break;
+                lades++; 
+                break; 
+                } 
+        switch ( n->type ) {
+            case IFDefArrayBuf:
+                if ( !(n->cmark) )
+                    break;
 
                 if ( !last )
-		    break;
-		
+                    break;
+                
                 /*FPRINTF( infoptr, " Constant Aggregate Generator (%s):\n", 
-				 cfunct->G_NAME                        );
+                                 cfunct->G_NAME                        );
 
                 FPRINTF( infoptr, "     %s (%s,%s,%d)\n", GetNodeName( n ), 
-				 n->file, n->funct, n->line             );
+                                 n->file, n->funct, n->line             );
 
                 FPRINTF( infoptr, "     %s (%s,%s,%d)\n", 
-				 GetNodeName( n->exp->dst ), n->exp->dst->file,
-				 n->exp->dst->funct, n->exp->dst->line       );*/
+                                 GetNodeName( n->exp->dst ), n->exp->dst->file,
+                                 n->exp->dst->funct, n->exp->dst->line       );*/
 
-		if (RequestInfo(I_Info2, info)) {
+                if (RequestInfo(I_Info2, info)) {
                 FPRINTF( infoptr2, " %s (%s,%s,%d)\n", 
-				 GetNodeName( n->exp->dst->exp->dst ),
-				 n->exp->dst->exp->dst->file,
-				 n->exp->dst->exp->dst->funct,
-				 n->exp->dst->exp->dst->line        ); }
+                                 GetNodeName( n->exp->dst->exp->dst ),
+                                 n->exp->dst->exp->dst->file,
+                                 n->exp->dst->exp->dst->funct,
+                                 n->exp->dst->exp->dst->line        ); }
 
 
-		cagnodes +=3;
-		break;
+                cagnodes +=3;
+                break;
 
-	    case IFRBuild:
-		if ( !(n->cmark) )
-		    break;
+            case IFRBuild:
+                if ( !(n->cmark) )
+                    break;
 
-		if ( !last )
-		    break;
+                if ( !last )
+                    break;
 
 
 /*                FPRINTF( infoptr, " Constant Aggregate Generator %s (%s): ", 
-				 GetNodeName( n ), cfunct->G_NAME         );
+                                 GetNodeName( n ), cfunct->G_NAME         );
 
                 FPRINTF( infoptr, " (%s,%s,%d)\n\n", n->file, n->funct, n->line); */
 
-		cagnodes++;
+                cagnodes++;
                 break;
 
-	    case IFNoOp:
-		noops++;
+            case IFNoOp:
+                noops++;
 
 /*                FPRINTF( infoptr, " NoOp Node (%s): ", cfunct->G_NAME ); 
 
-		if ( IsLoop( n->exp->dst ) )
-		  FPRINTF( infoptr, " (HOISTED FROM LOOP) " ); 
+                if ( IsLoop( n->exp->dst ) )
+                  FPRINTF( infoptr, " (HOISTED FROM LOOP) " ); 
 
-		switch ( n->exp->info->type ) {
-		    case IF_ARRAY:
-			FPRINTF( infoptr, "(ARRAY) " );
-			break;
-		    case IF_STREAM:
-			FPRINTF( infoptr, "(STREAM) " );
-			break;
-		    case IF_RECORD:
-			FPRINTF( infoptr, "(RECORD) " );
-			break;
-		    default: break;
-		    } */
+                switch ( n->exp->info->type ) {
+                    case IF_ARRAY:
+                        FPRINTF( infoptr, "(ARRAY) " );
+                        break;
+                    case IF_STREAM:
+                        FPRINTF( infoptr, "(STREAM) " );
+                        break;
+                    case IF_RECORD:
+                        FPRINTF( infoptr, "(RECORD) " );
+                        break;
+                    default: break;
+                    } */
 
-		if ( n->imp->pmark ) {
-		    switch ( n->imp->rmark1 ) {
-			case RMARK:
-			  /*  if ( n->imp->omark1 )
+                if ( n->imp->pmark ) {
+                    switch ( n->imp->rmark1 ) {
+                        case RMARK:
+                          /*  if ( n->imp->omark1 )
                                 FPRINTF( infoptr, "mk=PRO, SYNC-ONLY" );
                             else
                                 FPRINTF( infoptr, "mk=PR,  SYNC-ONLY" ); */
 
-			    snoops++;
-			    break;
+                            snoops++;
+                            break;
 
-			case rMARK:
-			  /*  if ( n->imp->omark1 )
+                        case rMARK:
+                          /*  if ( n->imp->omark1 )
                                 FPRINTF( infoptr, "mk=PrO, POSSIBLE DOPE COPY ");
-			    else
+                            else
                                 FPRINTF( infoptr, "mk=Pr, POSSIBLE DOPE COPY " ); */
 
-			    rnoops++;
-			    break;
+                            rnoops++;
+                            break;
 
-			default:
-			  /*  if ( n->imp->omark1 )
-			        FPRINTF( infoptr, "mk=PO, DOPE COPY" );
+                        default:
+                          /*  if ( n->imp->omark1 )
+                                FPRINTF( infoptr, "mk=PO, DOPE COPY" );
                             else
-			        FPRINTF( infoptr, "mk=P, DOPE COPY"  ); */
+                                FPRINTF( infoptr, "mk=P, DOPE COPY"  ); */
 
-			    break;
+                            break;
                         }
 
                  /*   FPRINTF( infoptr, " (%s,%s,%d)\n\n", n->file, 
-							n->funct, n->line); */
-		    break;
-		    }
+                                                        n->funct, n->line); */
+                    break;
+                    }
 
-		switch ( n->imp->rmark1 ) {
-		    case RMARK:
-			if ( n->imp->omark1 ) {
+                switch ( n->imp->rmark1 ) {
+                    case RMARK:
+                        if ( n->imp->omark1 ) {
                           /*  FPRINTF( infoptr, "mk=RO, SYNC-ONLY" ); */
-			    snoops++;
-			    }
+                            snoops++;
+                            }
                          /* else
                             FPRINTF( infoptr, "mk=R, POSSIBLE PHYS COPY" ); */
 
-			break;
+                        break;
 
-		    case rMARK:
-			/* if ( n->imp->omark1 )
+                    case rMARK:
+                        /* if ( n->imp->omark1 )
                             FPRINTF( infoptr, "mk=rO, POSSIBLE DOPE-PHYS COPY" );
                         else
                             FPRINTF( infoptr, "mk=r, POSSIBLE DOPE-PHYS COPY" ); */
 
-			rnoops++;
-			break;
+                        rnoops++;
+                        break;
 
-		    default:
-			/* if ( n->imp->omark1 )
+                    default:
+                        /* if ( n->imp->omark1 )
                             FPRINTF( infoptr, "mk=O, DOPE-PHYS COPY" );
                         else
                             FPRINTF( infoptr, "mk=, DOPE-PHYS COPY " ); */
 
-			break;
+                        break;
                     }
 
                 /* FPRINTF( infoptr, " (%s,%s,%d)\n\n", n->file, n->funct, n->line); */
-		break;
+                break;
 
-	    case IFForall:
-	    case IFLoopA:
-	    case IFLoopB:
-	    case IFSelect:
-	    case IFTagCase:
-		for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		    GatherCounts( g );
+            case IFForall:
+            case IFLoopA:
+            case IFLoopB:
+            case IFSelect:
+            case IFTagCase:
+                for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                    GatherCounts( g );
 
-		break;
+                break;
 
-	    default:
-		break;
+            default:
+                break;
             }
-	}
+        }
 }
 
 
@@ -283,10 +293,10 @@ static void WriteUpCountInfo()
     FPRINTF( infoptr,   " Universal Record Ownership:    TRUE\n"        );
 
     FPRINTF( infoptr,   " Universal Stream Ownership:    %s\n", 
-		       ( univso )? "TRUE" : "DON'T KNOW"    );
+                       ( univso )? "TRUE" : "DON'T KNOW"    );
 
     FPRINTF( infoptr,   " Universal Array Ownership:     %s\n", 
-		       ( univao )? "TRUE" : "DON'T KNOW"    );
+                       ( univao )? "TRUE" : "DON'T KNOW"    );
 
     FPRINTF( infoptr,   " Swap Optimizations:            %d\n", swcnt   );*/
 }
@@ -310,7 +320,7 @@ char *msg;
     last  = lst;
 
     for ( f = fhead; f != NULL; f = f->gsucc )
-	GatherCounts( cfunct = f );
+        GatherCounts( cfunct = f );
 
     if (RequestInfo(I_Info3, info)) {
     FPRINTF( infoptr, "\n%s\n\n", msg );
@@ -335,35 +345,35 @@ PNODE g;
 
     for ( n = g; n != NULL; n = n->nsucc ) {
       if ( IsCompound( n ) ) {
-	for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	  UpWriteGraphWarnings( sg );
+        for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+          UpWriteGraphWarnings( sg );
 
-	continue;
-	}
+        continue;
+        }
 
       switch ( n->type ) {
         case IFAAdjust:
-	  op = "array_adjust";
-	  break;
+          op = "array_adjust";
+          break;
 
         case IFARemH:
-	  op = "array_remh";
-	  break;
+          op = "array_remh";
+          break;
 
         case IFARemL:
-	  op = "array_reml";
-	  break;
+          op = "array_reml";
+          break;
 
         case IFAReplace:
-	  op = "replace";
-	  break;
+          op = "replace";
+          break;
 
         case IFASetL:
-	  op = "array_setl";
-	  break;
+          op = "array_setl";
+          break;
 
-	default:
-	  continue;
+        default:
+          continue;
         }
 
       nn = n->imp->src;

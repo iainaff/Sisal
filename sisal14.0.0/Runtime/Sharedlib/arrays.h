@@ -1,3 +1,17 @@
+#ifndef ARRAYS_H
+#define ARRAYS_H
+
+/**************************************************************************/
+/* FILE   **************          arrays.h         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #define ARRAY     struct Array
 #define ARRAYP    struct Array *
 #define PHYS      struct ArrayPhys
@@ -140,24 +154,26 @@ struct PointerSwapBuffer {
 #endif
   };
 
-extern POINTER  ArrayDuplicatePlus();
-extern POINTER  ArrayDuplicate();
-extern PHYSP    DoPhysExpand();
+extern POINTER  ArrayDuplicatePlus PROTO((POINTER,int));
+extern POINTER  ArrayDuplicate PROTO((POINTER,int));
+extern PHYSP    DoPhysExpand PROTO((POINTER,int));
 
-extern POINTER	ReadBoolVector();
-extern void	WriteBoolVector();
+extern POINTER  ReadBoolVector PROTO((void));
+extern void     WriteBoolVector PROTO((POINTER));
 
-extern POINTER	ReadCharVector();
-extern void	WriteCharVector();
+extern POINTER  ReadCharVector PROTO((void));
+extern void     WriteCharVector PROTO((POINTER));
 
-extern POINTER	ReadDoubleVector();
-extern void	WriteDoubleVector();
+extern POINTER  ReadDoubleVector PROTO((void));
+extern void     WriteDoubleVector PROTO((POINTER));
 
-extern POINTER	ReadIntegerVector();
-extern void	WriteIntegerVector();
+extern POINTER  ReadIntegerVector PROTO((void));
+extern void     WriteIntegerVector PROTO((POINTER));
 
-extern POINTER	ReadNullVector();
-extern void	WriteNullVector();
+extern POINTER  ReadNullVector PROTO((void));
+extern void     WriteNullVector PROTO((POINTER));
 
-extern POINTER	ReadRealVector();
-extern void	WriteRealVector();
+extern POINTER  ReadRealVector PROTO((void));
+extern void     WriteRealVector PROTO((POINTER));
+
+#endif

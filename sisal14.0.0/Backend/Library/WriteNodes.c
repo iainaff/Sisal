@@ -1,3 +1,12 @@
+/**************************************************************************/
+/* FILE   **************        WriteNodes.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/**************************************************************************/
+
 #include "world.h"
 
 
@@ -6,7 +15,7 @@
 /**************************************************************************/
 /* PURPOSE: PRINT THE NODES OF GRAPH g AND THEIR IMPORT EDGES TO output.  */
 /*          NODE RELABELING AND (maybe) COMPOUND NODE PORT RENUMBERING IS */
-/*	    DONE BEFORE PRINTING.                                         */
+/*          DONE BEFORE PRINTING.                                         */
 /**************************************************************************/
 
 void WriteNodes( g )
@@ -44,23 +53,23 @@ PNODE g;
 
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     /* ------------------------------------------------------------ */
-    /* Compound nodes						    */
+    /* Compound nodes                                               */
     /* ------------------------------------------------------------ */
     if ( IsCompound(n) ) {
       FPRINTF( output, "{ Compound %2d %2d\n", n->label, n->type );
 
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	WriteNodes( sg );
+        WriteNodes( sg );
 
       FPRINTF( output, "} %2d %2d %2d   ", n->label, 
-	      n->type, n->C_SCNT        );
+              n->type, n->C_SCNT        );
 
       for ( l = n->C_ALST; l != NULL; l = l->next )
-	FPRINTF( output, " %d", l->datum );
+        FPRINTF( output, " %d", l->datum );
 
     } else {
       /* ------------------------------------------------------------ */
-      /* Simple nodes						      */
+      /* Simple nodes                                                 */
       /* ------------------------------------------------------------ */
       FPRINTF( output, "N %2d %2d", n->label, n->type );
     }
@@ -72,7 +81,33 @@ PNODE g;
   WriteImports( g ); 
 }
 
-/* $Log$
+/*
+ * $Log$
+ * Revision 1.1.1.1  2000/12/31 17:58:36  patmiller
+ * Well, here is the first set of big changes in the distribution
+ * in 5 years!  Right now, I did a lot of work on configuration/
+ * setup (now all autoconf), breaking out the machine dependent
+ * #ifdef's (with a central acconfig.h driven config file), changed
+ * the installation directories to be more gnu style /usr/local
+ * (putting data in the /share/sisal14 dir for instance), and
+ * reduced the footprint in the top level /usr/local/xxx hierarchy.
+ *
+ * I also wrote a new compiler tool (sisalc) to replace osc.  I
+ * found that the old logic was too convoluted.  This does NOT
+ * replace the full functionality, but then again, it doesn't have
+ * 300 options on it either.
+ *
+ * Big change is making the code more portably correct.  It now
+ * compiles under gcc -ansi -Wall mostly.  Some functions are
+ * not prototyped yet.
+ *
+ * Next up: Full prototypes (little) checking out the old FLI (medium)
+ * and a new Frontend for simpler extension and a new FLI (with clean
+ * C, C++, F77, and Python! support).
+ *
+ * Pat
+ *
+ *
  * Revision 1.4  1994/03/09  23:17:48  miller
  * Now, ANY compound node (opcode < 100) will be output, not just
  * the predefined kinds.  The previous restriction was crimping
@@ -89,4 +124,5 @@ PNODE g;
  * Initial version of the IFX library.  It replaces the if[12]build.c
  * read.c timer.c util.c and write.c and if[12].h files from the
  * backend phases.
- * */
+ *
+ */

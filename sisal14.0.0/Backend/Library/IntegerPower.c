@@ -1,8 +1,15 @@
 /**************************************************************************/
-/* GLOBAL **************        IntegerPower       ************************/
+/* FILE   **************       IntegerPower.c      ************************/
 /**************************************************************************/
-/* PURPOSE:  A safer and faster way to compute integer powers		  */
+/* Author: Patrick Miller                                                 */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
 /**************************************************************************/
+/* PURPOSE:  A safer and faster way to compute integer powers             */
+/**************************************************************************/
+
+#include "world.h"
+
 int
 IntegerPower(a,b)
      int a;
@@ -25,3 +32,6 @@ IntegerPower(a,b)
 
   return r;
 }
+/*
+ * $Log:
+ */

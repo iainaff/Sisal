@@ -1,12 +1,27 @@
+#ifndef FIBRE_H
+#define FIBRE_H
+
+/**************************************************************************/
+/* FILE   **************          fibre.h          ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Pat Miller -- Ansi support (Dec 2000)                          */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 extern FILE *FibreInFd;
 extern FILE *FibreOutFd;
 extern FILE *PerfFd;
 
-extern void    FibreError();
-extern int     FibreParse();
+extern void    FibreError PROTO((char*));
+extern int     FibreParse PROTO((int));
 extern POINTER SisalMainArgs; 
-extern POINTER ReadFibreInputs();
-extern void    WriteFibreOutputs();
+extern POINTER ReadFibreInputs PROTO((void));;
+extern void    WriteFibreOutputs PROTO((POINTER));;
 
 #define PrintIndent \
 {                                                  \
@@ -99,8 +114,10 @@ extern int     LookAheadToken;
 extern int     Indent;
 
 #define GET_LOOKAHEAD  LookAheadToken = FibreParse( ANY_ ); \
-		       if ( LookAheadToken != ARRAYE_ &&    \
-			    LookAheadToken != STREAME_ )    \
+                       if ( LookAheadToken != ARRAYE_ &&    \
+                            LookAheadToken != STREAME_ )    \
                          LookAhead = TRUE
 
 extern char ArgumentString[];
+
+#endif

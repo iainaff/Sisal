@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************          p-ppp.c          ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /************************************************************************\
  * p-ppp.c - SISAL runtime system machine-specific parallel processing
  *           primitives
@@ -23,9 +35,9 @@ void (*Entry_point)();
 void StartWorkersWithEntry(entry)
 void (*entry)();
 {
-	Entry_point = entry;
-	StartWorkers();
-	Entry_point();
+        Entry_point = entry;
+        StartWorkers();
+        Entry_point();
 }
 
 

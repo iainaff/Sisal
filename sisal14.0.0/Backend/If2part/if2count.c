@@ -1,4 +1,37 @@
-/* $Log$
+/**************************************************************************/
+/* FILE   **************         if2count.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log$
+ * Revision 1.1.1.1  2000/12/31 17:57:47  patmiller
+ * Well, here is the first set of big changes in the distribution
+ * in 5 years!  Right now, I did a lot of work on configuration/
+ * setup (now all autoconf), breaking out the machine dependent
+ * #ifdef's (with a central acconfig.h driven config file), changed
+ * the installation directories to be more gnu style /usr/local
+ * (putting data in the /share/sisal14 dir for instance), and
+ * reduced the footprint in the top level /usr/local/xxx hierarchy.
+ *
+ * I also wrote a new compiler tool (sisalc) to replace osc.  I
+ * found that the old logic was too convoluted.  This does NOT
+ * replace the full functionality, but then again, it doesn't have
+ * 300 options on it either.
+ *
+ * Big change is making the code more portably correct.  It now
+ * compiles under gcc -ansi -Wall mostly.  Some functions are
+ * not prototyped yet.
+ *
+ * Next up: Full prototypes (little) checking out the old FLI (medium)
+ * and a new Frontend for simpler extension and a new FLI (with clean
+ * C, C++, F77, and Python! support).
+ *
+ * Pat
+ *
+ *
  * Revision 1.9  1994/06/16  21:31:09  mivory
  * info format and option changes M. Y. I.
  *
@@ -34,7 +67,8 @@
  *
  * Revision 12.7  1992/10/21  18:09:35  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -43,7 +77,7 @@ static int fnodes;                                /* COUNT OF Forall NODES */
 static int slices;          /* COUNT OF Forall NODES MARKED FOR SLICING    */
 static int vecs;         /* COUNT OF Forall NODES MARKED FOR VECTORIZATION */
 static int slvecs;       /* COUNT OF Forall NODES MARKED FOR VECTORIZATION */
-			 /* AND SLICING                                    */
+                         /* AND SLICING                                    */
 
 static int strcps;          /* COUNT OF STREAM CONSUMER AND PRODUCER TASKS */
 static int syncs;           /* COUNT OF SYNCRONIZATION OPERATIONS          */
@@ -61,13 +95,13 @@ char *msg;
 PNODE n;
 int   indent;
 {
-    register	int	i;
-    static	int	LoopCount = 0;
+    register    int     i;
+    static      int     LoopCount = 0;
 
     /* ------------------------------------------------------------ */
     FPRINTF( infoptr, "%d\t", ++LoopCount );
     for ( i = 0; i < indent; i++ ) 
-	FPRINTF( infoptr, " " );
+        FPRINTF( infoptr, " " );
 
     FPRINTF( infoptr, "%d: %s", indent, msg );
 
@@ -102,57 +136,57 @@ int   plvl;
     register PNODE n;
 
     for ( n = g; n != NULL; n = n->nsucc ) {
-	if ( n->wmark )
-	    syncs++;
+        if ( n->wmark )
+            syncs++;
 
-	switch ( n->type ) {
-	    case IFForall:
-		fnodes++;
-		if ( n->pmark ) goto StreamProducer;
-		PrintLInfo(indent,plvl,"Forall",n);
+        switch ( n->type ) {
+            case IFForall:
+                fnodes++;
+                if ( n->pmark ) goto StreamProducer;
+                PrintLInfo(indent,plvl,"Forall",n);
 
-		if ( n->smark ) {
-		  if ( n->vmark ) {
-		    slvecs++;
-		  } else {
-		    slices++;
-		  }
-		} else if ( n->vmark ) {
-		  vecs++;
-		}
+                if ( n->smark ) {
+                  if ( n->vmark ) {
+                    slvecs++;
+                  } else {
+                    slices++;
+                  }
+                } else if ( n->vmark ) {
+                  vecs++;
+                }
 
-		for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		  WriteMap( g, indent + 1, plvl+1 );
+                for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                  WriteMap( g, indent + 1, plvl+1 );
 
-		break;
+                break;
 
-	    case IFLoopA:
-	    case IFLoopB:
-	       StreamProducer:
-		if ( n->pmark ) {
-		  strcps++;
+            case IFLoopA:
+            case IFLoopB:
+               StreamProducer:
+                if ( n->pmark ) {
+                  strcps++;
 
-		  WriteTaskInfo( "Stream Task", n, indent );
+                  WriteTaskInfo( "Stream Task", n, indent );
 
-		} else {
-		  PrintLInfo(indent,plvl,"For initial",n);
-		}
+                } else {
+                  PrintLInfo(indent,plvl,"For initial",n);
+                }
 
-		for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		  WriteMap( g, indent + 1, plvl );
-		break;
+                for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                  WriteMap( g, indent + 1, plvl );
+                break;
 
 
-	    case IFSelect:
-	    case IFTagCase:
-		for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		    WriteMap( g, indent, plvl );
+            case IFSelect:
+            case IFTagCase:
+                for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                    WriteMap( g, indent, plvl );
 
-		break;
+                break;
 
-	    default:
-		break;
-	    }
+            default:
+                break;
+            }
         }
 }
 
@@ -170,14 +204,14 @@ void PartIf2Count()
     fnodes = vecs = slices = strcps = syncs = 0;
 
     FPRINTF( infoptr, "\n **** PARTITION AND VECTORIZATION MAP (procs=%d)\n\n",
-		     procs );
+                     procs );
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
-	FPRINTF( infoptr, " FUNCTION %s [cost=%g] [apl=%d] [pbsy=%d]\n",
-			 f->G_NAME, f->ccost, f->level, f->pbusy   );
+        FPRINTF( infoptr, " FUNCTION %s [cost=%g] [apl=%d] [pbsy=%d]\n",
+                         f->G_NAME, f->ccost, f->level, f->pbusy   );
 
-	WriteMap( cfunct = f, 1, 1 );
-	}
+        WriteMap( cfunct = f, 1, 1 );
+        }
 
     if ( RequestInfo(I_Info4,info)  ) {
       FPRINTF( infoptr, "\n **** OCCURRENCE COUNTS\n\n" );

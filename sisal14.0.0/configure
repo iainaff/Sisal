@@ -3144,7 +3144,6 @@ trap 'rm -fr `echo "makefile
 	Backend/If2part/makefile
 	Backend/If2up/makefile
 	Runtime/Sharedlib/makefile
-	Tools/osc/makefile
 	Tools/sisalc/makefile
  Include/sisalConfig.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
@@ -3258,7 +3257,6 @@ CONFIG_FILES=\${CONFIG_FILES-"makefile
 	Backend/If2part/makefile
 	Backend/If2up/makefile
 	Runtime/Sharedlib/makefile
-	Tools/osc/makefile
 	Tools/sisalc/makefile
 "}
 EOF

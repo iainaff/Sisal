@@ -1,3 +1,12 @@
+/**************************************************************************/
+/* FILE   **************        CheckEdge.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/**************************************************************************/
+
 #include "world.h"
 
 /**************************************************************************/
@@ -36,7 +45,10 @@ PEDGE e;
     }
   FPRINTF(stderr,"Attempted to write illegal edge:\n");
   FPRINTF(stderr, "E %2d %2d   %2d %2d  %2d\n", e->src->label, abs( e->eport ),
-	  e->dst->label, abs( e->iport ), e->info->label);
+          e->dst->label, abs( e->iport ), e->info->label);
   exit(1);
 }
   
+/*
+ * $Log:
+ */

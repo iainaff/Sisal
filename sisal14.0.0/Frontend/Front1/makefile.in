@@ -7,7 +7,7 @@
 #*  *#
 #**************************************************************************#
 
-sources = p2clib.c file1.c file2.c file3.c
+sources = sisal.c
 versionedExecutables = sisal
 data = etabl.bin ptabl.bin
 man = sisal.5

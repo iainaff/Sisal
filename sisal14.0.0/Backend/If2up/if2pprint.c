@@ -1,10 +1,20 @@
-/* if2pprint.c,v
+/**************************************************************************/
+/* FILE   **************        if2pprint.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:11  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:03  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -29,32 +39,32 @@ PNODE g;
     register PADE  a;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc )
-	if ( n->nsucc != NULL )
-	    if ( n->nsucc->label <= n->label ) {
+        if ( n->nsucc != NULL )
+            if ( n->nsucc->label <= n->label ) {
                 FPRINTF( stderr, "%s: E - NODE NOT DFOrdered: line %d\n", 
-			 program, n->nsucc->if1line  );
+                         program, n->nsucc->if1line  );
 
                 Stop( ERROR );
-		}
+                }
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc )
-	for ( i = n->imp; i != NULL; i = i->isucc )
-	    if ( !IsConst( i ) )
-		if ( i->src->label >= n->label ) {
+        for ( i = n->imp; i != NULL; i = i->isucc )
+            if ( !IsConst( i ) )
+                if ( i->src->label >= n->label ) {
                     FPRINTF( stderr, "%s: E - NODE NOT DFOrdered: line %d\n", 
-			     program, i->src->if1line                      );
+                             program, i->src->if1line                      );
 
                     Stop( ERROR );
-		    }
+                    }
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc )
-	for ( a = n->aimp; a != NULL; a = a->isucc )
+        for ( a = n->aimp; a != NULL; a = a->isucc )
             if ( a->src->label >= n->label ) {
                 FPRINTF( stderr, "%s: E - NODE NOT DFOrdered(ADE): line %d\n", 
-			         program, a->src->if1line                   );
+                                 program, a->src->if1line                   );
 
                 Stop( ERROR );
-		}
+                }
 }
 
 
@@ -70,37 +80,37 @@ PNODE n;
     FPRINTF( output, "(" );
 
     if ( n->ccost > 0.0 )
-	FPRINTF( output, "[cc=%4.3e]", n->ccost );
+        FPRINTF( output, "[cc=%4.3e]", n->ccost );
 
     if ( n->pmark )
-	FPRINTF( output, "P" );
+        FPRINTF( output, "P" );
 
     if ( n->smark )
-	FPRINTF( output, "S" );
+        FPRINTF( output, "S" );
 
     if ( n->imark )
-	FPRINTF( output, "I" );
+        FPRINTF( output, "I" );
 
     if ( n->mark != ' ' )
        FPRINTF( output, "%c", n->mark );
 
     if ( n->emark )
-	FPRINTF( output, "E" );
+        FPRINTF( output, "E" );
 
     if ( n->lmark )
-	FPRINTF( output, "L" );
+        FPRINTF( output, "L" );
 
     if ( n->cmark )
-	FPRINTF( output, "C" );
+        FPRINTF( output, "C" );
 
     if ( n->nmark )
-	FPRINTF( output, "N" );
+        FPRINTF( output, "N" );
 
     if ( n->bmark )
-	FPRINTF( output, "B" );
+        FPRINTF( output, "B" );
 
     if ( n->wmark )
-	FPRINTF( output, "W" );
+        FPRINTF( output, "W" );
 
     FPRINTF( output, ")" );
 }
@@ -116,42 +126,42 @@ static void PPrintEdgePragmas( e )
 PEDGE e;
 {
     if ( !IsAggregate( e->info ) )
-	return;
+        return;
 
     FPRINTF( output, "(" );
 
     if ( e->pm != -2 )
-	FPRINTF( output, "[pm=%d]", e->pm );
+        FPRINTF( output, "[pm=%d]", e->pm );
 
     if ( e->sr != -2 )
-	FPRINTF( output, "[sr=%d]", e->sr );
+        FPRINTF( output, "[sr=%d]", e->sr );
 
     if ( e->pl != -2 )
-	FPRINTF( output, "[pl=%d]", e->pl );
+        FPRINTF( output, "[pl=%d]", e->pl );
 
     if ( e->pmark )
-	FPRINTF( output, "P" );
+        FPRINTF( output, "P" );
 
     if ( e->smark )
-	FPRINTF( output, "S" );
+        FPRINTF( output, "S" );
 
     if ( e->rmark1 == RMARK )
-	FPRINTF( output, "R" );
+        FPRINTF( output, "R" );
 
     if ( e->rmark1 == rMARK )
-	FPRINTF( output, "r" );
+        FPRINTF( output, "r" );
 
     if ( e->omark1 )
-	FPRINTF( output, "O" );
+        FPRINTF( output, "O" );
 
     if ( e->dmark )
-	FPRINTF( output, "D" );
+        FPRINTF( output, "D" );
 
     if ( e->wmark )
-	FPRINTF( output, "W" );
+        FPRINTF( output, "W" );
 
     if ( e->cm != 0 )
-	FPRINTF( output, "[cm=%d]", e->cm );
+        FPRINTF( output, "[cm=%d]", e->cm );
 
     FPRINTF( output, ")" );
 }
@@ -173,30 +183,30 @@ int   indent;
     FPRINTF( output, "(" );
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	if ( IsConst( i ) ) {
-	    FPRINTF( output, " %d:[", i->iport );
-	    PPrintConst( i );
-	    FPRINTF( output, "]" );
-	    continue;
-	    }
+        if ( IsConst( i ) ) {
+            FPRINTF( output, " %d:[", i->iport );
+            PPrintConst( i );
+            FPRINTF( output, "]" );
+            continue;
+            }
 
-	FPRINTF( output, " %d:[%d-%d", i->iport, i->src->label, i->eport );
-	PPrintEdgePragmas( i );
-	FPRINTF( output, "]" );
+        FPRINTF( output, " %d:[%d-%d", i->iport, i->src->label, i->eport );
+        PPrintEdgePragmas( i );
+        FPRINTF( output, "]" );
         }
 
     FPRINTF( output, " )\n" );
 
     if ( n->aimp != NULL ) {
         PPrintIndentation( indent, n->if1line );
-	FPRINTF( output, " ** ADES:" );
-	}
+        FPRINTF( output, " ** ADES:" );
+        }
 
     for ( a = n->aimp; a != NULL; a = a->isucc )
-	FPRINTF( output, " %d->%d", a->src->label, n->label );
+        FPRINTF( output, " %d->%d", a->src->label, n->label );
 
     if ( n->aimp != NULL )
-	FPRINTF( output, "\n" );
+        FPRINTF( output, "\n" );
 }
 
 
@@ -217,54 +227,54 @@ PNODE g;
         PPrintIndentation( indent, g->if1line );
 
         switch ( g->type ) {
-	    case IFIGraph:
-	        FPRINTF( output, "(0)IMPORT FUNCTION %s(...)\n", g->G_NAME );
-	        return;
+            case IFIGraph:
+                FPRINTF( output, "(0)IMPORT FUNCTION %s(...)\n", g->G_NAME );
+                return;
 
-	    case IFLGraph:
-	        FPRINTF( output, "(0)LOCAL FUNCTION %s", g->G_NAME );
-	        break;
+            case IFLGraph:
+                FPRINTF( output, "(0)LOCAL FUNCTION %s", g->G_NAME );
+                break;
 
-	    case IFXGraph:
-	        FPRINTF( output, "(0)EXPORT FUNCTION %s", g->G_NAME );
-	        break;
+            case IFXGraph:
+                FPRINTF( output, "(0)EXPORT FUNCTION %s", g->G_NAME );
+                break;
 
-	    case IFSGraph:
-	        FPRINTF( output, "(0)SGrph" );
-	        break;
-	    }
+            case IFSGraph:
+                FPRINTF( output, "(0)SGrph" );
+                break;
+            }
 
         If2PPrintNodeMarks( g );
         PPrintImports( g, indent ); indent++;
-	}
+        }
 
     CheckDataFlowOrder( g );
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	if ( n->exp == NULL ) {
+        if ( n->exp == NULL ) {
           FPRINTF( stderr, "%s: E - NODE WITHOUT EXPORTS: line %d\n", 
-			   program, n->if1line  );
+                           program, n->if1line  );
 
           Stop( ERROR );
           }
 
-	if ( !nopp ) {
-	    PPrintIndentation( indent, n->if1line );
+        if ( !nopp ) {
+            PPrintIndentation( indent, n->if1line );
 
-	    FPRINTF( output, "(%d)", n->label );
+            FPRINTF( output, "(%d)", n->label );
 
-	    if ( IsOther( n ) )
-	        FPRINTF( output, "Other[%d]", n->type );
-	    FPRINTF( output, "%s", GetNodeName(n) );
+            if ( IsOther( n ) )
+                FPRINTF( output, "Other[%d]", n->type );
+            FPRINTF( output, "%s", GetNodeName(n) );
 
             If2PPrintNodeMarks( n );
             PPrintImports( n, indent );
-	    }
+            }
 
-	if ( IsCompound( n ) )
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		If2PPrintNode( g, indent + 1 );
-	}
+        if ( IsCompound( n ) )
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                If2PPrintNode( g, indent + 1 );
+        }
 }
 
 
@@ -279,9 +289,9 @@ void If2PPrint()
     register PNODE f;
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
-	if ( !nopp )
-	   FPRINTF( output, "\n" );
+        if ( !nopp )
+           FPRINTF( output, "\n" );
 
-	If2PPrintNode( f, 0 );
-	}
+        If2PPrintNode( f, 0 );
+        }
 }

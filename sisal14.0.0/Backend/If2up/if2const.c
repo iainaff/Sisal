@@ -1,10 +1,20 @@
-/* if2const.c,v
+/**************************************************************************/
+/* FILE   **************         if2const.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:10  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:01  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -39,69 +49,69 @@ void If2ConstGenerators()
     ch = TRUE;
 
     while ( ch ) {
-	ch = FALSE;
+        ch = FALSE;
 
         for ( n = cohead; n != NULL; n = n->usucc ) {
-	    /* HAS THE NODE ALREADY BEEN REMOVED?                         */
-	    if ( !(n->cmark) )
-		continue;
+            /* HAS THE NODE ALREADY BEEN REMOVED?                         */
+            if ( !(n->cmark) )
+                continue;
 
-	    /* ARE n'S NONCONSTANT IMPORTS EXPORTS OF LIST NODES?         */
+            /* ARE n'S NONCONSTANT IMPORTS EXPORTS OF LIST NODES?         */
 
             for ( i = n->imp; i != NULL; i = i->isucc ) {
-	        if ( IsConst( i ) ) {
-	            if ( IsNonErrorConst( i ) )
-		        continue;
+                if ( IsConst( i ) ) {
+                    if ( IsNonErrorConst( i ) )
+                        continue;
 
-		    break;
-	            }
+                    break;
+                    }
 
-	        if ( !(i->src->cmark) )
-		    break;
+                if ( !(i->src->cmark) )
+                    break;
 
-		/* NO BRecord IMPORTS ALLOWED!!! */
-		if ( IsABRecord( i->info ) )
-		  break;
-	        }
+                /* NO BRecord IMPORTS ALLOWED!!! */
+                if ( IsABRecord( i->info ) )
+                  break;
+                }
 
-	    if ( i != NULL ) {
-	        n->cmark = FALSE; ch = TRUE;
-	        continue;
-	        }
-	  
-	    if ( IsDefArrayBuf( n ) ) {
+            if ( i != NULL ) {
+                n->cmark = FALSE; ch = TRUE;
+                continue;
+                }
+          
+            if ( IsDefArrayBuf( n ) ) {
                 if ( !(n->exp->dst->cmark) ) {
-	            n->cmark = FALSE; ch = TRUE;
-		    }
+                    n->cmark = FALSE; ch = TRUE;
+                    }
 
                 continue;
-		}
+                }
 
-	    if ( IsMemAlloc( n ) ) {
-		if ( (n->exp->esucc != NULL) || !(n->exp->dst->cmark) ) {
-		    n->cmark = FALSE; ch = TRUE;
-		    }
+            if ( IsMemAlloc( n ) ) {
+                if ( (n->exp->esucc != NULL) || !(n->exp->dst->cmark) ) {
+                    n->cmark = FALSE; ch = TRUE;
+                    }
 
-		continue;
-		}
-	    }
+                continue;
+                }
+            }
         }
 
     for ( n = cohead; n != NULL; n = n->usucc ) {
-	if ( !(n->cmark) )
-	    continue;
+        if ( !(n->cmark) )
+            continue;
 
         switch ( n->type ) {
-	    case IFABuildAT:
-	    case IFAFillAT:
-	    case IFRBuild:
-		for ( e = n->exp; e != NULL; e = e->esucc )
-		    e->sr++;
+            case IFABuildAT:
+            case IFAFillAT:
+            case IFRBuild:
+                for ( e = n->exp; e != NULL; e = e->esucc )
+                    e->sr++;
 
-		break;
+                break;
 
-	    default:
-		break;
-	    }
-	}
+            default:
+                break;
+            }
+        }
 }

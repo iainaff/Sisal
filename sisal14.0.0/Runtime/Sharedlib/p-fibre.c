@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************         p-fibre.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 
@@ -8,11 +20,11 @@
 #undef MAX_CHAR
 #define MAX_CHAR      0x7f
 
-char	*ArgumentP = ArgumentString;
-static	int	InputLine	= 1;
-static	int	InputColumn	= 0;
-static  char    Buffer		= '\0';
-        char    LookAhead	= FALSE;
+char    *ArgumentP = ArgumentString;
+static  int     InputLine       = 1;
+static  int     InputColumn     = 0;
+static  char    Buffer          = '\0';
+        char    LookAhead       = FALSE;
         int     LookAheadToken;
 
 char    FibreChar;
@@ -29,10 +41,10 @@ static int     Length;
 static int     Token;
 static int     CharMode = FALSE;
 
-#define	GET_NEXT_TOKEN	(InputColumn++,Buffer = (*ArgumentP)?(*ArgumentP++):getc(FibreInFd), InputLine=(Buffer=='\n')?(InputColumn=0,InputLine+1):(InputLine),Buffer)
-#define ISDIGIT(X)	(((X) >= '0') && ((X) <= '9'))
-#define LENGTH_OK	(Length < TEXT_SIZE)
-#define ADD_TO_TEXT	if (LENGTH_OK) Text[Length++] = Buffer
+#define GET_NEXT_TOKEN  (InputColumn++,Buffer = (*ArgumentP)?(*ArgumentP++):getc(FibreInFd), InputLine=(Buffer=='\n')?(InputColumn=0,InputLine+1):(InputLine),Buffer)
+#define ISDIGIT(X)      (((X) >= '0') && ((X) <= '9'))
+#define LENGTH_OK       (Length < TEXT_SIZE)
+#define ADD_TO_TEXT     if (LENGTH_OK) Text[Length++] = Buffer
 
 #define GET_DIGITS        while (ISDIGIT(Buffer)) {           \
                                ADD_TO_TEXT;                      \
@@ -42,7 +54,7 @@ static int     CharMode = FALSE;
 void FibreError(s)
      char   *s;
 {
-  char		buf[1024],charname[10];
+  char          buf[1024],charname[10];
 
 
   if ( Buffer == (char)EOF ) {
@@ -54,7 +66,7 @@ void FibreError(s)
   }
 
   sprintf(buf,"%s at line %d, column %d = '%s'\n",
-	  s,InputLine,InputColumn,charname);
+          s,InputLine,InputColumn,charname);
   SisalError("FIBRE",buf);
 }
 
@@ -273,7 +285,7 @@ TopOfWorld:
       default  :
         Token = INT_;
         UNGETC( Buffer, FibreInFd );
-	break;
+        break;
       }
 
     return( PackageNumber() );

@@ -1,10 +1,20 @@
-/* pprint.c,v
+/**************************************************************************/
+/* FILE   **************          pprint.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:12  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:05  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -26,13 +36,13 @@ int   cycle;
 /*          ENCOUNTERED FILE IS FOR IF1 INPUT.  THE SECOND ENCOUNTERED    */
 /*          FILE IS FOR IF1 OUTPUT.  ANY OTHER FILES ON THE COMMAND LINE  */
 /*          CAUSE AN ERROR MESSAGE TO BE PRINTED.                         */
-/*									  */
-/*	    FILES:							  */
-/*		0:	-> IF2 file					  */
-/*		1:	-> Pretty-printed IF2 file			  */
-/*									  */
-/*          OPTIONS:							  */
-/*		-	-> Skip a standard file (in, out, etc..)	  */
+/*                                                                        */
+/*          FILES:                                                        */
+/*              0:      -> IF2 file                                       */
+/*              1:      -> Pretty-printed IF2 file                        */
+/*                                                                        */
+/*          OPTIONS:                                                      */
+/*              -       -> Skip a standard file (in, out, etc..)          */
 
 /**************************************************************************/
 
@@ -50,9 +60,9 @@ char **argv;
             switch ( fmode ) {
                 case 0: 
                     if ( (fd = fopen( c, "r" )) == NULL )
-			Error2( "CAN'T OPEN", c );
+                        Error2( "CAN'T OPEN", c );
 
-		    input = fd;
+                    input = fd;
 
                     AssignSourceFileName( c );
 
@@ -61,11 +71,11 @@ char **argv;
 
                 case 1:
                     if ( (fd = fopen( c, "w" )) == NULL )
-			Error2( "CAN'T OPEN", c );
+                        Error2( "CAN'T OPEN", c );
 
-		    output = fd;
+                    output = fd;
 
-		    fmode++;
+                    fmode++;
                     break;
 
                 default:
@@ -76,12 +86,12 @@ char **argv;
             }
 
         switch ( *( ++c ) ) {
-	    case 'n':
-		nopp = TRUE;
-		break;
+            case 'n':
+                nopp = TRUE;
+                break;
 
             case '\0':
-		fmode++;
+                fmode++;
                 break;
 
             default:

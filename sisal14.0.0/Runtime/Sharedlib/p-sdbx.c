@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************          p-sdbx.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 #define T_NOTUSED   1
@@ -303,10 +315,10 @@ StartAgain:
         GetWord( Arg1 );
 
         if ( (Ch = Arg1[0]) == '\0' )
-	  goto SyntaxError;
+          goto SyntaxError;
 
-	break;
-	}
+        break;
+        }
 
       SDBX_Token = T_BREAK;    /* break name OR break line */
 
@@ -577,22 +589,22 @@ static void ProcessCommands()
               break;
               }
 
-	    if ( !(Scope[Idx].ArrayType) ) {
-	      PRINTF( " [%s is not an array]\n", Arg1 );
-	      break;
-	      }
+            if ( !(Scope[Idx].ArrayType) ) {
+              PRINTF( " [%s is not an array]\n", Arg1 );
+              break;
+              }
 
-	    PRINTF( " [lower=%d,upper=%d,size=%d]\n",
+            PRINTF( " [lower=%d,upper=%d,size=%d]\n",
                     ((ARRAYP)(Scope[Idx].Value.PtR))->LoBound,
                     ((ARRAYP)(Scope[Idx].Value.PtR))->LoBound +
                     ((ARRAYP)(Scope[Idx].Value.PtR))->Size - 1,
                     ((ARRAYP)(Scope[Idx].Value.PtR))->Size );
 
-	    break;
-	    }
-	  }
+            break;
+            }
+          }
 
-	break;
+        break;
 
       case T_DISPLAY:
         DisplayText();
@@ -678,7 +690,7 @@ static void ProcessCommands()
 
       case T_STEP:
         SdbxAction.Action = A_STEP;
-	SdbxAction.Line   = SdbxState.Line;
+        SdbxAction.Line   = SdbxState.Line;
         return;
 
       case T_WHERE:
@@ -717,17 +729,17 @@ int AtLine;
         PrintSdbxPrompt( (char*)NULL );
         ProcessCommands();
         break;
-	}
+        }
 
       if ( SdbxMonitorCode == SDBX_POP ) {
         SdbxAction.Action = A_NONE;
         PrintSdbxPrompt( "end function" );
         ProcessCommands();
         break;
-	}
+        }
 
       if ( SdbxAction.Line == SdbxState.Line )
-	break;
+        break;
 
       SdbxAction.Action = A_NONE;
       Number1 = -1;

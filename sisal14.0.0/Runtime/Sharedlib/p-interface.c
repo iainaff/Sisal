@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************       p-interface.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 
@@ -19,7 +31,7 @@ int axValue;
     if ( LoopSlices > 0 )
       SisalError( "PARAMETER CONFLICT IN sconfig", "-gss AND -ls" );
 
-    DefaultLoopStyle = 'G';	/* GSS */
+    DefaultLoopStyle = 'G';     /* GSS */
     }
 
   if ( bValue == 1 )
@@ -56,9 +68,9 @@ int rValue;
     LoopSlices = NumWorkers;
 }
 
-#define FIBREIN		1
-#define FIBREOUT	2
-#define SINFO		3
+#define FIBREIN         1
+#define FIBREOUT        2
+#define SINFO           3
 
 static void ParseFileParameters(filename)
     char        *filename;
@@ -70,7 +82,7 @@ static void ParseFileParameters(filename)
 
     /*** Read the file into argc and argv. ***/
 
-    argv[0] = '\0';		/* no command was used */
+    argv[0] = '\0';             /* no command was used */
     argc = 1;
     optfile = fopen(filename, "r");
     if (optfile==NULL) {
@@ -109,11 +121,11 @@ int *rValue;                                             \
   StartWorkers();                                        \
 }
 
-#define SPCALL_FUNCTION(x)				\
-void x ( filename, entry )				\
-char *filename;						\
-void (*entry)();					\
-{							\
+#define SPCALL_FUNCTION(x)                              \
+void x ( filename, entry )                              \
+char *filename;                                         \
+void (*entry)();                                        \
+{                                                       \
   ParseFileParameters( filename );                      \
   InitSisalRunTime();                                   \
   StartWorkersWithEntry(entry);                         \
@@ -183,11 +195,11 @@ SPCALL_FUNCTION( spcall_ )
     case COL_MAJOR: \
       InfoInc = 5; \
       if ( Mode == PRESERVE ) \
-	DimInc = 1; \
+        DimInc = 1; \
       else { \
-	DimInc = -1; \
+        DimInc = -1; \
         y += (x-1); \
-	} \
+        } \
       break; \
     default: \
       InfoInc = -5; \
@@ -276,11 +288,11 @@ InfoError:
     SdbxMonitor( SDBX_IERR );
 
   FPRINTF( stderr, 
-	   "Descriptor Info: Major=%d Dimensions=%d Current Dimmension = %d\n", 
-	   Major, Dim, CurrentDim );
+           "Descriptor Info: Major=%d Dimensions=%d Current Dimmension = %d\n", 
+           Major, Dim, CurrentDim );
 
   FPRINTF( stderr, "Descriptor Info: Plo=%d Phi=%d Llo=%d Lhi=%d\n",
-		    Plo,Phi,Llo,Lhi );
+                    Plo,Phi,Llo,Lhi );
 
   SisalError( "ILLEGAL ARRAY DESCRIPTOR", 
               "mixed language interface IDescriptorCheck" );

@@ -1,10 +1,20 @@
-/* if2ade.c,v
+/**************************************************************************/
+/* FILE   **************          if2ade.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:10  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:00  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -24,14 +34,14 @@ int   SearchColor;
     register PEDGE i;
 
     for ( i = g->imp; i != NULL; i = i->isucc ) {
-	if ( IsConst( i ) )
-	    continue;
+        if ( IsConst( i ) )
+            continue;
  
-	if ( IsSGraph( i->src ) )
-	    continue;
+        if ( IsSGraph( i->src ) )
+            continue;
 
         if ( i->src->color == SearchColor )
-	    return( i->src );
+            return( i->src );
         }
 
     Error1( "FindLGenerator: L GENERATOR NOT FOUND" );
@@ -66,54 +76,54 @@ static void OrderLPortGenerators()
     register int   NodeColor;
 
     for ( c = chead; c != NULL; c = c->usucc ) {
-	if ( !IsLoop( c ) )
-	    continue;
+        if ( !IsLoop( c ) )
+            continue;
 
-	/*  PAINT ALL THE NODES IN THE LOOP BODY                          */
+        /*  PAINT ALL THE NODES IN THE LOOP BODY                          */
 
         NodeColor = WHITE + 1;
 
-	for ( i = c->L_BODY->imp; i != NULL; i = i->isucc )
-	    if ( !IsConst( i ) )
-	        if ( !IsSGraph( i->src ) )
-		    i->src->color = NodeColor++;
+        for ( i = c->L_BODY->imp; i != NULL; i = i->isucc )
+            if ( !IsConst( i ) )
+                if ( !IsSGraph( i->src ) )
+                    i->src->color = NodeColor++;
         
-	for ( n = FindLastNode( c->L_BODY ); !IsSGraph( n ); n = n->npred ) {
-	    if ( n->color == WHITE )
-		n->color = NodeColor++;
+        for ( n = FindLastNode( c->L_BODY ); !IsSGraph( n ); n = n->npred ) {
+            if ( n->color == WHITE )
+                n->color = NodeColor++;
 
             for ( i = n->imp; i != NULL; i = i->isucc )
-		if ( !IsConst( i ) )
-		    if ( !IsSGraph( i->src ) )
-		        if ( i->src->color == WHITE )
-			    i->src->color = n->color;
-	    }
+                if ( !IsConst( i ) )
+                    if ( !IsSGraph( i->src ) )
+                        if ( i->src->color == WHITE )
+                            i->src->color = n->color;
+            }
 
-	/* DRIVEN BY THE NODE COLORING, ORDER THE NODES TO REDUCE COPYING */
+        /* DRIVEN BY THE NODE COLORING, ORDER THE NODES TO REDUCE COPYING */
 
         for ( i = c->L_BODY->imp; i != NULL; i = i->isucc ) {
-	    if ( IsConst( i ) )
-		continue;
+            if ( IsConst( i ) )
+                continue;
 
             if ( IsSGraph( i->src ) )
-		continue;
+                continue;
 
             for ( e = c->L_BODY->exp; e != NULL; e = e->esucc ) {
-		if ( IsSGraph( e->dst ) )
-		    continue;
+                if ( IsSGraph( e->dst ) )
+                    continue;
 
                 if ( e->eport == i->iport )
-		    if ( e->dst->color != i->src->color )
+                    if ( e->dst->color != i->src->color )
                       /* BUG FIX FOR PEEK OPERATION: 12/9/91 CANN */
                       if ( e->dst->type != IFPeek ) {
-			n = FindLGenerator( c->L_BODY, e->dst->color );
+                        n = FindLGenerator( c->L_BODY, e->dst->color );
 
-			if ( !IsAdePresent( n, i->src ) )
-		            CreateAndInsertAde( n, i->src, HIGH_PRI );
-			}
-		}
-	    }
-	}
+                        if ( !IsAdePresent( n, i->src ) )
+                            CreateAndInsertAde( n, i->src, HIGH_PRI );
+                        }
+                }
+            }
+        }
 }
 
 /**************************************************************************/
@@ -130,18 +140,18 @@ PNODE n;
     register PEDGE i;
 
     for ( a = n->aimp; a != NULL; a = a->isucc )
-	if ( !(a->src->executed) )
-	    return( FALSE );
+        if ( !(a->src->executed) )
+            return( FALSE );
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	if ( IsConst( i ) )
-	    continue;
+        if ( IsConst( i ) )
+            continue;
 
-	if ( IsGraph( i->src ) )
-	    continue;
+        if ( IsGraph( i->src ) )
+            continue;
 
-	if ( !(i->src->executed) )
-	    return( FALSE );
+        if ( !(i->src->executed) )
+            return( FALSE );
         }
 
     return( TRUE );
@@ -169,12 +179,12 @@ PNODE g;
     register PNODE sg;
 
     while ( g->G_NODES != NULL ) {
-	m = FALSE;
+        m = FALSE;
 
-	for ( n = g->G_NODES; n != NULL; n = sn ) {
-	    sn = n->nsucc;
+        for ( n = g->G_NODES; n != NULL; n = sn ) {
+            sn = n->nsucc;
 
-	    if ( CanExecute( n ) ) {
+            if ( CanExecute( n ) ) {
                 UnlinkNode( n ); m = TRUE;
 
                 if ( ehead == NULL )
@@ -184,20 +194,20 @@ PNODE g;
 
                 n->executed = TRUE;
 
-		if ( IsCompound( n ) )
-		    for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-			SortNodes( sg );
-		}
+                if ( IsCompound( n ) )
+                    for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+                        SortNodes( sg );
+                }
             }
 
-	if ( (!m) && (g->G_NODES != NULL) )
-	    Error1( "SortNodes: CYCLES PRESENT" );
-	}
+        if ( (!m) && (g->G_NODES != NULL) )
+            Error1( "SortNodes: CYCLES PRESENT" );
+        }
 
     g->G_NODES = ehead;
 
     if ( ehead != NULL )
-	ehead->npred = g;
+        ehead->npred = g;
 }
 
 
@@ -227,17 +237,17 @@ void If2Ade()
     /* TO ELIMINATE UNNEEDED COPYING; CYCLE AVOIDANCE IS NOT PERFORMED.   */
 
     for ( s = gshead; s != NULL; s = s->ssucc->ssucc ) {
-	for ( ri = 0; ri <= s->last; ri++ )
-	    for ( wi = 0; wi <= s->ssucc->last; wi++ ) {
+        for ( ri = 0; ri <= s->last; ri++ )
+            for ( wi = 0; wi <= s->ssucc->last; wi++ ) {
                 r = s->set[ri];
-		w = s->ssucc->set[wi];
+                w = s->ssucc->set[wi];
 
-		if ( IsGraph( w->dst ) )
-		    continue;
+                if ( IsGraph( w->dst ) )
+                    continue;
 
-		CreateAndInsertAde( r->dst, w->dst, LOW_PRI );
-		}
-	}
+                CreateAndInsertAde( r->dst, w->dst, LOW_PRI );
+                }
+        }
 
     /* TRY AND ELIMINATE SCALAR COPYING OF LOOP CARRIED VALUES            */
     OrderLPortGenerators();

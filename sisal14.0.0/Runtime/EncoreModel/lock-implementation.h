@@ -1,3 +1,18 @@
+#ifndef LOCK_IMPLEMENTATION_H
+#define LOCK_IMPLEMENTATION_H
+
+/**************************************************************************/
+/* FILE   **************   lock-implementation.h   ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /************************************************************************\
  * Encore
 \************************************************************************/
@@ -21,7 +36,7 @@ typedef BARRIER       BARRIER_TYPE;
 #define INIT_BARRIER(bp,limit) \
 { \
   (bp) = barrier_init( (BARRIER_TYPE*) SharedMalloc( SIZEOF(BARRIER_TYPE) ), \
-		      limit, SPIN_BLOCK ); \
+                      limit, SPIN_BLOCK ); \
   if ( (bp) == NULL ) \
     SisalError( "INIT_BARRIER", "barrier_init FAILED" ); \
 }
@@ -33,3 +48,5 @@ typedef BARRIER       BARRIER_TYPE;
 #define FLUSHLINE(addr)
 #define CACHESYNC
 #define FFL
+
+#endif

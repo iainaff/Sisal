@@ -1,36 +1,48 @@
+/**************************************************************************/
+/* FILE   **************         p-tracer.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 /* ------------------------------------------------------------ */
-int Trace_TWINE		= 0;
-int Trace_INTERACTIVE	= 0;
-int Trace_APPEND	= 1;
-int Trace_STEP		= 1;
-int Trace_BREAK		= 0;
-int Trace_FILE		= 0;
+int Trace_TWINE         = 0;
+int Trace_INTERACTIVE   = 0;
+int Trace_APPEND        = 1;
+int Trace_STEP          = 1;
+int Trace_BREAK         = 0;
+int Trace_FILE          = 0;
 
 /* ------------------------------------------------------------ */
-#define TraceSize	(100)
+#define TraceSize       (100)
 typedef struct {
-  char		*FName;
-  int		Alive;
-  int		ToFile;
-  int		Append;
-  int		Mod;
-  int		Count;
-  int		TCount;
-  int		Written;
+  char          *FName;
+  int           Alive;
+  int           ToFile;
+  int           Append;
+  int           Mod;
+  int           Count;
+  int           TCount;
+  int           Written;
 } TraceTableEntry;
 
 TraceTableEntry TraceTable[TraceSize];
-static int 		IDPool = 0;
+static int              IDPool = 0;
 
 /**************************************************************************/
 /* GLOBAL **************     ParseTracerCommand    ************************/
 /**************************************************************************/
-/* PURPOSE:  Parse commands for the tracer function			  */
+/* PURPOSE:  Parse commands for the tracer function                       */
 /**************************************************************************/
 void ParseTracerCommand(p)
-     char	*p;
+     char       *p;
 {
   int  len = strlen(p);
 
@@ -120,36 +132,36 @@ void ParseTracerCommand(p)
 /* ------------------------------------------------------------ */
 static void
 TraceDisplay(Entry,args,writer,f,ID)
-     TraceTableEntry	*Entry;
-     POINTER		args;
-     void		((*writer)());
-     char		*f;
-     int		*ID;
+     TraceTableEntry    *Entry;
+     POINTER            args;
+     void               ((*writer)());
+     char               *f;
+     int                *ID;
 {
-  FILE			*HoldFD;
+  FILE                  *HoldFD;
 
   /* ------------------------------------------------------------ */
   FPRINTF(stderr,"# %d] Break %s.%d\n",*ID,f,Entry->TCount);
-  Entry->Count = 0;		/* Count since last displayed */
+  Entry->Count = 0;             /* Count since last displayed */
 
   /* ------------------------------------------------------------ */
   HoldFD = FibreOutFd;
 
   if ( Entry->ToFile ) {
-    char			buf[100];
+    char                        buf[100];
     SPRINTF(buf,"./%s.trace",Entry->FName);
     FibreOutFd = fopen(buf,(Entry->Append && Entry->Written)?"a":"w");
     if ( !FibreOutFd ) {
       FPRINTF(stderr,"Warning: cannot open %s\n",buf);
     }
-    Entry->Written = 1;		/* Allow things to append from now on */
+    Entry->Written = 1;         /* Allow things to append from now on */
   } else {
     FibreOutFd = stderr;
   }
 
   if ( FibreOutFd ) {
     if ( FibreOutFd != stderr ) FPRINTF(FibreOutFd,"# %d] Break %s.%d\n",
-					*ID,f,Entry->TCount);
+                                        *ID,f,Entry->TCount);
 
     if ( Trace_TWINE ) {
       FPRINTF(FibreOutFd,"break function %s;\n",Entry->FName);
@@ -171,21 +183,21 @@ TraceDisplay(Entry,args,writer,f,ID)
 /* ------------------------------------------------------------ */
 static void
 TraceInteractive(Entry,args,writer,f,ID)
-     TraceTableEntry	*Entry;
-     POINTER		args;
-     void		((*writer)());
-     char		*f;
-     int		*ID;
+     TraceTableEntry    *Entry;
+     POINTER            args;
+     void               ((*writer)());
+     char               *f;
+     int                *ID;
 {
-  TraceTableEntry	*ThisEntry;
-  char			com[256];
-  char			*cp;
-  FILE			*TTY;
-  int			NOT;
-  int			Save;
-  int			i,j,len;
-  int			Step;
-  int			OptID;
+  TraceTableEntry       *ThisEntry;
+  char                  com[256];
+  char                  *cp;
+  FILE                  *TTY;
+  int                   NOT;
+  int                   Save;
+  int                   i,j,len;
+  int                   Step;
+  int                   OptID;
 
   /* ------------------------------------------------------------ */
   /* Note that this breakpoint has been touched */
@@ -212,8 +224,8 @@ TraceInteractive(Entry,args,writer,f,ID)
       OptID = atoi(cp);
       for(; *cp && isdigit(*cp); cp++);
       if ( OptID <= 0 || OptID > IDPool ) {
-	FPRINTF(stderr,"No such entry %d\n",OptID);
-	goto LoopEnd;
+        FPRINTF(stderr,"No such entry %d\n",OptID);
+        goto LoopEnd;
       }
       ThisEntry = TraceTable+OptID;
     }
@@ -254,18 +266,18 @@ TraceInteractive(Entry,args,writer,f,ID)
 
      case 'l': case 'L':
       FPRINTF(stderr,
-	      "ID] Function         TCount Count Step Alive File Append\n");
+              "ID] Function         TCount Count Step Alive File Append\n");
       for(i=1;i<=IDPool;i++) {
-	FPRINTF(stderr,"%2d] %s",i,TraceTable[i].FName);
-	len = strlen(TraceTable[i].FName);
-	for(j=len;j<16;j++) FPUTC(' ',stderr);
-	FPRINTF(stderr," %6d %5d %4d %5d %4d %6d\n",
-		TraceTable[i].TCount,
-		TraceTable[i].Count,
-		TraceTable[i].Mod,
-		TraceTable[i].Alive,
-		TraceTable[i].ToFile,
-		TraceTable[i].Append);
+        FPRINTF(stderr,"%2d] %s",i,TraceTable[i].FName);
+        len = strlen(TraceTable[i].FName);
+        for(j=len;j<16;j++) FPUTC(' ',stderr);
+        FPRINTF(stderr," %6d %5d %4d %5d %4d %6d\n",
+                TraceTable[i].TCount,
+                TraceTable[i].Count,
+                TraceTable[i].Mod,
+                TraceTable[i].Alive,
+                TraceTable[i].ToFile,
+                TraceTable[i].Append);
       }
       break;
 
@@ -295,9 +307,9 @@ TraceInteractive(Entry,args,writer,f,ID)
       for(;*cp && isalpha(*cp);cp++);
       Step = atoi(cp);
       if ( Step <= 0 ) {
-	FPRINTF(stderr,"Step must be greater than zero\n");
+        FPRINTF(stderr,"Step must be greater than zero\n");
       } else {
-	ThisEntry->Mod = Step;
+        ThisEntry->Mod = Step;
       }
       break;
 
@@ -311,29 +323,29 @@ TraceInteractive(Entry,args,writer,f,ID)
       FPRINTF(stderr,"Single letter commands with optional ID and ~ (not)\n");
       FPUTC('\n',stderr);
       FPRINTF(stderr,
-	      "[id] [~]Append        : Append (Overwrite) trace to file\n");
+              "[id] [~]Append        : Append (Overwrite) trace to file\n");
       FPRINTF(stderr,
-	      "        Continue      : Continue execution\n");
+              "        Continue      : Continue execution\n");
       FPRINTF(stderr,
-	      "        Display       : Display trace (to screen or file)\n");
+              "        Display       : Display trace (to screen or file)\n");
       FPRINTF(stderr,
-	      "[id] [~]File          : Set file (screen) trace mode\n");
+              "[id] [~]File          : Set file (screen) trace mode\n");
       FPRINTF(stderr,
-	      "     [~]Interactive   : Change interactive setting\n");
+              "     [~]Interactive   : Change interactive setting\n");
       FPRINTF(stderr,
-	      "        List          : List all breakpoints that have been hit\n");
+              "        List          : List all breakpoints that have been hit\n");
       FPRINTF(stderr,
-	      "[id] [~]Kill          : Kill (Resurrect) the breakpoint\n");
+              "[id] [~]Kill          : Kill (Resurrect) the breakpoint\n");
       FPRINTF(stderr,
-	      "[id] [~]Overwrite     : Overwrite (Append) trace to file\n");
+              "[id] [~]Overwrite     : Overwrite (Append) trace to file\n");
       FPRINTF(stderr,
-	      "        Peek          : Display trace to screen\n");
+              "        Peek          : Display trace to screen\n");
       FPRINTF(stderr,
-	      "        Quit          : Quit s.out\n");
+              "        Quit          : Quit s.out\n");
       FPRINTF(stderr,
-	      "[id]    Step n        : Set step count for breakpoint\n");
+              "[id]    Step n        : Set step count for breakpoint\n");
       FPRINTF(stderr,
-	      "     [~]Twine         : Output in TWINE (Fibre) format\n");
+              "     [~]Twine         : Output in TWINE (Fibre) format\n");
     }
 
    LoopEnd:
@@ -347,12 +359,12 @@ TraceInteractive(Entry,args,writer,f,ID)
 /* ------------------------------------------------------------ */
 void
 _Tracer_(args,writer,f,ID)
-     POINTER	args;
-     void	((*writer)());
-     char	*f;
-     int	*ID;
+     POINTER    args;
+     void       ((*writer)());
+     char       *f;
+     int        *ID;
 {
-  TraceTableEntry	*Entry;
+  TraceTableEntry       *Entry;
 
   /* ------------------------------------------------------------ */
   /* Better get a lock or bad things will happen! */
@@ -364,14 +376,14 @@ _Tracer_(args,writer,f,ID)
     *ID = ++IDPool;
     Entry = TraceTable+(*ID);
 
-    Entry->FName	= f;
-    Entry->Alive	= 1;
-    Entry->ToFile	= Trace_FILE;
-    Entry->Append	= Trace_APPEND;
-    Entry->Mod		= Trace_STEP;
-    Entry->Count	= 0;
-    Entry->TCount	= 0;
-    Entry->Written	= 0;
+    Entry->FName        = f;
+    Entry->Alive        = 1;
+    Entry->ToFile       = Trace_FILE;
+    Entry->Append       = Trace_APPEND;
+    Entry->Mod          = Trace_STEP;
+    Entry->Count        = 0;
+    Entry->TCount       = 0;
+    Entry->Written      = 0;
   } else {
     Entry = TraceTable+(*ID);
   }

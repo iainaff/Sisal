@@ -1,10 +1,20 @@
-/* if2cost.c,v
+/**************************************************************************/
+/* FILE   **************         if2cost.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:08  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:35  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -17,7 +27,7 @@ double atcosts[IF2AtNodes];                    /* AT-NODE COST TABLE     */
 /**************************************************************************/
 /* LOCAL  **************      SetArithmeticCost    ************************/
 /**************************************************************************/
-/* PURPOSE:								  */
+/* PURPOSE:                                                               */
 /**************************************************************************/
 
 static void SetArithmeticCost( n )
@@ -27,16 +37,16 @@ PNODE n;
 
    switch ( n->exp->info->type ) {
      case IF_DOUBLE:
-	extra = DoubleCost;
-	break;
+        extra = DoubleCost;
+        break;
 
      case IF_REAL:
-	extra = RealCost;
-	break;
+        extra = RealCost;
+        break;
 
      default:
-	extra = IntegerCost;
-	break;
+        extra = IntegerCost;
+        break;
      }
 
    n->ccost += scosts[ n->type - IFAAddH ] + extra;
@@ -102,7 +112,7 @@ static void WriteCostTables()
 
       for ( i = 0; i < IF1SimpleNodes; i++ ) {
         if ( (i % 7) == 0 )
-	  FPRINTF( infoptr, "\n" );
+          FPRINTF( infoptr, "\n" );
 
         FPRINTF( infoptr, " %-5.5s %4d", SimpleName(i), (int) scosts[i] );
       }
@@ -111,7 +121,7 @@ static void WriteCostTables()
 
       for ( i = 0; i < IF2AtNodes; i++ ) {
         if ( (i % 7) == 0 )
-	  FPRINTF( infoptr, "\n" );
+          FPRINTF( infoptr, "\n" );
 
         FPRINTF( infoptr, " %-6.6s %3d", AtName(i), (int) atcosts[i] );
       }
@@ -125,25 +135,25 @@ static void WriteCostTables()
     FPRINTF( infoptr, " Loop Iterations:         %d\n", (int) Iterations);
 
       FPRINTF( infoptr, " Default Function Cost:   %d\n",
-	      (int) DefaultFunctionCost);
+              (int) DefaultFunctionCost);
       FPRINTF( infoptr, " RefCnt Increment Cost:   %d\n",
-	      (int) RefCntIncrementCost);
+              (int) RefCntIncrementCost);
       FPRINTF( infoptr, " RefCnt Decrement Cost:   %d\n",
-	      (int)RefCntDecrementCost);
+              (int)RefCntDecrementCost);
       FPRINTF( infoptr, " Dope Vector Copy Cost:   %d\n",
-	      (int) DopeVectorCopyCost);
+              (int) DopeVectorCopyCost);
       FPRINTF( infoptr, " Record Copy Cost:        %d\n",
-	      (int) RecordCopyCost);
+              (int) RecordCopyCost);
       FPRINTF( infoptr, " Array Copy Cost:         %d\n",
-	      (int) ArrayCopyCost);
+              (int) ArrayCopyCost);
       FPRINTF( infoptr, " Deallocation Cost:       %d\n",
-	      (int) DeallocCost);
+              (int) DeallocCost);
       FPRINTF( infoptr, " Integer Arithmetic Cost: %d\n",
-	      (int) IntegerCost);
+              (int) IntegerCost);
       FPRINTF( infoptr, " Real Arithmetic Cost:    %d\n",
-	      (int) RealCost);
+              (int) RealCost);
       FPRINTF( infoptr, " Double Arithmetic Cost:  %d\n",
-	      (int) DoubleCost);
+              (int) DoubleCost);
     }
 }
 
@@ -261,7 +271,7 @@ PNODE g;
 
     if ( IsCompound( n ) )
       for ( gg = n->C_SUBS; gg != NULL; gg = gg->gsucc )
-	CalculateCost( gg );
+        CalculateCost( gg );
 
     CalculateRefCntCosts( n );
 
@@ -273,43 +283,43 @@ PNODE g;
 
      case IFForall:
       /* ------------------------------------------------------------ */
-      /* See if we have a preset idea of the vectorization	      */
+      /* See if we have a preset idea of the vectorization            */
       /* ------------------------------------------------------------ */
       if ( UpdatedLoopPragmas(n,R_Vector) ) {
-	if ( !n->vmark ) {
-	  if ( dovec ) n->reason1 = "Cleared by loop report";
-	} else {
-	  n->F_BODY->ccost /= vadjust;
-	}
+        if ( !n->vmark ) {
+          if ( dovec ) n->reason1 = "Cleared by loop report";
+        } else {
+          n->F_BODY->ccost /= vadjust;
+        }
       } else {
-	if ( dovec ) {
-	  /* ------------------------------------------------------------ */
-	  /* Vectorize if we can pass the convoluted test		  */
-	  /* ------------------------------------------------------------ */
-	  if ( PartIsVecCandidate(n,&Reason) ) {
-	    n->vmark = TRUE;
-	    n->F_BODY->ccost /= vadjust;
-	  } else {
-	    n->reason1 = Reason;
-	    if ( RequestInfo(I_Info4,info)  ) {
-	      if ( IsInnerLoop( n->F_BODY ) ) {
-		FPRINTF( infoptr, "INNER LOOP VECTORIZATION FAILURE ");
-		FPRINTF( infoptr, "%d=(%s,%s,%d)\n", 
-			n->ID, n->file, n->funct, n->line );
-		if ( Reason ) FPRINTF( infoptr, "%s\n",Reason);
-	      }
-	    }
-	  }
-	}
+        if ( dovec ) {
+          /* ------------------------------------------------------------ */
+          /* Vectorize if we can pass the convoluted test                 */
+          /* ------------------------------------------------------------ */
+          if ( PartIsVecCandidate(n,&Reason) ) {
+            n->vmark = TRUE;
+            n->F_BODY->ccost /= vadjust;
+          } else {
+            n->reason1 = Reason;
+            if ( RequestInfo(I_Info4,info)  ) {
+              if ( IsInnerLoop( n->F_BODY ) ) {
+                FPRINTF( infoptr, "INNER LOOP VECTORIZATION FAILURE ");
+                FPRINTF( infoptr, "%d=(%s,%s,%d)\n", 
+                        n->ID, n->file, n->funct, n->line );
+                if ( Reason ) FPRINTF( infoptr, "%s\n",Reason);
+              }
+            }
+          }
+        }
       }
 
       /* ------------------------------------------------------------ */
       /* See if we have overridden the cost.  If not, use the default */
-      /* estimate.						      */
+      /* estimate.                                                    */
       /* ------------------------------------------------------------ */
       if ( !UpdatedLoopPragmas(n,R_Cost) ) {
-	n->ccost += ((n->F_GEN->ccost + n->F_BODY->ccost +
-		      n->F_RET->ccost ) * NumberOfIterations( n ));
+        n->ccost += ((n->F_GEN->ccost + n->F_BODY->ccost +
+                      n->F_RET->ccost ) * NumberOfIterations( n ));
       }
       break;
 
@@ -317,8 +327,8 @@ PNODE g;
      case IFLoopB:
 
       n->ccost += ((n->L_INIT->ccost + n->L_TEST->ccost +
-		    n->L_BODY->ccost + n->L_RET->ccost) *
-		   Iterations);
+                    n->L_BODY->ccost + n->L_RET->ccost) *
+                   Iterations);
       break;
 
      case IFCall:
@@ -332,8 +342,8 @@ PNODE g;
      case IFRedRight:
      case IFRedLeft:
       if ( n->imp->CoNsT[0] == REDUCE_CATENATE ) {
-	n->ccost += ArrayCopyCost;
-	break;
+        n->ccost += ArrayCopyCost;
+        break;
       }
 
       SetArithmeticCost( n );
@@ -345,15 +355,15 @@ PNODE g;
      case IFRedLeftAT:
      case IFRedRightAT:
       if ( n->imp->isucc->isucc->pmark )
-	n->ccost += atcosts[ n->type - IFAAddLAT ];
+        n->ccost += atcosts[ n->type - IFAAddLAT ];
       else
-	n->ccost += ArrayCopyCost;
+        n->ccost += ArrayCopyCost;
 
       break;
 
      case IFACatenate:
       n->ccost += (2 * ArrayCopyCost) + 
-	scosts[ IFACatenate - IFAAddH ];
+        scosts[ IFACatenate - IFAAddH ];
       break;
 
      case IFAAddHAT:
@@ -361,50 +371,50 @@ PNODE g;
       n->ccost += atcosts[ n->type - IFAAddLAT ];
 
       if ( !(n->imp->pmark) )
-	n->ccost += ArrayCopyCost;
+        n->ccost += ArrayCopyCost;
 
       break;
 
      case IFACatenateAT:
       if ( n->imp->pmark )
-	n->ccost += atcosts[ n->type - IFAAddLAT ];
+        n->ccost += atcosts[ n->type - IFAAddLAT ];
       else
-	n->ccost += ArrayCopyCost;
+        n->ccost += ArrayCopyCost;
 
       if ( n->imp->isucc->pmark )
-	n->ccost += atcosts[ n->type - IFAAddLAT ];
+        n->ccost += atcosts[ n->type - IFAAddLAT ];
       else
-	n->ccost += ArrayCopyCost;
+        n->ccost += ArrayCopyCost;
 
       break;
 
      case IFNoOp:
       switch ( n->imp->info->type ) {
        case IF_ARRAY:
-	if ( n->imp->pmark ) {
-	  if ( n->imp->rmark1 != RMARK )
-	    n->ccost += DopeVectorCopyCost;
+        if ( n->imp->pmark ) {
+          if ( n->imp->rmark1 != RMARK )
+            n->ccost += DopeVectorCopyCost;
 
-	  break;
-	}
+          break;
+        }
 
-	if ( n->imp->rmark1 != RMARK )
-	  n->ccost += (DopeVectorCopyCost + ArrayCopyCost);
+        if ( n->imp->rmark1 != RMARK )
+          n->ccost += (DopeVectorCopyCost + ArrayCopyCost);
 
-	break;
+        break;
 
        case IF_STREAM:
-	if ( !(n->imp->rmark1 == RMARK) )
-	  n->ccost += DopeVectorCopyCost;
+        if ( !(n->imp->rmark1 == RMARK) )
+          n->ccost += DopeVectorCopyCost;
 
-	break;
+        break;
 
 
        default:
-	if ( !(n->imp->rmark1 == RMARK) )
-	  n->ccost += RecordCopyCost;
+        if ( !(n->imp->rmark1 == RMARK) )
+          n->ccost += RecordCopyCost;
 
-	break;
+        break;
       }
 
       break;
@@ -427,11 +437,11 @@ PNODE g;
 
      default:
       if ( IsOther( n ) )
-	n->ccost += 0.0;
+        n->ccost += 0.0;
       else if ( IsSimple( n ) )
-	n->ccost += scosts[ n->type - IFAAddH ];
+        n->ccost += scosts[ n->type - IFAAddH ];
       else
-	n->ccost += atcosts[ n->type - IFAAddLAT ];
+        n->ccost += atcosts[ n->type - IFAAddLAT ];
 
       break;
     }

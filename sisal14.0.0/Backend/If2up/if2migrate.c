@@ -1,10 +1,20 @@
-/* if2migrate.c,v
+/**************************************************************************/
+/* FILE   **************        if2migrate.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:11  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:10:02  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -63,43 +73,43 @@ PNODE g;
     /* RELABEL ALL NODES AND REMEMBER THE LAST NODE IN THE NODE LIST      */
 
     if ( n == NULL )
-	return;
+        return;
 
     for ( ;; ) {
         n->label = ++l;
 
-	if ( n->nsucc == NULL )
-	    break;
+        if ( n->nsucc == NULL )
+            break;
 
-	n = n->nsucc;
-	}
+        n = n->nsucc;
+        }
 
     g->label = 0;
 
 
     for ( /* NOTHING */; n != g; n = n->npred ) {
-	prd = n->npred;
+        prd = n->npred;
 
-	/* NEW CANN 10/2 */
-	if ( IsGraph( prd ) )
-	    continue;
+        /* NEW CANN 10/2 */
+        if ( IsGraph( prd ) )
+            continue;
         /* END NEW SECTION */
 
-	if ( IsCompound( n ) )
-	    for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-		MigrateNodes( sg );
+        if ( IsCompound( n ) )
+            for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+                MigrateNodes( sg );
 
-	/* RUN IMPORTS RIGHT TO LEFT (FAVOR AElements): 10/9 CANN */
-	for ( j = -1, i = n->imp; i != NULL; i = i->isucc ) {
-	  if ( IsConst( i ) ) continue;
-	  if ( IsGraph( i->src ) ) continue;
+        /* RUN IMPORTS RIGHT TO LEFT (FAVOR AElements): 10/9 CANN */
+        for ( j = -1, i = n->imp; i != NULL; i = i->isucc ) {
+          if ( IsConst( i ) ) continue;
+          if ( IsGraph( i->src ) ) continue;
 
-	  if ( (++j) >= MAX_IMP ) 
-	    Error2( "MigrateNodes", "imp and limp OVERFLOW" );
+          if ( (++j) >= MAX_IMP ) 
+            Error2( "MigrateNodes", "imp and limp OVERFLOW" );
 
-	  limp[j] = MaxPathToSrc( i );
-	  imp[j]  = i;
-	  }
+          limp[j] = MaxPathToSrc( i );
+          imp[j]  = i;
+          }
 
         do {
           s = 1;
@@ -118,44 +128,44 @@ PNODE g;
            }
         while (!s);
 
-	for ( ; j >= 0; j-- ) {
-	    i = imp[j];
+        for ( ; j >= 0; j-- ) {
+            i = imp[j];
 
-	    /* IS i->src MORE THAN ONE HOP AWAY?                          */
-	    if ( i->src->label >= prd->label )
-		continue;
+            /* IS i->src MORE THAN ONE HOP AWAY?                          */
+            if ( i->src->label >= prd->label )
+                continue;
 
-	    /* MAKE SURE MOVING i->src DOES NOT VIOLATE ANY DEPENDENCIES  */
+            /* MAKE SURE MOVING i->src DOES NOT VIOLATE ANY DEPENDENCIES  */
 
-	    for ( e = i->src->exp; e != NULL; e = e->esucc ) {
-		if ( IsGraph( e->dst ) )
-		    continue;
+            for ( e = i->src->exp; e != NULL; e = e->esucc ) {
+                if ( IsGraph( e->dst ) )
+                    continue;
 
-		if ( e->dst->label <= prd->label )
-		    goto MoveOn;
-		}
+                if ( e->dst->label <= prd->label )
+                    goto MoveOn;
+                }
 
-	    for ( a = i->src->aexp; a != NULL; a = a->esucc ) {
-		if ( a->dst->label <= prd->label )
-		    goto MoveOn;
-		}
+            for ( a = i->src->aexp; a != NULL; a = a->esucc ) {
+                if ( a->dst->label <= prd->label )
+                    goto MoveOn;
+                }
 
-	    sg = i->src->npred;
+            sg = i->src->npred;
 
-	    UnlinkNode( i->src );
-	    LinkNode( prd, i->src ); cmig++;
+            UnlinkNode( i->src );
+            LinkNode( prd, i->src ); cmig++;
 
-	    /* NEW 10/2 CANN */
-	    prd = i->src;
+            /* NEW 10/2 CANN */
+            prd = i->src;
 
-	    for ( l = sg->label; sg != n; sg = sg->nsucc ) {
+            for ( l = sg->label; sg != n; sg = sg->nsucc ) {
                 sg->label = l++;
-		}
-	    /* END NEW SECTION */
+                }
+            /* END NEW SECTION */
 MoveOn:
-	    continue;
-	    }
-	}
+            continue;
+            }
+        }
 }
 
 
@@ -167,37 +177,37 @@ PNODE f;
     register PEDGE i1, i2;
 
     for ( n = f->G_NODES; n != NULL; n = n->nsucc ) {
-	if ( IsCompound( n ) )
-	    for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-		DoCommute( sg );
+        if ( IsCompound( n ) )
+            for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+                DoCommute( sg );
 
-	switch ( n->type ) {
-	    case IFTimes:
-	    case IFPlus:
-		if ( IsConst( n->imp ) )
-		    break;
+        switch ( n->type ) {
+            case IFTimes:
+            case IFPlus:
+                if ( IsConst( n->imp ) )
+                    break;
 
-		if ( IsGraph( n->imp->src ) )
-		    break;
+                if ( IsGraph( n->imp->src ) )
+                    break;
 
-		if ( n->imp->src->exp->esucc != NULL )
-		    break;
+                if ( n->imp->src->exp->esucc != NULL )
+                    break;
 
                 if ( n->imp->src->type == IFAElement ) {
-		    i1 = n->imp->isucc;
-		    i2 = n->imp;
+                    i1 = n->imp->isucc;
+                    i2 = n->imp;
 
-		    i1->iport = 1;
-		    i1->isucc = i2;
-		    i2->iport = 2;
-		    i2->isucc = NULL;
-		    n->imp = i1;
-		    }
+                    i1->iport = 1;
+                    i1->isucc = i2;
+                    i2->iport = 2;
+                    i2->isucc = NULL;
+                    n->imp = i1;
+                    }
 
                 break;
 
-	    default:
-	        break;
+            default:
+                break;
             }
         }
 }
@@ -216,7 +226,7 @@ void If2Migrate()
     for ( f = fhead; f != NULL; f = f->gsucc ) {
         MigrateNodes( f );
 
-	if ( seqimp )
-	    DoCommute( f );
+        if ( seqimp )
+            DoCommute( f );
         }
 }

@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************        p-globals.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 #if defined(NO_STATIC_SHARED)
@@ -7,28 +19,28 @@ extern struct shared_s LSR;
 void
 InitSharedGlobals()
 {
-	NumWorkers       = DEFAULT_NUM_WORKERS;
-	DsaSize          = DEFAULT_DSA_SIZE;
+        NumWorkers       = DEFAULT_NUM_WORKERS;
+        DsaSize          = DEFAULT_DSA_SIZE;
 
-	BindParallelWork = TRUE;
+        BindParallelWork = TRUE;
 
-	XftThreshold     = DEFAULT_XFT_THRESHOLD;
-	LoopSlices       = -1;
-	GatherPerfInfo   = FALSE;
-	ArrayExpansion   = DEFAULT_ARRAY_EXPANSION;
-	NoFibreOutput    = FALSE;
+        XftThreshold     = DEFAULT_XFT_THRESHOLD;
+        LoopSlices       = -1;
+        GatherPerfInfo   = FALSE;
+        ArrayExpansion   = DEFAULT_ARRAY_EXPANSION;
+        NoFibreOutput    = FALSE;
 
-	UsingSdbx        = FALSE;
+        UsingSdbx        = FALSE;
 
-	Sequential       = FALSE;
+        Sequential       = FALSE;
 
 #if defined(NON_COHERENT_CACHE)
-	DefaultLoopStyle = 'C';	/* Cached loops is the default */
+        DefaultLoopStyle = 'C'; /* Cached loops is the default */
 #else
-	DefaultLoopStyle = 'B';	/* Blocked loops is the default */
+        DefaultLoopStyle = 'B'; /* Blocked loops is the default */
 #endif
 
-	OneLevelParallel = FALSE;
+        OneLevelParallel = FALSE;
 }
 
 #else
@@ -49,9 +61,9 @@ int     UsingSdbx        = FALSE;
 int     Sequential       = FALSE;
 
 #if defined(NON_COHERENT_CACHE)
-char	DefaultLoopStyle = 'C';	/* Cached loops is the default */
+char    DefaultLoopStyle = 'C'; /* Cached loops is the default */
 #else
-char	DefaultLoopStyle = 'B';	/* Blocked loops is the default */
+char    DefaultLoopStyle = 'B'; /* Blocked loops is the default */
 #endif
 
 int     OneLevelParallel = FALSE;
@@ -69,4 +81,4 @@ FILE   *FibreOutFd = NULL;
 FILE   *PerfFd     = NULL;
 
 
-char	ArgumentString[1024] = "";
+char    ArgumentString[1024] = "";

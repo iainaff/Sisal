@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************          p-wait.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 
@@ -8,10 +20,10 @@ static void DoDependentWork()
 
   if ( (NewAR = RListDeQ()) != (struct ActRec *) NULL ) {
     (*(NewAR->ChildCode))( NewAR->ArgPointer, 
-			   NewAR->SliceBounds[1],
-			   NewAR->SliceBounds[2],
-			   NewAR->SliceBounds[0]
-			  );
+                           NewAR->SliceBounds[1],
+                           NewAR->SliceBounds[2],
+                           NewAR->SliceBounds[0]
+                          );
 
     NewAR->Done = TRUE;
     /*
@@ -28,8 +40,8 @@ static void DoDependentWork()
      */
     if(local_flush == TRUE)
     {
-	CACHESYNC;
-    	FLUSHALL;
+        CACHESYNC;
+        FLUSHALL;
     }
   }
 
@@ -73,7 +85,7 @@ register struct ActRec *LastPlusOne;
       First++;
 
       if ( First == LastPlusOne )
-	return;
+        return;
       }
 
     FLUSHLINE(&(First->Done));

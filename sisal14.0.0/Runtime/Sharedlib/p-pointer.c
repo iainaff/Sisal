@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************        p-pointer.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "sisalrt.h"
 
 
@@ -175,7 +187,7 @@ int     CompSize;
 
 /* SKI */
 static void SkiInitializeStorage( Nv, Level, Info, ArrayInfo, 
-			          CompSize, Base, Next )
+                                  CompSize, Base, Next )
 int       Nv;
 int       Level;
 int      *Info;
@@ -225,7 +237,7 @@ POINTER **Next;
   for ( Index = 0; Index < *Info; Index++ ) {
     Base[Index] = (POINTER) *Next;
     SkiInitializeStorage( Nv, Level-1, Info+1, ArrayInfo, 
-			  CompSize, *Next, Next );
+                          CompSize, *Next, Next );
     *Next += *(Info+1);
     }
 }
@@ -284,7 +296,7 @@ int     CompSize;
   Next = Base + Info[2];
 
   SkiInitializeStorage( Nv, Buffer->InfoTop, &(Info[2]), Info, 
-			CompSize, Base, &Next );
+                        CompSize, Base, &Next );
 
   return( (POINTER) Base );
 }

@@ -1,3 +1,17 @@
+#ifndef PARALLELISM_H
+#define PARALLELISM_H
+/**************************************************************************/
+/* FILE   **************       parallelism.h       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #ifndef ALLIANT
 #ifndef CRAY
 #ifndef SGI
@@ -35,8 +49,8 @@ void* ProcId;
   }
 
 #if defined(DIST_DSA)
-	if(ProcId != 0)
-		InitDsa(DsaSize/(2*(NumWorkers - 1)), XftThreshold);
+        if(ProcId != 0)
+                InitDsa(DsaSize/(2*(NumWorkers - 1)), XftThreshold);
 #endif
 
   EnterWorker( ProcId );
@@ -144,3 +158,4 @@ int limit;
   barrier( (barrier_t *) bar, limit );
 }
 
+#endif

@@ -1,12 +1,24 @@
-#ifndef _SISALRT_H
-#define _SISALRT_H
+#ifndef SISALRT_H
+#define SISALRT_H
+
+/**************************************************************************/
+/* FILE   **************         sisalrt.h         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
 
 #include "sisalInfo.h"
 
-extern void ShutDownDsa();
-extern void ParseTracerCommand();
-extern void InitDsa();
-extern void InitSignalSystem();
+extern void ShutDownDsa PROTO((void));
+extern void ParseTracerCommand PROTO((char*));
+extern void InitDsa PROTO((int,int));
+extern void InitSignalSystem PROTO((void));
 
 #include "locks.h"
 #include "process.h"

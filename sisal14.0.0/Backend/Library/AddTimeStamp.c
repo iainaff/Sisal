@@ -1,17 +1,26 @@
+/**************************************************************************/
+/* FILE   **************       AddTimeStamp.c      ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/**************************************************************************/
+
 #include "world.h"
 
 /**************************************************************************/
 /* GLOBAL **************       AddTimeStamp        ************************/
 /**************************************************************************/
 /* PURPOSE: Add a stamp with the current time of day to the list of IFx   */
-/*	    Stamps to display.						  */
+/*          Stamps to display.                                            */
 /**************************************************************************/
 
 void AddTimeStamp()
 {
-  time_t	timeofday;
-  char		*asciitime;
-  char		*p;
+  time_t        timeofday;
+  char          *asciitime;
+  char          *p;
 
   timeofday = (time_t)time(NULL);
   asciitime = asctime(localtime(&timeofday));
@@ -19,3 +28,7 @@ void AddTimeStamp()
 
   AddStamp('T',asciitime);
 }
+
+/*
+ * $Log:
+ */

@@ -80,17 +80,17 @@ extern void     If1TestCascade PROTO((void));
 extern void     If1Check PROTO((void));
 
 /* if1count.c */
-extern void     If1Count PROTO((void));
+extern void     If1Count PROTO((char*));
 
 /* if1cse.c */
 extern void     WriteCseInfo PROTO((void));
-extern void     If1Cse PROTO((void));
+extern void     If1Cse PROTO((int,int));
 
 /* if1dead.c */
-extern void     CombineKports PROTO((void));
-extern void     FastCleanGraph PROTO((void));
-extern void     OptRemoveDeadNode PROTO((void));
-extern void     RemoveDeadEdge PROTO((void));
+extern void     CombineKports PROTO((PNODE));
+extern void     FastCleanGraph PROTO((PNODE));
+extern void     OptRemoveDeadNode PROTO((PNODE));
+extern void     RemoveDeadEdge PROTO((PEDGE));
 extern void     WriteCleanInfo PROTO((void));
 extern void     If1Clean PROTO((void));
 
@@ -100,15 +100,15 @@ extern void     WriteDopeInfo PROTO((void));
 
 /* if1explode.c */
 extern void     WriteExplodeInfo PROTO((void));
-extern void     If1Explode PROTO((void));
+extern void     If1Explode PROTO((int));
 
 /* if1fission.c */
 extern void     WriteFissionInfo PROTO((void));
 extern void     If1Fission PROTO((void));
 
 /* if1fold.c */
-extern void     OptNormalizeNode PROTO((void));
-extern char     *DoubleToReal PROTO((void));
+extern void     OptNormalizeNode PROTO((PNODE));
+extern char     *DoubleToReal PROTO((char*));
 extern void     WriteFoldInfo PROTO((void));
 extern void     If1Fold PROTO((void));
 
@@ -119,17 +119,17 @@ extern void     If1IFusion PROTO((void));
 
 /* if1gcse.c */
 extern void     WriteGCseInfo PROTO((void));
-extern void     OptRemoveSCses PROTO((void));
+extern void     OptRemoveSCses PROTO((PNODE));
 extern void     If1GCse PROTO((void));
 
 /* if1inline.c */
-extern void     SpliceInGraph PROTO((void));
+extern void     SpliceInGraph PROTO((PNODE,PNODE));
 extern void     If1Inline PROTO((void));
 
 /* if1invar.c */
-extern int      OptIsEdgeInvariant PROTO((void));
-extern void     ExposeInvariants PROTO((void));
-extern void     AntiMovement PROTO((void));
+extern int      OptIsEdgeInvariant PROTO((PEDGE));
+extern void     ExposeInvariants PROTO((PNODE,PNODE));
+extern void     AntiMovement PROTO((PNODE));
 extern void     WriteInvarInfo PROTO((void));
 extern void     If1Invar PROTO((void));
 
@@ -138,16 +138,16 @@ extern void     WriteInvertInfo PROTO((void));
 extern void     If1Invert PROTO((void));
 
 /* if1move.c */
-extern void     FindAndLinkToSource PROTO((void));
-extern void     RemoveNode PROTO((void));
-extern void     InsertNode PROTO((void));
+extern void     FindAndLinkToSource PROTO((PNODE,PEDGE,PNODE));
+extern void     RemoveNode PROTO((PNODE,PNODE));
+extern void     InsertNode PROTO((PNODE,PNODE));
 
 /* if1normal.c */
 extern void     EliminateDeadFunctions PROTO((void));
 extern void     If1Normalize PROTO((void));
 
 /* if1parallel.c */
-extern int      OptIsVecCandidate PROTO((void));
+extern int      OptIsVecCandidate PROTO((PNODE));
 extern void     WriteConcurInfo PROTO((void));
 extern void     If1Vec PROTO((void));
 extern void     If1Par PROTO((void));
@@ -167,29 +167,20 @@ extern void     If1Split PROTO((void));
 extern void     WriteUnrollInfo PROTO((void));
 extern void     If1Unroll PROTO((void));
 
-/* ifxstuff.c */
-extern void     PlaceInEntryTable PROTO((void));
-extern void     PlaceInFortranTable PROTO((void));
-extern void     PlaceInCTable PROTO((void));
-extern void     PragInitPragmas PROTO((void));
-extern void     NodeInitPragmas PROTO((void));
-extern void     TypeInitPragmas PROTO((void));
-extern void     EdgeInitPragmas PROTO((void));
-extern void     TypeAssignPragmas PROTO((void));
-extern void     EdgeAssignPragmas PROTO((void));
-extern void     NodeAssignPragmas PROTO((void));
-
 /* util.c */
-extern int      OptIsInvariant PROTO((void));
-extern void     DecodeIndexing PROTO((void));
-extern void     EncodeIndexing PROTO((void));
+extern int      OptIsInvariant PROTO((PNODE));
+extern void     DecodeIndexing PROTO((PNODE));
+extern void     EncodeIndexing PROTO((PNODE,int,int*));
 
 /* AssignIDs.c */
-extern void     NewCompoundID PROTO((void));
+extern void     NewCompoundID PROTO((PNODE));
 extern void     AssignCompoundIDs PROTO((void));
 
 /*
  * $Log$
+ * Revision 1.2  2001/01/01 05:46:22  patmiller
+ * Adding prototypes and header info -- all will be broken
+ *
  * Revision 1.1.1.1  2000/12/31 17:56:43  patmiller
  * Well, here is the first set of big changes in the distribution
  * in 5 years!  Right now, I did a lot of work on configuration/
