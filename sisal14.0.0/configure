@@ -1328,7 +1328,7 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 # -----------------------------------------------
 # Set version
 # -----------------------------------------------
-version="14.0.1"
+version="14.0.2"
 echo "$as_me:$LINENO: checking version number" >&5
 echo $ECHO_N "checking version number... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: $version" >&5
