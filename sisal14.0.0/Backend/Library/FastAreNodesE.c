@@ -88,6 +88,8 @@ PNODE n2;
     if ( i2 == NULL )
       return( FALSE );
 
+    /* Nasty bug where RBuild for unions overly optimized */
+    if ( i1->iport != i2->iport ) return FALSE;
     if ( !AreEdgesEqual( i1, i2 ) )
       return( FALSE );
 
@@ -103,6 +105,9 @@ PNODE n2;
 
 /*
  * $Log$
+ * Revision 1.2  2001/01/02 09:16:45  patmiller
+ * Now ANSI compliant, but still a pthread problem
+ *
  * Revision 1.1.1.1  2000/12/31 17:58:15  patmiller
  * Well, here is the first set of big changes in the distribution
  * in 5 years!  Right now, I did a lot of work on configuration/
