@@ -1,4 +1,4 @@
-AC_INIT(llnl-final-distribution)
+AC_INIT(configure.in)
 AC_CONFIG_AUX_DIR(config)
 AC_CANONICAL_HOST
 
