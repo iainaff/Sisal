@@ -13,8 +13,14 @@ int   lclass;                   /* LAST EQUIVALENCE CLASS IN htable  */
 PINFO htable[MaxClass];         /* EQUIVALENCE CLASS HEAD POINTERS   */
 PINFO ttable[MaxClass];         /* EQUIVALENCE CLASS TAIL POINTERS   */
 
+void bogus_call_to_force_link_smashitems(void) {
+}
+
 /*
  * $Log$
+ * Revision 1.2  2001/01/02 09:16:45  patmiller
+ * Now ANSI compliant, but still a pthread problem
+ *
  * Revision 1.1.1.1  2000/12/31 17:58:33  patmiller
  * Well, here is the first set of big changes in the distribution
  * in 5 years!  Right now, I did a lot of work on configuration/

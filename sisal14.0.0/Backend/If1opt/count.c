@@ -119,6 +119,8 @@ char **argv;
    
     ParseCommandLine( argc, argv );
 
+    bogus_call_to_force_link_countitems();
+
     If1Read();
 
     If1Count( "" );

@@ -382,6 +382,7 @@ if test -x Runtime/"$model"Model/detect; then
 
   AC_MSG_CHECKING(processor count)
   max_procs=`Runtime/"$model"Model/detect processors $CC $CFLAGS $parallel_compile $LIBS $parallel_link`
+  if test "$max_procs" = "ERROR"; then max_procs=1; fi
   AC_MSG_RESULT($max_procs)
 
 fi

@@ -37,6 +37,7 @@ void LoadSmashTypes()
     register PINFO r;
 
     InitEquivClasses();
+    bogus_call_to_force_link_smashitems();
 
     while ( chgd ) {
         chgd = FALSE;

@@ -39,10 +39,15 @@ int fsyncatns = 0;
 int incratns  = 0;
 int fincratns = 0;
 
+void bogus_call_to_force_link_countitems(void) {
+}
 
 
 /*
  * $Log$
+ * Revision 1.2  2001/01/02 09:16:45  patmiller
+ * Now ANSI compliant, but still a pthread problem
+ *
  * Revision 1.1.1.1  2000/12/31 17:58:14  patmiller
  * Well, here is the first set of big changes in the distribution
  * in 5 years!  Right now, I did a lot of work on configuration/
