@@ -115,6 +115,7 @@ extern void if2gen PROTO((char* file,
 extern void compile PROTO((char* file,
                            char* result,
                            char* includedir,
+			   int profiling,
                            char* compiler,
                            char* flags
                            ));

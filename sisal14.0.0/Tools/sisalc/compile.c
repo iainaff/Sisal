@@ -15,6 +15,7 @@
 void compile(char* file,
              char* result,
              char* includedir,
+	     int profiling,
              char* compiler,
              char* flags
              ) {
@@ -26,6 +27,7 @@ void compile(char* file,
    enqueue(&argv,file);
    enqueue(&argv,"-c");
    enqueue(&argv,"-o");
+   if ( profiling ) enqueue(&argv,"-pg");
    enqueue(&argv,result);
    sprintf(dashI,"-I%s",includedir);
    enqueue(&argv,dashI);
