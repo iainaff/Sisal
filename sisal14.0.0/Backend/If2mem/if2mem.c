@@ -1,10 +1,20 @@
-/* if2mem.c,v
+/**************************************************************************/
+/* FILE   **************          if2mem.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:06  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:22  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -29,7 +39,7 @@ void PushAtNode( at )
 PNODE at;
 {
     if ( (++attop) >= AT_STACK_SIZE )
-	Error2( "PushAtNode:", "AT-NODE STACK OVERFLOW" );
+        Error2( "PushAtNode:", "AT-NODE STACK OVERFLOW" );
 
     atstack[attop] = at;
 }
@@ -46,7 +56,7 @@ PNODE at;
 PNODE PopAtNode()
 {
     if ( attop < 0 )
-	return( NULL );
+        return( NULL );
 
     return( atstack[attop--] );
 }
@@ -72,36 +82,36 @@ int   min;
     n = rpoint->lstack[ rpoint->level ];
 
     for ( ; ; ) {
-	if ( !IsSGraph( n ) )            /* IF AT A FUNCTION GRAPH, STOP! */
-	    return( n );
+        if ( !IsSGraph( n ) )            /* IF AT A FUNCTION GRAPH, STOP! */
+            return( n );
 
         switch ( n->G_DAD->type ) {
-	    case IFLoopA:
-	    case IFLoopB:
-		if ( n->G_DAD->L_BODY != n )
-		    return( n );
+            case IFLoopA:
+            case IFLoopB:
+                if ( n->G_DAD->L_BODY != n )
+                    return( n );
 
                 break;
 
             case IFForall:
-		if ( n->G_DAD->F_BODY != n )
-		    return( n );
+                if ( n->G_DAD->F_BODY != n )
+                    return( n );
 
                 break;
 
             default:
-		return( n );
+                return( n );
             }
 
         /* NOW WE KNOW SUBGRAPH n IS A LOOP BODY SUBGRAPH                 */
 
-	nn = n->G_DAD->lstack[ n->G_DAD->level ];
+        nn = n->G_DAD->lstack[ n->G_DAD->level ];
 
-	if ( nn->level == min )
-	    return( n->G_DAD->npred );
+        if ( nn->level == min )
+            return( n->G_DAD->npred );
 
         n = nn;
-	}
+        }
 }
 
 
@@ -123,14 +133,14 @@ PNODE n2;
     register PNODE n;
 
     if ( n1->level < rpoint->level ) {
-	if ( n2->level < rpoint->level )
-	    return( ReferencePoint( rpoint, Max( n1->level, n2->level ) ) );
+        if ( n2->level < rpoint->level )
+            return( ReferencePoint( rpoint, Max( n1->level, n2->level ) ) );
 
         return( n2 );
-	}
+        }
 
     if ( n2->level < rpoint->level )
-	return( n1 );
+        return( n1 );
 
     /* WHICH ONE IS THE RIGHTMOST NODE?                                   */
 
@@ -171,7 +181,7 @@ PEDGE e2;
         }
 
     if ( IsConst( e2 ) ) {
-	if ( e1->src->level < rpoint->level )
+        if ( e1->src->level < rpoint->level )
             return( ReferencePoint( rpoint, e1->src->level ) );
         else
             return( e1->src );
@@ -201,53 +211,53 @@ PNODE g;
     register int   c;
 
     for ( c = 0, n = g; n != NULL; n = n->nsucc ) 
-	n->label = c++;
+        n->label = c++;
 
     for ( n = g->G_NODES; n != NULL; n = sn ) {
-	sn = n->nsucc;
+        sn = n->nsucc;
 
-	if ( IsCompound( n ) ) {
-	    for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-		MoveNodesLeft( sg );
+        if ( IsCompound( n ) ) {
+            for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+                MoveNodesLeft( sg );
 
             continue;
-	    }
-
-	switch ( n->type ) {
-	    case IFABuild:
-	    case IFAFill:
-	    case IFACatenate:
-	    case IFAAddH:
-	    case IFAAddL:
-	        continue;
-
-	    default:
-	        break;
             }
 
-	pr = g;
+        switch ( n->type ) {
+            case IFABuild:
+            case IFAFill:
+            case IFACatenate:
+            case IFAAddH:
+            case IFAAddL:
+                continue;
 
-	for ( i = n->imp; i != NULL; i = i->isucc ) {
-	    if ( IsConst( i ) )
-		continue;
+            default:
+                break;
+            }
 
-	    if ( pr->label < i->src->label )
-		pr = i->src;
-	    }
+        pr = g;
 
-	UnlinkNode( n );
-	LinkNode( pr, n );
+        for ( i = n->imp; i != NULL; i = i->isucc ) {
+            if ( IsConst( i ) )
+                continue;
+
+            if ( pr->label < i->src->label )
+                pr = i->src;
+            }
+
+        UnlinkNode( n );
+        LinkNode( pr, n );
 
         for ( c = pr->label, n = pr; n != sn; n = n->nsucc ) 
-	    n->label = c++;
+            n->label = c++;
         }
 }
 
 void WriteAggregateInfo ()
 {
-	FPRINTF (infoptr, "\n **** AGGREGATE INFORMATION\n\n");
-	FPRINTF (infoptr, " Total Number of Aggregates:                    %d\n", tagg);
-	FPRINTF (infoptr, " Total Number of Preallocated Aggregates:       %d\n", agg);
+        FPRINTF (infoptr, "\n **** AGGREGATE INFORMATION\n\n");
+        FPRINTF (infoptr, " Total Number of Aggregates:                    %d\n", tagg);
+        FPRINTF (infoptr, " Total Number of Preallocated Aggregates:       %d\n", agg);
 }
 
 
@@ -262,14 +272,14 @@ void If2Mem()
     register PNODE f;
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
-	cfunct = f;
+        cfunct = f;
 
         ResetAtNodeStack;
 
-	AssignLevelNumbers( f );
+        AssignLevelNumbers( f );
 
-	AssignSizes( f );
-	MoveNodesLeft( f );
-	AllocIf2Nodes( f );
-	}
+        AssignSizes( f );
+        MoveNodesLeft( f );
+        AllocIf2Nodes( f );
+        }
 }

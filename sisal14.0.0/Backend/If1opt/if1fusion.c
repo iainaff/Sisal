@@ -1,10 +1,20 @@
-/* if1fusion.c,v
+/**************************************************************************/
+/* FILE   **************        if1fusion.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:57  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:34  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -67,10 +77,10 @@ int lvl;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc )
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	DumpThem( sg, lvl+1 );
+        DumpThem( sg, lvl+1 );
 
       if ( IsForall(n) )
-	SummarizeForall( n, lvl );
+        SummarizeForall( n, lvl );
       }
 }
 
@@ -88,29 +98,29 @@ PNODE n;
     register PEDGE i;
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {              /* K PORTS */
-	ChangeExportPorts( n->F_GEN,  i->iport, ++maxint );
-	ChangeExportPorts( n->F_BODY, i->iport,   maxint );
-	ChangeExportPorts( n->F_RET,  i->iport,   maxint );
+        ChangeExportPorts( n->F_GEN,  i->iport, ++maxint );
+        ChangeExportPorts( n->F_BODY, i->iport,   maxint );
+        ChangeExportPorts( n->F_RET,  i->iport,   maxint );
 
         i->iport = maxint;
-	}
+        }
 
     for ( i = n->F_GEN->imp; i != NULL; i = i->isucc ) {       /* M PORTS */
-	ChangeExportPorts( n->F_BODY, i->iport, ++maxint );
-	ChangeExportPorts( n->F_RET,  i->iport,   maxint );
+        ChangeExportPorts( n->F_BODY, i->iport, ++maxint );
+        ChangeExportPorts( n->F_RET,  i->iport,   maxint );
 
         i->iport = maxint;
-	}
+        }
 
     for ( i = n->F_BODY->imp; i != NULL; i = i->isucc ) {       /* T PORTS */
-	ChangeExportPorts( n->F_RET, i->iport, ++maxint );
+        ChangeExportPorts( n->F_RET, i->iport, ++maxint );
         i->iport = maxint;
-	}
+        }
 
     for ( i = n->F_RET->imp; i != NULL; i = i->isucc ) {       /* R PORTS */
-	ChangeExportPorts( n, i->iport, ++maxint );
-	i->iport = maxint;
-	}
+        ChangeExportPorts( n, i->iport, ++maxint );
+        i->iport = maxint;
+        }
 }
 
 
@@ -147,7 +157,7 @@ int   indep;
 
     } else {
       if ( vec && indep && (s > 0) )
-	return( FALSE );
+        return( FALSE );
 
       if ( vec && (s == 1) ) {
         return( FALSE );
@@ -370,7 +380,7 @@ PNODE n;
 
     if ( !IsGraph( dst ) )
       if ( dst->label != bad )
-	dst->label = c;
+        dst->label = c;
     }
 }
 
@@ -402,13 +412,13 @@ register PNODE f2;
       UnlinkExport( i );
 
       if ( !IsExport( i->src, i->eport ) ) {
-	ag = i->uedge->dst;
+        ag = i->uedge->dst;
 
-	UnlinkExport( i->uedge );
-	UnlinkExport( ag->imp );
-	UnlinkImport( ag->exp );
-	UnlinkNode( ag );
-	}
+        UnlinkExport( i->uedge );
+        UnlinkExport( ag->imp );
+        UnlinkImport( ag->exp );
+        UnlinkNode( ag );
+        }
 
       continue;
       }
@@ -452,7 +462,7 @@ PEDGE i;
 
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	ChangeDstPath( sg, e );
+        ChangeDstPath( sg, e );
 
       continue;
       }
@@ -544,11 +554,11 @@ int   indep;                          /* INDEPENDENT OR DEPENDENT FUSION */
         ii = FindImport( f1->F_BODY, i->uedge->eport );
 
         if ( IsConst( ii ) )
-	  ChangeToConst( e, ii );
+          ChangeToConst( e, ii );
         else {
-	  e->eport = ii->eport;
-	  LinkExport( ii->src, e );
-	  }
+          e->eport = ii->eport;
+          LinkExport( ii->src, e );
+          }
         }
       }
 
@@ -596,11 +606,11 @@ PEDGE idx;
   switch ( e->src->type ) {
     case IFSGraph:
       if ( e->src == idx->src ) {
-	if ( e->eport == idx->eport )
-	  return( TRUE );
+        if ( e->eport == idx->eport )
+          return( TRUE );
 
-	return( FALSE );
-	}
+        return( FALSE );
+        }
 
       return( IsIndexingOk( FindImport( e->src->G_DAD, e->eport ), idx ) );
 
@@ -635,13 +645,13 @@ PEDGE idx;
 
     if( e->dst->type==IFAElement ) {
         if ( !IsIndexingOk( e->dst->imp->isucc, idx ) )
-	  return( FALSE );
+          return( FALSE );
     } else if ( IsCompound( e->dst ) ) {
-	for ( sg = e->dst->C_SUBS; sg != NULL; sg = sg->gsucc )
+        for ( sg = e->dst->C_SUBS; sg != NULL; sg = sg->gsucc )
           if ( !IsAReadOnly( sg, FindExport( sg, e->iport ), idx ) )
-	    return( FALSE );
+            return( FALSE );
     } else {
-	return( FALSE );
+        return( FALSE );
     }
   }
 
@@ -808,21 +818,21 @@ PNODE n;
     switch ( dst->type ) {
       case IFAAddH:
       case IFAAddL:
-	c = (e->iport == 1)? good : bad;
-	break;
+        c = (e->iport == 1)? good : bad;
+        break;
 
       case IFForall:
-	c = (IsArray(e->info))? good : bad; 
-	break;
+        c = (IsArray(e->info))? good : bad; 
+        break;
 
       default:
-	c = bad;
-	break;
+        c = bad;
+        break;
       }
 
     if ( !IsGraph( dst ) )
       if ( dst->label != bad )
-	dst->label = c;
+        dst->label = c;
     }
 }
 
@@ -842,64 +852,64 @@ PNODE g;
   register PNODE f1s;
   register PNODE dst;
   register PNODE sg;
-  char		 *Reason;
+  char           *Reason;
 
   for ( f1 = g->G_NODES; f1 != NULL; /* DONE IN THE BODY */ ) {
     if ( IsCompound( f1 ) ) {
       switch ( f1->type ) {
       case IFForall:
-	++Tdfcnt;
-	if ( f1->label < 0 ) {       /* ARE WE ALL DONE PROCESSING f1? */
-	  f1->label = -(f1->label);
-	  break;
-	  }
+        ++Tdfcnt;
+        if ( f1->label < 0 ) {       /* ARE WE ALL DONE PROCESSING f1? */
+          f1->label = -(f1->label);
+          break;
+          }
 
-	/* SHOULD Forall FUSION EVEN BE TRIED!!! */
-	for ( e = f1->exp; e != NULL; e = e->esucc ) {
-	  dst = e->dst;
+        /* SHOULD Forall FUSION EVEN BE TRIED!!! */
+        for ( e = f1->exp; e != NULL; e = e->esucc ) {
+          dst = e->dst;
 
-	  if ( IsForall( dst ) )
-	    break;
+          if ( IsForall( dst ) )
+            break;
 
-	  if ( dst->type == IFAAddH )
-	    break;
+          if ( dst->type == IFAAddH )
+            break;
 
-	  if ( dst->type == IFAAddL )
-	    break;
-	  }
+          if ( dst->type == IFAAddL )
+            break;
+          }
 
-	if ( e != NULL ) /* YES, TRY IT!!! */
-	  goto ContinueTheFusion;
+        if ( e != NULL ) /* YES, TRY IT!!! */
+          goto ContinueTheFusion;
 
-	DependentFusion( f1->F_BODY );
-	break;
+        DependentFusion( f1->F_BODY );
+        break;
 
       case IFSelect:
         ++TdScNt;
-	if ( f1->label < 0 ) {       /* ARE WE ALL DONE PROCESSING f1? */
-	  f1->label = -(f1->label);
-	  break;
-	  }
+        if ( f1->label < 0 ) {       /* ARE WE ALL DONE PROCESSING f1? */
+          f1->label = -(f1->label);
+          break;
+          }
 
-	goto ContinueTheFusion;
+        goto ContinueTheFusion;
 
       case IFTagCase:
-	for ( sg = f1->C_SUBS; sg != NULL; sg = sg->gsucc )
-	  DependentFusion( sg );
+        for ( sg = f1->C_SUBS; sg != NULL; sg = sg->gsucc )
+          DependentFusion( sg );
 
-	break;
+        break;
 
       case IFLoopA:
       case IFLoopB:
-	DependentFusion( f1->L_BODY );
-	break;
+        DependentFusion( f1->L_BODY );
+        break;
 
-      case IFUReduce:		/* TBD: Check this fusion? */
-	DependentFusion( f1->R_BODY );
-	break;
+      case IFUReduce:           /* TBD: Check this fusion? */
+        DependentFusion( f1->R_BODY );
+        break;
 
       default:
-	UNEXPECTED("Unknown compound");
+        UNEXPECTED("Unknown compound");
       }
     }
 
@@ -925,54 +935,54 @@ ContinueTheFusion:
       if ( IsForall( f1 ) )
         /* A Forall THAT WAS NOT COMPLETELY PROCESSED AT AN EARLIER TIME? */
         if ( IsForall( f2 ) && (f2->label >= 0)  ) {
-	  if ( f2->label == good ) {     /* ARE THE DEPENDENCIES CORRECT? */
-	    /* ------------------------------------------------------------ */
+          if ( f2->label == good ) {     /* ARE THE DEPENDENCIES CORRECT? */
+            /* ------------------------------------------------------------ */
             if ( TryAndFuseForalls( g, f1, f2, FALSE,&Reason ) ) {
-	      /* FUSION worked! */
+              /* FUSION worked! */
               if(RequestInfo(I_Info1,info)) {
               DYNEXPAND(fuseinfo,fusebuf,fuselen,fusecount,char,fuselen+300);
               fuselen += (SPRINTF(fuseinfo + fuselen,
-			" Fusing loop %d at line %d, funct %s, file %s\n",
-			f1->ID, f1->line, f1->funct, f1->file), 
+                        " Fusing loop %d at line %d, funct %s, file %s\n",
+                        f1->ID, f1->line, f1->funct, f1->file), 
                 strlen(fuseinfo + fuselen));
               fuselen += (SPRINTF(fuseinfo + fuselen,
-			" with loop %d at line %d, funct %s, file %s\n\n",
-			f2->ID, f2->line, f2->funct, f2->file),
+                        " with loop %d at line %d, funct %s, file %s\n\n",
+                        f2->ID, f2->line, f2->funct, f2->file),
                 strlen(fuseinfo + fuselen));
-	      }
-	      dfcnt++;
-	      fchange = TRUE;
-	      break;
-	    } 
+              }
+              dfcnt++;
+              fchange = TRUE;
+              break;
+            } 
 
-	    f2->label = bad; /* IT WAS GOOD, BUT OBVIOUSLY IT NO LONGER IS */
-	    }
+            f2->label = bad; /* IT WAS GOOD, BUT OBVIOUSLY IT NO LONGER IS */
+            }
           }
 
       if ( IsSelect( f1 ) )
         /* A Select THAT WAS NOT COMPLETELY PROCESSED AT AN EARLIER TIME? */
         if ( IsSelect( f2 ) && (f2->label >= 0)  ) {
-	  if ( f2->label == good ) { /* ARE THE DEPENDENCIES CORRECT? */
+          if ( f2->label == good ) { /* ARE THE DEPENDENCIES CORRECT? */
             if ( TryAndFuseSelects( g, f1, f2 ) ) {
-	      dScNt++;
-	      fchange = TRUE;
-	      break;
-	      }
+              dScNt++;
+              fchange = TRUE;
+              break;
+              }
 
-	    f2->label = bad; /* IT WAS GOOD, BUT OBVIOUSLY IT NO LONGER IS */
-	    }
-	  }
+            f2->label = bad; /* IT WAS GOOD, BUT OBVIOUSLY IT NO LONGER IS */
+            }
+          }
 
       /* FUSION WAS NOT DONE, SO GET READY FOR THE NEXT STEP */
 
       if ( f2->label < good ) {      /* NOT A DECENDENT OF f1? */
-	UnlinkNode( f2 ); 
-	LinkNode( f1->npred, f2 );
+        UnlinkNode( f2 ); 
+        LinkNode( f1->npred, f2 );
 
-	/* SHOULD WE START WITH f2 IN THE NEXT ITERATION OF THE OUTER LOOP? */
-	if ( f1s == NULL )
-	  if ( IsCompound( f2 ) )
-	    f1s = f2;
+        /* SHOULD WE START WITH f2 IN THE NEXT ITERATION OF THE OUTER LOOP? */
+        if ( f1s == NULL )
+          if ( IsCompound( f2 ) )
+            f1s = f2;
       } else {
         if ( IsSelect( f1 ) )
           AssignSelectAttributes( f2 );
@@ -983,20 +993,20 @@ ContinueTheFusion:
 
     if ( f2 == NULL ) { /* WAS FUSION DONE? */
       if ( f1s != NULL ) /* BUT WILL WE ENCOUNTER f1 AGAIN? */
-	f1->label = -(f1->label);
+        f1->label = -(f1->label);
       else {
-	f1s = f1->nsucc; /* NO, SO PUT f1 BEHIND US, AND MOVE ON */
-	}
+        f1s = f1->nsucc; /* NO, SO PUT f1 BEHIND US, AND MOVE ON */
+        }
 
       /* FINISH UP f1, AS WE WILL NEVER PROCESS IT AGAIN */
       if ( IsSelect( f1 ) ) {
-	DependentFusion( f1->S_ALT );
-	DependentFusion( f1->S_CONS );
-	}
+        DependentFusion( f1->S_ALT );
+        DependentFusion( f1->S_CONS );
+        }
       else {
         DependentFusion( f1->F_BODY );
         /* CombineKports( f1 ); */
-	}
+        }
 
       f1 = f1s;
       continue;
@@ -1067,39 +1077,39 @@ PNODE g;
   register PNODE f2s;
   register PNODE f1s;
   register PNODE sg;
-  char		 *Reason;
+  char           *Reason;
 
   for ( f1 = g->G_NODES; f1 != NULL; /* DONE IN THE BODY */ ) {
     if ( IsCompound( f1 ) ) {
       switch ( f1->type ) {
       case IFForall:  
-        ++Tifcnt;	/* DROP THROUGH */
+        ++Tifcnt;       /* DROP THROUGH */
       case IFSelect:
         ++Tiscnt;
-	if ( f1->label < 0 ) {       /* ARE WE ALL DONE PROCESSING f1? */
-	  f1->label = -(f1->label);
-	  break;
-	  }
+        if ( f1->label < 0 ) {       /* ARE WE ALL DONE PROCESSING f1? */
+          f1->label = -(f1->label);
+          break;
+          }
 
-	goto ContinueTheFusion;
+        goto ContinueTheFusion;
 
       case IFTagCase:
-	for ( sg = f1->C_SUBS; sg != NULL; sg = sg->gsucc )
-	  IndependentFusion( sg );
+        for ( sg = f1->C_SUBS; sg != NULL; sg = sg->gsucc )
+          IndependentFusion( sg );
 
-	break;
+        break;
 
       case IFLoopA:
       case IFLoopB:
-	IndependentFusion( f1->L_BODY );
-	break;
+        IndependentFusion( f1->L_BODY );
+        break;
 
-      case IFUReduce:		/* TBD: Check this fusion? */
-	IndependentFusion( f1->R_BODY );
-	break;
+      case IFUReduce:           /* TBD: Check this fusion? */
+        IndependentFusion( f1->R_BODY );
+        break;
 
       default:
-	UNEXPECTED("Unknown compound");
+        UNEXPECTED("Unknown compound");
       }
     }
 
@@ -1122,62 +1132,62 @@ ContinueTheFusion:
       if ( IsForall( f1 ) )
         /* A Forall THAT WAS NOT COMPLETELY PROCESSED AT AN EARLIER TIME? */
         if ( IsForall( f2 ) && (f2->label >= 0)  )
-	  if ( f2->label != good )       /* ARE THE DEPENDENCIES CORRECT? */
-	    /* ------------------------------------------------------------ */
+          if ( f2->label != good )       /* ARE THE DEPENDENCIES CORRECT? */
+            /* ------------------------------------------------------------ */
             if ( TryAndFuseForalls( g, f1, f2, TRUE,&Reason ) ) {
-	      /* FUSION worked! */
+              /* FUSION worked! */
               if (RequestInfo(I_Info1,info)) {
               DYNEXPAND(fuseinfo,fusebuf,fuselen,fusecount,char,fuselen+300);
               fuselen += (SPRINTF(fuseinfo + fuselen,
-			" Fusing loop %d at line %d, funct %s, file %s\n",
-			 f1->ID, f1->line, f1->funct, f1->file), 
+                        " Fusing loop %d at line %d, funct %s, file %s\n",
+                         f1->ID, f1->line, f1->funct, f1->file), 
                 strlen(fuseinfo + fuselen));
               fuselen += (SPRINTF(fuseinfo + fuselen,
-			" with loop %d at line %d, funct %s, file %s\n\n",
-			 f2->ID, f2->line, f2->funct, f2->file),
+                        " with loop %d at line %d, funct %s, file %s\n\n",
+                         f2->ID, f2->line, f2->funct, f2->file),
                 strlen(fuseinfo + fuselen));
-	      }
-	      ifcnt++;
-	      fchange = TRUE;
-	      break;
-	    } 
+              }
+              ifcnt++;
+              fchange = TRUE;
+              break;
+            } 
 
       if ( IsSelect( f1 ) )
         /* A Select THAT WAS NOT COMPLETELY PROCESSED AT AN EARLIER TIME? */
         if ( IsSelect( f2 ) && (f2->label >= 0)  )
-	  if ( f2->label != good )       /* ARE THE DEPENDENCIES CORRECT? */
+          if ( f2->label != good )       /* ARE THE DEPENDENCIES CORRECT? */
             if ( TryAndFuseSelects( g, f1, f2 ) ) {
-	      iscnt++;
-	      fchange = TRUE;
-	      break;
-	      }
+              iscnt++;
+              fchange = TRUE;
+              break;
+              }
 
       /* FUSION WAS NOT DONE, SO GET READY FOR THE NEXT STEP */
 
       if ( f2->label != good ) {      /* NOT A DECENDENT OF f1? */
-	UnlinkNode( f2 ); 
-	LinkNode( f1->npred, f2 );
+        UnlinkNode( f2 ); 
+        LinkNode( f1->npred, f2 );
 
-	/* SHOULD WE START WITH f2 IN THE NEXT ITERATION OF THE OUTER LOOP? */
-	if ( f1s == NULL )
-	  if ( IsCompound( f2 ) )
-	    f1s = f2;
-	}
+        /* SHOULD WE START WITH f2 IN THE NEXT ITERATION OF THE OUTER LOOP? */
+        if ( f1s == NULL )
+          if ( IsCompound( f2 ) )
+            f1s = f2;
+        }
       else
         AssignAttributes( f2 );
       }
 
     if ( f2 == NULL ) { /* WAS FUSION DONE? */
       if ( f1s != NULL ) /* BUT WILL WE ENCOUNTER f1 AGAIN? */
-	f1->label = -(f1->label);
+        f1->label = -(f1->label);
       else
-	f1s = f1->nsucc; /* NO, SO PUT f1 BEHIND US, AND MOVE ON */
+        f1s = f1->nsucc; /* NO, SO PUT f1 BEHIND US, AND MOVE ON */
 
       /* CLEAN UP f1, AS WE WILL NEVER PROCESS IT AGAIN */
       if ( IsSelect( f1 ) ) {
-	IndependentFusion( f1->S_ALT );
-	IndependentFusion( f1->S_CONS );
-	}
+        IndependentFusion( f1->S_ALT );
+        IndependentFusion( f1->S_CONS );
+        }
       else
         IndependentFusion( f1->F_BODY );
 

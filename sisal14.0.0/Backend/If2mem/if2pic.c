@@ -1,10 +1,20 @@
-/* if2pic.c,v
+/**************************************************************************/
+/* FILE   **************          if2pic.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:06  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:22  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -25,27 +35,27 @@ PNODE n;
       convatns++;
 
       for ( e = n->exp; e != NULL; e = e->esucc )
-	if ( e->mark == 'P' ) {
-	  patns++;
-	  break;
-	  }
+        if ( e->mark == 'P' ) {
+          patns++;
+          break;
+          }
 
       if ( n->imp->mark == 'P' )
-	syncatns++;
+        syncatns++;
       else
-	fsyncatns++;
+        fsyncatns++;
 
       if ( IsSGraph( n->imp->src ) )
-	if ( IsLoop( n->imp->src->G_DAD ) )
-	  for ( e = n->exp; e != NULL; e = e->esucc )
-	    if ( IsSGraph( e->dst ) && ( e->iport == n->imp->eport ) ) {
+        if ( IsLoop( n->imp->src->G_DAD ) )
+          for ( e = n->exp; e != NULL; e = e->esucc )
+            if ( IsSGraph( e->dst ) && ( e->iport == n->imp->eport ) ) {
               incratns++;
 
-	      if ( !(n->imp->mark == 'P' && e->mark == 'P') )
-		fincratns++;
+              if ( !(n->imp->mark == 'P' && e->mark == 'P') )
+                fincratns++;
 
               break;
-	      }
+              }
 
       break;
 
@@ -53,39 +63,39 @@ PNODE n;
       convatns++;
 
       for ( e = n->exp; e != NULL; e = e->esucc )
-	if ( e->mark == 'P' ) {
-	  patns++;
-	  break;
-	  }
+        if ( e->mark == 'P' ) {
+          patns++;
+          break;
+          }
 
       if ( n->imp->isucc->mark == 'P' && n->imp->mark == 'P' )
-	syncatns++;
+        syncatns++;
       else
-	fsyncatns++;
+        fsyncatns++;
 
       if ( IsSGraph( n->imp->src ) )
-	if ( IsLoop( n->imp->src->G_DAD ) )
-	  for ( e = n->exp; e != NULL; e = e->esucc )
-	    if ( IsSGraph( e->dst ) && ( e->iport == n->imp->eport ) ) {
+        if ( IsLoop( n->imp->src->G_DAD ) )
+          for ( e = n->exp; e != NULL; e = e->esucc )
+            if ( IsSGraph( e->dst ) && ( e->iport == n->imp->eport ) ) {
               incratns++;
 
-	      if ( !(n->imp->mark == 'P' && e->mark == 'P') )
-		fincratns++;
+              if ( !(n->imp->mark == 'P' && e->mark == 'P') )
+                fincratns++;
 
               break;
-	      }
+              }
 
       if ( IsSGraph( n->imp->isucc->src ) )
-	if ( IsLoop( n->imp->isucc->src->G_DAD ) )
-	  for ( e = n->exp; e != NULL; e = e->esucc )
-	    if ( IsSGraph( e->dst ) && ( e->iport == n->imp->isucc->eport ) ) {
+        if ( IsLoop( n->imp->isucc->src->G_DAD ) )
+          for ( e = n->exp; e != NULL; e = e->esucc )
+            if ( IsSGraph( e->dst ) && ( e->iport == n->imp->isucc->eport ) ) {
               incratns++;
 
-	      if ( !(n->imp->isucc->mark == 'P' && e->mark == 'P') )
-		fincratns++;
+              if ( !(n->imp->isucc->mark == 'P' && e->mark == 'P') )
+                fincratns++;
 
               break;
-	      }
+              }
       break;
 
     case IFABuildAT:
@@ -94,10 +104,10 @@ PNODE n;
       syncatns++;
 
       for ( e = n->exp; e != NULL; e = e->esucc )
-	if ( e->mark == 'P' ) {
-	  patns++;
-	  break;
-	  }
+        if ( e->mark == 'P' ) {
+          patns++;
+          break;
+          }
 
       break;
 
@@ -111,11 +121,11 @@ PNODE n;
       syncatns++;
 
       for ( e = n->exp->dst->G_DAD->exp; e != NULL; e = e->esucc )
-	if ( e->eport == n->exp->iport )
-	  if ( e->mark == 'P' ) {
-	    patns++;
-	    break;
-	    }
+        if ( e->eport == n->exp->iport )
+          if ( e->mark == 'P' ) {
+            patns++;
+            break;
+            }
 
       break;
 
@@ -135,9 +145,9 @@ static void PrintATNodeInfo()
   FPRINTF( infoptr, " Total Number of FAILED SYNC AT-NODES:             %d\n", fsyncatns );
   FPRINTF( infoptr, " Total Number of PARENT AT-NODES:                  %d\n", patns );
   FPRINTF( infoptr, " Total Number of Incremental-Build AT-NODES:       %d\n", 
-	   incratns );
+           incratns );
   FPRINTF( infoptr, " Total Number of FAILED Incremtnal-Build AT-NODES: %d\n",
-		     fincratns );
+                     fincratns );
 }
 
 
@@ -156,53 +166,53 @@ char *msg;
     FPRINTF( stderr, "\n   * OCCURRENCE COUNTS %s\n\n", msg );
 
     FPRINTF( stderr, " Lits  %4d Edges %4d Smpls %4d Comps %4d Grphs %4d",
-		       lits, edges, simples, comps, graphs              );
+                       lits, edges, simples, comps, graphs              );
 
     FPRINTF( stderr, " AtNds %4d", ats );
 
     for ( i = 0; i < IF1GraphNodes; i++ ) {
-	if ( (i % 7) == 0 )
-	    FPRINTF( stderr, "\n" );
+        if ( (i % 7) == 0 )
+            FPRINTF( stderr, "\n" );
 
         FPRINTF( stderr, " %-5.5s %4d", GraphName(i), gnodes[i] );
-	}
+        }
 
     for ( i = 0; i < IF1CompoundNodes; i++ ) {
-	if ( (i % 7) == 0 )
-	    FPRINTF( stderr, "\n" );
+        if ( (i % 7) == 0 )
+            FPRINTF( stderr, "\n" );
 
         FPRINTF( stderr, " %-5.5s %4d", CompoundName(i), cnodes[i] );
-	}
+        }
 
     for ( i = 0; i < IF1SimpleNodes; i++ ) {
-	if ( (i % 7) == 0 )
-	    FPRINTF( stderr, "\n" );
+        if ( (i % 7) == 0 )
+            FPRINTF( stderr, "\n" );
 
         FPRINTF( stderr, " %-5.5s %4d", SimpleName(i), snodes[i] );
-	}
+        }
 
     FPRINTF( stderr, "\n RSum  %4d RProd %4d RLst  %4d RGrt  %4d RCat  %4d",
-		     rsum, rprod, rleast, rgreat, rcat                    );
+                     rsum, rprod, rleast, rgreat, rcat                    );
 
     for ( i = 0; i < IF2AtNodes; i++ ) {
-	if ( (i % 7) == 0 )
-	    FPRINTF( stderr, "\n" );
+        if ( (i % 7) == 0 )
+            FPRINTF( stderr, "\n" );
 
         FPRINTF( stderr, " %-6.6s %3d", AtName(i), atnodes[i] );
-	}
+        }
 
     FPRINTF( stderr, "\n" );
 
     FPRINTF( stderr, "\n   * SUMMARY BY LEVEL\n\n" );
 
     for ( i = 0; i <= maxl; i++ ) {
-	l = &(levels[i]);
+        l = &(levels[i]);
 
         FPRINTF( stderr, " Level %4d Lits  %4d Edges %4d Smpls %4d", i, 
-			 l->lits, l->edges, l->simples               );
+                         l->lits, l->edges, l->simples               );
 
-	FPRINTF( stderr, " AtNds %4d Comps %4d Grphs %4d\n",
-		         l->ats, l->comps, l->graphs      );
+        FPRINTF( stderr, " AtNds %4d Comps %4d Grphs %4d\n",
+                         l->ats, l->comps, l->graphs      );
         }
 
 }
@@ -230,26 +240,26 @@ char *msg;
     topl = maxl =  -1;
 
     for ( i = 0; i < MaxLevel; i++ ) {
-	l = &(levels[i]);
+        l = &(levels[i]);
 
-	l->lits  = l->edges  = l->simples = 0;
-	l->comps = l->graphs = l->ats     = 0;
-	}
+        l->lits  = l->edges  = l->simples = 0;
+        l->comps = l->graphs = l->ats     = 0;
+        }
 
     for ( i = 0; i < IF1GraphNodes; i++ )
-	gnodes[i] = 0;
+        gnodes[i] = 0;
 
     for ( i = 0; i < IF1SimpleNodes; i++ )
-	snodes[i] = 0;
+        snodes[i] = 0;
 
     for ( i = 0; i < IF1CompoundNodes; i++ )
-	cnodes[i] = 0;
+        cnodes[i] = 0;
 
     for ( i = 0; i < IF2AtNodes; i++ )
-	atnodes[i] = 0;
+        atnodes[i] = 0;
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc )
-	Count( cfunct = f );
+        Count( cfunct = f );
 
     WriteMemCountInfo( msg );
 }
@@ -269,10 +279,10 @@ PNODE  n;
 char  *op;
 {
     if ( !IsArray( n->exp->info ) )
-	return;
+        return;
 
     FPRINTF( infoptr, " AT-NODE CONVERSION FAILURE: %s: %s, %s, %d\n",
-		        op, n->file, n->funct, n->line              );
+                        op, n->file, n->funct, n->line              );
 }
 
 
@@ -294,169 +304,169 @@ int   eport;
     register PNODE a;
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
-	if ( e->eport != eport )
-	    continue;
+        if ( e->eport != eport )
+            continue;
 
-	a = e->dst;
+        a = e->dst;
         switch ( a->type ) {
-	    case IFAAddHAT:
-	        if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
-	          FPRINTF( infoptr, "[P_FANOUT]\n" );
+            case IFAAddHAT:
+                if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
+                  FPRINTF( infoptr, "[P_FANOUT]\n" );
 
-		FPRINTF( infoptr, "   array_addh(%%mk=%c,%%mk=V): %s, %s, %d\n", 
-				 a->imp->mark, a->file, a->funct, a->line    );
-
-                break;
-
-	    case IFAAddLAT:
-	        if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
-
-		FPRINTF( stderr, "   array_addl(%%mk=%c,%%mk=V): %s, %s, %d\n", 
-				 a->imp->mark, a->file, a->funct, a->line    );
+                FPRINTF( infoptr, "   array_addh(%%mk=%c,%%mk=V): %s, %s, %d\n", 
+                                 a->imp->mark, a->file, a->funct, a->line    );
 
                 break;
 
-	    case IFACatenateAT:
-	        if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
+            case IFAAddLAT:
+                if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
 
-		FPRINTF( stderr, "   %%mk=%c || %%mk=%c: %s, %s, %d\n",
-				 a->imp->mark, a->imp->isucc->mark, a->file,
-				 a->funct, a->line                        );
-
-                break;
-
-	    case IFAFillAT:
-	        if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
-
-		FPRINTF( stderr, "   array_fill(low,hi,%%mk=V): %s, %s, %d\n", 
-				 a->file, a->funct, a->line                 );
+                FPRINTF( stderr, "   array_addl(%%mk=%c,%%mk=V): %s, %s, %d\n", 
+                                 a->imp->mark, a->file, a->funct, a->line    );
 
                 break;
 
-	    case IFABuildAT:
-	        if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
+            case IFACatenateAT:
+                if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
 
-		FPRINTF( stderr, "   array [low,%%mk=V...]: %s, %s, %d\n", 
-				 a->file, a->funct, a->line             );
+                FPRINTF( stderr, "   %%mk=%c || %%mk=%c: %s, %s, %d\n",
+                                 a->imp->mark, a->imp->isucc->mark, a->file,
+                                 a->funct, a->line                        );
 
                 break;
 
-	    case IFAGatherAT:
-	        if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
-		     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
+            case IFAFillAT:
+                if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
 
-		FPRINTF( stderr, "   returns array of %%mk=V: %s, %s, %d", 
-				 a->file, a->funct, a->line             );
+                FPRINTF( stderr, "   array_fill(low,hi,%%mk=V): %s, %s, %d\n", 
+                                 a->file, a->funct, a->line                 );
+
+                break;
+
+            case IFABuildAT:
+                if ( IsPMarked( a, 1 ) && (UsageCount( a, 1 ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
+
+                FPRINTF( stderr, "   array [low,%%mk=V...]: %s, %s, %d\n", 
+                                 a->file, a->funct, a->line             );
+
+                break;
+
+            case IFAGatherAT:
+                if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
+                     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
+
+                FPRINTF( stderr, "   returns array of %%mk=V: %s, %s, %d", 
+                                 a->file, a->funct, a->line             );
 
                 if ( a->imp->isucc->isucc->iport == 3 )
-		    FPRINTF( stderr, " FILTER OVERRIDE\n" );
+                    FPRINTF( stderr, " FILTER OVERRIDE\n" );
                 else
-		    FPRINTF( stderr, "\n" );
+                    FPRINTF( stderr, "\n" );
 
                 break;
 
-	    case IFFinalValueAT:
-	        if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
-		     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
+            case IFFinalValueAT:
+                if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
+                     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
 
-		FPRINTF( stderr, "   returns value of %%mk=P: %s, %s, %d\n", 
-				 a->file, a->funct, a->line               );
+                FPRINTF( stderr, "   returns value of %%mk=P: %s, %s, %d\n", 
+                                 a->file, a->funct, a->line               );
 
                 break;
 
-	    case IFReduceAT:
-	        if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
-		     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
+            case IFReduceAT:
+                if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
+                     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
 
-		FPRINTF( stderr, "   returns value of catenate " );
+                FPRINTF( stderr, "   returns value of catenate " );
                 goto ReduceFinish;
 
-	    case IFRedLeftAT:
-	        if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
-		     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
+            case IFRedLeftAT:
+                if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
+                     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
 
-		FPRINTF( stderr, "   returns value of left catenate " );
-		goto ReduceFinish;
+                FPRINTF( stderr, "   returns value of left catenate " );
+                goto ReduceFinish;
 
-	    case IFRedRightAT:
-	        if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
-		     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
+            case IFRedRightAT:
+                if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
+                     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
 
-		FPRINTF( stderr, "   returns value of right catenate " );
-		goto ReduceFinish;
+                FPRINTF( stderr, "   returns value of right catenate " );
+                goto ReduceFinish;
 
-	    case IFRedTreeAT:
-	        if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
-		     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
-	          FPRINTF( stderr, "[P_FANOUT]\n" );
+            case IFRedTreeAT:
+                if ( IsPMarked( a->exp->dst->G_DAD, a->exp->iport ) && 
+                     (UsageCount( a->exp->dst->G_DAD, a->exp->iport ) > 1) )
+                  FPRINTF( stderr, "[P_FANOUT]\n" );
 
-		FPRINTF( stderr, "   returns value of tree catenate " );
+                FPRINTF( stderr, "   returns value of tree catenate " );
 
 ReduceFinish:
 
-		FPRINTF( stderr, "%%mk=%c: %s, %s, %d\n", 
-				 a->imp->isucc->isucc->mark, a->file, a->funct,
-				 a->line                                     );
+                FPRINTF( stderr, "%%mk=%c: %s, %s, %d\n", 
+                                 a->imp->isucc->isucc->mark, a->file, a->funct,
+                                 a->line                                     );
 
                 break;
 
 
-	    case IFShiftBuffer:
-		TraceBuffer( a, 1 );
-		break;
+            case IFShiftBuffer:
+                TraceBuffer( a, 1 );
+                break;
 
-	    case IFForall:
-		/* DOES THE GENERATE SUBGRAPH SCATTER PARTITIONS OF THE   */
-		/* BUFFER INTO THE BODY SUBGRAPH?  IF SO, TRACE THEM INTO */
-		/* THE BODY SUBGRAPH!                                     */
+            case IFForall:
+                /* DOES THE GENERATE SUBGRAPH SCATTER PARTITIONS OF THE   */
+                /* BUFFER INTO THE BODY SUBGRAPH?  IF SO, TRACE THEM INTO */
+                /* THE BODY SUBGRAPH!                                     */
 
-		if ( (ee = FindExport( a->F_GEN, e->iport )) != NULL )
-		    TraceBuffer( a->F_BODY, ee->dst->exp->iport );
+                if ( (ee = FindExport( a->F_GEN, e->iport )) != NULL )
+                    TraceBuffer( a->F_BODY, ee->dst->exp->iport );
 
                 TraceBuffer( a->F_RET, e->iport );
-		break;
+                break;
 
-	    case IFLoopA:
-	    case IFLoopB:
-		/* IS THE BUFFER REFERENCED IN THE INITIAL OR BODY        */
-		/* SUBGRAPH? IF SO, FOLLOW IT!                            */
+            case IFLoopA:
+            case IFLoopB:
+                /* IS THE BUFFER REFERENCED IN THE INITIAL OR BODY        */
+                /* SUBGRAPH? IF SO, FOLLOW IT!                            */
 
-		if ( (ee = FindExport( a->L_INIT, e->iport )) != NULL )
-		    TraceBuffer( a->L_BODY, ee->iport );
+                if ( (ee = FindExport( a->L_INIT, e->iport )) != NULL )
+                    TraceBuffer( a->L_BODY, ee->iport );
                 else if ( IsExport( a->L_BODY, e->iport ) )
-		    TraceBuffer( a->L_BODY, e->iport );
+                    TraceBuffer( a->L_BODY, e->iport );
 
                 TraceBuffer( a->L_RET, e->iport );
                 break;
 
-	    case IFSGraph:
-		break;                             /* LOOP CARRIED BUFFER */
+            case IFSGraph:
+                break;                             /* LOOP CARRIED BUFFER */
 
-	    case IFSelect:        /* SPECIAL BUFFER REMOVAL AND COMBINING */
-		if ( IsExport( a->S_CONS, e->iport ) ) {
-		  FPRINTF( stderr, "[S_CONS]\n" );
-		  TraceBuffer( a->S_CONS, e->iport );
-		  }
+            case IFSelect:        /* SPECIAL BUFFER REMOVAL AND COMBINING */
+                if ( IsExport( a->S_CONS, e->iport ) ) {
+                  FPRINTF( stderr, "[S_CONS]\n" );
+                  TraceBuffer( a->S_CONS, e->iport );
+                  }
 
-		if ( IsExport( a->S_ALT, e->iport ) ) {
-		  FPRINTF( stderr, "[S_ALT]\n" );
-		  TraceBuffer( a->S_ALT, e->iport );
-		  }
+                if ( IsExport( a->S_ALT, e->iport ) ) {
+                  FPRINTF( stderr, "[S_ALT]\n" );
+                  TraceBuffer( a->S_ALT, e->iport );
+                  }
 
-		break;
+                break;
 
-	    default:
-		Error1( "TraceBuffer: ILLEGAL BUFFER DESTINATION NODE" );
-		break;
+            default:
+                Error1( "TraceBuffer: ILLEGAL BUFFER DESTINATION NODE" );
+                break;
             }
         }
 }
@@ -476,113 +486,113 @@ PNODE g;
     register PNODE n;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	GatherATNodeInfo( n );
+        GatherATNodeInfo( n );
 
-	if ( IsCompound( n ) ) {
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		WriteGraphPicture( g );
+        if ( IsCompound( n ) ) {
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                WriteGraphPicture( g );
 
             continue;
-	    }
+            }
 
-	switch ( n->type ) {
+        switch ( n->type ) {
             case IFAAddH: 
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		WriteNotConverted( n, "array_addh(...)" );
-		break;
+                WriteNotConverted( n, "array_addh(...)" );
+                break;
 
-	    case IFAAddL:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFAAddL:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		WriteNotConverted( n, "array_addl(...)" );
-		break;
+                WriteNotConverted( n, "array_addl(...)" );
+                break;
 
-	    case IFACatenate:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFACatenate:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		WriteNotConverted( n, "||" );
-		break;
+                WriteNotConverted( n, "||" );
+                break;
 
-	    case IFAFill:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFAFill:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		WriteNotConverted( n, "array_fill(...)" );
-		break;
+                WriteNotConverted( n, "array_fill(...)" );
+                break;
 
-	    case IFABuild:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFABuild:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		WriteNotConverted( n, "array [...]" );
-		break;
+                WriteNotConverted( n, "array [...]" );
+                break;
 
-	    case IFAGather:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFAGather:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		WriteNotConverted( n, "returns array of" );
-		break;
+                WriteNotConverted( n, "returns array of" );
+                break;
 
-	    case IFFinalValue:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFFinalValue:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		WriteNotConverted( n, "returns value of" );
-		break;
+                WriteNotConverted( n, "returns value of" );
+                break;
 
-	    case IFReduce:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFReduce:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
-		    break;
+                if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
+                    break;
 
-		WriteNotConverted( n, "returns value of catenate" );
-		break;
+                WriteNotConverted( n, "returns value of catenate" );
+                break;
 
-	    case IFRedLeft:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFRedLeft:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
-		    break;
+                if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
+                    break;
 
-		WriteNotConverted( n, "returns value of left catenate" );
-		break;
+                WriteNotConverted( n, "returns value of left catenate" );
+                break;
 
-	    case IFRedRight:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFRedRight:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
-		    break;
+                if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
+                    break;
 
-		WriteNotConverted( n, "returns value of right catenate" );
-		break;
+                WriteNotConverted( n, "returns value of right catenate" );
+                break;
 
-	    case IFRedTree:
-	        if ( !IsArray( n->exp->info ) )
-	            break;
+            case IFRedTree:
+                if ( !IsArray( n->exp->info ) )
+                    break;
 
-		if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
-		    break;
+                if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
+                    break;
 
-		WriteNotConverted( n, "returns value of tree catenate" );
-		break;
+                WriteNotConverted( n, "returns value of tree catenate" );
+                break;
 
-	    case IFMemAlloc:
-		FPRINTF( stderr, "  MEMORY BUFFER USAGE TRACE:\n" );
-		TraceBuffer( n, 1 );
-		break;
+            case IFMemAlloc:
+                FPRINTF( stderr, "  MEMORY BUFFER USAGE TRACE:\n" );
+                TraceBuffer( n, 1 );
+                break;
 
-	    default:
-		break;
-	    }
+            default:
+                break;
+            }
         }
 }
 
@@ -601,13 +611,13 @@ void WriteIf2memPicture()
     FPRINTF( stderr, "\n   * ARRAY MEMORY MAP\n" );
 
     for ( f = glstop->gsucc ; f != NULL ; f = f->gsucc ) {
-	if ( IsIGraph( f ) )
-	    continue;
+        if ( IsIGraph( f ) )
+            continue;
 
-	FPRINTF( stderr, "\n FUNCTION %s(...)\n", f->G_NAME );
+        FPRINTF( stderr, "\n FUNCTION %s(...)\n", f->G_NAME );
 
-	WriteGraphPicture( f );
-	}
+        WriteGraphPicture( f );
+        }
    */ 
     PrintATNodeInfo();
     (void)WriteAggregateInfo();
@@ -640,18 +650,18 @@ PNODE g;
           break;
 
         PrintWarning( "array_addh", n->line, n->funct, n->file, TRUE );
-	break;
+        break;
 
       case IFAAddLAT:
         if ( n->imp->mark == 'P' )
           break;
 
         PrintWarning( "array_addl", n->line, n->funct, n->file, TRUE );
-	break;
+        break;
 
       case IFACatenateAT:
         if ( n->imp->isucc->mark == 'P' && n->imp->mark == 'P' )
-	  break;
+          break;
 
         PrintWarning( "||", n->line, n->funct, n->file, TRUE );
         break;
@@ -724,7 +734,7 @@ PNODE g;
           break;
 
         PrintWarning( "catenate", n->line, n->funct, n->file, FALSE );
-	break;
+        break;
 
       default:
         break;

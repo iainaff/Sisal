@@ -1,10 +1,20 @@
-/* if2sdbx.c,v
+/**************************************************************************/
+/* FILE   **************         if2sdbx.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:03  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:04  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -99,7 +109,7 @@ PNODE g;
   register PEDGE  ii;
   register int    c;
   register int    l;
-	   char   buf[100];
+           char   buf[100];
 
   l = -9999;
 
@@ -107,86 +117,86 @@ PNODE g;
     /* CLEANUP THE LINE NUMBERS!!! LINE 0 0 0 0 NEXT-LINE... */
     if ( n != g ) {
       if ( l == -9999 && n->line > 0 )
-	l = n->line;
+        l = n->line;
       else if ( n->line > 0 && n->line == l )
-	n->line = 0;
+        n->line = 0;
       else if ( n->line > 0 )
-	l = n->line;
+        l = n->line;
       }
 
     /* CLEAR OUT THE # NAMES INTRODUCED BY THE FRONTEND */
     /* ALSO INTRODUCE # ARRAY NAMES */
     for ( e = n->exp; e != NULL; e = e->esucc ) {
       if ( e->name != NULL )
-	if ( e->name[0] == '#' )
-	  e->name = NULL;
+        if ( e->name[0] == '#' )
+          e->name = NULL;
 
       if ( e->dst->type == IFAElement && e->iport == 1 && e->name == NULL )
-	e->name = CopyString( "#1" );
+        e->name = CopyString( "#1" );
 
       if ( e->dst->type == IFDiv && e->iport == 2 && e->name == NULL )
-	e->name = CopyString( "%1" );
+        e->name = CopyString( "%1" );
       }
 
     switch ( n->type ) {
       case IFLGraph:
       case IFXGraph:
       case IFSGraph:
-	/* ASSIGN $ NAMES TO SCOPE AND FUNCTION IMPORTS */
-	for ( c = 1, ii = n->imp; ii != NULL; ii = ii->isucc, c++ )
-	  if ( ii->name == NULL ) {
-	    SPRINTF( buf, "$%d", c );
-	    ii->name = CopyString( buf );
-	    }
+        /* ASSIGN $ NAMES TO SCOPE AND FUNCTION IMPORTS */
+        for ( c = 1, ii = n->imp; ii != NULL; ii = ii->isucc, c++ )
+          if ( ii->name == NULL ) {
+            SPRINTF( buf, "$%d", c );
+            ii->name = CopyString( buf );
+            }
 
-	break;
+        break;
 
       case IFForall:
         if ( (ii = n->F_GEN->imp) != NULL )
-	  if ( ii->name != NULL )
-	    if ( !IsExport( n->F_BODY, ii->iport ) )
-	      AssignSdbxOffset( ii );
+          if ( ii->name != NULL )
+            if ( !IsExport( n->F_BODY, ii->iport ) )
+              AssignSdbxOffset( ii );
 
-	AssignScopePositions( n->F_BODY );
-	break;
+        AssignScopePositions( n->F_BODY );
+        break;
 
       case IFLoopB:
       case IFLoopA:
-	AssignScopePositions( n->L_BODY );
-	break;
+        AssignScopePositions( n->L_BODY );
+        break;
 
       case IFSelect:
-	AssignScopePositions( n->S_ALT );
-	AssignScopePositions( n->S_CONS );
-	break;
+        AssignScopePositions( n->S_ALT );
+        AssignScopePositions( n->S_CONS );
+        break;
 
       case IFTagCase:
-	for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	  AssignScopePositions( sg );
+        for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+          AssignScopePositions( sg );
 
-	break;
+        break;
 
       default:
-	break;
+        break;
       }
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
       if ( e->eport < 0 ) {
-	e->eport = -(e->eport);
-	continue;
-	}
+        e->eport = -(e->eport);
+        continue;
+        }
 
       if ( e->name == NULL )
-	continue;
+        continue;
 
       AssignSdbxOffset( e );
 
       for ( ee = e->esucc; ee != NULL; ee = ee->esucc ) {
-	if ( ee->eport != e->eport )
-	  continue;
-	
-	ee->eport = -(ee->eport);
-	}
+        if ( ee->eport != e->eport )
+          continue;
+        
+        ee->eport = -(ee->eport);
+        }
       }
     }
 }
@@ -218,8 +228,8 @@ PNODE f;
     return;
 
   FPRINTF( output, 
-	   "\nstatic struct SdbxValue SdbxScope%s[%d] = {\n", 
-	   f->G_NAME, ssize+2 );
+           "\nstatic struct SdbxValue SdbxScope%s[%d] = {\n", 
+           f->G_NAME, ssize+2 );
 
   for ( i = 0; i <= ssize; i++ ) {
     FPRINTF( output, "  {\"%s\",0,0,0,0},\n", scope[i] );
@@ -255,35 +265,35 @@ PNODE n;
   if ( IsSGraph( n ) ) {
     if ( IsForall( n->G_DAD ) )
       if ( n->G_DAD->F_BODY == n ) {
-	ii = n->G_DAD->F_GEN->imp;
+        ii = n->G_DAD->F_GEN->imp;
         UpdateSdbxScopeNames( ii->src );
-	}
+        }
     }
 
   if ( IsGraph( n ) ) {
     for ( i = n->imp; i != NULL; i = i->isucc ) {
       if ( !IsConst( i ) )
-	continue;
+        continue;
 
       if ( !IsBasic( i->info ) )
-	continue;
+        continue;
 
       switch ( i->info->type ) {
         case IF_BOOL:
         case IF_CHAR:
         case IF_NULL:
         case IF_INTEGER:
-	  ks = "SDBX_INT";
-	  break;
+          ks = "SDBX_INT";
+          break;
 
         case IF_DOUBLE:
         case IF_REAL:
-	  ks = "SDBX_DBL";
-	  break;
+          ks = "SDBX_DBL";
+          break;
 
-	default:
-	  continue;
-	}
+        default:
+          continue;
+        }
 
       FPRINTF( output, "SdbxCurrentScope[%d].Active = TRUE;\n", i->sdbx );
       FPRINTF( output, "SdbxCurrentScope[%d].Kind = %s;\n", i->sdbx, ks );
@@ -295,21 +305,21 @@ PNODE n;
         case IF_CHAR:
         case IF_NULL:
         case IF_INTEGER:
-	  FPRINTF( output, "SdbxCurrentScope[%d].Value.InT = ", i->sdbx );
-	  PrintTemp( i );
-	  FPRINTF( output, ";\n" );
-	  break;
+          FPRINTF( output, "SdbxCurrentScope[%d].Value.InT = ", i->sdbx );
+          PrintTemp( i );
+          FPRINTF( output, ";\n" );
+          break;
 
         case IF_DOUBLE:
         case IF_REAL:
-	  FPRINTF( output, "SdbxCurrentScope[%d].Value.DbL = ", i->sdbx );
-	  PrintTemp( i );
-	  FPRINTF( output, ";\n" );
-	  break;
+          FPRINTF( output, "SdbxCurrentScope[%d].Value.DbL = ", i->sdbx );
+          PrintTemp( i );
+          FPRINTF( output, ";\n" );
+          break;
 
         default:
-	  break;
-	}
+          break;
+        }
       }
     }
 
@@ -332,22 +342,22 @@ PNODE n;
       case IF_CHAR:
       case IF_NULL:
       case IF_INTEGER:
-	ks = "SDBX_INT";
-	p  = NULL;
-	break;
+        ks = "SDBX_INT";
+        p  = NULL;
+        break;
 
       case IF_DOUBLE:
       case IF_REAL:
-	ks = "SDBX_DBL";
-	p  = NULL;
-	break;
+        ks = "SDBX_DBL";
+        p  = NULL;
+        break;
 
       case IF_ARRAY:
-	arr = TRUE;
+        arr = TRUE;
       default:
-	ks = "SDBX_PTR";
-	p  = e->info->wname;
-	e->info->touch6 = TRUE;
+        ks = "SDBX_PTR";
+        p  = e->info->wname;
+        e->info->touch6 = TRUE;
       }
 
     FPRINTF( output, "SdbxCurrentScope[%d].Active = TRUE;\n", e->sdbx );
@@ -366,22 +376,22 @@ PNODE n;
       case IF_CHAR:
       case IF_NULL:
       case IF_INTEGER:
-	FPRINTF( output, "SdbxCurrentScope[%d].Value.InT = ", e->sdbx );
-	PrintTemp( e );
-	FPRINTF( output, ";\n" );
-	break;
+        FPRINTF( output, "SdbxCurrentScope[%d].Value.InT = ", e->sdbx );
+        PrintTemp( e );
+        FPRINTF( output, ";\n" );
+        break;
 
       case IF_DOUBLE:
       case IF_REAL:
-	FPRINTF( output, "SdbxCurrentScope[%d].Value.DbL = ", e->sdbx );
-	PrintTemp( e );
-	FPRINTF( output, ";\n" );
-	break;
+        FPRINTF( output, "SdbxCurrentScope[%d].Value.DbL = ", e->sdbx );
+        PrintTemp( e );
+        FPRINTF( output, ";\n" );
+        break;
 
       default:
-	FPRINTF( output, "SdbxCurrentScope[%d].Value.PtR = ", e->sdbx );
-	PrintTemp( e );
-	FPRINTF( output, ";\n" );
+        FPRINTF( output, "SdbxCurrentScope[%d].Value.PtR = ", e->sdbx );
+        PrintTemp( e );
+        FPRINTF( output, ";\n" );
       }
     }
 }
@@ -413,7 +423,7 @@ PNODE n;
     if ( n->Pmark ) {
       FPRINTF( output, "  if ( NumWorkers > 1 )\n" );
       FPRINTF( output, 
-	       "    Error( \"SDBX\", \"-sdbx MODULE CALLED IN PARALLEL\" );\n");
+               "    Error( \"SDBX\", \"-sdbx MODULE CALLED IN PARALLEL\" );\n");
       }
 
     FPRINTF( output, "  SdbxMonitor( SDBX_ESTART );\n" );
@@ -445,7 +455,7 @@ PNODE n;
       if ( cfl == NULL ) {
         FPRINTF( output, "SdbxState.File = \"%s\";\n", n->file ); 
         cfl = n->file;
-	}
+        }
       else if ( strcmp( n->file, cfl ) != 0 )
         FPRINTF( output, "SdbxState.File = \"%s\";\n", n->file ); 
       }

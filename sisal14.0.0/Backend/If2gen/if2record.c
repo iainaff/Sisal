@@ -1,10 +1,20 @@
-/* if2record.c,v
+/**************************************************************************/
+/* FILE   **************        if2record.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:03  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:03  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -66,10 +76,10 @@ PNODE n;
     FPRINTF( output, "UBld( " );
     PrintTemp( n->exp );
     FPRINTF( output, ", %s, %d, %d );\n", n->exp->info->sname,
-	     n->exp->sr, n->imp->iport - 1                  );
+             n->exp->sr, n->imp->iport - 1                  );
 
     PrintFldAssgn( indent, n->exp->info->sname, (char*)NULL, n->exp, 
-		   "Data.Fld", n->imp->iport - 1, n->imp   );
+                   "Data.Fld", n->imp->iport - 1, n->imp   );
 }
 
 
@@ -87,12 +97,12 @@ PNODE n;
     register PEDGE i;
 
     if ( n->cmark ) {
-	PrintIndentation( indent );
-	FPRINTF( output, "%s( ", GetIncRefCountName( n->exp->info ) );
-	PrintTemp( n->exp );
-	FPRINTF( output, ", %s, %d );\n", n->exp->info->sname, 1 );
-	return;
-	}
+        PrintIndentation( indent );
+        FPRINTF( output, "%s( ", GetIncRefCountName( n->exp->info ) );
+        PrintTemp( n->exp );
+        FPRINTF( output, ", %s, %d );\n", n->exp->info->sname, 1 );
+        return;
+        }
 
     PrintIndentation( indent );
 
@@ -101,8 +111,8 @@ PNODE n;
     FPRINTF( output, ", %s, %d );\n", n->exp->info->sname, n->exp->sr );
 
     for ( i = n->imp; i != NULL; i = i->isucc )
-	PrintFldAssgn( indent, n->exp->info->sname, (char*)NULL, n->exp,
-			"Fld", i->iport, i );
+        PrintFldAssgn( indent, n->exp->info->sname, (char*)NULL, n->exp,
+                        "Fld", i->iport, i );
 }
 
 
@@ -120,10 +130,10 @@ PNODE n;
     register PEDGE ee;
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
-	if ( e->eport < 0 ) {
-	    e->eport = -(e->eport);
-	    continue;
-	    }
+        if ( e->eport < 0 ) {
+            e->eport = -(e->eport);
+            continue;
+            }
 
         PrintIndentation( indent );
 
@@ -132,10 +142,10 @@ PNODE n;
         PrintFldRef( n->imp->info->sname, (char*)NULL, n->imp, "Fld", e->eport );
         FPRINTF( output, ";\n" );
 
-	for ( ee = e->esucc; ee != NULL; ee = ee->esucc )
-	    if ( ee->eport == e->eport )
+        for ( ee = e->esucc; ee != NULL; ee = ee->esucc )
+            if ( ee->eport == e->eport )
                 ee->eport = -(ee->eport);
-	}
+        }
 
     PrintProducerModifiers( indent, n );
     PrintConsumerModifiers( indent, n );
@@ -163,16 +173,16 @@ PNODE n;
   for ( i = n->imp->isucc; i != NULL; i = i->isucc ) {
     if ( !( n->nmark ) )
       if ( !IsBasic( i->info ) ) {
-	PrintIndentation( indent );
+        PrintIndentation( indent );
 
-	FPRINTF( output, "%s( (((%s*)", 
-		 GetFreeName( i->info ), n->imp->info->sname );
-	PrintTemp( n->imp );
-	FPRINTF( output, ")->Fld%d) );\n", i->iport - 1 );
+        FPRINTF( output, "%s( (((%s*)", 
+                 GetFreeName( i->info ), n->imp->info->sname );
+        PrintTemp( n->imp );
+        FPRINTF( output, ")->Fld%d) );\n", i->iport - 1 );
         }
-	
+        
     PrintFldAssgn( indent, n->exp->info->sname, (char*)NULL, n->exp,
-		   "Fld", i->iport - 1, i                  );
+                   "Fld", i->iport - 1, i                  );
     }
 }
 
@@ -194,16 +204,16 @@ PNODE n;
     register int    c;
 
     if ( n->imp->rmark1 == RMARK ) {
-	if ( n->imp->temp != n->exp->temp )
-	    PrintAssgn( indent, n->exp, n->imp );
+        if ( n->imp->temp != n->exp->temp )
+            PrintAssgn( indent, n->exp, n->imp );
 
-	return;
-	}
+        return;
+        }
 
     if ( n->imp->rmark1 == rMARK )
-	opcode = "CRNoOp";
+        opcode = "CRNoOp";
     else
-	opcode = "RNoOp";
+        opcode = "RNoOp";
 
     PrintIndentation( indent );
 
@@ -214,16 +224,16 @@ PNODE n;
     FPRINTF( output, ", %s );\n", n->exp->info->sname );
 
     for ( c = 1, i = n->exp->info->R_FIRST; i != NULL; i = i->L_NEXT, c++ ) {
-	if ( IsBasic( i->L_SUB ) )
-	    continue;
+        if ( IsBasic( i->L_SUB ) )
+            continue;
 
-	PrintIndentation( indent );
+        PrintIndentation( indent );
 
         FPRINTF( output, "%s( ((%s*)", GetIncRefCountName( n->exp->info ),
-		 n->exp->info->sname                                    );
-	PrintTemp( n->exp );
-	FPRINTF( output, ")->Fld%d, %s, 1 );\n", c, i->L_SUB->sname );
-	}
+                 n->exp->info->sname                                    );
+        PrintTemp( n->exp );
+        FPRINTF( output, ")->Fld%d, %s, 1 );\n", c, i->L_SUB->sname );
+        }
 
     PrintConsumerModifiers( indent, n );
 
@@ -231,11 +241,11 @@ PNODE n;
         PrintIndentation( indent );
 
         FPRINTF( output, "EndCRNoOp( " );
-	PrintTemp( n->exp );
-	FPRINTF( output, ", " );
-	PrintTemp( n->imp );
-	FPRINTF( output, " );\n" );
-	}
+        PrintTemp( n->exp );
+        FPRINTF( output, ", " );
+        PrintTemp( n->imp );
+        FPRINTF( output, " );\n" );
+        }
 }
 
 
@@ -335,7 +345,7 @@ PNODE n;      /* IFBRElement NODE */
 
     /* BUG FIX TO USE ARRAY INDEX TEMPORARY BEFORE REASSIGNING */
     if (!strcmp(e->temp->name, ae->imp->isucc->temp->name)) {
-	laste = e;
+        laste = e;
         continue;
     }
 

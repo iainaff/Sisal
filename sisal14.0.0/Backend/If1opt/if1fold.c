@@ -1,6 +1,18 @@
+/**************************************************************************/
+/* FILE   **************         if1fold.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "world.h"
 
-static PNODE	FoldNode;
+static PNODE    FoldNode;
 
 /**************************************************************************/
 /* MACRO  **************      BooleanToInteger     ************************/
@@ -53,38 +65,38 @@ PEDGE e;
     case IFLoopA:
     case IFLoopB:
       if ( (ee = FindImport( src->L_RET, e->eport )) == NULL )
-	return( NULL );
+        return( NULL );
       goto MoveOn;
     case IFForall:
       if ( (ee = FindImport( src->F_RET, e->eport )) == NULL )
-	return( NULL );
+        return( NULL );
 MoveOn:
 
       if ( ee->esucc != NULL )
-	return( NULL );
+        return( NULL );
 
       n = ee->src;
 
       switch ( n->type ) {
         case IFAGather:
-	  return( n->imp );
+          return( n->imp );
         
-	case IFRedLeft:
-	case IFRedRight:
-	case IFRedTree:
-	case IFReduce:
-	  if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
-	    return( NULL );
+        case IFRedLeft:
+        case IFRedRight:
+        case IFRedTree:
+        case IFReduce:
+          if ( n->imp->CoNsT[0] != REDUCE_CATENATE )
+            return( NULL );
 
-	  /* IS THE SECOND IMPORT THE LOWER BOUND? */
-	  if ( !native )
-	    return( NULL );
+          /* IS THE SECOND IMPORT THE LOWER BOUND? */
+          if ( !native )
+            return( NULL );
 
-	  return( n->imp->isucc );
+          return( n->imp->isucc );
 
-	default:
-	  ;
-	}
+        default:
+          ;
+        }
       return( NULL );
 
     default:
@@ -117,24 +129,24 @@ PNODE n;
   switch ( n->type ) {
     case IFNeg:
       if ( n->exp == NULL )
-	return( FALSE );
+        return( FALSE );
 
       if ( n->exp->esucc != NULL )
-	return( FALSE );
+        return( FALSE );
 
       dst = n->exp->dst;
 
       switch ( dst->type ) {
         case IFPlus:
           if ( n->exp->iport == 1 )
-	    ImportSwap( dst );
+            ImportSwap( dst );
     
           dst->type = IFMinus;
           break;
 
         case IFMinus:
           if ( n->exp->iport == 1 )
-	    return( FALSE );
+            return( FALSE );
 
           dst->type = IFPlus;
           break;
@@ -161,42 +173,42 @@ PNODE n;
       lo1 = n->imp->isucc;
 
       if ( !IsConst( lo1 ) )
-	if ( !IsGraph( lo1->src ) )
-	  return( FALSE );
+        if ( !IsGraph( lo1->src ) )
+          return( FALSE );
 
       if ( (lo2 = FindLowerBound( n->imp )) == NULL )
-	return( FALSE );
+        return( FALSE );
 
       l = lo2->dst->exp->dst->G_DAD;
 
       if ( !IsConst( lo1 ) ) {
-	port = ++maxint;
+        port = ++maxint;
 
-	if ( IsConst( lo2 ) ) {
-	  lo2->CoNsT = NULL;
-	  lo2->eport = port;
-	  LinkExport( lo2->dst->exp->dst, lo2 ); 
-	} else {
-	  UnlinkExport( lo2 );
-	  lo2->eport = port;
-	  LinkExport( lo2->dst->exp->dst, lo2 );
-	  }
+        if ( IsConst( lo2 ) ) {
+          lo2->CoNsT = NULL;
+          lo2->eport = port;
+          LinkExport( lo2->dst->exp->dst, lo2 ); 
+        } else {
+          UnlinkExport( lo2 );
+          lo2->eport = port;
+          LinkExport( lo2->dst->exp->dst, lo2 );
+          }
 
         ee = EdgeAlloc( lo1->src, lo1->eport, l, port );
-	ee->info = lo1->info;
-	LinkExport( lo1->src, ee );
-	LinkImport( l, ee );
-	}
+        ee->info = lo1->info;
+        LinkExport( lo1->src, ee );
+        LinkImport( l, ee );
+        }
       else
-	ChangeEdgeToConst( lo2, lo1 );
+        ChangeEdgeToConst( lo2, lo1 );
 
       for ( e = n->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
         UnlinkExport( e );
-	e->eport = n->imp->eport;
-	LinkExport( n->imp->src, e );
-	}
+        e->eport = n->imp->eport;
+        LinkExport( n->imp->src, e );
+        }
 
       UnlinkExport( n->imp );
       UnlinkNode( n );
@@ -228,13 +240,13 @@ PNODE n;
   register int  tv;
   register int  v;
   register int  itv;
-	   EDGE c;
+           EDGE c;
 
   switch ( n->type ) {
     case IFPlus:  /* | */
     case IFTimes: /* & */
       if ( n->imp->info->type != IF_BOOL )
-	break;
+        break;
 
       tv  = (n->type == IFTimes)? 0 : 1;
       itv = (n->type == IFTimes)? 1 : 0;
@@ -247,43 +259,43 @@ PNODE n;
       if ( IsConst( n->imp ) ) {
         v = BooleanToInteger(n->imp->CoNsT);
 
-	/* T|?->T, F&?->F */
-	if ( v == tv ) {
-	  ChangeExportsToConst( n, 1, &c );
-	  OptRemoveDeadNode( n );
-	  lfcnt++;
-	  return( TRUE );
-	  }
+        /* T|?->T, F&?->F */
+        if ( v == tv ) {
+          ChangeExportsToConst( n, 1, &c );
+          OptRemoveDeadNode( n );
+          lfcnt++;
+          return( TRUE );
+          }
 
-	if ( v == itv )
-	  if ( !IsConst( n->imp->isucc ) ) {
-	    ChangeExportPorts( n, 1, n->imp->isucc->eport );
-	    LinkExportLists( n->imp->isucc->src, n );
-	    OptRemoveDeadNode( n );
-	    lfcnt++;
-	    return( TRUE );
-	    }
+        if ( v == itv )
+          if ( !IsConst( n->imp->isucc ) ) {
+            ChangeExportPorts( n, 1, n->imp->isucc->eport );
+            LinkExportLists( n->imp->isucc->src, n );
+            OptRemoveDeadNode( n );
+            lfcnt++;
+            return( TRUE );
+            }
         }
 
       if ( IsConst( n->imp->isucc ) ) {
         v = BooleanToInteger(n->imp->isucc->CoNsT);
 
-	/* ?|T->T, ?&F->F */
-	if ( v == tv ) {
-	  ChangeExportsToConst( n, 1, &c );
-	  OptRemoveDeadNode( n );
-	  lfcnt++;
-	  return( TRUE );
-	  }
+        /* ?|T->T, ?&F->F */
+        if ( v == tv ) {
+          ChangeExportsToConst( n, 1, &c );
+          OptRemoveDeadNode( n );
+          lfcnt++;
+          return( TRUE );
+          }
 
-	if ( v == itv )
-	  if ( !IsConst( n->imp ) ) {
-	    ChangeExportPorts( n, 1, n->imp->eport );
-	    LinkExportLists( n->imp->src, n );
-	    OptRemoveDeadNode( n );
-	    lfcnt++;
-	    return( TRUE );
-	    }
+        if ( v == itv )
+          if ( !IsConst( n->imp ) ) {
+            ChangeExportPorts( n, 1, n->imp->eport );
+            LinkExportLists( n->imp->src, n );
+            OptRemoveDeadNode( n );
+            lfcnt++;
+            return( TRUE );
+            }
         }
 
       break;
@@ -342,7 +354,7 @@ PEDGE e;
   register int   v1;
   register PNODE n;
   register PNODE nn;
-	   char  buf[100];
+           char  buf[100];
 
   if ( !normidx )
     return;
@@ -414,11 +426,11 @@ int   b;
     register long s = 1;
 
     if ( ( *c == '-' ) || ( *c == '+' ) ) {
-	if ( *c == '-' )
-	    s = -1;
+        if ( *c == '-' )
+            s = -1;
 
         c++;
-	}
+        }
 
     for ( ; *c != '\0'; c++ )
         v = (v * b) + (*c - '0');
@@ -465,7 +477,7 @@ PNODE n;
       v  = (int)vf;
 
       if ( ((double)v) - vf != 0 )
-	return;
+        return;
 
       break;
 
@@ -474,7 +486,7 @@ PNODE n;
       v  = (int)vf;
 
       if ( ((double)v) - vf != 0 )
-	return;
+        return;
 
       break;
 
@@ -607,7 +619,7 @@ MoveOn:
       n1 = n0;
 
       if ( n1 == pr )
-	break;
+        break;
       }
     else
       n1 = n1->exp->dst;
@@ -617,7 +629,7 @@ MoveOn:
 /**************************************************************************/
 /* LOCAL  **************         FoldDiv           ************************/
 /**************************************************************************/
-/* PURPOSE: Fold SELECTIVE IFDiv OPERATIONS: n/k -> n*(1/k)    	          */
+/* PURPOSE: Fold SELECTIVE IFDiv OPERATIONS: n/k -> n*(1/k)               */
 /**************************************************************************/
 
 static void FoldDiv( n )
@@ -649,19 +661,19 @@ PNODE n;
     }
 
   /* ------------------------------------------------------------ */
-  /* Don't divide by zero!					  */
+  /* Don't divide by zero!                                        */
   /* ------------------------------------------------------------ */
   if ( vf == 0.0 ) return;
 
   /* ------------------------------------------------------------ */
-  /* Invert the divisor	and put back into the CoNsT field	  */
+  /* Invert the divisor and put back into the CoNsT field         */
   /* ------------------------------------------------------------ */
   vf = 1.0 / vf;
   i2->CoNsT = MyAlloc(32);
   sprintf(i2->CoNsT,"%.20e",vf);
 
   /* ------------------------------------------------------------ */
-  /* Convert divide into a multiply				  */
+  /* Convert divide into a multiply                               */
   /* ------------------------------------------------------------ */
   n->type = IFTimes;
 }
@@ -725,7 +737,7 @@ PNODE n;
     case IFPlus:
     case IFTimes:
       if ( IsBoolean( n->exp->info ) )
-	return( FALSE );
+        return( FALSE );
 
     case IFMinus:
     case IFDiv:
@@ -753,12 +765,12 @@ double val;
     register PEDGE se;
 
     for ( e = n->exp ; e != NULL ; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	StoreSpecialConst( e, val );
-	e->eport = CONST_PORT;
-	e->esucc = e->epred = NULL;
-	e->src   = NULL;
+        StoreSpecialConst( e, val );
+        e->eport = CONST_PORT;
+        e->esucc = e->epred = NULL;
+        e->src   = NULL;
         }
 
     /* MAKE NODE n A DEAD NODE                                            */
@@ -787,7 +799,7 @@ PEDGE i;
     for ( e = i->dst->exp ; e != NULL ; e = se ) {
         se = e->esucc;
 
-	UnlinkExport( e );
+        UnlinkExport( e );
         e->eport = i->eport;
         LinkExport( i->src, e);
         }
@@ -833,14 +845,14 @@ PEDGE   e;
         if ( !(IsPlus( n ) || IsMinus( n )) )
             return( FALSE );
 
-	if ( !IsConst( n->imp->isucc ) ) {
+        if ( !IsConst( n->imp->isucc ) ) {
             if ( (!IsOneExport( n )) || (n->exp->iport != 1) )
                 return( FALSE );
 
             continue;
-	    }
+            }
 
-	break;
+        break;
         }
 
     /* A FOLDABLE CHAIN EXISTS; HENCE, FOLD IT                            */
@@ -907,7 +919,7 @@ PNODE g;
         if ( !IsSpecialCandidate( n ) )
             continue;
 
-	OptNormalizeNode( n );
+        OptNormalizeNode( n );
 
         i1 = n->imp;
         i2 = i1->isucc;
@@ -918,33 +930,33 @@ PNODE g;
 
         if ( IsConst( i1 ) ) {
             const1 = TRUE;
-	    op1 = GetSpecialOperand( i1 );
+            op1 = GetSpecialOperand( i1 );
             }
 
-	if ( i2 != NULL )
+        if ( i2 != NULL )
           if ( IsConst( i2 ) ) {
               const2 = TRUE;
               op2 = GetSpecialOperand( i2 );
               }
 
-	/* ONE OR THE OTHER BUT NOT BOTH */
-	if ( !IsNeg( n ) )
+        /* ONE OR THE OTHER BUT NOT BOTH */
+        if ( !IsNeg( n ) )
             if ( !(const1 ^ const2) )
-	        continue;
+                continue;
 
         switch ( n->type ) {
             case IFMinus:
                 if ( const1 ) {
                   if ( op1 == 0.0 ) {             /* ZERO MINUS NON-CONSTANT */
-		    UnlinkImport( i1 );
-		    /* free( i1 ); */
-		    n->exp->iport = 1;
-		    n->type = IFNeg;
+                    UnlinkImport( i1 );
+                    /* free( i1 ); */
+                    n->exp->iport = 1;
+                    n->type = IFNeg;
                     ident_cnt++;
-		    }
+                    }
 
                   break;
-		  }
+                  }
     
                 if ( op2 == 0.0 ) {              /* NON-CONSTANT MINUS ZERO */
                     OptSkipIdentityNode( i1 );
@@ -954,15 +966,15 @@ PNODE g;
                 if ( IsSpecialChain( -op2, n, i2 ) ) {
                     n->type = IFPlus;
                     sn = n;                             /* PROCESS n AGAIN */
-		    break;
+                    break;
                     }
 
-		if ( op2 < 0.0 ) {        /* A - (Const) WHERE Const < 0  */
-		    n->type = IFPlus; pncnt++;
-		    i2->CoNsT++;
-		    }
+                if ( op2 < 0.0 ) {        /* A - (Const) WHERE Const < 0  */
+                    n->type = IFPlus; pncnt++;
+                    i2->CoNsT++;
+                    }
 
-		break;
+                break;
 
             case IFPlus:
                 if ( const1 && (op1 == 0.0) ) {   /* ZERO PLUS NON-CONSTANT */
@@ -980,13 +992,13 @@ PNODE g;
 
                 if ( IsSpecialChain( op2, n, i2 ) ) {
                     sn = n;                           /* PROCESS n AGAIN  */
-		    break;
-		    }
+                    break;
+                    }
 
-		if ( op2 < 0.0 ) {
-		    n->type = IFMinus; pncnt++;
-		    i2->CoNsT++;
-		    }
+                if ( op2 < 0.0 ) {
+                    n->type = IFMinus; pncnt++;
+                    i2->CoNsT++;
+                    }
 
                 break;
 
@@ -1022,7 +1034,7 @@ PNODE g;
             
             case IFDiv:
                 if ( const2 ) {
-		    if ( op2 == 0.0 ) break;
+                    if ( op2 == 0.0 ) break;
 
                     if (op2 == 1.0 ) {              /* NON-CONSTANT DIV ONE */
                         OptSkipIdentityNode( i1 );
@@ -1030,7 +1042,7 @@ PNODE g;
                         }
 
                     if (op2 == -1.0) {                  /* NON-CONST DIV -1 */
-		        dncnt++;
+                        dncnt++;
                         UnlinkImport( i2 );
                         n->type = IFNeg;
                         sn = n;                     /* START AGAIN WITH n */
@@ -1046,14 +1058,14 @@ PNODE g;
                 /* CHECK FOR -(A-B)                                       */
 
                 if ( IsMinus( i1->src ) && IsOneExport( i1->src ) ) {
-		    pncnt++ ;
+                    pncnt++ ;
 
-		    /* SWAP IMPORTS TO THE MINUS NODE AND MAKE n DEAD     */
-		    ImportSwap( i1->src );
+                    /* SWAP IMPORTS TO THE MINUS NODE AND MAKE n DEAD     */
+                    ImportSwap( i1->src );
     
                     LinkExportLists( i1->src, n );
-		    n->exp = NULL;
-		    OptRemoveDeadNode( n );
+                    n->exp = NULL;
+                    OptRemoveDeadNode( n );
                     }
 
                 break;
@@ -1075,15 +1087,15 @@ PNODE g;
 static void FoldExceptionHandler( sig )
   int   sig;
 {
-  char	ebuf[256];
+  char  ebuf[256];
 
   if ( !FoldNode ) Error1("ARITHMETIC EXCEPTION DURING CONSTANT FOLDING");
 
   SPRINTF(ebuf,"ARITHMETIC EXCEPTION DURING CONSTANT FOLD %s:%d (%d)\n",
-	  (FoldNode->file)?(FoldNode->file):"???",
-	  (FoldNode->line>0)?(FoldNode->line):0,
-	  (FoldNode->if1line>0)?(FoldNode->if1line):0
-	  );
+          (FoldNode->file)?(FoldNode->file):"???",
+          (FoldNode->line>0)?(FoldNode->line):0,
+          (FoldNode->if1line>0)?(FoldNode->if1line):0
+          );
   Error1(ebuf);
 }
 
@@ -1108,69 +1120,69 @@ PNODE s;
     register PNODE sn;
 
     if ( !native )
-	return( s->nsucc );
+        return( s->nsucc );
 
     /* WHICH BRANCH IS LIVE?                                              */
     sg = ( strcmp( s->S_TEST->imp->CoNsT, "FALSE" ) == 0 )? 
-				      s->S_ALT : s->S_CONS;
+                                      s->S_ALT : s->S_CONS;
 
     /* LINK THE LIVE BRANCH'S EXPORTS TO THEIR SOURCES OUTSIDE s; NOTE: A */
     /* SOURCE MAY BE A CONSTANT.                                          */
 
     for ( e = sg->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	i = FindImport( s, e->eport );
+        i = FindImport( s, e->eport );
 
-	if ( !IsConst( i ) ) {
-	    e->eport = i->eport;
-	    UnlinkExport( e );
-	    LinkExport( i->src, e );
-	    }
+        if ( !IsConst( i ) ) {
+            e->eport = i->eport;
+            UnlinkExport( e );
+            LinkExport( i->src, e );
+            }
         else
-	    ChangeEdgeToConst( e, i );
-	}
+            ChangeEdgeToConst( e, i );
+        }
 
     /* LINK s'S EXPORTS TO THEIR SOURCES WITHIN THE LIVE BRANCH           */
 
     for ( e = s->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	i = FindImport( sg, e->eport );
+        i = FindImport( sg, e->eport );
 
-	if ( !IsConst( i ) ) {
-	    e->eport = i->eport;
-	    UnlinkExport( e );
-	    LinkExport( i->src, e );
-	    }
+        if ( !IsConst( i ) ) {
+            e->eport = i->eport;
+            UnlinkExport( e );
+            LinkExport( i->src, e );
+            }
         else
-	    ChangeEdgeToConst( e, i );
-	}
+            ChangeEdgeToConst( e, i );
+        }
 
     /* REMOVE sg's IMPORTS AS THEY ARE NOW DEAD REFERENCES                */
 
     for ( i = sg->imp; i != NULL; i = si ) {
-	si = i->isucc;
-	RemoveDeadEdge( i );
-	}
+        si = i->isucc;
+        RemoveDeadEdge( i );
+        }
 
     /* MOVE THE LIVE BRANCH'S NODE LIST OUTSIDE s AND DESTROY s           */
     if ( sg->G_NODES != NULL ) {
-	ln = s->nsucc;
+        ln = s->nsucc;
 
-	if ( sg->G_NODES != NULL ) {
-	    s->nsucc        = sg->G_NODES;
-	    s->nsucc->npred = s;
-	    }
+        if ( sg->G_NODES != NULL ) {
+            s->nsucc        = sg->G_NODES;
+            s->nsucc->npred = s;
+            }
 
-	if ( ln != NULL ) {
-	    ln->npred = FindLastNode( sg->G_NODES );
+        if ( ln != NULL ) {
+            ln->npred = FindLastNode( sg->G_NODES );
             ln->npred->nsucc = ln;
-	    }
+            }
 
-	sg->G_NODES = NULL;
-	sg->imp = sg->exp = NULL;
-	}
+        sg->G_NODES = NULL;
+        sg->imp = sg->exp = NULL;
+        }
 
     sn = s->nsucc;
     OptRemoveDeadNode( s );
@@ -1201,14 +1213,14 @@ char *c;
             v = AsciiToLong( c, BASE8 );
         else
             switch ( *c ) {
-	        case 'n': case 'N': v = '\n'; break;
-	        case 'f': case 'F': v = '\f'; break;
-	        case 'b': case 'B': v = '\b'; break;
-	        case 'r': case 'R': v = '\r'; break;
-	        case 't': case 'T': v = '\t'; break;
-	        default:            v = *c;   break;
+                case 'n': case 'N': v = '\n'; break;
+                case 'f': case 'F': v = '\f'; break;
+                case 'b': case 'B': v = '\b'; break;
+                case 'r': case 'R': v = '\r'; break;
+                case 't': case 'T': v = '\t'; break;
+                default:            v = *c;   break;
                 }
-	}
+        }
     else
         v = (long) *c;
 
@@ -1229,8 +1241,8 @@ char *d;
     register char *p;
 
     for ( p = d; *p != '\0'; p++ )
-	if ( (*p == 'D') || (*p == 'd') )
-	   *p = 'e';
+        if ( (*p == 'D') || (*p == 'd') )
+           *p = 'e';
 
     return( d );
 }
@@ -1251,9 +1263,9 @@ char *d;
 /*          IT IS ASSUMED THAT if1write WILL CORRECT THIS.                */
 /**************************************************************************/
 static int  GetConstantEdge(ival,dval,E)
-     long	*ival;
-     double	*dval;
-     PEDGE	E;
+     long       *ival;
+     double     *dval;
+     PEDGE      E;
 {
   if ( !E || !(E->CoNsT) ) return ERROR;
 
@@ -1288,7 +1300,7 @@ static int  GetConstantEdge(ival,dval,E)
 static int GetOperands( n )
 PNODE n;
 {
-  int	stat;
+  int   stat;
 
   stat = GetConstantEdge(&iop1,&dop1,n->imp);
   if ( stat == ERROR ) return ERROR;
@@ -1320,26 +1332,26 @@ PNODE n;
     register char  *r;
     register int    cnt;
     register int    b;
-	     char   a[ANSWER_SIZE];
+             char   a[ANSWER_SIZE];
 
-    FoldNode = n;		/* In case we trap! */
+    FoldNode = n;               /* In case we trap! */
 
     /* ? = control -> control = ? FOR LOOP SPLITTING (ALSO IN If1Normal) */
     if ( n->type == IFEqual ) 
       if ( !IsConst( n->imp->isucc ) )
-	if ( IsSGraph( n->imp->isucc->src ) )
-	  if ( !IsImport( n->imp->isucc->src->G_DAD, n->imp->isucc->eport ) )
-	    ImportSwap( n );
+        if ( IsSGraph( n->imp->isucc->src ) )
+          if ( !IsImport( n->imp->isucc->src->G_DAD, n->imp->isucc->eport ) )
+            ImportSwap( n );
 
     /* NORMALIZE FORM OF BOOLEAN CONSTANTS */
     for ( i = n->imp; i != NULL; i = i->isucc )
       if ( IsConst( i ) && IsBoolean( i->info ) ) {
-	b = BooleanToInteger( i->CoNsT );
+        b = BooleanToInteger( i->CoNsT );
         i->CoNsT = CopyString( IntegerToBoolean( b ) );
-	}
+        }
 
     /* ------------------------------------------------------------ */
-    /* Convert exponentiation of v ^ constant to multiplies	    */
+    /* Convert exponentiation of v ^ constant to multiplies         */
     /* ------------------------------------------------------------ */
     if ( IsExp( n ) ) FoldExp( n );
 
@@ -1352,178 +1364,178 @@ PNODE n;
       return;
 
     for ( cnt = 0, i = n->imp; i != NULL; i = i->isucc )
-	if ( !IsConst( i ) || (++cnt > 2) )
-	    return;
+        if ( !IsConst( i ) || (++cnt > 2) )
+            return;
 
     if ( cnt == 0 ) /* NO OPERANDS! */
       return;
 
     if ( GetOperands( n ) == ERROR )
-	return;
+        return;
 
     switch ( n->type ) {
-	case IFPlus:
-	    switch ( n->imp->info->type ) {
-		case IF_INTEGER:
-		    SPRINTF( a, "%ld", iop1 + iop2 );
-		    break;
+        case IFPlus:
+            switch ( n->imp->info->type ) {
+                case IF_INTEGER:
+                    SPRINTF( a, "%ld", iop1 + iop2 );
+                    break;
 
-		case IF_DOUBLE:
-		case IF_REAL:
-		    SPRINTF( a, "%.16e", dop1 + dop2 );
-		    break;
+                case IF_DOUBLE:
+                case IF_REAL:
+                    SPRINTF( a, "%.16e", dop1 + dop2 );
+                    break;
 
-		default:
-		    SPRINTF( a, "%s", IntegerToBoolean( iop1 || iop2 ) );
-		    break;
-		}
-
-            break;
-
-	case IFTimes:
-	    switch ( n->imp->info->type ) {
-		case IF_INTEGER:
-		    SPRINTF( a, "%ld", iop1 * iop2 );
-		    break;
-
-		case IF_DOUBLE:
-		case IF_REAL:
-		    SPRINTF( a, "%.16e", dop1 * dop2 );
-		    break;
-
-		default:
-		    SPRINTF( a, "%s", IntegerToBoolean( iop1 && iop2 ) );
-		    break;
-		}
+                default:
+                    SPRINTF( a, "%s", IntegerToBoolean( iop1 || iop2 ) );
+                    break;
+                }
 
             break;
 
-	case IFMinus:
-	    if ( IsInteger( n->imp->info ) )
-		SPRINTF( a, "%ld", iop1 - iop2 );
+        case IFTimes:
+            switch ( n->imp->info->type ) {
+                case IF_INTEGER:
+                    SPRINTF( a, "%ld", iop1 * iop2 );
+                    break;
+
+                case IF_DOUBLE:
+                case IF_REAL:
+                    SPRINTF( a, "%.16e", dop1 * dop2 );
+                    break;
+
+                default:
+                    SPRINTF( a, "%s", IntegerToBoolean( iop1 && iop2 ) );
+                    break;
+                }
+
+            break;
+
+        case IFMinus:
+            if ( IsInteger( n->imp->info ) )
+                SPRINTF( a, "%ld", iop1 - iop2 );
             else
-		SPRINTF( a, "%.16e", dop1 - dop2 );
+                SPRINTF( a, "%.16e", dop1 - dop2 );
 
             break;
 
-	case IFDiv:
-	    if ( IsInteger( n->imp->info ) ) {
-		if ( iop2 == 0 ) return;
-		SPRINTF( a, "%ld", iop1 / iop2 );
+        case IFDiv:
+            if ( IsInteger( n->imp->info ) ) {
+                if ( iop2 == 0 ) return;
+                SPRINTF( a, "%ld", iop1 / iop2 );
             } else {
-		if ( dop2 == 0.0 ) return;
-		SPRINTF( a, "%.16e", dop1 / dop2 );
-		}
+                if ( dop2 == 0.0 ) return;
+                SPRINTF( a, "%.16e", dop1 / dop2 );
+                }
 
             break;
 
-	case IFMod:
-	    if ( !IsInteger( n->imp->info ) )
-	        return;
+        case IFMod:
+            if ( !IsInteger( n->imp->info ) )
+                return;
 
-	    if ( iop2 == 0 ) return;
+            if ( iop2 == 0 ) return;
             SPRINTF( a, "%ld", iop1 % iop2 );
             break;
 
-	case IFExp:
-	    if ( IsInteger( n->imp->info ) )
-		SPRINTF( a, "%d", IntegerPower(iop1,iop2) );
+        case IFExp:
+            if ( IsInteger( n->imp->info ) )
+                SPRINTF( a, "%d", IntegerPower(iop1,iop2) );
             else if ( IsInteger( n->imp->isucc->info ) )
-		SPRINTF( a, "%.16e", pow( dop1, ((double) iop2) ) );
-	    else
-		SPRINTF( a, "%.16e", pow( dop1, dop2 ) );
-
-            break;
-
-	case IFMax:
-	    switch ( n->imp->info->type )  {
-                case IF_INTEGER:
-		    SPRINTF( a, "%ld", ( iop1 > iop2 )? iop1 : iop2 );
-		    break;
-
-		case IF_REAL:
-		case IF_DOUBLE:
-		    SPRINTF( a, "%.16e", ( dop1 > dop2 )? dop1 : dop2 );
-		    break;
-
-		default:
-		    return;
-		}
-
-            break;
-
-	case IFMin:
-	    switch ( n->imp->info->type )  {
-                case IF_INTEGER:
-		    SPRINTF( a, "%ld", ( iop1 < iop2 )? iop1 : iop2 );
-		    break;
-
-		case IF_REAL:
-		case IF_DOUBLE:
-		    SPRINTF( a, "%.16e", ( dop1 < dop2 )? dop1 : dop2 );
-		    break;
-
-		default:
-		    return;
-		}
-
-            break;
-
-	case IFAbs:
-	    if ( IsInteger( n->imp->info ) )
-		SPRINTF( a, "%d", abs( (int)iop1 ) );
+                SPRINTF( a, "%.16e", pow( dop1, ((double) iop2) ) );
             else
-		SPRINTF( a, "%.16e", fabs( dop1 ) );
+                SPRINTF( a, "%.16e", pow( dop1, dop2 ) );
 
             break;
 
-	case IFNeg:
-	    if ( IsInteger( n->imp->info ) )
-		SPRINTF( a, "%ld", -iop1 );
+        case IFMax:
+            switch ( n->imp->info->type )  {
+                case IF_INTEGER:
+                    SPRINTF( a, "%ld", ( iop1 > iop2 )? iop1 : iop2 );
+                    break;
+
+                case IF_REAL:
+                case IF_DOUBLE:
+                    SPRINTF( a, "%.16e", ( dop1 > dop2 )? dop1 : dop2 );
+                    break;
+
+                default:
+                    return;
+                }
+
+            break;
+
+        case IFMin:
+            switch ( n->imp->info->type )  {
+                case IF_INTEGER:
+                    SPRINTF( a, "%ld", ( iop1 < iop2 )? iop1 : iop2 );
+                    break;
+
+                case IF_REAL:
+                case IF_DOUBLE:
+                    SPRINTF( a, "%.16e", ( dop1 < dop2 )? dop1 : dop2 );
+                    break;
+
+                default:
+                    return;
+                }
+
+            break;
+
+        case IFAbs:
+            if ( IsInteger( n->imp->info ) )
+                SPRINTF( a, "%d", abs( (int)iop1 ) );
             else
-		SPRINTF( a, "%.16e", -dop1 );
+                SPRINTF( a, "%.16e", fabs( dop1 ) );
 
             break;
 
-	case IFFloor:
+        case IFNeg:
+            if ( IsInteger( n->imp->info ) )
+                SPRINTF( a, "%ld", -iop1 );
+            else
+                SPRINTF( a, "%.16e", -dop1 );
+
+            break;
+
+        case IFFloor:
             SPRINTF( a, "%d", (int) floor( dop1 ) );
             break;
 
-	case IFInt:
-	    switch ( n->imp->info->type ) {
-		case IF_BOOL:
-		    SPRINTF( a, "%d", (int) iop1 );
-		    break;
+        case IFInt:
+            switch ( n->imp->info->type ) {
+                case IF_BOOL:
+                    SPRINTF( a, "%d", (int) iop1 );
+                    break;
 
-		case IF_CHAR:
-		    SPRINTF( a, "%d", (int) iop1 );
-		    break;
+                case IF_CHAR:
+                    SPRINTF( a, "%d", (int) iop1 );
+                    break;
 
-		case IF_DOUBLE:
-		case IF_REAL:
-		    SPRINTF( a, "%d", (int) floor( dop1 + 0.5 ) );
-		    break;
+                case IF_DOUBLE:
+                case IF_REAL:
+                    SPRINTF( a, "%d", (int) floor( dop1 + 0.5 ) );
+                    break;
 
-		default:
-		    return;
-		}
+                default:
+                    return;
+                }
 
             break;
 
-	case IFTrunc:
+        case IFTrunc:
             SPRINTF( a, "%d", (int) dop1 );
-	    break;
+            break;
 
-	case IFSingle:
-	case IFDouble:
-	    if ( IsInteger( n->imp->info ) )
-		SPRINTF( a, "%.16e", (double) iop1 );
+        case IFSingle:
+        case IFDouble:
+            if ( IsInteger( n->imp->info ) )
+                SPRINTF( a, "%.16e", (double) iop1 );
             else
-		SPRINTF( a, "%.16e", dop1 );
+                SPRINTF( a, "%.16e", dop1 );
 
-	    break;
+            break;
 
-	case IFChar:
+        case IFChar:
             if ( (iop1 < ' ') || (iop1 > '~') )
                 SPRINTF( a, "\\0%lo", iop1 );
             else if ( iop1 == '\\' )
@@ -1535,136 +1547,136 @@ PNODE n;
 
             break;
 
-	case IFNot:
-	    SPRINTF( a, "%s", IntegerToBoolean( (iop1 == 1)? 0 : 1 ) );
-	    break;
+        case IFNot:
+            SPRINTF( a, "%s", IntegerToBoolean( (iop1 == 1)? 0 : 1 ) );
+            break;
 
-	case IFLess:
-	    switch ( n->imp->info->type ) {
-		case IF_CHAR:
-		case IF_BOOL:
-		case IF_INTEGER:
-		    SPRINTF( a, "%s", IntegerToBoolean( iop1 < iop2 ) );
-		    break;
+        case IFLess:
+            switch ( n->imp->info->type ) {
+                case IF_CHAR:
+                case IF_BOOL:
+                case IF_INTEGER:
+                    SPRINTF( a, "%s", IntegerToBoolean( iop1 < iop2 ) );
+                    break;
 
-		default:
-		    SPRINTF( a, "%s", IntegerToBoolean( dop1 < dop2 ) );
-		    break;
-		}
+                default:
+                    SPRINTF( a, "%s", IntegerToBoolean( dop1 < dop2 ) );
+                    break;
+                }
 
-	    break;
+            break;
 
-	case IFLessEqual:
-	    switch ( n->imp->info->type ) {
-		case IF_CHAR:
-		case IF_BOOL:
-		case IF_INTEGER:
-		    SPRINTF( a, "%s", IntegerToBoolean( iop1 <= iop2 ) );
-		    break;
+        case IFLessEqual:
+            switch ( n->imp->info->type ) {
+                case IF_CHAR:
+                case IF_BOOL:
+                case IF_INTEGER:
+                    SPRINTF( a, "%s", IntegerToBoolean( iop1 <= iop2 ) );
+                    break;
 
-		default:
-		    SPRINTF( a, "%s", IntegerToBoolean( dop1 <= dop2 ) );
-		    break;
-		}
+                default:
+                    SPRINTF( a, "%s", IntegerToBoolean( dop1 <= dop2 ) );
+                    break;
+                }
 
-	    break;
+            break;
 
-	case IFEqual:
-	    switch ( n->imp->info->type ) {
-		case IF_CHAR:
-		case IF_BOOL:
-		case IF_INTEGER:
-		    SPRINTF( a, "%s", IntegerToBoolean( iop1 == iop2 ) );
-		    break;
+        case IFEqual:
+            switch ( n->imp->info->type ) {
+                case IF_CHAR:
+                case IF_BOOL:
+                case IF_INTEGER:
+                    SPRINTF( a, "%s", IntegerToBoolean( iop1 == iop2 ) );
+                    break;
 
-		default:
-		    SPRINTF( a, "%s", IntegerToBoolean( dop1 == dop2 ) );
-		    break;
-		}
+                default:
+                    SPRINTF( a, "%s", IntegerToBoolean( dop1 == dop2 ) );
+                    break;
+                }
 
-	    break;
+            break;
 
-	case IFNotEqual:
-	    switch ( n->imp->info->type ) {
-		case IF_CHAR:
-		case IF_BOOL:
-		case IF_INTEGER:
-		    SPRINTF( a, "%s", IntegerToBoolean( iop1 != iop2 ) );
-		    break;
+        case IFNotEqual:
+            switch ( n->imp->info->type ) {
+                case IF_CHAR:
+                case IF_BOOL:
+                case IF_INTEGER:
+                    SPRINTF( a, "%s", IntegerToBoolean( iop1 != iop2 ) );
+                    break;
 
-		default:
-		    SPRINTF( a, "%s", IntegerToBoolean( dop1 != dop2 ) );
-		    break;
-		}
+                default:
+                    SPRINTF( a, "%s", IntegerToBoolean( dop1 != dop2 ) );
+                    break;
+                }
 
-	    break;
+            break;
 
-	case IFCall:
+        case IFCall:
 #define FoldMathIntrins(icheck,dcheck,f)\
-		switch(n->imp->isucc->info->type){\
-		case IF_INTEGER:\
-		  if ( icheck ) return;\
-		  SPRINTF(a,"%d",(int)(f((double)iop2)));\
-		  break;\
-		case IF_DOUBLE:\
-		case IF_REAL:\
-		  if ( dcheck ) return;\
-		  SPRINTF(a,"%.16e",f(dop2));\
-		  break;\
-		default:\
-		  return;\
-		}
-	    /* ------------------------------------------------------------ */
-	    /* Make sure that the intrinsics are turned on AND that the	    */
-	    /* call has precisely ONE argument				    */
-	    /* ------------------------------------------------------------ */
-	      if ( !intrinsics ) return;
-	      if ( !n->imp->isucc ) return;
-	      if ( n->imp->isucc->isucc ) return;
+                switch(n->imp->isucc->info->type){\
+                case IF_INTEGER:\
+                  if ( icheck ) return;\
+                  SPRINTF(a,"%d",(int)(f((double)iop2)));\
+                  break;\
+                case IF_DOUBLE:\
+                case IF_REAL:\
+                  if ( dcheck ) return;\
+                  SPRINTF(a,"%.16e",f(dop2));\
+                  break;\
+                default:\
+                  return;\
+                }
+            /* ------------------------------------------------------------ */
+            /* Make sure that the intrinsics are turned on AND that the     */
+            /* call has precisely ONE argument                              */
+            /* ------------------------------------------------------------ */
+              if ( !intrinsics ) return;
+              if ( !n->imp->isucc ) return;
+              if ( n->imp->isucc->isucc ) return;
 
-	      if ( CaseCmp( n->imp->CoNsT,"log" ) == 0 ) {
-		FoldMathIntrins(iop2<0,dop2<0.0,log);
+              if ( CaseCmp( n->imp->CoNsT,"log" ) == 0 ) {
+                FoldMathIntrins(iop2<0,dop2<0.0,log);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"log10" ) == 0 ) {
-		FoldMathIntrins(iop2<0,dop2<0.0,log10);
+              } else if ( CaseCmp( n->imp->CoNsT,"log10" ) == 0 ) {
+                FoldMathIntrins(iop2<0,dop2<0.0,log10);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"etothe" ) == 0 ) {
-		FoldMathIntrins(0,0,exp);
+              } else if ( CaseCmp( n->imp->CoNsT,"etothe" ) == 0 ) {
+                FoldMathIntrins(0,0,exp);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"sin" ) == 0 ) {
-		FoldMathIntrins(0,0,sin);
+              } else if ( CaseCmp( n->imp->CoNsT,"sin" ) == 0 ) {
+                FoldMathIntrins(0,0,sin);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"cos" ) == 0 ) {
-		FoldMathIntrins(0,0,cos);
+              } else if ( CaseCmp( n->imp->CoNsT,"cos" ) == 0 ) {
+                FoldMathIntrins(0,0,cos);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"tan" ) == 0 ) {
-		FoldMathIntrins(0,0,tan);
+              } else if ( CaseCmp( n->imp->CoNsT,"tan" ) == 0 ) {
+                FoldMathIntrins(0,0,tan);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"asin" ) == 0 ) {
-		FoldMathIntrins(0,0,asin);
+              } else if ( CaseCmp( n->imp->CoNsT,"asin" ) == 0 ) {
+                FoldMathIntrins(0,0,asin);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"acos" ) == 0 ) {
-		FoldMathIntrins(0,0,acos);
+              } else if ( CaseCmp( n->imp->CoNsT,"acos" ) == 0 ) {
+                FoldMathIntrins(0,0,acos);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"atan" ) == 0 ) {
-		FoldMathIntrins(0,0,atan);
+              } else if ( CaseCmp( n->imp->CoNsT,"atan" ) == 0 ) {
+                FoldMathIntrins(0,0,atan);
 
-	      } else if ( CaseCmp( n->imp->CoNsT,"sqrt" ) == 0 ) {
-		FoldMathIntrins(iop2<0,dop2<0.0,sqrt);
+              } else if ( CaseCmp( n->imp->CoNsT,"sqrt" ) == 0 ) {
+                FoldMathIntrins(iop2<0,dop2<0.0,sqrt);
 
-	      } else {
-		return;
-	      }
+              } else {
+                return;
+              }
 #undef FoldMathIntrins
-	    break;
+            break;
 
         default:
-	    return;
-        }	
+            return;
+        }       
 
     /* ------------------------------------------------------------ */
     /* Make sure that the folded value is a proper value (could be  */
-    /* NaN or Infinity!)					    */
+    /* NaN or Infinity!)                                            */
     /* ------------------------------------------------------------ */
     if ( CaseCmp(a,"NaN") == 0 || CaseCmp(a,"Infinity") == 0 ) return;
 
@@ -1672,14 +1684,14 @@ PNODE n;
     r = CopyString( a );
 
     for ( e = n->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	e->CoNsT = r;
-	e->eport = CONST_PORT;
-	e->esucc = NULL;
-	e->epred = NULL;
-	e->src   = NULL;
-	}
+        e->CoNsT = r;
+        e->eport = CONST_PORT;
+        e->esucc = NULL;
+        e->epred = NULL;
+        e->src   = NULL;
+        }
 
     n->exp = NULL;
     OptRemoveDeadNode( n ); fcnt++;
@@ -1704,93 +1716,93 @@ PNODE g;
     register PEDGE se;
 
     if ( IsIGraph( g ) )
-	return;
+        return;
 
     for ( n = g->G_NODES; n != NULL; n = sn ) {
-	sn = n->nsucc;
+        sn = n->nsucc;
 
-	if ( WasReduced( n ) )
-	  continue;
+        if ( WasReduced( n ) )
+          continue;
 
-	if ( IsSimple( n ) ) {
-	    OptNormalizeNode( n );
+        if ( IsSimple( n ) ) {
+            OptNormalizeNode( n );
 
-	    switch( n->type ) {
-	      case IFAElement:
-	      case IFAReplace:
-		if ( IsArray( n->imp->info ) )
-	          NormalizeIndexing( n->imp->isucc );
+            switch( n->type ) {
+              case IFAElement:
+              case IFAReplace:
+                if ( IsArray( n->imp->info ) )
+                  NormalizeIndexing( n->imp->isucc );
 
-		break;
+                break;
 
-	      default:
-		break;
+              default:
+                break;
               }
 
-	    Fold( n );
-	    continue;
-	    }
+            Fold( n );
+            continue;
+            }
 
-	PropagateConst( n );
+        PropagateConst( n );
 
-	if ( IsSelect( n ) )
-	    if ( IsConst( n->S_TEST->imp ) ) {
-	      /* BUG FIX 10/24/89 CANN */
-	      /* sn = n->npred; */ /* n WILL BE REPLACED BY ZERO OR   */
-	      sn = RemoveBranch( n ); /* MORE NODES FROM THE LIVE BRANCH*/
+        if ( IsSelect( n ) )
+            if ( IsConst( n->S_TEST->imp ) ) {
+              /* BUG FIX 10/24/89 CANN */
+              /* sn = n->npred; */ /* n WILL BE REPLACED BY ZERO OR   */
+              sn = RemoveBranch( n ); /* MORE NODES FROM THE LIVE BRANCH*/
               continue;
-	      }
+              }
 
         for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-	    FoldNodes( g );
+            FoldNodes( g );
 
-	/* PROPAGATE IDENTICAL, IDENTICAL CONSTANTS OUT OF BRANCHES */
-	if ( !IsSelect( n ) )
-	  continue;
+        /* PROPAGATE IDENTICAL, IDENTICAL CONSTANTS OUT OF BRANCHES */
+        if ( !IsSelect( n ) )
+          continue;
 
-	for ( i = n->S_ALT->imp; i != NULL; i = i->isucc ) {
-	  if ( !IsConst( i ) )
-	    continue;
+        for ( i = n->S_ALT->imp; i != NULL; i = i->isucc ) {
+          if ( !IsConst( i ) )
+            continue;
 
           ii = FindImport( n->S_CONS, i->iport );
 
-	  if ( !IsConst( ii ) )
-	    continue;
-	  
-	  /* IDENTICAL? */
-	  if ( strcmp( i->CoNsT, ii->CoNsT ) != 0 ) {
-	    switch( i->info->type ) {
-	      case IF_INTEGER:
-		if ( atoi(i->CoNsT) == atoi(ii->CoNsT) )
-		  break;
+          if ( !IsConst( ii ) )
+            continue;
+          
+          /* IDENTICAL? */
+          if ( strcmp( i->CoNsT, ii->CoNsT ) != 0 ) {
+            switch( i->info->type ) {
+              case IF_INTEGER:
+                if ( atoi(i->CoNsT) == atoi(ii->CoNsT) )
+                  break;
 
-		continue;
+                continue;
 
-	      case IF_REAL:
-	      case IF_DOUBLE:
-	        if ( atof( DoubleToReal( i->CoNsT ) ) ==
-	             atof( DoubleToReal( ii->CoNsT ) ) )
-		  break;
+              case IF_REAL:
+              case IF_DOUBLE:
+                if ( atof( DoubleToReal( i->CoNsT ) ) ==
+                     atof( DoubleToReal( ii->CoNsT ) ) )
+                  break;
 
-		continue;
+                continue;
 
-	      default:
-	        continue;
-	      }
-	    }
+              default:
+                continue;
+              }
+            }
 
-	  esccnt++;
-	  /* CHANGE SELECT EXPORTS */
-	  for ( e = n->exp; e != NULL; e = se ) {
-	    se = e->esucc;
+          esccnt++;
+          /* CHANGE SELECT EXPORTS */
+          for ( e = n->exp; e != NULL; e = se ) {
+            se = e->esucc;
 
-	    if ( e->eport != i->iport )
-	      continue;
-	    
-	    ChangeEdgeToConst( e, i );
-	    }
+            if ( e->eport != i->iport )
+              continue;
+            
+            ChangeEdgeToConst( e, i );
+            }
 
-	  OptRemoveDeadNode( n );
+          OptRemoveDeadNode( n );
           }
         }
 }
@@ -1847,6 +1859,31 @@ void If1Fold()
   signal( SIGFPE, SIG_DFL );
 }
 /* $Log$
+/* Revision 1.1.1.1  2000/12/31 17:56:23  patmiller
+/* Well, here is the first set of big changes in the distribution
+/* in 5 years!  Right now, I did a lot of work on configuration/
+/* setup (now all autoconf), breaking out the machine dependent
+/* #ifdef's (with a central acconfig.h driven config file), changed
+/* the installation directories to be more gnu style /usr/local
+/* (putting data in the /share/sisal14 dir for instance), and
+/* reduced the footprint in the top level /usr/local/xxx hierarchy.
+/*
+/* I also wrote a new compiler tool (sisalc) to replace osc.  I
+/* found that the old logic was too convoluted.  This does NOT
+/* replace the full functionality, but then again, it doesn't have
+/* 300 options on it either.
+/*
+/* Big change is making the code more portably correct.  It now
+/* compiles under gcc -ansi -Wall mostly.  Some functions are
+/* not prototyped yet.
+/*
+/* Next up: Full prototypes (little) checking out the old FLI (medium)
+/* and a new Frontend for simpler extension and a new FLI (with clean
+/* C, C++, F77, and Python! support).
+/*
+/* Pat
+/*
+/*
  * Revision 1.14  1994/07/01  23:30:10  denton
  * int -> long argument as referenced.
  *

@@ -1,10 +1,20 @@
-/* if1inline.c,v
+/**************************************************************************/
+/* FILE   **************        if1inline.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:57  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:34  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -19,7 +29,7 @@ static PCALL calltail = NULL;
 static int   color = FIRST_COLOR;    /* CURRENT COLOR IN CYCLE DETECTION  */
 static int   sskip = 0;                    /* COUNT OF SKIPPED EXPANSIONS */
 
-int NoInlining = FALSE;		/* Allow Inlined functions */
+int NoInlining = FALSE;         /* Allow Inlined functions */
 int noincnt = -1;                             /* FUNCTION CALL LIST INDEX */
 char *noin[500];                                    /* FUNCTION CALL LIST */
 
@@ -36,7 +46,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	size += GetGraphSize( sg );
+        size += GetGraphSize( sg );
 
     size++;
     }
@@ -58,8 +68,8 @@ char *nm;
     register PCALL c;
 
     for ( c = callhead; c != NULL; c = c->callee )
-	if ( strcmp( nm, c->graph->G_NAME ) == 0 )
-	    return( c );
+        if ( strcmp( nm, c->graph->G_NAME ) == 0 )
+            return( c );
 
     return( NULL );
 }
@@ -83,28 +93,28 @@ PNODE g;
     register PCALL cee; 
 
     if ( IsIGraph( g ) )
-	return;
+        return;
 
     /* BUG Oct. 21, 1991 */
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	if ( IsCall( n ) ) {
-	    if ( (cee = OptFindCallee( n->imp->CoNsT )) == NULL )
-		continue;
+        if ( IsCall( n ) ) {
+            if ( (cee = OptFindCallee( n->imp->CoNsT )) == NULL )
+                continue;
 
-	    r = CallAlloc( n );
+            r = CallAlloc( n );
 
-	    r->caller = c->caller;
-	    c->caller = r;
+            r->caller = c->caller;
+            c->caller = r;
 
-	    r->callee = cee;
-	    r->callee->rcnt++;
+            r->callee = cee;
+            r->callee->rcnt++;
 
-	    continue;
-	    }
+            continue;
+            }
 
         if ( IsCompound( n ) )
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		OptAddCalleeReferences( c, g );
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                OptAddCalleeReferences( c, g );
         }
 }
 
@@ -127,23 +137,23 @@ static void OptMakeCallGraph()
     register PCALL c;
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
-	c = CallAlloc( cfunct = f );
+        c = CallAlloc( cfunct = f );
 
-	if ( IsIGraph( f ) )
-	    c->InLineFunction = FALSE;
+        if ( IsIGraph( f ) )
+            c->InLineFunction = FALSE;
         else if ( IsXGraph( f ) )
-	    c->rcnt++;
+            c->rcnt++;
 
-	if ( callhead != NULL )
-	    calltail->callee = c;
+        if ( callhead != NULL )
+            calltail->callee = c;
         else
-	    callhead = c;
+            callhead = c;
 
         calltail = c;
-	}
+        }
 
     for ( c = callhead; c != NULL; c = c->callee )
-	OptAddCalleeReferences( c, c->graph );
+        OptAddCalleeReferences( c, c->graph );
 }
 
 
@@ -160,34 +170,34 @@ static void ReadInlineRequests()
 {
     register int   x;
     register PCALL c;
-	     char  ans;
+             char  ans;
 
     /* FIRST, OBEY COMMAND LINE REQUESTS FOR FUNCTION PRESERVATION */
     for ( x = 0; x <= noincnt; x++ ) {
       if ( (c = OptFindCallee( noin[x] )) == NULL )
-	Error2( "CANNOT FIND FUNCTION", noin[x] );
+        Error2( "CANNOT FIND FUNCTION", noin[x] );
 
       if ( c->InLineFunction ) {
-	c->InLineFunction   = FALSE;
-	c->disabled = TRUE;
-	}
+        c->InLineFunction   = FALSE;
+        c->disabled = TRUE;
+        }
       }
 
     if ( !inter )
       return;
 
     for ( c = callhead; c != NULL; c = c->callee )
-	if ( c->InLineFunction ) {
-	    PRINTF(" Expand %s Calls Inline (y/n): ",
-			 c->graph->G_NAME );
-	    ans = '\0';
-	    (void)scanf( " %c", &ans );
+        if ( c->InLineFunction ) {
+            PRINTF(" Expand %s Calls Inline (y/n): ",
+                         c->graph->G_NAME );
+            ans = '\0';
+            (void)scanf( " %c", &ans );
 
-	    if ( ans == 'n' ) {
-		c->InLineFunction   = FALSE;
-		c->disabled = TRUE;
-		}
-	    }
+            if ( ans == 'n' ) {
+                c->InLineFunction   = FALSE;
+                c->disabled = TRUE;
+                }
+            }
 }
 
 
@@ -205,19 +215,19 @@ PCALL c;
     register PCALL r;
 
     if ( c->checked )
-	return;
+        return;
 
     if ( c->color == color ) {
-	c->InLineFunction = FALSE;
-	c->cycle  = TRUE;
+        c->InLineFunction = FALSE;
+        c->cycle  = TRUE;
 
-	return;
-	}
+        return;
+        }
 
     c->color = color;
 
     for ( r = c->caller; r != NULL; r = r->caller )
-	OptBreakCycles( r->callee );
+        OptBreakCycles( r->callee );
 
     c->checked = TRUE;
 }
@@ -245,47 +255,47 @@ PNODE c;
     register PEDGE see;
 
     for ( i = c->imp; i != NULL; i = i->isucc )  /* SO ARGUMENTS USE PORTS    */
-	i->iport--;                              /* 1 -> N AND NOT 2 -> N + 1 */
+        i->iport--;                              /* 1 -> N AND NOT 2 -> N + 1 */
 
     for ( e = g->exp; e != NULL; e = se ) {                 /* LINK ARGUMENTS */
-	se = e->esucc;
+        se = e->esucc;
 
-	/* IS e A SHORT CIRCUIT: funct f( x:int returns int ) x end function */
-	if ( e->dst == g ) {
-	  for ( ee = c->exp; ee != NULL; ee = see ) {
-	    see = ee->esucc;
+        /* IS e A SHORT CIRCUIT: funct f( x:int returns int ) x end function */
+        if ( e->dst == g ) {
+          for ( ee = c->exp; ee != NULL; ee = see ) {
+            see = ee->esucc;
 
-	    if ( ee->eport != e->iport )
-	      continue;
+            if ( ee->eport != e->iport )
+              continue;
 
-	    UnlinkExport( ee );
-	    ee->eport = e->eport;
-	    FindAndLinkToSource( c, ee, NULL_NODE );
-	    }
+            UnlinkExport( ee );
+            ee->eport = e->eport;
+            FindAndLinkToSource( c, ee, NULL_NODE );
+            }
 
-	  continue;
-	  }
+          continue;
+          }
 
         FindAndLinkToSource( c, e, NULL_NODE );
-	}
+        }
 
     for ( e = c->exp; e != NULL; e = se ) {                   /* LINK RESULTS */
-	se = e->esucc;
+        se = e->esucc;
         FindAndLinkToSource( g, e, NULL_NODE );
-	}
+        }
 
     for ( n = g->G_NODES; n != NULL; n = sn ) {           /* MOVE GRAPH NODES */
-	sn = n->nsucc;
-	LinkNode( c->npred, n );
-	}
+        sn = n->nsucc;
+        LinkNode( c->npred, n );
+        }
 
     for ( i = g->imp; i != NULL; i = si ) {      /* REMOVE GRAPH RESULT EDGES */
-	si = i->isucc;
+        si = i->isucc;
 
-	/* IF NOT PART OF A SHORT CIRCUIT */
-	if ( i->src != g )
-	  RemoveDeadEdge( i );
-	}
+        /* IF NOT PART OF A SHORT CIRCUIT */
+        if ( i->src != g )
+          RemoveDeadEdge( i );
+        }
 
     c->exp = NULL;
 
@@ -318,7 +328,7 @@ PCALL c;
     register int   size;
 
     if ( c->expanded )
-	return;
+        return;
 
     if ( c->caller == NULL )
       goto TheEnd;
@@ -329,37 +339,37 @@ PCALL c;
     for ( r = c->caller; r != NULL; r = r->caller ) {
       if ( r->callee->InLineFunction ) {
 
-	ExpandCalls( r->callee );
+        ExpandCalls( r->callee );
 
-	size += r->callee->graph->size;
+        size += r->callee->graph->size;
 
-	if ( !inlineall )  {
-	  if ( r->callee->graph->size > MIN_FUNCTION_SIZE ) {
-	    if ( size > SIZE_THRESHOLD && (!inter) ) {
-	      sskip++;
-	      r->skipped = TRUE;
-	      size -= r->callee->graph->size;
-	      continue;
-	    }
-	  }
-	}
+        if ( !inlineall )  {
+          if ( r->callee->graph->size > MIN_FUNCTION_SIZE ) {
+            if ( size > SIZE_THRESHOLD && (!inter) ) {
+              sskip++;
+              r->skipped = TRUE;
+              size -= r->callee->graph->size;
+              continue;
+            }
+          }
+        }
 
-	/* ------------------------------------------------------------ */
-	/* IS THIS CALL NODE NOW DEAD AS A RESULT OF INLINING?		*/
-	/* ( Or anything else (like CSE)				*/
-	/* ------------------------------------------------------------ */
-	if ( r->graph->exp == NULL ) {
-	  r->callee->rcnt--;	/* No results, so don't bother to inline */
-	  continue;
-	}
+        /* ------------------------------------------------------------ */
+        /* IS THIS CALL NODE NOW DEAD AS A RESULT OF INLINING?          */
+        /* ( Or anything else (like CSE)                                */
+        /* ------------------------------------------------------------ */
+        if ( r->graph->exp == NULL ) {
+          r->callee->rcnt--;    /* No results, so don't bother to inline */
+          continue;
+        }
 
-	if ( glue || (--(r->callee->rcnt)) != 0 ) {
-	  SpliceInGraph( CopyNode( r->callee->graph ), r->graph );
-	  continue;
-	}
+        if ( glue || (--(r->callee->rcnt)) != 0 ) {
+          SpliceInGraph( CopyNode( r->callee->graph ), r->graph );
+          continue;
+        }
 
-	SpliceInGraph( r->callee->graph, r->graph );
-	UnlinkGraph( r->callee->graph );
+        SpliceInGraph( r->callee->graph, r->graph );
+        UnlinkGraph( r->callee->graph );
       }
     }
 
@@ -384,36 +394,36 @@ static void WriteInlineInfo()
     
 
     FPRINTF( infoptr, "\n **** ANNOTATED CALL GRAPH: (skip=%d,MaxSZ=%d) [%s]\n\n", 
-		     sskip, SIZE_THRESHOLD,
-		     (IsStamp(MONOLITH))? "MONOLITH" : "INCOMPLETE"       );
+                     sskip, SIZE_THRESHOLD,
+                     (IsStamp(MONOLITH))? "MONOLITH" : "INCOMPLETE"       );
 
     for ( c = callhead; c != NULL; c = c->callee ) {
-	if ( IsXGraph( c->graph ) )
-	    FPRINTF( infoptr, " EXPORT" );
+        if ( IsXGraph( c->graph ) )
+            FPRINTF( infoptr, " EXPORT" );
 
-	FPRINTF( infoptr, " FUNCTION %s(...) sz=%d [mk=%c]:",
-		      (c->graph->funct)? c->graph->funct : c->graph->G_NAME,
-		      c->graph->size,
-		      (c->graph->mark)? c->graph->mark : ' '            );
+        FPRINTF( infoptr, " FUNCTION %s(...) sz=%d [mk=%c]:",
+                      (c->graph->funct)? c->graph->funct : c->graph->G_NAME,
+                      c->graph->size,
+                      (c->graph->mark)? c->graph->mark : ' '            );
 
-	if ( !c->InLineFunction ) {
-	    if ( c->disabled )
-		FPRINTF( infoptr, " Not Inlined By Request of User" );
+        if ( !c->InLineFunction ) {
+            if ( c->disabled )
+                FPRINTF( infoptr, " Not Inlined By Request of User" );
             else if ( c->cycle )
-		FPRINTF( infoptr, " Not Inlined Because Part of Cycle" );
-	    else 
-		FPRINTF( infoptr, " Not Inlined Because Imported" );
-	    }
+                FPRINTF( infoptr, " Not Inlined Because Part of Cycle" );
+            else 
+                FPRINTF( infoptr, " Not Inlined Because Imported" );
+            }
 
-	FPRINTF( infoptr, "\n" );
+        FPRINTF( infoptr, "\n" );
 
-	for ( r = c->caller; r != NULL; r = r->caller ) {
-	    if (strcmp (prevc, r->callee->graph->G_NAME) != 0)
-	    FPRINTF( infoptr, "     CALL %s %s\n", r->callee->graph->G_NAME,
-		             (r->skipped == TRUE)? "(SKIPPED)" : "" );
+        for ( r = c->caller; r != NULL; r = r->caller ) {
+            if (strcmp (prevc, r->callee->graph->G_NAME) != 0)
+            FPRINTF( infoptr, "     CALL %s %s\n", r->callee->graph->G_NAME,
+                             (r->skipped == TRUE)? "(SKIPPED)" : "" );
             prevc = r->callee->graph->G_NAME;
         }
-	}
+        }
 }
 
 
@@ -438,9 +448,9 @@ void If1Inline()
     OptMakeCallGraph();
 
     for ( c = callhead; c != NULL; c = c->callee ) {
-	color++;
-	OptBreakCycles( c );
-	}
+        color++;
+        OptBreakCycles( c );
+        }
 
     /* ------------------------------------------------------------ */
     /* Only inline functions as needed.  Get requests if inter==1   */
@@ -449,10 +459,10 @@ void If1Inline()
       ReadInlineRequests();
 
       for ( c = callhead; c != NULL; c = c->callee ) {
-	ExpandCalls( c );
+        ExpandCalls( c );
       }
     }
 
     if ( RequestInfo(I_Info1,info) )
-	WriteInlineInfo();
+        WriteInlineInfo();
 }

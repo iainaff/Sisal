@@ -1,10 +1,22 @@
-/* if1cse.c,v
+/**************************************************************************/
+/* FILE   **************          if1cse.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:56  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:31  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
+
+/* if1cse.c,v
 
 #include "world.h"
 
@@ -59,7 +71,7 @@ PNODE g;
 
     if ( !IsCompound( f1 ) )
       for ( sg = f1->C_SUBS; sg != NULL; sg = sg->gsucc )
-	StripReturnNodes( sg );
+        StripReturnNodes( sg );
 
     if ( !IsForall( f1 ) )
       continue;
@@ -69,13 +81,13 @@ PNODE g;
       f2 = e->dst;
 
       if ( !IsForall( f2 ) )
-	continue;
+        continue;
 
       if ( UsageCount( f1, e->eport ) != 1 )
-	continue;
+        continue;
 
       if ( e->info->type != IF_ARRAY )
-	continue;
+        continue;
 
       /* CHECK IF ISOMORPHIC */
       if ( f2->F_GEN->G_NODES == NULL )
@@ -95,128 +107,128 @@ PNODE g;
 
       /* GET AND CHECK f1'S RETURN NODE FOR e */
       if ( (ee = FindImport( f1->F_RET, e->eport )) == NULL )
-	continue;
+        continue;
       r1 = ee->src;
       if ( r1->exp->esucc != NULL )
-	continue;
+        continue;
       if ( !IsGather( r1 ) )
-	continue;
+        continue;
       if ( r1->imp->isucc->isucc != NULL ) /* FILTER? */
-	continue;
+        continue;
       if ( !AreValuesEqual( r1->imp, f1->F_GEN->imp->src->imp ) )
-	continue;
+        continue;
 
       /* CHECK e'S USE IN f2'S BODY */
       if ( IsExport( f2->F_GEN, e->iport ) )
-	continue;
+        continue;
       if ( IsExport( f2->F_RET, e->iport ) )
-	continue;
+        continue;
       if ( UsageCount( f2->F_BODY, e->iport ) != 1 )
-	continue;
+        continue;
 
       ee = FindExport( f2->F_BODY, e->iport );
 
       aelm = ee->dst;
       if ( !IsAElement( aelm ) )
-	continue;
+        continue;
       if ( ee->iport != 1 )
-	continue;
+        continue;
       if ( IsConst( ee->isucc ) )
-	continue;
+        continue;
       if ( !IsSGraph( ee->isucc->src ) )
-	continue;
+        continue;
       if ( ee->isucc->eport != f2->F_GEN->imp->iport )
-	continue;
+        continue;
 
       ee = aelm->exp;
       if ( ee == NULL )
-	continue;
+        continue;
       if ( ee->esucc != NULL )
-	continue;
+        continue;
       if ( !IsSGraph( ee->dst ) )
-	continue;
+        continue;
 
       /* CHECK f2'S RETURN NODE FOR ee */
       if ( UsageCount( f2->F_RET, ee->iport ) != 1 )
-	continue;
+        continue;
 
       eee = FindExport( f2->F_RET, ee->iport );
       r2 = eee->dst;
 
       eee = r2->exp;
       if ( eee == NULL )
-	continue;
+        continue;
       if ( eee->esucc != NULL )
-	continue;
+        continue;
 
       /* FILTERS ARE NOT ALLOWED!!! */
       switch ( r2->type ) {
-	case IFAGather:
+        case IFAGather:
           if ( !AreValuesEqual( r2->imp, f2->F_GEN->imp->src->imp ) )
-	    goto MoveOn;
+            goto MoveOn;
 
-	  if ( r2->imp->isucc->isucc != NULL )
-	    goto MoveOn;
+          if ( r2->imp->isucc->isucc != NULL )
+            goto MoveOn;
 
            break;
 
-	case IFReduce:
-	case IFRedLeft:
-	case IFRedRight:
-	case IFRedTree:
-	  if ( !IsConst( r2->imp ) )
-	    goto MoveOn;
-	  if ( !IsConst( r2->imp->isucc ) )
-	    goto MoveOn;
-	  if ( r2->imp->isucc->isucc->isucc != NULL )
-	    goto MoveOn;
+        case IFReduce:
+        case IFRedLeft:
+        case IFRedRight:
+        case IFRedTree:
+          if ( !IsConst( r2->imp ) )
+            goto MoveOn;
+          if ( !IsConst( r2->imp->isucc ) )
+            goto MoveOn;
+          if ( r2->imp->isucc->isucc->isucc != NULL )
+            goto MoveOn;
 
-	  break;
+          break;
 
-	default:
-	  goto MoveOn;
-	}
+        default:
+          goto MoveOn;
+        }
 
 
       /* OK, DO IT!!! */
       srcnt++;
 
       if ( !IsGather( r2 ) ) {
-	r1->type = r2->type;
+        r1->type = r2->type;
 
-	r1->imp->isucc->iport = 3;
+        r1->imp->isucc->iport = 3;
 
-	UnlinkExport( r1->imp );
-	UnlinkImport( r1->imp );
+        UnlinkExport( r1->imp );
+        UnlinkImport( r1->imp );
 
-	/* BOTH SHOULD BE CONSTANTS */
-	i = r2->imp;
-	UnlinkImport( i );
-	LinkImport( r1, i );
-	i = r2->imp;
-	UnlinkImport( i );
-	LinkImport( r1, i );
+        /* BOTH SHOULD BE CONSTANTS */
+        i = r2->imp;
+        UnlinkImport( i );
+        LinkImport( r1, i );
+        i = r2->imp;
+        UnlinkImport( i );
+        LinkImport( r1, i );
 
-	r1->exp->info = r2->exp->info;
-	}
+        r1->exp->info = r2->exp->info;
+        }
 
       for ( eee = f2->exp; eee != NULL; eee = see ) {
-	see = eee->esucc;
+        see = eee->esucc;
 
-	if ( eee->eport != r2->exp->iport )
-	  continue;
+        if ( eee->eport != r2->exp->iport )
+          continue;
 
-	UnlinkExport( eee );
-	eee->eport = r1->exp->iport;
-	LinkExport( f1, eee );
-	}
+        UnlinkExport( eee );
+        eee->eport = r1->exp->iport;
+        LinkExport( f1, eee );
+        }
 
       /* CLEAN UP f2 RETURN SUBGRAPH */
       UnlinkNode( r2 );
       UnlinkImport( r2->exp );
 
       for ( i = r2->imp;  i != NULL; i = i->isucc )
-	UnlinkExport( i );
+        UnlinkExport( i );
 
       /* free( r2 ); */
 
@@ -652,32 +664,32 @@ PNODE n1;
       if ( n2->imp != NULL ) {
         i = n2->imp;
         if ( i->src != NULL && i->esucc == NULL && i->epred == NULL ) {
-	  pn = n2;
-	  continue;
-	  }
+          pn = n2;
+          continue;
+          }
 
         i = i->isucc;
         if ( i != NULL )
           if ( i->src != NULL && i->esucc == NULL && i->epred == NULL ) {
-	    pn = n2;
-	    continue;
-	    }
+            pn = n2;
+            continue;
+            }
         /* END OF SHORT CIRCUIT TESTS */
-	}
+        }
 
       if ( FastAreNodesEqual(n1,n2) ) {
-	pn->usucc = n2->usucc;
+        pn->usucc = n2->usucc;
 
         LinkExportLists( n1, n2 );
 
         /* OptRemoveDeadNode( n2 );  */
-	for ( i = n2->imp; i != NULL; i = i->isucc )
-	  UnlinkExport( i );
+        for ( i = n2->imp; i != NULL; i = i->isucc )
+          UnlinkExport( i );
         UnlinkNode( n2 );
 
-	ncnt++;
+        ncnt++;
         continue;
-	}
+        }
 
       pn = n2;
       }     
@@ -710,14 +722,14 @@ PNODE g;
       if ( n->imp != NULL ) {
         i = n->imp;
         if ( i->src != NULL && i->esucc == NULL && i->epred == NULL )
-	  continue;
+          continue;
 
         i = i->isucc;
         if ( i != NULL )
           if ( i->src != NULL && i->esucc == NULL && i->epred == NULL ) 
-	    continue;
+            continue;
         /* END SHORT CIRCUIT TESTS */
-	}
+        }
 
       /* OK, GO AHEAD AND TRY TO COMBINE n WITH THE OTHER NODES */
       CombineNodes( n );                   /* WILL NOT REMOVE n */
@@ -729,30 +741,30 @@ PNODE g;
     ASSERT( IsCompound( n ), "Not a compound" );
     switch ( n->type ) {
       case IFSelect:
-	RemoveCses( n->S_ALT );
-	RemoveCses( n->S_CONS );
+        RemoveCses( n->S_ALT );
+        RemoveCses( n->S_CONS );
 
-	MergeSelectExports( n );
-	break;
+        MergeSelectExports( n );
+        break;
 
       case IFTagCase:
         for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
           RemoveCses( g );
 
-	break;
+        break;
 
       case IFLoopA:
       case IFLoopB:
-	RemoveCses( n->L_TEST );
-	RemoveCses( n->L_BODY );
-	RemoveCses( n->L_RET );
+        RemoveCses( n->L_TEST );
+        RemoveCses( n->L_BODY );
+        RemoveCses( n->L_RET );
 
-	CombineRports( n->L_RET );
-	break;
+        CombineRports( n->L_RET );
+        break;
 
       case IFForall:
         RemoveCses( n->F_GEN );
-	CombineMports( n );
+        CombineMports( n );
 
         RemoveCses( n->F_BODY );
         CombineTports( n );
@@ -761,10 +773,10 @@ PNODE g;
         CombineRports( n->F_RET );
         break;
 
-      case IFUReduce:	/* TBD: can do some combination of ports too. */
-	RemoveCses( n->R_INIT );
-	RemoveCses( n->R_BODY );
-	RemoveCses( n->R_RET );
+      case IFUReduce:   /* TBD: can do some combination of ports too. */
+        RemoveCses( n->R_INIT );
+        RemoveCses( n->R_BODY );
+        RemoveCses( n->R_RET );
         break;
 
       default:

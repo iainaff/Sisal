@@ -1,10 +1,20 @@
-/* if2aimp.c,v
+/**************************************************************************/
+/* FILE   **************         if2aimp.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:00  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:59  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -52,7 +62,7 @@ PNODE f;
   register PEDGE hi;
   register int   max;
   register int   eport;
-	   char  buf[100];
+           char  buf[100];
 
   max = 0;
 
@@ -64,29 +74,29 @@ PNODE f;
 
     switch ( e->dst->type ) {
       case IFOptAElement:
-	break;
+        break;
 
       case IFAIndexPlus:
       case IFAIndexMinus:
-	if ( e->iport != 1 )
-	  return;
+        if ( e->iport != 1 )
+          return;
 
-	if ( !IsConst( e->dst->imp->isucc ) )
-	  return;
+        if ( !IsConst( e->dst->imp->isucc ) )
+          return;
 
-	v = atoi( e->dst->imp->isucc->CoNsT );
+        v = atoi( e->dst->imp->isucc->CoNsT );
 
-	if ( v < 1 ) 
-	  return;
+        if ( v < 1 ) 
+          return;
 
-	if ( e->dst->type == IFAIndexMinus )
-	  if ( v > max )
-	    max = v;
+        if ( e->dst->type == IFAIndexMinus )
+          if ( v > max )
+            max = v;
 
-	break;
+        break;
 
       default:
-	return;
+        return;
       }
     }
 
@@ -161,21 +171,21 @@ PNODE f;
         v = atoi(e->dst->imp->isucc->CoNsT) + max;
         SPRINTF( buf, "%d", v );
         e->dst->imp->isucc->CoNsT = CopyString( buf );
-	break;
+        break;
 
       case IFAIndexMinus:
         v = (-(atoi(e->dst->imp->isucc->CoNsT))) + max;
 
-	if ( v < 0 ) 
-	  Error2( "NormalizeVectorLoops", "ADJUSTMENT ERROR" );
+        if ( v < 0 ) 
+          Error2( "NormalizeVectorLoops", "ADJUSTMENT ERROR" );
 
         SPRINTF( buf, "%d", v );
         e->dst->imp->isucc->CoNsT = CopyString( buf );
-	e->dst->type = IFAIndexPlus;
-	break;
+        e->dst->type = IFAIndexPlus;
+        break;
 
       case IFOptAElement:
-	aelm = e->dst;
+        aelm = e->dst;
 
         nn = NodeAlloc( ++maxint, IFAIndexPlus );
         LinkNode( aelm->npred, nn );
@@ -187,17 +197,17 @@ PNODE f;
         ee = EdgeAlloc( nn, 1, aelm, 2 );
         ee->info = e->info;
         LinkImport( aelm,  ee );
-	LinkExport( nn, ee );
+        LinkExport( nn, ee );
 
         ee = EdgeAlloc( NULL_NODE, CONST_PORT, nn, 2 );
         ee->info = e->info;
         SPRINTF( buf, "%d", max );
         ee->CoNsT = CopyString( buf );
-	LinkImport( nn, ee );
-	break;
+        LinkImport( nn, ee );
+        break;
 
       default:
-	Error2( "NormalizeVectorLoops", "ILLEGAL NORMALIZATION DESTINATION" );
+        Error2( "NormalizeVectorLoops", "ILLEGAL NORMALIZATION DESTINATION" );
       }
     }
 }
@@ -253,7 +263,7 @@ PINFO i;
 
     if ( IsCompound( e->dst ) )
       for ( sg = e->dst->C_SUBS; sg != NULL; sg = sg->gsucc )
-	DoTypeChange( sg, e->iport, i );
+        DoTypeChange( sg, e->iport, i );
     }
 }
 
@@ -274,7 +284,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	FixGABExportTypes( sg );
+        FixGABExportTypes( sg );
 
     if ( n->type != IFGetArrayBase )
       continue;
@@ -341,7 +351,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	OptSpecGABPaths( sg );
+        OptSpecGABPaths( sg );
 
     if ( !IsLoop( n ) ) 
       continue;
@@ -350,27 +360,27 @@ PNODE g;
       se = e->esucc;
 
       if ( e->dst->type != IFGetArrayBase )
-	continue;
+        continue;
 
       if ( !IsInplace( FindImport( n->L_BODY, e->eport ), e ) )
-	continue;
+        continue;
 
       gab = e->dst;
 
       ii = FindImport( n->L_INIT, e->eport );
       if ( ii == NULL )
-	continue;
+        continue;
 
       ii = FindImport( n, ii->eport );
       if ( ii == NULL )
-	continue;
+        continue;
 
       maxint++;
 
       UnlinkNode( gab );
 
       for ( ee = gab->exp; ee != NULL; ee = ee->esucc )
-	ee->eport = maxint;
+        ee->eport = maxint;
 
       LinkExportLists( n->L_BODY, gab );
 
@@ -421,7 +431,7 @@ PNODE g;
   for ( n = FindLastNode( g ); n != g; n = n->npred ) {
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	OptGABPaths( sg );
+        OptGABPaths( sg );
 
       continue;
       }
@@ -472,17 +482,17 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     switch ( n->type ) {
       case IFOptAReplace:
-	if ( (ii = FindImport( n, MAX_PORT_NUMBER )) == NULL ) 
-	  goto MoveOn;
+        if ( (ii = FindImport( n, MAX_PORT_NUMBER )) == NULL ) 
+          goto MoveOn;
 
-	break;
+        break;
 
       case IFOptAElement:
-	ii = n->imp;
-	break;
+        ii = n->imp;
+        break;
 
       default:
-	goto MoveOn;
+        goto MoveOn;
       }
 
     if ( ii->src->type != IFGetArrayBase )
@@ -493,7 +503,7 @@ PNODE g;
       if ( e->dst->label == 0 ) continue;
 
       if ( m->dst->label > e->dst->label )
-	m = e;
+        m = e;
       }
 
     if ( m == NULL ) 
@@ -535,37 +545,37 @@ PNODE s;
     e = s->S_TEST->imp; scnt++;
 
     if ( IsConst( e ) )
-	return;
+        return;
 
     if ( (i = FindImport( s, e->eport )) == NULL )
       return;
 
     if ( IsConst( i ) )
-	return;
+        return;
 
     if ( IsExport( s->S_ALT, i->iport ) || IsExport( s->S_CONS, i->iport ) )
-	return;
+        return;
 
     if ( i->src->exp->esucc != NULL )
-	return;
+        return;
 
     switch ( i->src->type ) {
-	case IFPlus:
-	case IFMinus:
-	    if ( !IsBoolean( i->info ) )
-		return;
+        case IFPlus:
+        case IFMinus:
+            if ( !IsBoolean( i->info ) )
+                return;
 
-	case IFLess: 
-	case IFLessEqual:
-	case IFEqual:
-	case IFNotEqual:
-	case IFNot:
-	case IFGreat:
-	case IFGreatEqual:
-	    break;
+        case IFLess: 
+        case IFLessEqual:
+        case IFEqual:
+        case IFNotEqual:
+        case IFNot:
+        case IFGreat:
+        case IFGreatEqual:
+            break;
 
-	default:
-	    return;
+        default:
+            return;
         }
 
     s->usucc = i->src; sopt++;
@@ -608,21 +618,21 @@ PNODE n2;
     register PEDGE i2;
 
     if ( n1->type != n2->type )
-	return( FALSE );
+        return( FALSE );
 
     i1 = n1->imp;
     i2 = n2->imp; 
     
     for ( ;; ) {
-	if ( i1->eport == i2->eport )
-	    if ( i1->src == i2->src )
-	        return( TRUE );
+        if ( i1->eport == i2->eport )
+            if ( i1->src == i2->src )
+                return( TRUE );
 
-	if ( !IsSGraph( i1->src ) )
-	    return( FALSE );
+        if ( !IsSGraph( i1->src ) )
+            return( FALSE );
 
-	if ( (i1 = GenFindSource( i1 )) == NULL )
-	    return( FALSE );
+        if ( (i1 = GenFindSource( i1 )) == NULL )
+            return( FALSE );
         }
 }
 
@@ -643,15 +653,15 @@ PNODE c;
     register int   p = 1;
 
     for ( i = c->imp; i != NULL; i = i->isucc, p++ ) {
-	if ( (i->iport != p) && (i->iport != 0) ) {
+        if ( (i->iport != p) && (i->iport != 0) ) {
             for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
                 ChangeExportPorts( g, i->iport, -p );
 
             i->iport = -p;
-	    }
+            }
 
-	if ( i->iport == 0 )
-	    p--;
+        if ( i->iport == 0 )
+            p--;
         }
 
     return( p );
@@ -673,17 +683,17 @@ PNODE l;
     register PEDGE i;
 
     for ( i = l->L_INIT->imp; i != NULL; i = i->isucc, p++ ) {
-	if ( (i->iport != p) && (i->iport != 0) ) {
+        if ( (i->iport != p) && (i->iport != 0) ) {
             ChangeExportPorts( l->L_TEST, i->iport, -p );
             ChangeExportPorts( l->L_BODY, i->iport, -p );
             ChangeExportPorts( l->L_RET,  i->iport, -p );
-	    ChangeImportPorts( l->L_BODY, i->iport, -p );
+            ChangeImportPorts( l->L_BODY, i->iport, -p );
 
             i->iport = -p;
-	    }
+            }
 
-	if ( i->iport == 0 )
-	    p--;
+        if ( i->iport == 0 )
+            p--;
         }
 
     return( p );
@@ -705,15 +715,15 @@ PNODE f;
     register PEDGE i;
 
     for ( i = f->F_GEN->imp; i != NULL; i = i->isucc, p++ ) {
-	if ( (i->iport != p) && (i->iport != 0) ) {
+        if ( (i->iport != p) && (i->iport != 0) ) {
             ChangeExportPorts( f->F_BODY, i->iport, -p );
             ChangeExportPorts( f->F_RET,  i->iport, -p );
 
             i->iport = -p;
-	    }
+            }
 
-	if ( i->iport == 0 )
-	    p--;
+        if ( i->iport == 0 )
+            p--;
         }
 
     return( p );
@@ -724,7 +734,7 @@ PNODE f;
 /* STATIC **************    GenAssignNewTports     ************************/
 /**************************************************************************/
 /* PURPOSE: ASSIGN NEW T PORT NUMBERS, STARTING WITH p, TO THE IMPORTS OF */
-/*          FORALL f'S BODY SUBGRAPH AND ADJUST ALL REFERENCES. 	  */
+/*          FORALL f'S BODY SUBGRAPH AND ADJUST ALL REFERENCES.           */
 /**************************************************************************/
 
 static void GenAssignNewTports( p, f )
@@ -734,13 +744,13 @@ PNODE f;
     register PEDGE i;
 
     for ( i = f->F_BODY->imp; i != NULL; i = i->isucc, p++ ) {
-	if ( (i->iport != p) && (i->iport != 0) ) {
+        if ( (i->iport != p) && (i->iport != 0) ) {
             ChangeExportPorts( f->F_RET, i->iport, -p );
             i->iport = -p;
-	    }
+            }
 
-	if ( i->iport == 0 )
-	    p--;
+        if ( i->iport == 0 )
+            p--;
         }
 }
 
@@ -749,7 +759,7 @@ PNODE f;
 /* STATIC **************  GenAssignNewLoopTports   ************************/
 /**************************************************************************/
 /* PURPOSE: ASSIGN NEW T PORT NUMBERS, STARTING WITH p, TO THE IMPORTS OF */
-/*          LOOP l'S BODY SUBGRAPH AND ADJUST ALL REFERENCES.		  */
+/*          LOOP l'S BODY SUBGRAPH AND ADJUST ALL REFERENCES.             */
 /**************************************************************************/
 
 static void GenAssignNewLoopTports( p, l )
@@ -760,12 +770,12 @@ PNODE l;
 
     for ( i = l->L_BODY->imp; i != NULL; i = i->isucc )
         if ( !IsImport( l->L_INIT, i->iport ) ) {
-	    if ( (i->iport != p) && (i->iport != 0) ) {
+            if ( (i->iport != p) && (i->iport != 0) ) {
                 ChangeExportPorts( l->L_TEST, i->iport, -p );
                 i->iport = -p;
-		}
+                }
 
-	    if ( i->iport != 0 )
+            if ( i->iport != 0 )
                 p++;
             }
 }
@@ -786,13 +796,13 @@ PNODE g;
     register int   p = 1;
 
     for ( i = g->imp; i != NULL; i = i->isucc, p++ ) {
-	if ( (i->iport != p) && (i->iport != 0) ) {
+        if ( (i->iport != p) && (i->iport != 0) ) {
             ChangeExportPorts( g->G_DAD, i->iport, -p );
             i->iport = -p;
-	    }
+            }
 
-	if ( i->iport == 0 )
-	    p--;
+        if ( i->iport == 0 )
+            p--;
         }
 }
 
@@ -819,77 +829,77 @@ int            STestOpt;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
         if ( !IsCompound( n ) )
-	    continue;
+            continue;
 
-	PropagateConst( n );
+        PropagateConst( n );
 
         for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
             AssignNewPortNums( g, STestOpt );
 
         p = GenAssignNewKports( n );
 
-	switch ( n->type ) {
-	    case IFTagCase:
-		for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		    GenAssignNewRports( g );
+        switch ( n->type ) {
+            case IFTagCase:
+                for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                    GenAssignNewRports( g );
 
-		break;
-
-	    case IFSelect:
-		n->S_TEST->imp->iport = 1;                   /* B PORT NUMBER */
-
-		GenAssignNewRports( n->S_ALT );
-		GenAssignNewRports( n->S_CONS );
-
-		if ( STestOpt )
-		  SelectTestOpt( n );
-
-		break;
-
-	    case IFForall:
-		GenAssignNewTports( GenAssignNewMports( p, n ), n );
-		GenAssignNewRports( n->F_RET );
                 break;
 
-	    case IFLoopA:
-		n->L_TEST->imp->iport = 1;                   /* B PORT NUMBER */
+            case IFSelect:
+                n->S_TEST->imp->iport = 1;                   /* B PORT NUMBER */
+
+                GenAssignNewRports( n->S_ALT );
+                GenAssignNewRports( n->S_CONS );
+
+                if ( STestOpt )
+                  SelectTestOpt( n );
+
+                break;
+
+            case IFForall:
+                GenAssignNewTports( GenAssignNewMports( p, n ), n );
+                GenAssignNewRports( n->F_RET );
+                break;
+
+            case IFLoopA:
+                n->L_TEST->imp->iport = 1;                   /* B PORT NUMBER */
 
                 GenAssignNewLoopTports( GenAssignNewLports( p, n ), n );
-		GenAssignNewRports( n->L_RET );
-		break;
+                GenAssignNewRports( n->L_RET );
+                break;
 
-	    case IFLoopB:
-		n->L_TEST->imp->iport = 1;                   /* B PORT NUMBER */
+            case IFLoopB:
+                n->L_TEST->imp->iport = 1;                   /* B PORT NUMBER */
 
                 GenAssignNewLports( p, n );
-		GenAssignNewRports( n->L_RET );
-		break;
+                GenAssignNewRports( n->L_RET );
+                break;
 
             case IFUReduce:
-		UNIMPLEMENTED( "IFUReduce" );
-		break;
+                UNIMPLEMENTED( "IFUReduce" );
+                break;
 
             default:
-		UNEXPECTED( "Unknown compound" );
-	    }
+                UNEXPECTED( "Unknown compound" );
+            }
 
-	for ( i = n->imp; i != NULL; i = i->isucc )
-	    if ( i->iport < 0 )
-		i->iport = -(i->iport);
+        for ( i = n->imp; i != NULL; i = i->isucc )
+            if ( i->iport < 0 )
+                i->iport = -(i->iport);
 
-	for ( e = n->exp; e != NULL; e = e->esucc )
-	    if ( e->eport < 0 )
-		e->eport = -(e->eport);
+        for ( e = n->exp; e != NULL; e = e->esucc )
+            if ( e->eport < 0 )
+                e->eport = -(e->eport);
 
-	for ( g = n->C_SUBS; g != NULL; g = g->gsucc ) {
-	    for ( i = g->imp; i != NULL; i = i->isucc )
-		if ( i->iport < 0 )
-		    i->iport = -(i->iport);
+        for ( g = n->C_SUBS; g != NULL; g = g->gsucc ) {
+            for ( i = g->imp; i != NULL; i = i->isucc )
+                if ( i->iport < 0 )
+                    i->iport = -(i->iport);
 
-	    for ( e = g->exp; e != NULL; e = e->esucc )
-		if ( e->eport < 0 )
-		    e->eport = -(e->eport);
-	    }
+            for ( e = g->exp; e != NULL; e = e->esucc )
+                if ( e->eport < 0 )
+                    e->eport = -(e->eport);
+            }
         }
 }
 
@@ -955,10 +965,10 @@ int   iport;
 
     case IFNoOp:
       if ( !(i->src->imp->omark1) || (i->src->imp->rmark1 != RMARK) ) /* RO? */
-	return( NULL );
+        return( NULL );
 
       if ( i->src->imp->src->type == IFOptAReplace ) {
-	ii = FindImport( i->src->imp->src, MAX_PORT_NUMBER );
+        ii = FindImport( i->src->imp->src, MAX_PORT_NUMBER );
         ee = EdgeAlloc( ii->src, ii->eport, n, iport );
         ee->info = i->info;
 
@@ -966,7 +976,7 @@ int   iport;
         LinkImport( n, ee );
 
         return( ee );
-	}
+        }
 
       return( AReplaceOpt( n, i->src->imp, iport ) );
 
@@ -1078,9 +1088,9 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	InsertGABNodes( sg );
+        InsertGABNodes( sg );
         continue;
-	}
+        }
 
     if ( !IsAElement( n ) )
       continue;
@@ -1126,11 +1136,11 @@ PEDGE i;
     register PNODE g;
 
     if ( IsTagCase(c) && i->iport == 1 )
-	return( TRUE );
+        return( TRUE );
 
     for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
         if ( IsExport( g, i->iport ) )
-	    return( TRUE );
+            return( TRUE );
 
     return( FALSE );
 }
@@ -1190,19 +1200,19 @@ PNODE g;
         sn = n2->nsucc;
 
         if ( n1->type != n2->type )
-	  continue;
+          continue;
 
         if ( n1->imp->eport != n2->imp->eport )
-	  continue;
+          continue;
     
         if ( n1->imp->src != n2->imp->src )
-	  continue;
+          continue;
 
-	LinkExportLists( n1, n2 );
-	UnlinkExport( n2->imp );
-	UnlinkNode( n2 );  
-	ccnt++;
-	}
+        LinkExportLists( n1, n2 );
+        UnlinkExport( n2->imp );
+        UnlinkNode( n2 );  
+        ccnt++;
+        }
 
       continue;
       }
@@ -1250,7 +1260,7 @@ PNODE g;
 
           if ( !GenIsInvariant( nd ) )  {
             continue;
-	    }
+            }
 
           /* PLACE A COPY OF NODE nd BEFORE THE LOOP NODE */
   
@@ -1267,15 +1277,15 @@ PNODE g;
           UnlinkExport( i );
 
           /* ATTACH nn'S IMPORTS */
-	  UnlinkImport( i );
-	  LinkImport( nn, i );
+          UnlinkImport( i );
+          LinkImport( nn, i );
   
           ii = FindImport( n, i->eport );
   
-	  /* PRESERVE REFERENCE COUNTS!!! */
+          /* PRESERVE REFERENCE COUNTS!!! */
           i->sr = ii->sr;
           i->pm = ii->pm;
-	  i->dmark = ii->dmark; /* CANN 10-3 */
+          i->dmark = ii->dmark; /* CANN 10-3 */
           i->wmark = ii->wmark; /* CANN 10-3 */
 
           i->eport = ii->eport;
@@ -1285,7 +1295,7 @@ PNODE g;
           if ( !GenIsUsed( n, ii ) && (ii->cm != -1) ) {
             UnlinkImport( ii );
             UnlinkExport( ii ); 
-	    rkcnt++;
+            rkcnt++;
             }
           else
             nrkcnt++;
@@ -1297,7 +1307,7 @@ PNODE g;
           LinkImport( n,  e );
   
           UnlinkNode( nd ); 
-	  vcnt++;
+          vcnt++;
           }
       }
 }
@@ -1323,40 +1333,40 @@ PNODE c;
     i1 = (IsTagCase( c ))? c->imp->isucc : c->imp;
 
     for ( ; i1 != NULL; i1 = sii ) {
-	sii = i1->isucc;
+        sii = i1->isucc;
 
-	if ( IsConst( i1 ) )
-	    continue;
+        if ( IsConst( i1 ) )
+            continue;
 
-	if ( (i1->cm != -1) && !GenIsUsed( c, i1 ) ) {
-	    UnlinkImport( i1 );
-	    UnlinkExport( i1 ); 
-	    rkcnt++;
-	    continue;
-	    }
+        if ( (i1->cm != -1) && !GenIsUsed( c, i1 ) ) {
+            UnlinkImport( i1 );
+            UnlinkExport( i1 ); 
+            rkcnt++;
+            continue;
+            }
 
-	for ( i2 = i1->isucc; i2 != NULL; i2 = si ) {
-	    si = i2->isucc;
+        for ( i2 = i1->isucc; i2 != NULL; i2 = si ) {
+            si = i2->isucc;
 
-	    if ( IsConst( i2 ) )
-		continue;
+            if ( IsConst( i2 ) )
+                continue;
 
-	    if ( i1->eport != i2->eport )
-		continue;
+            if ( i1->eport != i2->eport )
+                continue;
 
             if ( i1->src != i2->src )
-		continue;
+                continue;
 
-	    if ( (i1->cm == -1) || (i2->cm == -1) )
-		continue;
+            if ( (i1->cm == -1) || (i2->cm == -1) )
+                continue;
 
-	    for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
-	        ChangeExportPorts( g, i2->iport, i1->iport );
+            for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
+                ChangeExportPorts( g, i2->iport, i1->iport );
                 
-	    UnlinkImport( i2 );
-	    UnlinkExport( i2 ); 
-	    ckcnt++;
-	    }
+            UnlinkImport( i2 );
+            UnlinkExport( i2 ); 
+            ckcnt++;
+            }
         }
 }
 
@@ -1473,8 +1483,8 @@ PNODE g;
 
     if ( IsSGraph( g ) )
       if ( IsGetArrayBase( n ) )
-	if ( GenIsInvariant( n ) )
-	  CombineGGABNode( g, n );
+        if ( GenIsInvariant( n ) )
+          CombineGGABNode( g, n );
     }
 }
 
@@ -1490,7 +1500,7 @@ PNODE g;
       GenCombineKports( n );
 
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	CombineKs( sg );
+        CombineKs( sg );
       }
 }
 
@@ -1517,71 +1527,71 @@ PNODE g;
 
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	ImproveIndexing( sg );
+        ImproveIndexing( sg );
 
     switch ( n->type ) {
       case IFPlus:
       case IFMinus:
-	if ( IsConst( n->imp ) ) {
-	  if ( IsConst( n->imp->isucc ) ) 
-	    break;
+        if ( IsConst( n->imp ) ) {
+          if ( IsConst( n->imp->isucc ) ) 
+            break;
 
-	  GenNormalizeNode( n );
+          GenNormalizeNode( n );
           }
 
-	/* AVOID POSSIBLE STRUCT REFERENCE IN INDEXING EXPRESSION */
-	if ( IsConst( n->imp ) || (!(IsConst( n->imp->isucc ))) )
-	  break;
+        /* AVOID POSSIBLE STRUCT REFERENCE IN INDEXING EXPRESSION */
+        if ( IsConst( n->imp ) || (!(IsConst( n->imp->isucc ))) )
+          break;
 
-	switch ( n->imp->src->type ) {
-	  case IFSGraph:
-	    /* NOT FOR ALLIANT VECTOR LOOPS */
-	    if ( IsForall( n->imp->src->G_DAD ) && n->imp->src->G_DAD->vmark )
-	      if ( !cRay )
-	        goto MoveOn;
+        switch ( n->imp->src->type ) {
+          case IFSGraph:
+            /* NOT FOR ALLIANT VECTOR LOOPS */
+            if ( IsForall( n->imp->src->G_DAD ) && n->imp->src->G_DAD->vmark )
+              if ( !cRay )
+                goto MoveOn;
 
-	    break;
+            break;
 
           case IFCall:
-	  case IFForall:
-	  case IFLoopA:
-	  case IFTagCase:
-	  case IFSelect:
-	  case IFXGraph:
-	  case IFLGraph:
-	    goto MoveOn;
+          case IFForall:
+          case IFLoopA:
+          case IFTagCase:
+          case IFSelect:
+          case IFXGraph:
+          case IFLGraph:
+            goto MoveOn;
 
-	  default:
-	    break;
-	  }
+          default:
+            break;
+          }
 
-	if ( !IsConst( n->imp->isucc ) )
-	  goto MoveOn;
+        if ( !IsConst( n->imp->isucc ) )
+          goto MoveOn;
 
-	for ( e = n->exp; e != NULL; e = e->esucc )
-	  switch ( e->dst->type ) {
-	    case IFOptAReplace:
-	    case IFOptAElement:
-	      if ( !(e->iport == 2) )
-		goto MoveOn;
+        for ( e = n->exp; e != NULL; e = e->esucc )
+          switch ( e->dst->type ) {
+            case IFOptAReplace:
+            case IFOptAElement:
+              if ( !(e->iport == 2) )
+                goto MoveOn;
 
-	      break;
+              break;
 
-	    default:
-	      aifcnt++;
-	      goto MoveOn;
-	    }
+            default:
+              aifcnt++;
+              goto MoveOn;
+            }
 
         if ( e != NULL ) 
-	  break;
+          break;
 
-	n->type = (n->type == IFPlus)? IFAIndexPlus : IFAIndexMinus;
+        n->type = (n->type == IFPlus)? IFAIndexPlus : IFAIndexMinus;
         aicnt++;
 MoveOn:
-	break;
+        break;
 
       default:
-	break;
+        break;
       }
 
     if ( IsForall( n ) && n->vmark && cRay )
@@ -1667,7 +1677,7 @@ PNODE g;
 
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	FormCrayXmpChains( sg );
+        FormCrayXmpChains( sg );
       
       continue;
       }
@@ -1678,61 +1688,61 @@ PNODE g;
     switch ( n->type ) {
       case IFPlus:
       case IFMinus:
-	if ( !(IsReal(n->exp->info) || IsDouble(n->exp->info) ||
-	      IsInteger(n->exp->info)) )
-	  break;
+        if ( !(IsReal(n->exp->info) || IsDouble(n->exp->info) ||
+              IsInteger(n->exp->info)) )
+          break;
 
-	nn = NearestSuccessor( n );
+        nn = NearestSuccessor( n );
 
-	switch ( nn->type ) {
-	  case IFDiv:
-	  case IFTimes:
-	    if ( IsChained( nn ) )
-	      break;
+        switch ( nn->type ) {
+          case IFDiv:
+          case IFTimes:
+            if ( IsChained( nn ) )
+              break;
 
-	    if ( n->nsucc != nn ) /* ALREADY NEXT TO EACH OTHER?? */
-	      chains++;
+            if ( n->nsucc != nn ) /* ALREADY NEXT TO EACH OTHER?? */
+              chains++;
 
-	    UnlinkNode( n );
-	    LinkNode( nn->npred, n );
-	    n->label = nn->label;
-	    break;
+            UnlinkNode( n );
+            LinkNode( nn->npred, n );
+            n->label = nn->label;
+            break;
 
-	  default:
-	    break;
-	  }
+          default:
+            break;
+          }
 
-	break;
+        break;
 
       case IFDiv:
       case IFTimes:
-	if ( !(IsReal(n->exp->info) || IsDouble(n->exp->info) ||
-	      IsInteger(n->exp->info)) )
-	  break;
+        if ( !(IsReal(n->exp->info) || IsDouble(n->exp->info) ||
+              IsInteger(n->exp->info)) )
+          break;
 
-	nn = NearestSuccessor( n );
+        nn = NearestSuccessor( n );
 
-	switch ( nn->type ) {
-	  case IFPlus:
-	  case IFMinus:
-	    if ( IsChained( nn ) )
-	      break;
+        switch ( nn->type ) {
+          case IFPlus:
+          case IFMinus:
+            if ( IsChained( nn ) )
+              break;
 
-	    if ( n->nsucc != nn ) /* ALREADY NEXT TO EACH OTHER?? */
-	      chains++;
+            if ( n->nsucc != nn ) /* ALREADY NEXT TO EACH OTHER?? */
+              chains++;
 
-	    UnlinkNode( n );
-	    LinkNode( nn->npred, n );
-	    n->label = nn->label;
-	    break;
+            UnlinkNode( n );
+            LinkNode( nn->npred, n );
+            n->label = nn->label;
+            break;
 
-	  default:
-	    break;
-	  }
-	break;
+          default:
+            break;
+          }
+        break;
 
       default:
-	break;
+        break;
       }
     }
 }
@@ -1777,7 +1787,7 @@ int   vmode;
 
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	MigrateReadsUpward( sg, (IsForall(n) && n->vmark)? TRUE : FALSE );
+        MigrateReadsUpward( sg, (IsForall(n) && n->vmark)? TRUE : FALSE );
       
       continue;
       }
@@ -1790,32 +1800,32 @@ int   vmode;
       case IFAIndexPlus:
       case IFAIndexMinus:
       case IFOptAElement:
-	for ( nn = NULL, i = n->imp; i != NULL; i = i->isucc ) {
-	  if ( IsConst( i ) )
-	    continue;
+        for ( nn = NULL, i = n->imp; i != NULL; i = i->isucc ) {
+          if ( IsConst( i ) )
+            continue;
 
-	  if ( nn == NULL )
-	    nn = i->src;
-	  else if ( nn->label < i->src->label )
-	    nn = i->src;
-	  }
+          if ( nn == NULL )
+            nn = i->src;
+          else if ( nn->label < i->src->label )
+            nn = i->src;
+          }
 
-	if ( nn == NULL )
-	  break;
+        if ( nn == NULL )
+          break;
 
-	nnn = n->nsucc;
+        nnn = n->nsucc;
 
-	UnlinkNode( n );
-	LinkNode( nn, n );
+        UnlinkNode( n );
+        LinkNode( nn, n );
 
-	for ( l = nn->label+1; n != nnn; n = n->nsucc )
-	  n->label = l++;
+        for ( l = nn->label+1; n != nnn; n = n->nsucc )
+          n->label = l++;
 
-	rmov++;
-	break;
+        rmov++;
+        break;
 
       default:
-	break;
+        break;
       }
     }
 }
@@ -1854,7 +1864,7 @@ void If2AImp()
       ImproveIndexing( f );
 
       if ( movereads || xmpchains )
-	MigrateReadsUpward( f, FALSE );
+        MigrateReadsUpward( f, FALSE );
       }
 
     AssignNewPortNums( f, FALSE );

@@ -1,10 +1,20 @@
-/* if1dead.c,v
+/**************************************************************************/
+/* FILE   **************         if1dead.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:56  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:32  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -64,14 +74,14 @@ PNODE n;
                         continue;
 
                     ChangeExportsToConst( n->F_RET, i->iport, i );
-		    UnlinkImport( i );
-		    UnlinkExport( i );
+                    UnlinkImport( i );
+                    UnlinkExport( i );
                     unnec++;
                     }
                 else if ( IsSGraph( i->src ) ) {
                     ChangeExportPorts( n->F_RET, i->iport, i->eport );
-		    UnlinkImport( i );
-		    UnlinkExport( i );
+                    UnlinkImport( i );
+                    UnlinkExport( i );
                     unnec++;
                     }
                 }
@@ -90,8 +100,8 @@ PNODE n;
                 if ( !IsConst( i ) )
                     if ( IsSGraph( i->src ) )
                         if ( i->iport == i->eport ) {
-		            UnlinkImport( i );
-		            UnlinkExport( i );
+                            UnlinkImport( i );
+                            UnlinkExport( i );
                             unnec++;
                             }
                 }
@@ -112,8 +122,8 @@ PNODE n;
                         ChangeExportsToConst( n->L_BODY, i->iport, i );
                         ChangeExportsToConst( n->L_RET,  i->iport, i );
 
-		        UnlinkImport( i );
-		        UnlinkExport( i );
+                        UnlinkImport( i );
+                        UnlinkExport( i );
                         unnec++;
                         }
                     else if ( IsSGraph( i->src ) ) {
@@ -121,8 +131,8 @@ PNODE n;
                         ChangeExportPorts( n->L_BODY, i->iport, i->eport );
                         ChangeExportPorts( n->L_RET,  i->iport, i->eport );
 
-		        UnlinkImport( i );
-		        UnlinkExport( i );
+                        UnlinkImport( i );
+                        UnlinkExport( i );
                         unnec++;
                         }
                     }
@@ -150,10 +160,10 @@ PNODE n;
                     ChangeExportsToConst( n->L_BODY, i->iport, i );
                     ChangeExportsToConst( n->L_RET,  i->iport, i );
 
-		    UnlinkImport( i );
-		    UnlinkExport( i );
-		    UnlinkImport( ii );
-		    UnlinkExport( ii );
+                    UnlinkImport( i );
+                    UnlinkExport( i );
+                    UnlinkImport( ii );
+                    UnlinkExport( ii );
                     unnec += 2;
                     }
                 else if ( IsSGraph( i->src ) ) {
@@ -170,10 +180,10 @@ PNODE n;
                     ChangeExportPorts( n->L_BODY, i->iport, i->eport );
                     ChangeExportPorts( n->L_RET,  i->iport, i->eport );
 
-		    UnlinkImport( i );
-		    UnlinkExport( i );
-		    UnlinkImport( ii );
-		    UnlinkExport( ii );
+                    UnlinkImport( i );
+                    UnlinkExport( i );
+                    UnlinkImport( ii );
+                    UnlinkExport( ii );
                     unnec += 2;
                     }
                 }
@@ -193,15 +203,15 @@ PNODE n;
                             continue;
 
                         ChangeExportsToConst( n->L_TEST, i->iport, i );
-		        UnlinkImport( i );
-		        UnlinkExport( i );
+                        UnlinkImport( i );
+                        UnlinkExport( i );
                         unnec++;
                         }
                     else if ( IsSGraph( i->src ) )
                         if ( !IsImport( n->L_BODY, i->eport ) ) {
                             ChangeExportPorts( n->L_TEST, i->iport, i->eport );
-		            UnlinkImport( i );
-		            UnlinkExport( i );
+                            UnlinkImport( i );
+                            UnlinkExport( i );
                             unnec++;
                             }
                     }
@@ -278,8 +288,8 @@ PNODE l;
                  IsExport( l->L_RET,  i->iport )   )
                 continue;
 
-	    UnlinkImport( i );
-	    UnlinkExport( i );
+            UnlinkImport( i );
+            UnlinkExport( i );
             unused++; chng = TRUE;
             }
         }
@@ -294,8 +304,8 @@ PNODE l;
              IsExport( l->L_RET,  i->iport )   )
             continue;
 
-	UnlinkImport( i );
-	UnlinkExport( i );
+        UnlinkImport( i );
+        UnlinkExport( i );
         unused++; chng = TRUE;
         }
 }
@@ -425,9 +435,9 @@ PNODE g;
         CombineKports( n );
         /* FastRemoveUnnecEdges( n ); */
         FastRemoveUnusedRports( n->S_ALT  );
-	FastCleanGraph( n->S_ALT );
+        FastCleanGraph( n->S_ALT );
         FastRemoveUnusedRports( n->S_CONS );
-	FastCleanGraph( n->S_CONS );
+        FastCleanGraph( n->S_CONS );
         FastRemoveUnusedKports( n );
         break;
 
@@ -437,8 +447,8 @@ PNODE g;
 
         for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc ) {
           FastRemoveUnusedRports( sg );
-	  FastCleanGraph( sg );
-	  }
+          FastCleanGraph( sg );
+          }
 
         FastRemoveUnusedKports( n );
         break;
@@ -448,9 +458,9 @@ PNODE g;
         FastRemoveUnnecEdges( n );
 
         FastRemoveUnusedRports( n->F_RET );
-	FastCleanGraph( n->F_RET );
+        FastCleanGraph( n->F_RET );
         FastRemoveUnusedTports( n );
-	FastCleanGraph( n->F_BODY );
+        FastCleanGraph( n->F_BODY );
         FastRemoveUnusedKports( n );
         break;
 
@@ -460,14 +470,14 @@ PNODE g;
         FastRemoveUnnecEdges( n );
 
         FastRemoveUnusedRports( n->L_RET );
-	FastCleanGraph( n->L_RET );
+        FastCleanGraph( n->L_RET );
         FastRemoveUnusedLTports( n );
-	FastCleanGraph( n->L_BODY );
+        FastCleanGraph( n->L_BODY );
         FastRemoveUnusedKports( n );
         break;
 
       default:
-	break;
+        break;
       }
 
     if ( n->exp == NULL )  {
@@ -475,7 +485,7 @@ PNODE g;
         continue;
 
       if ( glue && IsCall( n ) )
-	continue;
+        continue;
 
       for ( i = n->imp; i != NULL; i = i->isucc )
         UnlinkExport( i );
@@ -489,7 +499,7 @@ PNODE g;
       if ( IsPeek( n ) )
         continue;
       if ( glue && IsCall( n ) )
-	continue;
+        continue;
 
       UnlinkNode( n );
       }
@@ -547,12 +557,12 @@ PNODE n;
       return;
 
     if (IsCompound(n))
-	++Tdccnt;
+        ++Tdccnt;
     else
-	++Tdscnt;
+        ++Tdscnt;
 
     if (n->type == IFAGather)
-	++Tagcnt;
+        ++Tagcnt;
 
     if ( n->exp == NULL ) {
         for ( i = n->imp; i != NULL; i = si ) {

@@ -1,10 +1,20 @@
-/* if1fission.c,v
+/**************************************************************************/
+/* FILE   **************        if1fission.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:57  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:33  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -12,8 +22,8 @@
 #define FAILED   -100                           /* AN ILLEGAL PORT NUMBER */
 
 
-static int fldcnt = 0;		/* COUNT OF REMOVED FIELD REFERENCES */
-static int Tfldcnt = 0;		/* COUNT OF FIELD REFERENCES */
+static int fldcnt = 0;          /* COUNT OF REMOVED FIELD REFERENCES */
+static int Tfldcnt = 0;         /* COUNT OF FIELD REFERENCES */
 static int recnt = 0;            /* COUNT OF REMOVED RECORD ELEMENT NODES */
 static int Trecnt = 0;            /* COUNT OF RECORD ELEMENT NODES */
 static int aecnt = 0;                /* COUNT OF REMOVED AElement EXPORTS */
@@ -40,13 +50,13 @@ int idx;
     i = FindImport( c, iport );
 
     if ( i == NULL )
-	return( FAILED );
+        return( FAILED );
 
     b = i->src;
 
     switch ( b->type ) {
         case IFABuild:
-	    if ( !IsConst( b->imp ) )
+            if ( !IsConst( b->imp ) )
                 return( FAILED );
 
             lo = atoi( b->imp->CoNsT );
@@ -75,7 +85,7 @@ int idx;
             break;
 
         default:
-	    return( FAILED );
+            return( FAILED );
         }
 
     ni = CopyEdge( ii, NULL_NODE, NULL_NODE );
@@ -85,7 +95,7 @@ int idx;
     ni->iport = ++maxint;
 
     if ( !IsConst( ii ) )
-	LinkExport( ii->src, ni );
+        LinkExport( ii->src, ni );
 
     LinkImport( c, ni );
 
@@ -108,92 +118,92 @@ PNODE g;
     register int   idx;
 
     if ( IsIGraph( g ) )
-	return;
+        return;
 
     for ( n = g->G_NODES; n != NULL; n = sn ) {
-	sn = n->nsucc;
+        sn = n->nsucc;
         ++Tacnt;
 
-	if ( IsCompound( n ) )
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		ArrayFission( g );
+        if ( IsCompound( n ) )
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                ArrayFission( g );
 
         if ( !IsAElement( n ) )
-	    continue;
+            continue;
 
-	if ( !IsConst( n->imp->isucc ) )
-	    continue;
+        if ( !IsConst( n->imp->isucc ) )
+            continue;
 
-	idx = atoi( n->imp->isucc->CoNsT );
+        idx = atoi( n->imp->isucc->CoNsT );
 
-	/* FOR IF2UP */
+        /* FOR IF2UP */
         for ( e = n->exp; e != NULL; e = e->esucc )
-	  if ( e->dst->type == IFAReplace )
-	    break;
+          if ( e->dst->type == IFAReplace )
+            break;
 
-	if ( e != NULL )
-	  continue;
+        if ( e != NULL )
+          continue;
 
         for ( e = n->exp; e != NULL; e = se ) {
-	    se = e->esucc;
+            se = e->esucc;
 
-	    i = n->imp;
+            i = n->imp;
            ++Taecnt;
 
-	    b = i->src;
+            b = i->src;
 
-	    if ( IsCompound( b ) )
-		continue;
+            if ( IsCompound( b ) )
+                continue;
 
-	    switch ( b->type ) {
+            switch ( b->type ) {
                 case IFABuild:
-		    if ( !IsConst( b->imp ) )
-		        continue;
+                    if ( !IsConst( b->imp ) )
+                        continue;
 
-		    lo = atoi( b->imp->CoNsT );
+                    lo = atoi( b->imp->CoNsT );
 
-		    if ( lo > idx )
-		      continue;
+                    if ( lo > idx )
+                      continue;
 
-		    ii = FindImport( b, idx - lo + 2 );
+                    ii = FindImport( b, idx - lo + 2 );
 
-		    if ( ii == NULL )
-		      continue;
+                    if ( ii == NULL )
+                      continue;
 
-		    p  = ii->eport;
-		    break;
+                    p  = ii->eport;
+                    break;
 
                 case IFSGraph:
-		    if ( (i->eport == 1) && (IsTagCase( b->G_DAD )) )
-			continue;
+                    if ( (i->eport == 1) && (IsTagCase( b->G_DAD )) )
+                        continue;
 
                     p = FindElementSource( b->G_DAD, i->eport, e, idx );
 
-		    if ( p == FAILED )
-			continue;
+                    if ( p == FAILED )
+                        continue;
 
                     ii = i;
-		    break;
+                    break;
 
                 default:
-		    continue;
-		}
+                    continue;
+                }
 
-	    UnlinkExport( e );  aecnt++;
+            UnlinkExport( e );  aecnt++;
 
-	    if ( !IsConst( ii ) ) {
-		e->eport = p;
+            if ( !IsConst( ii ) ) {
+                e->eport = p;
                 LinkExport( ii->src, e );
-		}
+                }
             else
-		ChangeToConst( e, ii );
-	    }
+                ChangeToConst( e, ii );
+            }
 
-	if ( n->exp == NULL )
-	    acnt++;
+        if ( n->exp == NULL )
+            acnt++;
 
         OptRemoveDeadNode( n );
-	}
+        }
 }
 
 
@@ -220,13 +230,13 @@ PEDGE e;
     i = FindImport( c, iport );
 
     if ( i == NULL )
-	return( FAILED );
+        return( FAILED );
 
 Start:
     b = i->src;
 
     if ( IsCompound( b ) )
-	return( FAILED );
+        return( FAILED );
 
     switch ( b->type ) {
         case IFCall:
@@ -275,7 +285,7 @@ Start:
     ni->iport = ++maxint;
 
     if ( !IsConst( ii ) )
-	LinkExport( ii->src, ni );
+        LinkExport( ii->src, ni );
 
     LinkImport( c, ni );
 
@@ -404,104 +414,104 @@ PNODE g;
     register int   p;
 
     if ( IsIGraph( g ) )
-	return;
+        return;
 
     for ( n = g->G_NODES; n != NULL; n = sn ) {
-	sn = n->nsucc;
+        sn = n->nsucc;
 
-	if ( IsRElements( n ) ) {
+        if ( IsRElements( n ) ) {
           ++Trcnt;
-	  PushRElements( n );
+          PushRElements( n );
         }
-	}
+        }
 
     for ( n = g->G_NODES; n != NULL; n = sn ) {
-	sn = n->nsucc;
+        sn = n->nsucc;
         ++Trecnt;
 
-	if ( IsCompound( n ) )
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		RecordFission( g );
+        if ( IsCompound( n ) )
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                RecordFission( g );
 
         if ( !IsRElements( n ) )
-	    continue;
+            continue;
 
         for ( e = n->exp; e != NULL; e = se ) {
-	    se = e->esucc;
-	    i = n->imp;
+            se = e->esucc;
+            i = n->imp;
             ++Tfldcnt;
 
-	    /* PSA OPTIMIZATION FIX 4/25/90 8 LINES */
-	    switch ( e->dst->type ) {
-	      case IFAElement:
-	      case IFAReplace:
-		continue;
+            /* PSA OPTIMIZATION FIX 4/25/90 8 LINES */
+            switch ( e->dst->type ) {
+              case IFAElement:
+              case IFAReplace:
+                continue;
 
               default:
-		break;
+                break;
               }
 
 Start:
-	    b = i->src;
+            b = i->src;
 
-	    if ( IsCompound( b ) )
-		continue;
+            if ( IsCompound( b ) )
+                continue;
 
-	    switch ( b->type ) {
-		case IFCall:
-		case IFAElement:
-		case IFXGraph:
-		case IFLGraph:
-		case IFRElements:
-		    continue;
+            switch ( b->type ) {
+                case IFCall:
+                case IFAElement:
+                case IFXGraph:
+                case IFLGraph:
+                case IFRElements:
+                    continue;
 
                 case IFRBuild:
-		    ii = FindImport( b, e->eport );
-		    p  = ii->eport;
-		    break;
+                    ii = FindImport( b, e->eport );
+                    p  = ii->eport;
+                    break;
 
                 case IFRReplace:
-		    ii = FindImport( b, e->eport + 1 );
+                    ii = FindImport( b, e->eport + 1 );
 
-		    if ( ii == NULL ) {
-			i = b->imp;
-			goto Start;
-			}
+                    if ( ii == NULL ) {
+                        i = b->imp;
+                        goto Start;
+                        }
 
                     p = ii->eport;
-		    break;
+                    break;
 
                 case IFSGraph:
-		    if ( (i->eport == 1) && (IsTagCase( b->G_DAD )) )
-			continue;
+                    if ( (i->eport == 1) && (IsTagCase( b->G_DAD )) )
+                        continue;
 
                     p = FindFieldSource( b->G_DAD, i->eport, e );
 
-		    if ( p == FAILED )
-			continue;
+                    if ( p == FAILED )
+                        continue;
 
                     ii = i;
-		    break;
+                    break;
 
                 default:
-		    Error1( "RecordFission FAILURE" );
-		}
+                    Error1( "RecordFission FAILURE" );
+                }
 
-	    UnlinkExport( e ); fldcnt++;
+            UnlinkExport( e ); fldcnt++;
 
-	    if ( !IsConst( ii ) ) {
-		e->eport = p;
+            if ( !IsConst( ii ) ) {
+                e->eport = p;
                 LinkExport( ii->src, e );
-		}
+                }
             else
-		ChangeToConst( e, ii );
-	    }
+                ChangeToConst( e, ii );
+            }
 
-	if ( n->exp == NULL )
-	    recnt++;
+        if ( n->exp == NULL )
+            recnt++;
 
         OptRemoveDeadNode( n );
-	}
+        }
 }
 
 
@@ -535,7 +545,7 @@ void If1Fission()
     register PNODE f;
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
-	RecordFission( cfunct = f );
-	ArrayFission( cfunct = f );
-	}
+        RecordFission( cfunct = f );
+        ArrayFission( cfunct = f );
+        }
 }

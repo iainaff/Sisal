@@ -1,10 +1,20 @@
-/* if2print.c,v
+/**************************************************************************/
+/* FILE   **************         if2print.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:02  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:02  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -32,8 +42,8 @@ PNODE n;
   FPRINTF( output, ", " );
   PrintTemp( n->imp->isucc );
   FPRINTF( output, ", \"%s\", \"%s\", %s );\n", 
-	   (n->imp->name == NULL)? "unknown" : n->imp->name,
-	   (n->imp->isucc->name == NULL)? "unknown" : n->imp->isucc->name,
+           (n->imp->name == NULL)? "unknown" : n->imp->name,
+           (n->imp->isucc->name == NULL)? "unknown" : n->imp->isucc->name,
            GetSisalInfo( n, buf )                                      );
 }
 
@@ -73,50 +83,50 @@ PEDGE e;
         else
             FPRINTF( output, "(%s)", e->CoNsT );
 
-	return;
-	}
+        return;
+        }
 
     if ( (t = e->temp) == NULL ) {
-	if ( e->src->type == IFAIndexMinus ) {
-	  PrintTemp( e->src->imp );
+        if ( e->src->type == IFAIndexMinus ) {
+          PrintTemp( e->src->imp );
 
-	  if ( IsConst( e->src->imp->isucc ) )
-	    if ( atoi( e->src->imp->isucc->CoNsT ) == 0 )
-	      return;
+          if ( IsConst( e->src->imp->isucc ) )
+            if ( atoi( e->src->imp->isucc->CoNsT ) == 0 )
+              return;
 
-	  FPRINTF( output, "-" );
-	  PrintTemp( e->src->imp->isucc );
-	  return;
-	  }
+          FPRINTF( output, "-" );
+          PrintTemp( e->src->imp->isucc );
+          return;
+          }
 
-	if ( e->src->type == IFAIndexPlus ) {
-	  PrintTemp( e->src->imp );
+        if ( e->src->type == IFAIndexPlus ) {
+          PrintTemp( e->src->imp );
 
-	  if ( IsConst( e->src->imp->isucc ) )
-	    if ( atoi( e->src->imp->isucc->CoNsT ) == 0 )
-	      return;
+          if ( IsConst( e->src->imp->isucc ) )
+            if ( atoi( e->src->imp->isucc->CoNsT ) == 0 )
+              return;
 
-	  FPRINTF( output, "+" );
-	  PrintTemp( e->src->imp->isucc );
-	  return;
-	  } 
+          FPRINTF( output, "+" );
+          PrintTemp( e->src->imp->isucc );
+          return;
+          } 
 
-	UNEXPECTED( "missing temporary" );
-	ERRORINFO( "e->if1line = %d", e->if1line );
-	ERRORINFO( "e->dst->type = %d ", e->dst->type );
-	ERRORINFO( "e->eport = %d", e->eport );
+        UNEXPECTED( "missing temporary" );
+        ERRORINFO( "e->if1line = %d", e->if1line );
+        ERRORINFO( "e->dst->type = %d ", e->dst->type );
+        ERRORINFO( "e->eport = %d", e->eport );
         return;
-	}
+        }
 
     if ( !IsFunction( t->info ) ) {
-	FPRINTF( output, "%s", e->temp->name );
-	return;
-	}
+        FPRINTF( output, "%s", e->temp->name );
+        return;
+        }
 
     if ( strcmp( t->name, "args" ) == 0 )
-	FPRINTF( output, "((%s*)%s)->In%d", t->info->sname, t->name, t->fld );
+        FPRINTF( output, "((%s*)%s)->In%d", t->info->sname, t->name, t->fld );
     else
-	FPRINTF( output, "((%s*)%s)->Out%d", t->info->sname, t->name, t->fld );
+        FPRINTF( output, "((%s*)%s)->Out%d", t->info->sname, t->name, t->fld );
 }
 
 
@@ -136,9 +146,9 @@ int    fid;
     FPRINTF( output, "((%s*)", sname );
 
     if ( e != NULL )
-	PrintTemp( e );
+        PrintTemp( e );
     else
-	FPRINTF( output, "%s", name );
+        FPRINTF( output, "%s", name );
 
     FPRINTF( output, ")->%s%d", f, fid );
 }
@@ -156,7 +166,7 @@ PEDGE e;
 PEDGE i;
 {
     if ( e->temp == i->temp )
-	return;
+        return;
 
     PrintIndentation( indent );
 
@@ -214,13 +224,13 @@ char  *s;
     PrintTemp( n->exp );
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	FPRINTF( output, ", " );
-	PrintTemp( i );
+        FPRINTF( output, ", " );
+        PrintTemp( i );
 
-	if ( s != NULL )
-	    FPRINTF( output, "%s", s );
-	}
-	
+        if ( s != NULL )
+            FPRINTF( output, "%s", s );
+        }
+        
     FPRINTF( output, " );\n" );
 }
 
@@ -309,23 +319,23 @@ PNODE n;
     register PEDGE ee;
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
-	if ( e->eport < 0 ) {
-	    e->eport = -(e->eport);
-	    continue;
-	    }
+        if ( e->eport < 0 ) {
+            e->eport = -(e->eport);
+            continue;
+            }
 
-	if ( e->pl > 0 ) {
-	    PrintIndentation( indent );
+        if ( e->pl > 0 ) {
+            PrintIndentation( indent );
 
-	    FPRINTF( output, "%s( ", GetIncRefCountName( e->info ) );
-	    PrintTemp( e );
-	    FPRINTF( output, ", %s, %d );\n", e->info->sname, e->pl );
+            FPRINTF( output, "%s( ", GetIncRefCountName( e->info ) );
+            PrintTemp( e );
+            FPRINTF( output, ", %s, %d );\n", e->info->sname, e->pl );
 
-	    for ( ee = e->esucc; ee != NULL; ee = ee->esucc )
-		if ( ee->eport == e->eport )
-		    ee->eport = -(ee->eport);
-	    }
-	}
+            for ( ee = e->esucc; ee != NULL; ee = ee->esucc )
+                if ( ee->eport == e->eport )
+                    ee->eport = -(ee->eport);
+            }
+        }
 }
 
 
@@ -343,23 +353,23 @@ PNODE n;
     register PEDGE ee;
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
-	if ( e->eport < 0 ) {
-	    e->eport = -(e->eport);
-	    continue;
-	    }
+        if ( e->eport < 0 ) {
+            e->eport = -(e->eport);
+            continue;
+            }
 
-	if ( e->pm > 0 ) {
-	    PrintIndentation( indent );
+        if ( e->pm > 0 ) {
+            PrintIndentation( indent );
 
-	    FPRINTF( output, "%s( ", GetIncRefCountName( e->info ) );
-	    PrintTemp( e );
-	    FPRINTF( output, ", %s, %d );\n", e->info->sname, e->pm );
+            FPRINTF( output, "%s( ", GetIncRefCountName( e->info ) );
+            PrintTemp( e );
+            FPRINTF( output, ", %s, %d );\n", e->info->sname, e->pm );
 
-	    for ( ee = e->esucc; ee != NULL; ee = ee->esucc )
-		if ( ee->eport == e->eport )
-		    ee->eport = -(ee->eport);
-	    }
-	}
+            for ( ee = e->esucc; ee != NULL; ee = ee->esucc )
+                if ( ee->eport == e->eport )
+                    ee->eport = -(ee->eport);
+            }
+        }
 }
 
 
@@ -380,7 +390,7 @@ PNODE  n;
     else if ( n->imp->isucc->temp == n->exp->temp )/* if ( B op A ) B = A */
         SPRINTF( buf, "COpt%s", GetMacro( n ) );
     else
-	SPRINTF( buf, "%s", GetMacro( n ) );
+        SPRINTF( buf, "%s", GetMacro( n ) );
 
     PrintMacro( indent, buf, n, (char*)NULL );
 }
@@ -401,7 +411,7 @@ PNODE  n;
 
     if ( n->type == IFDiv )
       if ( bounds )
-	PrintDivByZeroCheck( n );
+        PrintDivByZeroCheck( n );
 
     if ( IsDivByZero( n ) )
       op = "DivZero";
@@ -409,9 +419,9 @@ PNODE  n;
       op = GetMacro( n );
 
     if ( n->imp->temp == n->exp->temp )                     /* A op= B    */
-	SPRINTF( buf, "Opt%s", op );
+        SPRINTF( buf, "Opt%s", op );
     else                                                    /* C = A op B */
-	SPRINTF( buf, "%s", op );
+        SPRINTF( buf, "%s", op );
 
     PrintMacro( indent, buf, n, (char*)NULL );
 }
@@ -431,11 +441,11 @@ char  *override;
     char buf[100];
 
     if ( n->imp->temp == n->exp->temp )                     /* A op= B    */
-	SPRINTF( buf, "Opt%s", (override != NULL)? override : GetMacro( n ) );
+        SPRINTF( buf, "Opt%s", (override != NULL)? override : GetMacro( n ) );
     else if ( n->imp->isucc->temp == n->exp->temp )         /* B op= A    */
-	SPRINTF( buf, "COpt%s", (override != NULL)? override : GetMacro( n ) );
+        SPRINTF( buf, "COpt%s", (override != NULL)? override : GetMacro( n ) );
     else                                                    /* C = A op B */
-	SPRINTF( buf, "%s", (override != NULL)? override : GetMacro( n ) );
+        SPRINTF( buf, "%s", (override != NULL)? override : GetMacro( n ) );
 
     PrintMacro( indent, buf, n, (char*)NULL );
 }
@@ -443,42 +453,42 @@ char  *override;
 /**************************************************************************/
 /* LOCAL  **************    ExpandDollarFormula    ************************/
 /**************************************************************************/
-/* PURPOSE:  Expand the $vars found in the LoopSlice (and other?)	  */
-/*	     formulas to the defined variables.				  */
+/* PURPOSE:  Expand the $vars found in the LoopSlice (and other?)         */
+/*           formulas to the defined variables.                           */
 /**************************************************************************/
 static void ExpandDollarFormula(c,n,errorbuf)
-     char	*c;
-     PNODE	n;
-     char	*errorbuf;
+     char       *c;
+     PNODE      n;
+     char       *errorbuf;
 {
-  errorbuf[0] = '\0';		/* Assume no errors */
+  errorbuf[0] = '\0';           /* Assume no errors */
      
   for(; *c; c++) {
     if ( *c == '$' ) {
       c++;
-      switch ( *c ) {		/* Decode the $vars */
-	/* ------------------------------------------------------------ */
-       case 'p':		/* PROCESSORS */
+      switch ( *c ) {           /* Decode the $vars */
+        /* ------------------------------------------------------------ */
+       case 'p':                /* PROCESSORS */
        case 'P':
-	FPRINTF( output, "(MAX_PROCS)" );
-	break;
+        FPRINTF( output, "(MAX_PROCS)" );
+        break;
 
-       case 'l':		/* Low of range */
+       case 'l':                /* Low of range */
        case 'L':
-	PrintRangeLow(n->usucc);
-	break;
+        PrintRangeLow(n->usucc);
+        break;
 
-       case 'h':		/* High of range */
+       case 'h':                /* High of range */
        case 'H':
-	PrintRangeHigh(n->usucc);
-	break;
+        PrintRangeHigh(n->usucc);
+        break;
 
        case '\000':
-	strcpy(errorbuf,"Premature end of formula");
-	break;
+        strcpy(errorbuf,"Premature end of formula");
+        break;
 
        default:
-	SPRINTF(errorbuf,"Bad $var ($%c) in formula", *c);
+        SPRINTF(errorbuf,"Bad $var ($%c) in formula", *c);
       }
     } else {
       (void)fputc(*c,output);
@@ -489,7 +499,7 @@ static void ExpandDollarFormula(c,n,errorbuf)
 /**************************************************************************/
 /* LOCAL  **************        IsComplex          ************************/
 /**************************************************************************/
-/* PURPOSE:								  */
+/* PURPOSE:                                                               */
 /**************************************************************************/
 static int IsComplex( g )
 PNODE g;
@@ -502,9 +512,9 @@ PNODE g;
 
     if ( IsSelect( n ) ) {
       if ( IsComplex( n->S_ALT ) )
-	return( TRUE );
+        return( TRUE );
       if ( IsComplex( n->S_CONS ) )
-	return( TRUE );
+        return( TRUE );
       }
     }
 
@@ -512,29 +522,29 @@ PNODE g;
 }
 
 /**************************************************************************/
-/* LOCAL  **************    PrintBuildSlices	   ************************/
+/* LOCAL  **************    PrintBuildSlices       ************************/
 /**************************************************************************/
-/* PURPOSE: Prints out the code to invoke the loop slice scheduler	  */
+/* PURPOSE: Prints out the code to invoke the loop slice scheduler        */
 /**************************************************************************/
 static void PrintBuildSlices( indent, n )
 int   indent;
 PNODE n;
 {
   register PNODE f;
-  char	   buf[100];
-  char	   ebuf[100];
-  char	   *Style;
+  char     buf[100];
+  char     ebuf[100];
+  char     *Style;
 
-  int	   size;
+  int      size;
 
   f = n->usucc->usucc->imp->src;
 
   size = LCMSize(n->usucc->usucc);
 
   /* ------------------------------------------------------------ */
-  /* Select the appropriate style of slicer.  For Runtime	  */
+  /* Select the appropriate style of slicer.  For Runtime         */
   /* decision, we choose a generic slicer that takes the default  */
-  /* action							  */
+  /* action                                                       */
   /* ------------------------------------------------------------ */
   switch ( f->Style ) {
    case 'G':
@@ -566,18 +576,18 @@ PNODE n;
 
   PrintIndentation( indent );
   FPRINTF( output, "%sBSlices( %s, %s, %s, %s",
-	  Style,
-	  (IsComplex( f->F_BODY ))? "SPAWN_COMPLEX" : "SPAWN_SIMPLE",
-	  n->usucc->temp->info->sname, 
-	  n->usucc->usucc->G_NAME,
-	  n->usucc->temp->name
-	  );
-	   
+          Style,
+          (IsComplex( f->F_BODY ))? "SPAWN_COMPLEX" : "SPAWN_SIMPLE",
+          n->usucc->temp->info->sname, 
+          n->usucc->usucc->G_NAME,
+          n->usucc->temp->name
+          );
+           
   PrintIndentation( (int)(indent+strlen(Style)+9) );
   PrintRanges( n->usucc );
 
   /* ------------------------------------------------------------ */
-  /* MinSlice parameter						  */
+  /* MinSlice parameter                                           */
   /* ------------------------------------------------------------ */
   if ( MinSliceThrottle && f->MinSlice ) {
     FPRINTF( output, ",");
@@ -592,7 +602,7 @@ PNODE n;
   }
 
   /* ------------------------------------------------------------ */
-  /* Loop Slice formula						  */
+  /* Loop Slice formula                                           */
   /* ------------------------------------------------------------ */
   if ( f->LoopSlice ) {
     ExpandDollarFormula(f->LoopSlice,n,ebuf);
@@ -662,8 +672,8 @@ int   indent;
 PNODE n;
 {
   register PNODE f;
-  char	   *Style;
-  char	   buf[100];
+  char     *Style;
+  char     buf[100];
 
   f = n->usucc->imp->src;
 
@@ -673,20 +683,20 @@ PNODE n;
 
   if ( n->type == IFOptLoopPoolEnq ) {
     FPRINTF( output, "OptSpawn%s( %s,", (n->Fmark ? "Fast":""),
-				n->temp->info->sname );
+                                n->temp->info->sname );
   } else {
     /* ------------------------------------------------------------ */
-    /* Select the appropriate style of slicer.  For Runtime	  */
+    /* Select the appropriate style of slicer.  For Runtime       */
     /* decision, we choose a generic slicer that takes the default  */
-    /* action							  */
+    /* action                                                     */
     /* ------------------------------------------------------------ */
     switch ( f->Style ) {
      case 'G':
       if ( IsComplex(f->F_BODY) )  { /* Can only slice complex for GSS */
-	Style = "GSS";
-	break;
+        Style = "GSS";
+        break;
       }
-      FPRINTF( output, "	/* GSS Converted to BLOCK */\n");
+      FPRINTF( output, "        /* GSS Converted to BLOCK */\n");
       PrintIndentation( indent );
       /* else fall through to BLOCK */
      case 'B':
@@ -707,9 +717,9 @@ PNODE n;
   }
 
   FPRINTF( output, " %s, %s, %s, %d, %d",
-	   (IsComplex( f->F_BODY ))? "SPAWN_COMPLEX" : "SPAWN_SIMPLE",
-	   n->usucc->G_NAME, n->temp->name, LCMSize(f->F_RET), f->norm      );
-	   
+           (IsComplex( f->F_BODY ))? "SPAWN_COMPLEX" : "SPAWN_SIMPLE",
+           n->usucc->G_NAME, n->temp->name, LCMSize(f->F_RET), f->norm      );
+           
   PrintRanges( n );
   FPRINTF( output, " );\n" );
 
@@ -816,7 +826,7 @@ PNODE n;
 
     FPRINTF( output, "/* UNUSED */ %s( ", GetFreeName(ii->L_SUB) );
     FPRINTF( output, "((%s*)%s)->Out%d", 
-	     n->temp->info->sname, n->temp->name, eport );
+             n->temp->info->sname, n->temp->name, eport );
     FPRINTF( output, " );\n" );
     }
 
@@ -841,8 +851,8 @@ PNODE g;
     register int   lk;
     register int   LastLine;
     register char  *LastFile;
-    char	   *SourceLine;
-	     char  buf[100];
+    char           *SourceLine;
+             char  buf[100];
     PINFO    info;
 
     if ( g->mark == 's' ) {
@@ -860,27 +870,27 @@ PNODE g;
 
     if ( !IsIGraph ( g ) )
       if ( g->flps != NULL ) {
-	if ( g->flps[ARITHMETICS] > 0 )
-	  FPRINTF( output, "IncFlopCountA(%d);\n", g->flps[ARITHMETICS] );
-	if ( g->flps[LOGICALS] > 0 )
-	  FPRINTF( output, "IncFlopCountL(%d);\n", g->flps[LOGICALS] );
-	if ( g->flps[INTRINSICS] > 0 )
-	  FPRINTF( output, "IncFlopCountI(%d);\n", g->flps[INTRINSICS] );
+        if ( g->flps[ARITHMETICS] > 0 )
+          FPRINTF( output, "IncFlopCountA(%d);\n", g->flps[ARITHMETICS] );
+        if ( g->flps[LOGICALS] > 0 )
+          FPRINTF( output, "IncFlopCountL(%d);\n", g->flps[LOGICALS] );
+        if ( g->flps[INTRINSICS] > 0 )
+          FPRINTF( output, "IncFlopCountI(%d);\n", g->flps[INTRINSICS] );
         }
 
     switch ( g->type ) {
-	case IFXGraph:
-	case IFLGraph:
-	case IFLPGraph:
-	    if ( sdbx && g->type == IFLPGraph )
-	      Error2( "PrintGraph", "-sdbx AND IFLPGraph ENCOUNTERED!!!" );
+        case IFXGraph:
+        case IFLGraph:
+        case IFLPGraph:
+            if ( sdbx && g->type == IFLPGraph )
+              Error2( "PrintGraph", "-sdbx AND IFLPGraph ENCOUNTERED!!!" );
 
-	    PrintProducerModifiers( indent, g );
-	    break;
+            PrintProducerModifiers( indent, g );
+            break;
 
-	default:
-	    break;
-	}
+        default:
+            break;
+        }
 
     if ( sdbx && IsSGraph( g ) )
       SaveSdbxState( g );
@@ -888,76 +898,76 @@ PNODE g;
     LastLine = 0;
     LastFile = "";
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	/* ------------------------------------------------------------ */
-	/* If the line has changed, output a source line comment	*/
-	/* ------------------------------------------------------------ */
-	if ( CodeComments
-	    && n->line
-	    && n->file
-	    && ( n->line != LastLine || (strcmp(n->file,LastFile) != 0))
-	    ) {
-	  LastLine = n->line;
-	  LastFile = n->file;
+        /* ------------------------------------------------------------ */
+        /* If the line has changed, output a source line comment        */
+        /* ------------------------------------------------------------ */
+        if ( CodeComments
+            && n->line
+            && n->file
+            && ( n->line != LastLine || (strcmp(n->file,LastFile) != 0))
+            ) {
+          LastLine = n->line;
+          LastFile = n->file;
 
-	  SourceLine = GetSourceLine(n);
-	  if (SourceLine) FPRINTF( output,
-				  "\n/* %s.%d: %s */\n",
-				  n->file,
-				  LastLine,
-				  SourceLine);
-	}
+          SourceLine = GetSourceLine(n);
+          if (SourceLine) FPRINTF( output,
+                                  "\n/* %s.%d: %s */\n",
+                                  n->file,
+                                  LastLine,
+                                  SourceLine);
+        }
 
 
-	/* ------------------------------------------------------------ */
-	/* Output the debugger stuff					*/
-	/* ------------------------------------------------------------ */
-	if ( sdbx )
-	  SaveSdbxState( n );
+        /* ------------------------------------------------------------ */
+        /* Output the debugger stuff                                    */
+        /* ------------------------------------------------------------ */
+        if ( sdbx )
+          SaveSdbxState( n );
 
-	/* ------------------------------------------------------------ */
-	/* Output the code for the operation				*/
-	/* ------------------------------------------------------------ */
+        /* ------------------------------------------------------------ */
+        /* Output the code for the operation                            */
+        /* ------------------------------------------------------------ */
         switch( n->type ) {
-	    case IFTri:
-	      PrintTri( indent, n );
-	      break;
+            case IFTri:
+              PrintTri( indent, n );
+              break;
 
-	    case IFFirstSum:
-	      PrintFirstSum( indent, n );
-	      break;
+            case IFFirstSum:
+              PrintFirstSum( indent, n );
+              break;
 
-	    case IFFirstAbsMax:
-	      PrintVMinMax( indent, n, "ifamax" );
-	      break;
+            case IFFirstAbsMax:
+              PrintVMinMax( indent, n, "ifamax" );
+              break;
 
-	    case IFFirstAbsMin:
-	      PrintVMinMax( indent, n, "ifamin" );
-	      break;
+            case IFFirstAbsMin:
+              PrintVMinMax( indent, n, "ifamin" );
+              break;
 
-	    case IFFirstMin:
-	      PrintVMinMax( indent, n, "ifmin" );
-	      break;
+            case IFFirstMin:
+              PrintVMinMax( indent, n, "ifmin" );
+              break;
 
-	    case IFFirstMax:
-	      PrintVMinMax( indent, n, "ifmax" );
-	      break;
+            case IFFirstMax:
+              PrintVMinMax( indent, n, "ifmax" );
+              break;
 
-	    case IFLoopA:
-	    case IFLoopB:
-		PrintLoop( indent, n );
-		break;
+            case IFLoopA:
+            case IFLoopB:
+                PrintLoop( indent, n );
+                break;
 
-	    case IFForall:
-		PrintForall( indent, n );
-		break;
+            case IFForall:
+                PrintForall( indent, n );
+                break;
 
-	    case IFSelect:
-		PrintSelect( indent, n );
-		break;
+            case IFSelect:
+                PrintSelect( indent, n );
+                break;
 
-	    case IFTagCase:
-		PrintTagCase( indent, n );
-		break;
+            case IFTagCase:
+                PrintTagCase( indent, n );
+                break;
 
             case IFLeast:
                 PrintYankedRed( indent, n, "Min" );
@@ -975,440 +985,440 @@ PNODE g;
 
                 break;
 
-	    case IFBuildSlices:
-		PrintBuildSlices( indent, n );
-		break;
+            case IFBuildSlices:
+                PrintBuildSlices( indent, n );
+                break;
 
-	    case IFSaveSliceParam:
-		PrintSaveSliceParam( indent, n );
-		break;
+            case IFSaveSliceParam:
+                PrintSaveSliceParam( indent, n );
+                break;
 
             case IFSum:
                 if ( IsBoolean( n->gsucc->exp->info ) )
                     PrintYankedRed( indent, n, "Or" );
                 else {
-		    if ( IsConst( n->imp ) ) {
-		      if ( strcmp( n->imp->CoNsT, "0" ) == 0 )
-			break;
+                    if ( IsConst( n->imp ) ) {
+                      if ( strcmp( n->imp->CoNsT, "0" ) == 0 )
+                        break;
 
-		      if ( strcmp( n->imp->CoNsT, "0.0" ) == 0 )
-			break;
+                      if ( strcmp( n->imp->CoNsT, "0.0" ) == 0 )
+                        break;
 
-		      if ( strcmp( n->imp->CoNsT, "0.0D0" ) == 0 )
-			break;
+                      if ( strcmp( n->imp->CoNsT, "0.0D0" ) == 0 )
+                        break;
 
-		      if ( strcmp( n->imp->CoNsT, "0.0d0" ) == 0 )
-			break;
+                      if ( strcmp( n->imp->CoNsT, "0.0d0" ) == 0 )
+                        break;
 
-		      if ( strcmp( n->imp->CoNsT, "0.0E0" ) == 0 )
-			break;
+                      if ( strcmp( n->imp->CoNsT, "0.0E0" ) == 0 )
+                        break;
 
-		      if ( strcmp( n->imp->CoNsT, "0.0e0" ) == 0 )
-			break;
-		      }
+                      if ( strcmp( n->imp->CoNsT, "0.0e0" ) == 0 )
+                        break;
+                      }
 
                     PrintYankedRed( indent, n, "Plus" );
-		    }
-
-                break;
-
-	    case IFBRBuild:
-		if ( n->exp->esucc == NULL )
-		  if ( n->exp->dst->type == IFAStore ) {
-		    /* ELIMINATE SUPERFLUOUS FIELD MOVES */
-		    PrintBRAStore( indent, n, n->exp->dst->gsucc );
-		    n->exp->dst->nmark = TRUE; /* (see IFAStore below) */
-		    break;
-		    }
-
-		PrintBRBuild( indent, n );
-		break;
-
-            case IFAStore:
-		if ( n->nmark ) /* ABRStore OPT (see IFBRBuild above) */
-		  break;
-
-		PrintAStore( indent, n, n->gsucc );
-                break;
-
-	    case IFDiv:
-		if ( IsConst( n->imp->isucc ) )
-		    if ( strcmp( n->imp->isucc->CoNsT, "2" ) == 0 )
-			n->type = IFDiv2;
-
-		PrintDyadic( indent, n );
-		break;
-
-	    case IFMod:
-	    case IFMinus:
-		PrintDyadic( indent, n );
-		break;
-
-	    case IFSaveCallParam:
-                PrintFldAssgn( indent, n->usucc->imp->info->sname, 
-			       n->usucc->temp->name, NULL_EDGE, "In", 
-			       n->imp->iport, n->imp            );
-	        break;
-
-	    case IFError:
-		PrintIndentation( indent );
-		PrintTemp( n->exp );
-	        FPRINTF( output, " = (%s) ", n->exp->info->tname );
-		FPRINTF( output, 
-		   "SisalError( %s, \"EXPLICIT ERROR VALUE GENERATED!\" );\n",
-		   GetSisalInfoOnEdge( n->exp, buf ) );
-
-		break;
-
-	    case IFPlus:
-		if ( n->exp == NULL )
-		    break;
-
-		if ( IsBoolean( n->exp->info ) )
-		    PrintDyadicCom( indent, n, "Or" );
-		else
-		    PrintDyadicCom( indent, n, (char*)NULL );
-
-		break;
-
-	    case IFTimes:
-		if ( n->exp == NULL )
-		    break;
-
-		if ( IsBoolean( n->exp->info ) )
-		    PrintDyadicCom( indent, n, "And" );
-		else
-		    PrintDyadicCom( indent, n, (char*)NULL );
-
-		break;
-
-	    case IFMax:
-	    case IFMin:
-		PrintMinMax( indent, n );
-		break;
-
-	    case IFAbs:
-		if ( n->exp->temp == n->imp->temp ) {
-		    if ( ( strcmp( n->exp->temp->name, "double1" ) == 0 ) ||
-		         ( strcmp( n->exp->temp->name, "double2" ) == 0 ) ||
-		         ( strcmp( n->exp->temp->name, "double3" ) == 0 ) ) {
-			PrintIndentation( indent );
-			FPRINTF( output, "asm(\"absl _%s,_%s\");\n", 
-				 n->exp->temp->name, n->exp->temp->name );
-
-			break;
-			}
-
-		    if ( n->exp->info->type == IF_DOUBLE ||
-			 n->exp->info->type == IF_REAL )
-		      SPRINTF( buf, "OptF%s", GetMacro( n ) );
-                    else
-		      SPRINTF( buf, "Opt%s", GetMacro( n ) );
-		} else {
-		    if ( n->exp->info->type == IF_DOUBLE ||
-			 n->exp->info->type == IF_REAL )
-		      SPRINTF( buf, "F%s", GetMacro( n ) );
-                    else
-		      SPRINTF( buf, "%s", GetMacro( n ) );
                     }
 
-		PrintMacro( indent, buf, n, (char*)NULL );
-		break;
-
-            case IFGreatEqual:
-		if ( n->exp == NULL )
-		    break;
-
-		PrintMacro( indent, "GreatEqual", n, (char*)NULL );
-		break;
-
-            case IFGreat:
-		if ( n->exp == NULL )
-		    break;
-
-		PrintMacro( indent, "Great", n, (char*)NULL );
-		break;
-
-	    case IFNotEqual:
-	    case IFLessEqual:
-	    case IFLess:
-	    case IFEqual:
-            case IFNot:
-		if ( n->exp == NULL )
-		    break;
-
-	    case IFNeg:
-	    case IFBool:
-	    case IFChar:
-	    case IFDouble:
-	    case IFTrunc:
-	    case IFSingle:
-	    case IFFloor:
-		PrintMacro( indent, GetMacro( n ), n, (char*)NULL );
-		break;
-
-	    case IFOptNoOp:
-	        break;
-
-	    case IFAssign:
-		PrintAssgn( indent, n->exp, n->imp );
-		break;
-
-	    case IFExp:
-		PrintMacro( indent, "Pow", n, (char*)NULL );
-		break;
-
-	    case IFInt:
-		if ( IsDouble( n->imp->info ) || IsReal( n->imp->info ) )
-		    PrintMacro( indent, "Floor", n, " + 0.5" );
-		else
-		    PrintMacro( indent, GetMacro( n ), n, (char*)NULL );
-
-		break;
-
-	    case IFLoopPoolEnq:
-	    case IFOptLoopPoolEnq:
-	        PrintLoopPoolEnq( indent, n );
-	        break;
-
-	    case IFCall:
-		PrintCall( indent, n );
-		break;
-
-	    case IFUTagTest:
-		PrintUTagTest( indent, n );
-		break;
-
-	    case IFUGetTag:
-		PrintUGetTag( indent, n );
-		break;
-
-	    case IFUElement:
-		PrintUElement( indent, n );
-		break;
-
-	    case IFBRReplace:
-		PrintBRReplace( indent, n );
-	        break;
-
-	    case IFUBuild:
-		PrintUBuild( indent, n );
-		break;
-
-	    case IFRBuild:
-		PrintRBuild( indent, n );
                 break;
 
-	    case IFRElements:
-		PrintRElements( indent, n );
-		break;
+            case IFBRBuild:
+                if ( n->exp->esucc == NULL )
+                  if ( n->exp->dst->type == IFAStore ) {
+                    /* ELIMINATE SUPERFLUOUS FIELD MOVES */
+                    PrintBRAStore( indent, n, n->exp->dst->gsucc );
+                    n->exp->dst->nmark = TRUE; /* (see IFAStore below) */
+                    break;
+                    }
 
-	    case IFRReplace:
-		PrintRReplace( indent, n );
-		break;
+                PrintBRBuild( indent, n );
+                break;
 
-	    case IFPeek:
-		PrintPeek( indent, n );
-		break;
+            case IFAStore:
+                if ( n->nmark ) /* ABRStore OPT (see IFBRBuild above) */
+                  break;
 
-	    case IFPrefixSize:
-	      /* Just pretend that PrefixSize is the same as ASize */
-	      n->type = IFASize;
-	      /* Fall through... */
-	    case IFASize:
+                PrintAStore( indent, n, n->gsucc );
+                break;
+
+            case IFDiv:
+                if ( IsConst( n->imp->isucc ) )
+                    if ( strcmp( n->imp->isucc->CoNsT, "2" ) == 0 )
+                        n->type = IFDiv2;
+
+                PrintDyadic( indent, n );
+                break;
+
+            case IFMod:
+            case IFMinus:
+                PrintDyadic( indent, n );
+                break;
+
+            case IFSaveCallParam:
+                PrintFldAssgn( indent, n->usucc->imp->info->sname, 
+                               n->usucc->temp->name, NULL_EDGE, "In", 
+                               n->imp->iport, n->imp            );
+                break;
+
+            case IFError:
+                PrintIndentation( indent );
+                PrintTemp( n->exp );
+                FPRINTF( output, " = (%s) ", n->exp->info->tname );
+                FPRINTF( output, 
+                   "SisalError( %s, \"EXPLICIT ERROR VALUE GENERATED!\" );\n",
+                   GetSisalInfoOnEdge( n->exp, buf ) );
+
+                break;
+
+            case IFPlus:
+                if ( n->exp == NULL )
+                    break;
+
+                if ( IsBoolean( n->exp->info ) )
+                    PrintDyadicCom( indent, n, "Or" );
+                else
+                    PrintDyadicCom( indent, n, (char*)NULL );
+
+                break;
+
+            case IFTimes:
+                if ( n->exp == NULL )
+                    break;
+
+                if ( IsBoolean( n->exp->info ) )
+                    PrintDyadicCom( indent, n, "And" );
+                else
+                    PrintDyadicCom( indent, n, (char*)NULL );
+
+                break;
+
+            case IFMax:
+            case IFMin:
+                PrintMinMax( indent, n );
+                break;
+
+            case IFAbs:
+                if ( n->exp->temp == n->imp->temp ) {
+                    if ( ( strcmp( n->exp->temp->name, "double1" ) == 0 ) ||
+                         ( strcmp( n->exp->temp->name, "double2" ) == 0 ) ||
+                         ( strcmp( n->exp->temp->name, "double3" ) == 0 ) ) {
+                        PrintIndentation( indent );
+                        FPRINTF( output, "asm(\"absl _%s,_%s\");\n", 
+                                 n->exp->temp->name, n->exp->temp->name );
+
+                        break;
+                        }
+
+                    if ( n->exp->info->type == IF_DOUBLE ||
+                         n->exp->info->type == IF_REAL )
+                      SPRINTF( buf, "OptF%s", GetMacro( n ) );
+                    else
+                      SPRINTF( buf, "Opt%s", GetMacro( n ) );
+                } else {
+                    if ( n->exp->info->type == IF_DOUBLE ||
+                         n->exp->info->type == IF_REAL )
+                      SPRINTF( buf, "F%s", GetMacro( n ) );
+                    else
+                      SPRINTF( buf, "%s", GetMacro( n ) );
+                    }
+
+                PrintMacro( indent, buf, n, (char*)NULL );
+                break;
+
+            case IFGreatEqual:
+                if ( n->exp == NULL )
+                    break;
+
+                PrintMacro( indent, "GreatEqual", n, (char*)NULL );
+                break;
+
+            case IFGreat:
+                if ( n->exp == NULL )
+                    break;
+
+                PrintMacro( indent, "Great", n, (char*)NULL );
+                break;
+
+            case IFNotEqual:
+            case IFLessEqual:
+            case IFLess:
+            case IFEqual:
+            case IFNot:
+                if ( n->exp == NULL )
+                    break;
+
+            case IFNeg:
+            case IFBool:
+            case IFChar:
+            case IFDouble:
+            case IFTrunc:
+            case IFSingle:
+            case IFFloor:
+                PrintMacro( indent, GetMacro( n ), n, (char*)NULL );
+                break;
+
+            case IFOptNoOp:
+                break;
+
+            case IFAssign:
+                PrintAssgn( indent, n->exp, n->imp );
+                break;
+
+            case IFExp:
+                PrintMacro( indent, "Pow", n, (char*)NULL );
+                break;
+
+            case IFInt:
+                if ( IsDouble( n->imp->info ) || IsReal( n->imp->info ) )
+                    PrintMacro( indent, "Floor", n, " + 0.5" );
+                else
+                    PrintMacro( indent, GetMacro( n ), n, (char*)NULL );
+
+                break;
+
+            case IFLoopPoolEnq:
+            case IFOptLoopPoolEnq:
+                PrintLoopPoolEnq( indent, n );
+                break;
+
+            case IFCall:
+                PrintCall( indent, n );
+                break;
+
+            case IFUTagTest:
+                PrintUTagTest( indent, n );
+                break;
+
+            case IFUGetTag:
+                PrintUGetTag( indent, n );
+                break;
+
+            case IFUElement:
+                PrintUElement( indent, n );
+                break;
+
+            case IFBRReplace:
+                PrintBRReplace( indent, n );
+                break;
+
+            case IFUBuild:
+                PrintUBuild( indent, n );
+                break;
+
+            case IFRBuild:
+                PrintRBuild( indent, n );
+                break;
+
+            case IFRElements:
+                PrintRElements( indent, n );
+                break;
+
+            case IFRReplace:
+                PrintRReplace( indent, n );
+                break;
+
+            case IFPeek:
+                PrintPeek( indent, n );
+                break;
+
+            case IFPrefixSize:
+              /* Just pretend that PrefixSize is the same as ASize */
+              n->type = IFASize;
+              /* Fall through... */
+            case IFASize:
             case IFALimL:
-	    case IFALimH:
-		PrintMacro( indent, GetMacro( n ), n, (char*)NULL );
+            case IFALimH:
+                PrintMacro( indent, GetMacro( n ), n, (char*)NULL );
                 PrintConsumerModifiers( indent, n );
-		break;
+                break;
 
-	    case IFAElement:
-		if ( bounds ) 
-		   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc );
+            case IFAElement:
+                if ( bounds ) 
+                   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc );
 
             case IFOptAElement:
-		/* NOTE -B (-bounds) IN OSC RESULTS in aimp (-a) == FALSE */
-		if ( n->exp->esucc == NULL && 
-		     n->exp->dst->type == IFBRElements ) {
-		    n->exp->dst->nmark = TRUE;
-		    break;
-		    }
+                /* NOTE -B (-bounds) IN OSC RESULTS in aimp (-a) == FALSE */
+                if ( n->exp->esucc == NULL && 
+                     n->exp->dst->type == IFBRElements ) {
+                    n->exp->dst->nmark = TRUE;
+                    break;
+                    }
 
-		PrintOptAElement( indent, n );
-		break;
+                PrintOptAElement( indent, n );
+                break;
 
-	    case IFBRElements:
-		/* ALREADY DONE BY IFOptAElement ABOVE??? */
-		if ( n->nmark ) {
-		  PrintBROptAElement( indent, n );
-		  break;
-		  }
+            case IFBRElements:
+                /* ALREADY DONE BY IFOptAElement ABOVE??? */
+                if ( n->nmark ) {
+                  PrintBROptAElement( indent, n );
+                  break;
+                  }
 
-		PrintBRElements( indent, n );
-		break;
+                PrintBRElements( indent, n );
+                break;
 
 
-	    case IFGetArrayBase:
-		PrintGABase( indent, n );
-		break;
+            case IFGetArrayBase:
+                PrintGABase( indent, n );
+                break;
 
-	    case IFARemL:
-	    case IFARemH:
-		if ( bounds )
-		   PrintBoundsCheck( indent, n, n->imp, NULL_EDGE );
+            case IFARemL:
+            case IFARemH:
+                if ( bounds )
+                   PrintBoundsCheck( indent, n, n->imp, NULL_EDGE );
 
                 if ( n->exp->temp != n->imp->temp )
-	            PrintAssgn( indent, n->exp, n->imp );
+                    PrintAssgn( indent, n->exp, n->imp );
 
-		if ( n->imp->omark1 )
+                if ( n->imp->omark1 )
                     PrintArrayMacro( indent, "Opt", GetMacro( n ), n );
-		else
+                else
                     PrintArrayMacro( indent, "", GetMacro( n ), n );
 
                 PrintSetRefCount( indent, n->exp, n->exp->sr, TRUE );
-		break;
+                break;
 
-	    case IFAAdjust:
-		if ( bounds ) {
-		   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc );
-		   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc->isucc );
-		   }
+            case IFAAdjust:
+                if ( bounds ) {
+                   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc );
+                   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc->isucc );
+                   }
 
-	    case IFASetL:
+            case IFASetL:
                 if ( n->exp->temp != n->imp->temp )
-	            PrintAssgn( indent, n->exp, n->imp );
+                    PrintAssgn( indent, n->exp, n->imp );
 
                 PrintArrayMacro( indent, "", GetMacro( n ), n );
                 PrintSetRefCount( indent, n->exp, n->exp->sr, TRUE );
-		break;
+                break;
 
-	    case IFOptAReplace:
-	    case IFAReplace:
-		if ( bounds ) 
-		   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc );
+            case IFOptAReplace:
+            case IFAReplace:
+                if ( bounds ) 
+                   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc );
 
-		PrintAReplace( indent, n );
-		break;
+                PrintAReplace( indent, n );
+                break;
 
-	    case IFABuild:
-		PrintABuild( indent, n );
-		break;
+            case IFABuild:
+                PrintABuild( indent, n );
+                break;
 
-	    case IFABuildAT:
-	    case IFABuildATDV:
-	    case IFABuildATDVI:
-		PrintABuildAT( indent, n );
-		break;
+            case IFABuildAT:
+            case IFABuildATDV:
+            case IFABuildATDVI:
+                PrintABuildAT( indent, n );
+                break;
 
-	    case IFAAddLAT:
-	    case IFAAddHAT:
-	    case IFAAddHATDV:
-	    case IFAAddHATDVI:
-	    case IFAAddLATDV:
-	    case IFAAddLATDVI:
-		PrintAAddHLAT( indent, n );
-		break;
+            case IFAAddLAT:
+            case IFAAddHAT:
+            case IFAAddHATDV:
+            case IFAAddHATDVI:
+            case IFAAddLATDV:
+            case IFAAddLATDVI:
+                PrintAAddHLAT( indent, n );
+                break;
 
-	    case IFACatenateAT:
-	    case IFACatenateATDV:
-	    case IFACatenateATDVI:
-		PrintACatenateAT( indent, n );
-		break;
+            case IFACatenateAT:
+            case IFACatenateATDV:
+            case IFACatenateATDVI:
+                PrintACatenateAT( indent, n );
+                break;
 
-	    case IFShiftBuffer:
+            case IFShiftBuffer:
                 if ( n->imp->temp == n->exp->temp )
-	            PrintArrayMacro( indent, "Opt", GetMacro( n ), n );
+                    PrintArrayMacro( indent, "Opt", GetMacro( n ), n );
                 else
-	            PrintArrayMacro( indent, "", GetMacro( n ), n );
+                    PrintArrayMacro( indent, "", GetMacro( n ), n );
 
-		break;
+                break;
 
             case IFPSAllocCond:
-		PrintPSAlloc( indent, n, "Cond" );
-		break;
+                PrintPSAlloc( indent, n, "Cond" );
+                break;
             case IFPSAllocOne:
-		PrintPSAlloc( indent, n, "One" );
-		break;
+                PrintPSAlloc( indent, n, "One" );
+                break;
             case IFPSAllocTwo:
-		PrintPSAlloc( indent, n, "Two" );
-		break;
+                PrintPSAlloc( indent, n, "Two" );
+                break;
             case IFPSAllocSpare1:
-		PrintPSAlloc( indent, n, "Spare1" );
-		break;
+                PrintPSAlloc( indent, n, "Spare1" );
+                break;
             case IFPSAllocSpare2:
-		PrintPSAlloc( indent, n, "Spare2" );
-		break;
+                PrintPSAlloc( indent, n, "Spare2" );
+                break;
 
             case IFPSFreeOne:
-		PrintPSFree( indent, n, "One", g );
-		break;
+                PrintPSFree( indent, n, "One", g );
+                break;
             case IFPSFreeTwo:
-		PrintPSFree( indent, n, "Two", g );
-		break;
+                PrintPSFree( indent, n, "Two", g );
+                break;
             case IFPSFreeSpare1:
-		PrintPSFree( indent, n, "Spare1", g );
-		break;
+                PrintPSFree( indent, n, "Spare1", g );
+                break;
             case IFPSFreeSpare2:
-		PrintPSFree( indent, n, "Spare2", g );
-		break;
+                PrintPSFree( indent, n, "Spare2", g );
+                break;
 
             case IFPSManager:
-		PrintPSManager( indent, n, "" );
-		break;
+                PrintPSManager( indent, n, "" );
+                break;
             case IFPSManagerSwap:
-		PrintPSManager( indent, n, "Swap" );
-		break;
+                PrintPSManager( indent, n, "Swap" );
+                break;
 
             case IFPSScatter:
-		PrintPSScatter( indent, n );
-		break;
+                PrintPSScatter( indent, n );
+                break;
 
-	    case IFRagged:
-	       if ( n->exp->dst->cmark )
-		 break;
+            case IFRagged:
+               if ( n->exp->dst->cmark )
+                 break;
 
-	       PrintRagged( indent, n );
-	       break;
+               PrintRagged( indent, n );
+               break;
 
-	    case IFPSMemAllocDVI:
-	       PrintPSMemAllocDVI( indent, n );
-	       break;
+            case IFPSMemAllocDVI:
+               PrintPSMemAllocDVI( indent, n );
+               break;
 
-	    case IFMemAllocDVI:
-	    case IFMemAllocDV:
-	    case IFMemAlloc:
-		if ( n->cmark )
-		    break;
+            case IFMemAllocDVI:
+            case IFMemAllocDV:
+            case IFMemAlloc:
+                if ( n->cmark )
+                    break;
 
-		PrintMemAlloc( indent, n );
-		break;
+                PrintMemAlloc( indent, n );
+                break;
 
-	    case IFAAddH:
-		PrintAAddH( indent, n );
-		break;
+            case IFAAddH:
+                PrintAAddH( indent, n );
+                break;
 
-	    case IFNoOp:
-		if ( IsRecord( n->imp->info ) )
-		    PrintRecordNoOp( indent, n );
-		else if ( IsArray( n->imp->info ) )
-	            PrintArrayNoOp( indent, n );
+            case IFNoOp:
+                if ( IsRecord( n->imp->info ) )
+                    PrintRecordNoOp( indent, n );
+                else if ( IsArray( n->imp->info ) )
+                    PrintArrayNoOp( indent, n );
 
-		break;
+                break;
 
-	    case IFDefArrayBuf:
-		Error2( "PrintGraph", "IFDefArrayBuf NODE ENCOUNTERED" );
-		break;
+            case IFDefArrayBuf:
+                Error2( "PrintGraph", "IFDefArrayBuf NODE ENCOUNTERED" );
+                break;
 
-	    case IFAIndexPlus:
-	    case IFAIndexMinus:
-	      break;
+            case IFAIndexPlus:
+            case IFAIndexMinus:
+              break;
 
-	    default:
-		UNEXPECTED( "Unknown node" );
-	    }
+            default:
+                UNEXPECTED( "Unknown node" );
+            }
 
-	if ( sdbx )
-	  UpdateSdbxScopeNames( n );
+        if ( sdbx )
+          UpdateSdbxScopeNames( n );
         }
 
     if ( sdbx && IsSGraph( g ) )
@@ -1420,57 +1430,57 @@ PNODE g;
 
       for ( n = g->G_NODES; n != NULL; n = n->nsucc )
         if ( n->type == IFBuildSlices ) {
-	  PrintIndentation( indent );
-	  FPRINTF( output, "DeAlloc( ((%s *)%s)->FirstAR );\n", 
-		   n->usucc->temp->info->sname, n->usucc->temp->name );
-	  }
+          PrintIndentation( indent );
+          FPRINTF( output, "DeAlloc( ((%s *)%s)->FirstAR );\n", 
+                   n->usucc->temp->info->sname, n->usucc->temp->name );
+          }
 
     switch ( g->type ) {
-	case IFLPGraph:
-	case IFXGraph:
-	case IFLGraph:
+        case IFLPGraph:
+        case IFXGraph:
+        case IFLGraph:
             PrintConsumerModifiers( indent, g );
 
             for ( lk = FALSE, i = g->imp; i != NULL; i = i->isucc )
-		if ( !IsArray( i->info ) )
-	            lk = TRUE;
+                if ( !IsArray( i->info ) )
+                    lk = TRUE;
 
-	    if ( IsLPGraph( g ) && lk ) {
-		PrintIndentation( indent );
-		FPRINTF( output, "LockParent;\n" );
-		}
+            if ( IsLPGraph( g ) && lk ) {
+                PrintIndentation( indent );
+                FPRINTF( output, "LockParent;\n" );
+                }
 
             info = NULL;
-	    for ( i = g->imp; i != NULL; i = i->isucc ) {
-		if ( i->iport == 0 )
-		    continue;
+            for ( i = g->imp; i != NULL; i = i->isucc ) {
+                if ( i->iport == 0 )
+                    continue;
 
-		if ( IsLPGraph( g ) ) {
-		    if ( !IsArray( i->info ) )
-		    {
+                if ( IsLPGraph( g ) ) {
+                    if ( !IsArray( i->info ) )
+                    {
                         PrintSumOfTerms( indent, i );
-			info = i->dst->info;
-		    }
-
-		    continue;
+                        info = i->dst->info;
                     }
 
-		PrintFldAssgn( indent, g->info->sname, "args", 
-			       NULL_EDGE, "Out", i->iport, i     );
+                    continue;
+                    }
+
+                PrintFldAssgn( indent, g->info->sname, "args", 
+                               NULL_EDGE, "Out", i->iport, i     );
                 }
 
             if ( IsLPGraph( g ) && lk && (info != NULL) ) {
-		FPRINTF(output, "CACHESYNC;\n");
+                FPRINTF(output, "CACHESYNC;\n");
                 }
 
-	    if ( IsLPGraph( g ) && lk ) {
-		PrintIndentation( indent );
-		FPRINTF( output, "UnlockParent;\n" );
-		}
+            if ( IsLPGraph( g ) && lk ) {
+                PrintIndentation( indent );
+                FPRINTF( output, "UnlockParent;\n" );
+                }
 
-	    break;
+            break;
 
-	default:
-	    break;
-	}
+        default:
+            break;
+        }
 }

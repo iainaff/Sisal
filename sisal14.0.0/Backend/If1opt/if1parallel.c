@@ -1,10 +1,20 @@
-/* if1parallel.c,v
+/**************************************************************************/
+/* FILE   **************       if1parallel.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:58  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:36  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -50,10 +60,10 @@ PNODE dst;
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
       if ( IsConst( i ) )
-	continue;
+        continue;
 
       if ( !IsSGraph( i->src ) )
-	continue;
+        continue;
 
       UnlinkExport( i );
       LinkExport( dst, i );
@@ -95,7 +105,7 @@ StartOver:
       se = e->esucc;
 
       if ( e->dst->label < 0 )
-	continue;
+        continue;
 
       port  = ++maxint;
       eport = e->eport;
@@ -120,18 +130,18 @@ StartOver:
       LinkImport( aelm, ee );
 
       for ( ee = e; ee != NULL; ee = se ) {
-	se = ee->esucc;
+        se = ee->esucc;
 
-	if ( ee->eport != eport )
-	  continue;
+        if ( ee->eport != eport )
+          continue;
 
-	if ( ee->dst->label < 0 )
-	  continue;
+        if ( ee->dst->label < 0 )
+          continue;
 
-	UnlinkExport( ee );
-	ee->eport = 1;
-	LinkExport( aelm, ee );
-	}
+        UnlinkExport( ee );
+        ee->eport = 1;
+        LinkExport( aelm, ee );
+        }
 
       /* WIRE n TO f2->BODY USING PORT */
       ee = EdgeAlloc( n, eport, f2->F_BODY, port );
@@ -231,10 +241,10 @@ PNODE f;
             if ( IsAElement( n->imp->src ) )
               return( FALSE );
   
-	  break;
+          break;
   
         default:
-	  return( FALSE );
+          return( FALSE );
         }
 
     return( TRUE );
@@ -244,40 +254,40 @@ PNODE f;
     if ( IsInnerLoop( f->F_BODY ) ) {
       /* NO FILTERS ALLOWED!!! */
       for ( n = f->F_RET->G_NODES; n != NULL; n = n->nsucc ) {
-	switch ( n->type ) {
-	  case IFAGather:
-	    /* FOR NOW, DO NOT VECTORIZE ARRAYS OF ARRAYS OR BOOLEANS */
-	    i = n->imp->isucc;
+        switch ( n->type ) {
+          case IFAGather:
+            /* FOR NOW, DO NOT VECTORIZE ARRAYS OF ARRAYS OR BOOLEANS */
+            i = n->imp->isucc;
 
-	    if ( IsMultiple( i->info ) ) {
-	      if ( IsArray( i->info->A_ELEM ) )
-	        return( FALSE );
+            if ( IsMultiple( i->info ) ) {
+              if ( IsArray( i->info->A_ELEM ) )
+                return( FALSE );
               else if ( IsBoolean( i->info->A_ELEM ) )
-		return( FALSE );
+                return( FALSE );
             } else {
-	      if ( IsArray( i->info ) )
-	        return( FALSE );
+              if ( IsArray( i->info ) )
+                return( FALSE );
               else if ( IsBoolean( i->info ) )
-		return( FALSE );
-	      }
+                return( FALSE );
+              }
 
-	    if ( i->isucc != NULL )
-	      return( FALSE );
+            if ( i->isucc != NULL )
+              return( FALSE );
 
-	    break;
+            break;
 
-	  case IFReduce:
-	  case IFRedTree:
-	  case IFRedLeft:
-	  case IFRedRight:
-	    if ( n->imp->isucc->isucc->isucc != NULL )
-	      return( FALSE );
+          case IFReduce:
+          case IFRedTree:
+          case IFRedLeft:
+          case IFRedRight:
+            if ( n->imp->isucc->isucc->isucc != NULL )
+              return( FALSE );
 
-	    break;
+            break;
 
-	  default:
-	    break;
-	  }
+          default:
+            break;
+          }
         }
 
       return( TRUE );
@@ -340,17 +350,17 @@ int   cport;
       /* case IFInt:             */
       /* case IFSingle:          */
       /* case IFTrunc:           */
-	if ( IsArithmetic( n->imp->info ) )
+        if ( IsArithmetic( n->imp->info ) )
 if ( n->imp->info->type != IF_INTEGER )
-	  break;
+          break;
 
-	continue;
+        continue;
 
       case IFAElementN:
       case IFAElementP:
       case IFAElementM:
-	n->label = -(n->label);
-	continue;
+        n->label = -(n->label);
+        continue;
 
       default:
         continue;
@@ -361,24 +371,24 @@ if ( n->imp->info->type != IF_INTEGER )
         continue;
 
       if ( IsSGraph( i->src ) ) {
-	if ( !IsImport( b->G_DAD, i->eport ) ) {
-	  if ( i->eport == cport ) {
-	    /* IS i LOOP CARRIED??? */
-	    if ( IsLoopB( b->G_DAD ) )
-	      if ( IsImport( b, i->eport ) )
-		goto SkipOut;
+        if ( !IsImport( b->G_DAD, i->eport ) ) {
+          if ( i->eport == cport ) {
+            /* IS i LOOP CARRIED??? */
+            if ( IsLoopB( b->G_DAD ) )
+              if ( IsImport( b, i->eport ) )
+                goto SkipOut;
 
-	    continue;
-	    }
+            continue;
+            }
 
-	  goto SkipOut;
-	  }
+          goto SkipOut;
+          }
 
-	continue;
-	}
+        continue;
+        }
 
       if ( i->src->label < 0 )
-	continue;
+        continue;
 
 SkipOut:
       break;
@@ -439,33 +449,33 @@ PEDGE high;
       case IFAElementN:
       case IFAElementP:
       case IFAElementM:
-	neg = 0;
-	pos = 0;
+        neg = 0;
+        pos = 0;
 
-	for ( e = n->exp; e != NULL; e = e->esucc ) {
-	  if ( e->dst->label < 0 )
-	    neg++;
+        for ( e = n->exp; e != NULL; e = e->esucc ) {
+          if ( e->dst->label < 0 )
+            neg++;
           else
-	    pos++;
-	  }
+            pos++;
+          }
 
-	if ( neg + pos == 0 ) {
-	  n->label = -(n->label);
-	  break;
-	  }
+        if ( neg + pos == 0 ) {
+          n->label = -(n->label);
+          break;
+          }
 
-	/* NEG ONLY */
-	if ( (neg > 0) && (pos == 0) )
-	  break;
+        /* NEG ONLY */
+        if ( (neg > 0) && (pos == 0) )
+          break;
 
-	/* POS ONLY */
-	if ( (neg == 0) && (pos > 0) ) {
-	  n->label = -(n->label);
-	  break;
-	  }
+        /* POS ONLY */
+        if ( (neg == 0) && (pos > 0) ) {
+          n->label = -(n->label);
+          break;
+          }
 
-	/* BOTH NEG AND POS, SO SPLIT THE SUCKER! */
-	scnt++;
+        /* BOTH NEG AND POS, SO SPLIT THE SUCKER! */
+        scnt++;
 
         nn = CopyNode( n );
         LinkNode( n->npred, nn );
@@ -474,27 +484,27 @@ PEDGE high;
           if ( IsConst( i ) )
             CopyEdgeAndReset( i, NULL_NODE, nn );
           else
-	    CopyEdgeAndReset( i, i->src, nn );
+            CopyEdgeAndReset( i, i->src, nn );
 
           continue;
           }
 
         n->label = -(n->label);
 
-	for ( e = n->exp; e != NULL; e = se ) {
-	  se = e->esucc;
+        for ( e = n->exp; e != NULL; e = se ) {
+          se = e->esucc;
 
-	  if ( e->dst->label >= 0 )
-	    continue;
+          if ( e->dst->label >= 0 )
+            continue;
 
-	  UnlinkExport( e );
-	  LinkExport( nn, e );
-	  }
+          UnlinkExport( e );
+          LinkExport( nn, e );
+          }
 
-	break;
+        break;
 
       default:
-	break;
+        break;
       }
   }
 
@@ -611,11 +621,11 @@ PNODE g;
 #ifdef MYI
       SPRINTF(printinfo,
         "%s Parallelizing loop %d at line %d, funct %s, file %s\n\n",
-        printinfo, n->ID, n->line, n->funct, n->file);	
+        printinfo, n->ID, n->line, n->funct, n->file);  
 #endif
       DoTheConcurrentization( n, n->F_BODY, n->F_RET, n->F_GEN->imp,
-			      n->F_GEN->imp->src->imp,
-			      n->F_GEN->imp->src->imp->isucc      );
+                              n->F_GEN->imp->src->imp,
+                              n->F_GEN->imp->src->imp->isucc      );
       }
 
     DecodeIndexing( n->F_BODY );
@@ -696,7 +706,7 @@ PNODE g;
       if ( !IsSGraph( ee->src ) )
         continue;
       if ( !IsImport( n, ee->eport ) )
-	continue;
+        continue;
       }
 
     /* BODY:  crod := old crod + 1 */
@@ -728,7 +738,7 @@ PNODE g;
 
     if ( IsFractureCandidate( n->L_BODY, crod->iport ) ) {
       DoTheConcurrentization( n, n->L_BODY, n->L_RET, crod,
-			      crod, nn->imp->isucc       );
+                              crod, nn->imp->isucc       );
       }
 
     DecodeIndexing( n->L_BODY );

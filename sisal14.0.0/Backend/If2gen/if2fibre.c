@@ -1,10 +1,20 @@
-/* if2fibre.c,v
+/**************************************************************************/
+/* FILE   **************         if2fibre.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:01  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:00  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -76,14 +86,14 @@ PINFO  u;
 {
   register PINFO i;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   PrintIndentation( indent );
   FPRINTF( output, "{\n" );
 
   PrintIndentation( indent+2 );
   FPRINTF( output, "register %s *un%d = (%s*) %s;\n", 
-	   u->sname, indent, u->sname, src         );
+           u->sname, indent, u->sname, src         );
 
   PrintIndentation( indent+2 );
   FPRINTF( output, "fprintf( FibreOutFd, \" %%d:\\n\", un%d->Tag);\n", indent );
@@ -174,7 +184,7 @@ PINFO  i;
 
   PrintIndentation( indent );
   FPRINTF( output, "  for ( /* NOTHING */; Lo%d <= HiBound; Lo%d++ ) {\n", 
-	   indent, indent                                               );
+           indent, indent                                               );
 
   /* WAS THE ROUTINE PRINTED? */
   if ( i->A_ELEM->LibNames || i->A_ELEM->touch1 || i->A_ELEM->touch2 ) {
@@ -216,7 +226,7 @@ PINFO  r;
 {
   register PINFO i;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   PrintIndentation( indent );
   FPRINTF( output, "{\n" );
@@ -224,10 +234,10 @@ PINFO  r;
   PrintIndentation( indent+2 );
   if ( IsBRecord( r ) )
     FPRINTF( output, "register %s *rec%d = (%s*) &(%s);\n", 
-	     r->sname, indent, r->sname, src             );
+             r->sname, indent, r->sname, src             );
   else
     FPRINTF( output, "register %s *rec%d = (%s*) %s;\n", 
-	     r->sname, indent, r->sname, src          );
+             r->sname, indent, r->sname, src          );
 
   for ( c = 1, i = r->R_FIRST; i != NULL; i = i->L_NEXT, c++ ) {
     SPRINTF( buf, "(rec%d->Fld%d)", indent, c );
@@ -259,7 +269,7 @@ PINFO  u;
 {
   register PINFO i;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   PrintIndentation( indent );
   FPRINTF( output, "{\n" );
@@ -321,7 +331,7 @@ PINFO  r;
 {
   register PINFO i;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   PrintIndentation( indent );
   FPRINTF( output, "{\n" );
@@ -394,7 +404,7 @@ PINFO  i;
 
   PrintIndentation( indent );
   FPRINTF( output, "  OptABld( %s, lob, 1, FibreInt, %s );\n", dst, 
-	   i->A_ELEM->tname );
+           i->A_ELEM->tname );
 
   /* 12/12/91 CANN OptABld SETS Phys->Size TO THE ALLOCATED SIZE */
   /*               SO CLEAR IT, ALLOWING AGather TO INCREMENT IT */
@@ -437,7 +447,7 @@ PINFO  i;
 
   PrintIndentation( indent );
   FPRINTF( output,  "    AGather( %s, %s, %s );\n",
-	   dst, buf, i->A_ELEM->tname                );
+           dst, buf, i->A_ELEM->tname                );
  
   PrintIndentation( indent );
   FPRINTF( output, "    GET_LOOKAHEAD;\n" );
@@ -582,7 +592,7 @@ PINFO  i;
       FPRINTF( output, "switch ( FibreParse( ANY_ ) ) {\n" );
 
       /* ------------------------------------------------------------ */
-      /* Normal array format					      */
+      /* Normal array format                                          */
       /* ------------------------------------------------------------ */
       PrintIndentation( indent );
       FPRINTF( output, "  case ARRAYB_:\n" );
@@ -591,7 +601,7 @@ PINFO  i;
       FPRINTF( output, "    break;\n" );
 
       /* ------------------------------------------------------------ */
-      /* Stream array format					      */
+      /* Stream array format                                          */
       /* ------------------------------------------------------------ */
       PrintIndentation( indent );
       FPRINTF( output, "  case STREAMB_:\n" );
@@ -600,7 +610,7 @@ PINFO  i;
       FPRINTF( output, "    break;\n" );
 
       /* ------------------------------------------------------------ */
-      /* String array format (only for array[character]		      */
+      /* String array format (only for array[character]               */
       /* ------------------------------------------------------------ */
       PrintIndentation( indent );
       FPRINTF( output, "  case STRING_START_:\n" );
@@ -609,19 +619,19 @@ PINFO  i;
       else {
         PrintIndentation( indent );
         FPRINTF( output,
-	 "    FibreError( \"STRING DELIMITER WAS NOT EXPECTED\" );\n" );
+         "    FibreError( \"STRING DELIMITER WAS NOT EXPECTED\" );\n" );
         }
       PrintIndentation( indent );
       FPRINTF( output, "    break;\n" );
 
       /* ------------------------------------------------------------ */
-      /* Anything else is an error				      */
+      /* Anything else is an error                                    */
       /* ------------------------------------------------------------ */
       PrintIndentation( indent );
       FPRINTF( output, "  default:\n" );
       PrintIndentation( indent );
       FPRINTF( output, 
-	       "    FibreError( \"ARRAY DELIMITER EXPECTED\" );\n" );
+               "    FibreError( \"ARRAY DELIMITER EXPECTED\" );\n" );
 
       PrintIndentation( indent );
       FPRINTF( output, "  }\n" );
@@ -649,7 +659,7 @@ PNODE f;
   register PINFO i;
   register PINFO mi;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   FPRINTF( output, "\n#undef GatherCopyInfo\n" );
 
@@ -706,12 +716,12 @@ PNODE f;
 /* ------------------------------------------------------------ */
 /* ------------------------------------------------------------ */
 /* ------------------------------------------------------------ */
-/* PrintTypeWriters						*/
-/* Purpose: Print out any output routines needed by the main	*/
-/*	    routine, any peeks, and any trace routines		*/
+/* PrintTypeWriters                                             */
+/* Purpose: Print out any output routines needed by the main    */
+/*          routine, any peeks, and any trace routines          */
 /* ------------------------------------------------------------ */
 void PrintTypeWriters(f)
-     PNODE	f;
+     PNODE      f;
 {
   register PINFO i;
   register PINFO mi;
@@ -719,7 +729,7 @@ void PrintTypeWriters(f)
   ClearTouchFlags(); /* 1-3 */
 
   /* ------------------------------------------------------------ */
-  /* Touch types for the entry function (if any)		  */
+  /* Touch types for the entry function (if any)                  */
   /* ------------------------------------------------------------ */
   if ( f != NULL ) {
 
@@ -728,7 +738,7 @@ void PrintTypeWriters(f)
     /* DUMP OUTERMOST FIBRE WRITE ROUTINES */
     for ( i = mi->F_OUT; i != NULL; i = i->L_NEXT ) {
       if ( i->L_SUB->LibNames || i->L_SUB->rname == NULL || i->L_SUB->touch1 )
-	continue;
+        continue;
 
       TouchTheUnions( i->L_SUB ); /* UNIONS CAN BE RECURSIVE */
       PrintWriteRoutine( i->L_SUB );
@@ -738,7 +748,7 @@ void PrintTypeWriters(f)
   }
 
   /* ------------------------------------------------------------ */
-  /* Touch types for the traced functions (if any)		  */
+  /* Touch types for the traced functions (if any)                */
   /* ------------------------------------------------------------ */
   for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
     if ( !f->trace ) continue;
@@ -746,7 +756,7 @@ void PrintTypeWriters(f)
     mi = f->info;
     for ( i = mi->F_IN; i != NULL; i = i->L_NEXT ) {
       if ( i->L_SUB->LibNames || i->L_SUB->rname == NULL || i->L_SUB->touch1 )
-	continue;
+        continue;
 
       TouchTheUnions( i->L_SUB ); /* UNIONS CAN BE RECURSIVE */
       PrintWriteRoutine( i->L_SUB );
@@ -756,7 +766,7 @@ void PrintTypeWriters(f)
   }
 
   /* ------------------------------------------------------------ */
-  /* PROCESS PEEK ROUTINES!!!					  */
+  /* PROCESS PEEK ROUTINES!!!                                     */
   /* ------------------------------------------------------------ */
   for ( i = ihead; i != NULL; i = i->next ) {
     if ( i->LibNames || i->rname == NULL || i->touch1 )
@@ -769,15 +779,15 @@ void PrintTypeWriters(f)
     if ( !(i->touch6) )
       continue;
 
-    TouchTheUnions( i );	/* UNIONS CAN BE RECURSIVE */
+    TouchTheUnions( i );        /* UNIONS CAN BE RECURSIVE */
     PrintWriteRoutine( i );
 
     i->touch1 = TRUE;
   }
 
   /* ------------------------------------------------------------ */
-  /* DUMP THE TOUCHED UNION WRITE ROUTINES: UNIONS CAN BE	  */
-  /* RECURSIVE!!!						  */
+  /* DUMP THE TOUCHED UNION WRITE ROUTINES: UNIONS CAN BE         */
+  /* RECURSIVE!!!                                                 */
   /* ------------------------------------------------------------ */
   for ( i = ihead; i != NULL; i = i->next ) {
     if ( !(i->touch2) )
@@ -803,12 +813,12 @@ void PrintTypeWriters(f)
 /**************************************************************************/
 
 void PrintWriteFibreOutputs( f )
-     PNODE 	f;
+     PNODE      f;
 {
   register PINFO i;
   register PINFO mi;
   register int   c;
-  char	   buf[100];
+  char     buf[100];
 
 
   /* DUMP THE OUTPUT DRIVER */
@@ -836,22 +846,22 @@ void PrintWriteFibreOutputs( f )
 /**************************************************************************/
 /* PURPOSE: PRINT THE FIBRE OUTPUT ROUTINES FOR FUNCTION f TO output.     */
 /*          MOST OF THE ROUTINES ARE INLINED. ALL UNIONS ARE ASSUMED TO   */
-/*          BE RECURSIVE.						  */
+/*          BE RECURSIVE.                                                 */
 /*  New by miller */
 /**************************************************************************/
 
 void PrintWriteFibreInputs( f )
-     PNODE 	f;
+     PNODE      f;
 {
   register PINFO i;
   register PINFO mi;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   /* DUMP THE DRIVER */
   mi = f->info;
   FPRINTF( output, "\nvoid Write_%s_FibreInputs( args )\n",
-	  (f->funct == NULL)? f->G_NAME : f->funct);
+          (f->funct == NULL)? f->G_NAME : f->funct);
   FPRINTF( output, "%s args;\n{\n", mi->tname );
   FPRINTF( output, "  register %s *p = (%s*) args;\n", mi->sname, mi->sname );
 
@@ -889,16 +899,16 @@ PNODE n;
   FPRINTF( output, "  FibreOutFd = stderr;\n" );
 
   /* ------------------------------------------------------------ */
-  /* Lay down a peek request for each input to the peek node	  */
+  /* Lay down a peek request for each input to the peek node      */
   /* ------------------------------------------------------------ */
   FPRINTF( output, 
-	   "  fprintf( FibreOutFd, \"\\n# ****** BEGIN PEEK ******\\n\" );\n");
+           "  fprintf( FibreOutFd, \"\\n# ****** BEGIN PEEK ******\\n\" );\n");
   for ( i = n->imp; i != NULL; i = i->isucc ) {
     /* ------------------------------------------------------------ */
-    /* Object name (if known)					    */
+    /* Object name (if known)                                       */
     /* ------------------------------------------------------------ */
     FPRINTF( output, "  fprintf( FibreOutFd, \"# *** %s\\n\" );\n", 
-	    (i->name == NULL)? "unknown" : i->name              );
+            (i->name == NULL)? "unknown" : i->name              );
 
     /* ------------------------------------------------------------ */
     /* If there's no reader/writer defined, try the default writer  */
@@ -927,7 +937,7 @@ PNODE n;
     }
 
   FPRINTF( output, 
-	   "  fprintf( FibreOutFd, \"# ******  END PEEK  ******\\n\" );\n");
+           "  fprintf( FibreOutFd, \"# ******  END PEEK  ******\\n\" );\n");
 
   FPRINTF( output, "  FibreOutFd = tmpfd;\n" );
   FPRINTF( output, "  SUnlockParent;\n" );

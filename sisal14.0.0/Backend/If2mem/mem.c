@@ -1,25 +1,35 @@
-/* mem.c,v
+/**************************************************************************/
+/* FILE   **************           mem.c           ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:07  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:24  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
 
 FILE *input = 0;                  /* IF1 INPUT  FILE POINTER         */
 FILE *output = 0;                 /* IF1 OUTPUT FILE POINTER         */
-FILE *infoptr;                 		/* IF1 INFO OUTPUT FILE POINTER    */
+FILE *infoptr;                          /* IF1 INFO OUTPUT FILE POINTER    */
 char infofile[200];
 
 char *program    = "if2mem";           /* PROGRAM NAME                    */
 
-int   sgnok      = TRUE;	/* ARE SIGNED ARITHMETIC CONSTANTS ALLOWED?  */
-int   info	 = FALSE;	/* GENERATE INFORMATION ABOUT OPTIMIZATIONS? */
-int   minopt     = FALSE;	/* ONLY PERFORM MINIMAL OPTIMIZATIONS?       */
-int   sdbx       = FALSE;	/* COMPILE FOR sdbx?                         */
+int   sgnok      = TRUE;        /* ARE SIGNED ARITHMETIC CONSTANTS ALLOWED?  */
+int   info       = FALSE;       /* GENERATE INFORMATION ABOUT OPTIMIZATIONS? */
+int   minopt     = FALSE;       /* ONLY PERFORM MINIMAL OPTIMIZATIONS?       */
+int   sdbx       = FALSE;       /* COMPILE FOR sdbx?                         */
 
 int   Oinvar     = TRUE;
 int   invar      = TRUE;                 /* GRAPH CLEANUP DISABLE FLAGS   */
@@ -44,34 +54,34 @@ static char *ofile = NULL;
 /*          WITH A DASH, IT IS CONSIDERED THE NAME OF A FILE.  THE FIRST  */
 /*          ENCOUNTERED FILE IS FOR IF1 INPUT.  THE SECOND ENCOUNTERED    */
 /*          FILE IS FOR IF1 OUTPUT.  ANY OTHER FILES ON THE COMMAND LINE  */
-/*          CAUSE AN ERROR MESSAGE TO BE PRINTED.			  */
-/*									  */
-/*	    FILES:							  */
-/*		0:	-> Optimized IF1 file				  */
-/*		1:	-> Memory mangaged IF2 file			  */
-/*									  */
-/*          OPTIONS:							  */
-/*		-	-> Skip a standard file (in, out, etc..)	  */
+/*          CAUSE AN ERROR MESSAGE TO BE PRINTED.                         */
+/*                                                                        */
+/*          FILES:                                                        */
+/*              0:      -> Optimized IF1 file                             */
+/*              1:      -> Memory mangaged IF2 file                       */
+/*                                                                        */
+/*          OPTIONS:                                                      */
+/*              -       -> Skip a standard file (in, out, etc..)          */
 
-/*		-a	-> EQUIVALENT TO -v, -c, -g, and -f.		  */
-/*		-c	-> DISABLE COMMON SUBEXPRESSION REMOVAL		  */
-/*		-f	-> DISABLE CONSTANT FOLDING			  */
-/*		-g	-> DISABLE GLOBAL CSE REMOVAL			  */
-/*		-i	-> PRINT OPTIMIZATION INFORMATION TO stderr.	  */
-/*		-i<num>	-> Print more information to stderr.		  */
-/*		-m	-> PERFORM MINIMAL OPTIMIZATIONS		  */
-/*		-o	-> OVERRIDE AGather FILTERS			  */
-/*		-p<num>	-> Apply dynamic patch <num>			  */
-/*		-s	-> SIGNED CONSTANTS AREN'T ALLOWED		  */
-/*		-v	-> DISABLE INVARIANT REMOVAL			  */
-/*		-w	-> Suppress warning messages			  */
+/*              -a      -> EQUIVALENT TO -v, -c, -g, and -f.              */
+/*              -c      -> DISABLE COMMON SUBEXPRESSION REMOVAL           */
+/*              -f      -> DISABLE CONSTANT FOLDING                       */
+/*              -g      -> DISABLE GLOBAL CSE REMOVAL                     */
+/*              -i      -> PRINT OPTIMIZATION INFORMATION TO stderr.      */
+/*              -i<num> -> Print more information to stderr.              */
+/*              -m      -> PERFORM MINIMAL OPTIMIZATIONS                  */
+/*              -o      -> OVERRIDE AGather FILTERS                       */
+/*              -p<num> -> Apply dynamic patch <num>                      */
+/*              -s      -> SIGNED CONSTANTS AREN'T ALLOWED                */
+/*              -v      -> DISABLE INVARIANT REMOVAL                      */
+/*              -w      -> Suppress warning messages                      */
 
-/*		-V	-> Do not remove invariants from outer loops	  */
-/*		-W	-> Profile the program				  */
+/*              -V      -> Do not remove invariants from outer loops      */
+/*              -W      -> Profile the program                            */
 
-/*		-8	-> Do not remove inlined functions		  */
+/*              -8      -> Do not remove inlined functions                */
 
-/*		-^	-> SDBX mode					  */
+/*              -^      -> SDBX mode                                      */
 /**************************************************************************/
 
 static void ParseCommandLine( argc, argv )
@@ -88,19 +98,19 @@ char **argv;
             switch ( fmode ) {
                 case 0: 
                     if ( (fd = fopen( c, "r" )) == NULL )
-			Error2( "CAN'T OPEN", c );
+                        Error2( "CAN'T OPEN", c );
 
-		    input = fd;
+                    input = fd;
 
-		    AssignSourceFileName( c );
+                    AssignSourceFileName( c );
 
                     fmode++;
                     break;
 
                 case 1:
-		    ofile = c;
+                    ofile = c;
 
-		    fmode++;
+                    fmode++;
                     break;
 
                 default:
@@ -112,88 +122,88 @@ char **argv;
 
         switch ( *( ++c ) ) {
 
-	  /* ------------------------------------------------------------ */
-	  /* Suppress warning messages					  */
-	  /* ------------------------------------------------------------ */
-	case 'w':
-	  Warnings = FALSE;
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Suppress warning messages                                    */
+          /* ------------------------------------------------------------ */
+        case 'w':
+          Warnings = FALSE;
+          break;
 
-	  /* ------------------------------------------------------------ */
-	  /* Apply dynamic patch					  */
-	  /* ------------------------------------------------------------ */
-	case 'p':
-	  if ( *c ) AddPatch(atoi(c));
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Apply dynamic patch                                          */
+          /* ------------------------------------------------------------ */
+        case 'p':
+          if ( *c ) AddPatch(atoi(c));
+          break;
 
-	case '^':
-	  sdbx = TRUE;
-	  break;
+        case '^':
+          sdbx = TRUE;
+          break;
 
-	case 'W':
-	  prof = TRUE;
-	  break;
+        case 'W':
+          prof = TRUE;
+          break;
 
-	case '\0':
-	  fmode++;
-	  break;
+        case '\0':
+          fmode++;
+          break;
 
-	case '8':
-	  glue = TRUE;
-	  break;
+        case '8':
+          glue = TRUE;
+          break;
 
-	case 'o':
-	  fover = TRUE;
-	  break;
+        case 'o':
+          fover = TRUE;
+          break;
 
-	case 'V':
-	  Oinvar = FALSE;
-	  break;
+        case 'V':
+          Oinvar = FALSE;
+          break;
 
-	case 'v':
-	  invar = FALSE;
-	  break;
+        case 'v':
+          invar = FALSE;
+          break;
 
-	case 'c':
-	  cse = FALSE;
-	  break;
+        case 'c':
+          cse = FALSE;
+          break;
 
-	case 'g':
-	  gcse = FALSE;
-	  break;
+        case 'g':
+          gcse = FALSE;
+          break;
 
-	case 'f':
-	  fold = FALSE;
-	  break;
+        case 'f':
+          fold = FALSE;
+          break;
 
-	case 'a':
-	  invar = FALSE;
-	  cse   = FALSE;
-	  gcse  = FALSE;
-	  fold  = FALSE;
+        case 'a':
+          invar = FALSE;
+          cse   = FALSE;
+          gcse  = FALSE;
+          fold  = FALSE;
 
-	  break;
+          break;
 
-	case 'm':
-	  minopt = TRUE;
-	  break;
+        case 'm':
+          minopt = TRUE;
+          break;
 
-	case 's':
-	  sgnok = FALSE;
-	  break;
+        case 's':
+          sgnok = FALSE;
+          break;
 
-	case 'i':
-	  info = TRUE;
-	  if ( isdigit((int)(c[1])) ) info=atoi(c+1);
-	  break;
+        case 'i':
+          info = TRUE;
+          if ( isdigit((int)(c[1])) ) info=atoi(c+1);
+          break;
 
         case 'F' :
           strcpy (infofile, c+1);
           break;
 
-	default:
-	  Error2( "ILLEGAL ARGUMENT", --c );
-	}
+        default:
+          Error2( "ILLEGAL ARGUMENT", --c );
+        }
         }
 }
 
@@ -224,8 +234,8 @@ char **argv;
     ParseCommandLine( argc, argv );
 
     if (RequestInfo(I_Info2, info)) 
-	if ((infoptr = fopen(infofile, "a")) == NULL)
-		infoptr = stderr;
+        if ((infoptr = fopen(infofile, "a")) == NULL)
+                infoptr = stderr;
 
     if (info > i2 && RequestInfo(I_Info1, info) && RequestInfo(I_Info2, info))
         FPRINTF (infoptr, "\n\f\n\n");
@@ -234,21 +244,21 @@ char **argv;
     If1Read();
     StopProfiler( "If1Read" );
 
-    (void)fclose( input );	/* AS IT MAY BE THE OUTPUT FILE */
+    (void)fclose( input );      /* AS IT MAY BE THE OUTPUT FILE */
 
     if ( !IsStamp( DFORDERED ) )
-	Error1( "IF1 INPUT IS NOT DFOrdered" );
+        Error1( "IF1 INPUT IS NOT DFOrdered" );
 
     if ( IsStamp( OFFSETS ) )
-	Error1( "OFFSETS ASSIGNED---NoOp NODES NOT IMPLEMENTED" );
+        Error1( "OFFSETS ASSIGNED---NoOp NODES NOT IMPLEMENTED" );
 
     if ( !IsStamp( NORMALIZED ) )
-	Error1( "IF1 FILE IS NOT NORMALIZED" );
+        Error1( "IF1 FILE IS NOT NORMALIZED" );
 
     if ( RequestInfo(I_Info2,info)  ) {
         FPRINTF( infoptr, "**** MEMORY MANAGEMENT\n\n" );
-	/*CountNodesAndEdges( "BEFORE ARRAY MEMORY OPTIMIZATION" );*/
-	}
+        /*CountNodesAndEdges( "BEFORE ARRAY MEMORY OPTIMIZATION" );*/
+        }
 
     StartProfiler();
     If2Mem();
@@ -267,10 +277,10 @@ char **argv;
       WriteIf2memWarnings();
 
     SPRINTF( mstmp, "   CSU -> BUILD-IN-PLACE: %s%s%s%s%s%s%s",
-		        ( invar )?  " invar"  : "",   ( cse )?   " cse"   : "",
-		        ( gcse )?   " gcse"   : "",   ( fold )?  " fold"  : "",
-		        ( sgnok )?  " sgnok"  : "",   ( fover )? " fover" : "",
-			( minopt )? " minopt" : ""                           );
+                        ( invar )?  " invar"  : "",   ( cse )?   " cse"   : "",
+                        ( gcse )?   " gcse"   : "",   ( fold )?  " fold"  : "",
+                        ( sgnok )?  " sgnok"  : "",   ( fover )? " fover" : "",
+                        ( minopt )? " minopt" : ""                           );
 
     AddStamp( BUILDINPLACE,  mstmp );
     if ( RequestInfo(I_Info2,info) && infoptr!=stderr ) {
@@ -284,7 +294,7 @@ char **argv;
             Error2( "CAN'T OPEN", ofile );
 
             output = fd;
-	    }
+            }
 
     StartProfiler();
     If2Write();

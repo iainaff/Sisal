@@ -1,10 +1,20 @@
-/* if2interface.c,v
+/**************************************************************************/
+/* FILE   **************       if2interface.c      ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:01  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:00  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -50,7 +60,7 @@ PINFO i;
 
       default:
         Error2( "MIXED LANGUAGE PROGRAMMING", 
-		"ILLEGAL INTERFACE COMPONENT TYPE" );
+                "ILLEGAL INTERFACE COMPONENT TYPE" );
       }
 
   Error2( "GetComponentType", "FOR LOOP FAILURE" );
@@ -240,15 +250,15 @@ PNODE f;
 
       /* DECLARE STORAGE FOR PASS BY REFERENCE OPERATION */
       for ( i = n->imp->isucc; i != NULL; i = i->isucc ) {
-	if ( IsArray( i->info ) ) {
+        if ( IsArray( i->info ) ) {
           CompType = GetComponentType( i->info );
-	  FPRINTF( output, "%s *itmp%d;\n", CompType->tname, i->iport );
-	  continue;
-	  }
+          FPRINTF( output, "%s *itmp%d;\n", CompType->tname, i->iport );
+          continue;
+          }
 
-	if ( lang != FOR_C )
-	  FPRINTF( output, "%s itmp%d;\n", i->info->tname, i->iport );
-	}
+        if ( lang != FOR_C )
+          FPRINTF( output, "%s itmp%d;\n", i->info->tname, i->iport );
+        }
 
 /* CANN NEW 3/92 */
 
@@ -257,18 +267,18 @@ PNODE f;
       cmp = (IsArray(f->info->F_OUT->L_SUB))? TRUE : cmp;
 
       for ( arr=FALSE,r=0, rt = f->info->F_OUT; rt != NULL; rt = rt->L_NEXT ) {
-	r++;
+        r++;
 
         if ( IsArray( rt->L_SUB ) ) {
           CompType = GetComponentType( rt->L_SUB );
           d  = GetDim( rt->L_SUB );
-	  FPRINTF( output, "%s *iret%d;\n", CompType->tname, r );
-	  arr = TRUE;
-	  }
-	else if ( cmp ) {
-	  FPRINTF( output, "%s iret%d;\n", rt->L_SUB->tname, r );
-	  }
-	}
+          FPRINTF( output, "%s *iret%d;\n", CompType->tname, r );
+          arr = TRUE;
+          }
+        else if ( cmp ) {
+          FPRINTF( output, "%s iret%d;\n", rt->L_SUB->tname, r );
+          }
+        }
 
       if ( r > 0 )
         FPRINTF( output, "int iretsz;\n" );
@@ -291,12 +301,12 @@ PNODE f;
             tct = GetComponentType( i->info );
             td  = GetDim( i->info );
             FPRINTF( output, ", %s, %d, %d, ", tct->tname, td, 3+(td*5) );
-	    FPRINTF( output, "I%s );\n", i->info->wname );
-	    i->info->touch5 = TRUE;
-	    }
+            FPRINTF( output, "I%s );\n", i->info->wname );
+            i->info->touch5 = TRUE;
+            }
 
           continue;
-	  }
+          }
 
         if ( lang != FOR_C ) {
           FPRINTF( output, "itmp%d = ", i->iport );
@@ -307,51 +317,51 @@ PNODE f;
 
 /* CANN NEW 3/92 */
       for ( ac=0, r=0, rt = f->info->F_OUT; rt != NULL; rt = rt->L_NEXT ) {
-	r++;
+        r++;
 
         /* PREPARE FOR AN ARRAY OUTPUT */
         if ( IsArray( rt->L_SUB ) ) {
-	  ac++;
+          ac++;
 
           CompType = GetComponentType( rt->L_SUB );
           d  = GetDim( rt->L_SUB );
-	  dv = FindDescriptor( n, f, ac );
+          dv = FindDescriptor( n, f, ac );
 
-	  if ( bounds || sdbx )
-	    FPRINTF( output, "IDescriptorCheck( %d, itmp%d );\n", d,dv->iport);
+          if ( bounds || sdbx )
+            FPRINTF( output, "IDescriptorCheck( %d, itmp%d );\n", d,dv->iport);
 
-	  FPRINTF( output, "iretsz =" );
+          FPRINTF( output, "iretsz =" );
 
-	  for ( c = 0; c < d; c++ )
-	    FPRINTF( output, "%s(itmp%d[%d]-itmp%d[%d]+1) ",
-		     (c != 0)? "* " : " ",
+          for ( c = 0; c < d; c++ )
+            FPRINTF( output, "%s(itmp%d[%d]-itmp%d[%d]+1) ",
+                     (c != 0)? "* " : " ",
                      dv->iport, 3+(c*5)+1, dv->iport, 3+(c*5)+0 ); 
 
           FPRINTF( output, ";\n" );
 
-	  if ( c == 1 )
-	    FPRINTF( output, "iretsz = (iretsz<=0)? 0 : iretsz;\n" );
+          if ( c == 1 )
+            FPRINTF( output, "iretsz = (iretsz<=0)? 0 : iretsz;\n" );
           else
-	    FPRINTF( output, "iretsz = (iretsz<=0)? 1 : iretsz;\n" );
+            FPRINTF( output, "iretsz = (iretsz<=0)? 1 : iretsz;\n" );
 
-	  if ( c == 1 ) {
-	    if ( (e = FindExport(n,r)) == NULL ) {
-	      FPRINTF( output, 
-		       "iret%d = (%s*) Alloc(iretsz*sizeof(%s));\n", 
-		       r, CompType->tname, CompType->tname );
-	    } else {
-	      FPRINTF( output, 
-		       "PrepRetArr1( IArr, iret%d, %s, iretsz, itmp%d );\n",
-		       r, CompType->tname, dv->iport );
-	      PrintTemp( e );
-	      FPRINTF( output, " = IArr;\n" );
-	      }
-	    }
-	  else
-	    FPRINTF( output, 
-		     "iret%d = (%s*) Alloc(iretsz*sizeof(%s));\n", 
-		     r, CompType->tname, CompType->tname );
-	  }
+          if ( c == 1 ) {
+            if ( (e = FindExport(n,r)) == NULL ) {
+              FPRINTF( output, 
+                       "iret%d = (%s*) Alloc(iretsz*sizeof(%s));\n", 
+                       r, CompType->tname, CompType->tname );
+            } else {
+              FPRINTF( output, 
+                       "PrepRetArr1( IArr, iret%d, %s, iretsz, itmp%d );\n",
+                       r, CompType->tname, dv->iport );
+              PrintTemp( e );
+              FPRINTF( output, " = IArr;\n" );
+              }
+            }
+          else
+            FPRINTF( output, 
+                     "iret%d = (%s*) Alloc(iretsz*sizeof(%s));\n", 
+                     r, CompType->tname, CompType->tname );
+          }
         }
 /* END CANN NEW 3/92 */
 
@@ -380,17 +390,17 @@ PNODE f;
 
         if ( c % 5 == 0 && i->isucc != NULL )
           FPRINTF( output, "\n  " );
-	}
+        }
 
 /* CANN NEW 3/92 */
       if ( cmp ) {
         for ( r = 0, rt = f->info->F_OUT; rt != NULL; rt = rt->L_NEXT ) {
-	  r++;
-	  if ( IsArray( rt->L_SUB ) )
-	    FPRINTF( output, ", iret%d", r );
+          r++;
+          if ( IsArray( rt->L_SUB ) )
+            FPRINTF( output, ", iret%d", r );
           else
-	    FPRINTF( output, ", &iret%d", r );
-	  }
+            FPRINTF( output, ", &iret%d", r );
+          }
         }
 /* END CANN NEW 3/92 */
 
@@ -405,48 +415,48 @@ PNODE f;
 /* CANN NEW 3/92 */
       if ( cmp ) {
         for ( ac=0, r=0, rt = f->info->F_OUT; rt != NULL; rt = rt->L_NEXT ) {
-	  r++;
+          r++;
 
-	  if ( (e = FindExport(n,r)) == NULL ) {
+          if ( (e = FindExport(n,r)) == NULL ) {
             if ( IsArray( rt->L_SUB ) ) {
-	      ac++;
+              ac++;
               FPRINTF( output, "DeAlloc( iret%d );\n", r );
-	      }
+              }
 
-	    continue;
-	    }
+            continue;
+            }
 
           /* FREE OUTPUT INTERFACE STORAGE */ 
           if ( IsArray( rt->L_SUB ) ) {
-	    ac++;
+            ac++;
 
             CompType = GetComponentType( rt->L_SUB );
             d  = GetDim( rt->L_SUB );
 
-	    dv = FindDescriptor( n, f, ac );
+            dv = FindDescriptor( n, f, ac );
 
-	    if ( d == 1 )
-	      continue;
+            if ( d == 1 )
+              continue;
 
-	    rt->L_SUB->touch4 = TRUE;
+            rt->L_SUB->touch4 = TRUE;
 
-	    PrintTemp( e );
-	    FPRINTF( output, " = " );
-	    FPRINTF( output, "I%s( FALSE, iret%d, itmp%d );\n", 
-		     rt->L_SUB->rname, r, dv->iport );
+            PrintTemp( e );
+            FPRINTF( output, " = " );
+            FPRINTF( output, "I%s( FALSE, iret%d, itmp%d );\n", 
+                     rt->L_SUB->rname, r, dv->iport );
 
             FPRINTF( output, "DeAlloc( iret%d );\n", r );
-	    continue;
-	    }
+            continue;
+            }
 
-	  /* SAVE THE SCALAR (IF USED BY THE CALLER!) */
-	  if ( (e = FindExport(n,r)) == NULL )
-	    continue;
+          /* SAVE THE SCALAR (IF USED BY THE CALLER!) */
+          if ( (e = FindExport(n,r)) == NULL )
+            continue;
 
-	  PrintTemp( e );
+          PrintTemp( e );
           FPRINTF( output, " = iret%d;\n", r );
-	  }
-	}
+          }
+        }
 /* END CANN NEW 3/92 */
 
       FPRINTF( output, "}\n" );
@@ -780,88 +790,88 @@ int   eport;
       case IFASize:
       case IFSaveCallParam:
       case IFSaveSliceParam:
-	break;
+        break;
 
       case IFCall:
-	if ( (f = FindFunction( e->dst->imp->CoNsT )) == NULL)
-	  Error2( "GenIsReadOnly", "FindFunction FOR CALL FAILED" );
+        if ( (f = FindFunction( e->dst->imp->CoNsT )) == NULL)
+          Error2( "GenIsReadOnly", "FindFunction FOR CALL FAILED" );
 
-	if ( IsIGraph( f ) )
-	  if ( f->mark != 's' ) /* CANN NEW 2/92 */
-	    break;
+        if ( IsIGraph( f ) )
+          if ( f->mark != 's' ) /* CANN NEW 2/92 */
+            break;
 
-	return( FALSE );
+        return( FALSE );
 
       case IFLoopPoolEnq:
       case IFOptLoopPoolEnq:
-	if ( (f = FindFunction( e->dst->usucc->G_NAME )) == NULL)
-	  Error2( "GenIsReadOnly", "FindFunction FOR SLICE BODY NAME FAILED" );
+        if ( (f = FindFunction( e->dst->usucc->G_NAME )) == NULL)
+          Error2( "GenIsReadOnly", "FindFunction FOR SLICE BODY NAME FAILED" );
 
-	if ( !GenIsReadOnly( f, e->iport ) )
-	  return( FALSE );
+        if ( !GenIsReadOnly( f, e->iport ) )
+          return( FALSE );
 
-	break;
+        break;
 
       case IFOptAElement:
-	if ( e->info->type != IF_PTR )
-	  break;
+        if ( e->info->type != IF_PTR )
+          break;
 
-	if ( !GenIsReadOnly( e->dst, 1 ) )
-	  return( FALSE );
+        if ( !GenIsReadOnly( e->dst, 1 ) )
+          return( FALSE );
 
-	break;
+        break;
 
       case IFAElement:
-	if ( IsBasic( e->info->A_ELEM ) )
-	  break;
+        if ( IsBasic( e->info->A_ELEM ) )
+          break;
       case IFGetArrayBase:
       case IFAssign:
-	if ( !GenIsReadOnly( e->dst, 1 ) )
-	  return( FALSE );
+        if ( !GenIsReadOnly( e->dst, 1 ) )
+          return( FALSE );
 
-	break;
+        break;
 
       case IFForall:
-	if ( IsExport( e->dst->F_GEN, e->iport ) != 0 )
-	  return( FALSE );
-	if ( IsExport( e->dst->F_RET, e->iport ) != 0 )
-	  return( FALSE );
+        if ( IsExport( e->dst->F_GEN, e->iport ) != 0 )
+          return( FALSE );
+        if ( IsExport( e->dst->F_RET, e->iport ) != 0 )
+          return( FALSE );
 
-	if ( !GenIsReadOnly( e->dst->F_BODY, e->iport ) )
-	  return( FALSE );
+        if ( !GenIsReadOnly( e->dst->F_BODY, e->iport ) )
+          return( FALSE );
 
-	break;
+        break;
 
       case IFSelect:
         if ( IsExport( e->dst->S_TEST, e->iport ) != 0 )
           return( FALSE );
 
         if ( IsExport( e->dst->S_CONS, e->iport ) != 0 )
-	  if ( !GenIsReadOnly( e->dst->S_CONS, e->iport ) )
-	    return( FALSE );
+          if ( !GenIsReadOnly( e->dst->S_CONS, e->iport ) )
+            return( FALSE );
 
         if ( IsExport( e->dst->S_ALT, e->iport ) != 0 )
-	  if ( !GenIsReadOnly( e->dst->S_ALT, e->iport ) )
-	    return( FALSE );
+          if ( !GenIsReadOnly( e->dst->S_ALT, e->iport ) )
+            return( FALSE );
 
         break;
 
       case IFLoopA:
       case IFLoopB:
-	if ( IsExport( e->dst->L_INIT, e->iport ) != 0 )
-	  return( FALSE );
-	if ( IsExport( e->dst->L_TEST, e->iport ) != 0 )
-	  return( FALSE );
-	if ( IsExport( e->dst->L_RET,  e->iport ) != 0 )
-	  return( FALSE );
+        if ( IsExport( e->dst->L_INIT, e->iport ) != 0 )
+          return( FALSE );
+        if ( IsExport( e->dst->L_TEST, e->iport ) != 0 )
+          return( FALSE );
+        if ( IsExport( e->dst->L_RET,  e->iport ) != 0 )
+          return( FALSE );
 
-	if ( !GenIsReadOnly( e->dst->L_BODY, e->iport ) )
-	  return( FALSE );
+        if ( !GenIsReadOnly( e->dst->L_BODY, e->iport ) )
+          return( FALSE );
 
-	break;
+        break;
 
       default:
-	return( FALSE );
+        return( FALSE );
       }
     }
 
@@ -897,22 +907,22 @@ int    lang;
         break;
 
       case IF_ARRAY:
-	acnt++;
+        acnt++;
 
-	/* OPTIMIZE READ-ONLY TRANSFERS INTO SISAL */
-	if ( GenIsReadOnly( f, c ) ) {
-	  ronly = TRUE;
-	  rocnt++;
-	  }
+        /* OPTIMIZE READ-ONLY TRANSFERS INTO SISAL */
+        if ( GenIsReadOnly( f, c ) ) {
+          ronly = TRUE;
+          rocnt++;
+          }
 
-	if ( bindtosisal && ronly ) {
-	  FPRINTF( output, "  if ( _a_%s->In%d == NULL )\n", nm, c );
-	  PrintIndentation( 2 );
-	  }
+        if ( bindtosisal && ronly ) {
+          FPRINTF( output, "  if ( _a_%s->In%d == NULL )\n", nm, c );
+          PrintIndentation( 2 );
+          }
 
         FPRINTF( output, "  %s = I%s( %s, In%d, InI%d );\n", buf,
-			 i->L_SUB->rname, (ronly)? "TRUE" : "FALSE",
-			 c, c                                       );
+                         i->L_SUB->rname, (ronly)? "TRUE" : "FALSE",
+                         c, c                                       );
         break;
 
       default:
@@ -1152,17 +1162,17 @@ PNODE f;
 
   PrintIndentation( 2 );
   FPRINTF( output, "_a_%s = (%s*) Alloc( sizeof( %s ) );\n", 
-		   nm, f->info->sname, f->info->sname       );
+                   nm, f->info->sname, f->info->sname       );
 
   if ( bindtosisal ) {
     for ( c = 1, i = f->info->F_IN; i != NULL; i = i->L_NEXT, c++ )
       switch( i->L_SUB->type ) {
         case IF_ARRAY:
           FPRINTF( output, "    _a_%s->In%d = NULL;\n", nm, c );
-	  break;
+          break;
 
-	default:
-	  break;
+        default:
+          break;
         }
 
     FPRINTF( output, "  }\n" );

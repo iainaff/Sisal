@@ -1,13 +1,21 @@
-/* check.c,v
+/**************************************************************************/
+/* FILE   **************          check.c          ************************/
+/**************************************************************************/
+/* Author: Dave Can                                                       */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:55  miller
  * Initial revision
  *
- * Revision 12.7  1992/10/21  18:08:29  miller
- * Initial RCS Version by Cann
- *
  * Revision 12.7  1992/10/21  18:07:25  miller
  * Initial RCS Version by Cann
- * */
+ *
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -17,7 +25,7 @@ FILE *output  = 0;                /* IF1 OUTPUT FILE POINTER         */
 
 char *program = "if1check";            /* PROGRAM NAME                    */
 
-int info      = FALSE;	/* NOT ALL USED */
+int info      = FALSE;  /* NOT ALL USED */
 int noassoc   = FALSE;
 int sgnok     = FALSE;
 int native    = TRUE;
@@ -38,13 +46,13 @@ int glue      = FALSE;
 /*          ENCOUNTERED FILE IS FOR IF1 INPUT.  THE SECOND ENCOUNTERED    */
 /*          FILE IS FOR IF1 OUTPUT.  ANY OTHER FILES ON THE COMMAND LINE  */
 /*          CAUSE AN ERROR MESSAGE TO BE PRINTED.                         */
-/*									  */
-/*	    FILES:							  */
-/*		0:	-> input IF1					  */
-/*		1:	-> output report				  */
-/*									  */
-/*          OPTIONS:							  */
-/*		-	-> Skip a standard file (in, out, etc..)	  */
+/*                                                                        */
+/*          FILES:                                                        */
+/*              0:      -> input IF1                                      */
+/*              1:      -> output report                                  */
+/*                                                                        */
+/*          OPTIONS:                                                      */
+/*              -       -> Skip a standard file (in, out, etc..)          */
 /**************************************************************************/
 
 static void ParseCommandLine( argc, argv )
@@ -61,9 +69,9 @@ char **argv;
             switch ( fmode ) {
                 case 0: 
                     if ( (fd = fopen( c, "r" )) == NULL )
-			Error2( "CAN'T OPEN", c );
+                        Error2( "CAN'T OPEN", c );
 
-		    input = fd;
+                    input = fd;
 
                     AssignSourceFileName( c );
 
@@ -72,11 +80,11 @@ char **argv;
 
                 case 1:
                     if ( (fd = fopen( c, "w" )) == NULL )
-			Error2( "CAN'T OPEN", c );
+                        Error2( "CAN'T OPEN", c );
 
-		    output = fd;
+                    output = fd;
 
-		    fmode++;
+                    fmode++;
                     break;
 
                 default:
@@ -88,7 +96,7 @@ char **argv;
 
         switch ( *( ++c ) ) {
             case '\0':
-		fmode++;
+                fmode++;
                 break;
 
             default:

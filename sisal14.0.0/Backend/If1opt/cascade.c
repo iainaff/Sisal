@@ -1,17 +1,29 @@
+/**************************************************************************/
+/* FILE   **************         cascade.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 #include "world.h"
 
 static void
 TestCascade(G)
-     PNODE	G;
+     PNODE      G;
 {
-  PNODE		SubG,N,Test,TrueSide,FalseSide;
-  PEDGE		TestEdge,E,ENext;
-  int		TestPort;
+  PNODE         SubG,N,Test,TrueSide,FalseSide;
+  PEDGE         TestEdge,E,ENext;
+  int           TestPort;
 
   for(N=G->G_NODES; N; N = N->nsucc) {
     if ( IsCompound(N) ) {
       /* ------------------------------------------------------------ */
-      /* Recursively apply					      */
+      /* Recursively apply                                            */
       /* ------------------------------------------------------------ */
       for(SubG = N->C_SUBS; SubG; SubG = SubG->gsucc) TestCascade(SubG);
 
@@ -21,45 +33,45 @@ TestCascade(G)
       switch (N->type) {
       case IFSelect:
 
-	Test 		= N->S_TEST;
-	FalseSide	= N->S_ALT;
-	TrueSide	= N->S_CONS;
+        Test            = N->S_TEST;
+        FalseSide       = N->S_ALT;
+        TrueSide        = N->S_CONS;
 
-	/* ------------------------------------------------------------ */
-	/* Find the test edge -- It must be an imported value		*/
-	/* ------------------------------------------------------------ */
-	TestEdge = FindImport(Test,1);
-	if ( TestEdge->src != Test ) break;
-	TestPort = TestEdge->eport;
+        /* ------------------------------------------------------------ */
+        /* Find the test edge -- It must be an imported value           */
+        /* ------------------------------------------------------------ */
+        TestEdge = FindImport(Test,1);
+        if ( TestEdge->src != Test ) break;
+        TestPort = TestEdge->eport;
 
-	/* ------------------------------------------------------------ */
-	/* If the test edge is used internally, set to true or false    */
-	/* ------------------------------------------------------------ */
-	for(E=FalseSide->exp; E; E = ENext ) {
-	  ENext = E->esucc;
-	  if ( E->eport == TestPort ) {
-	    UnlinkExport(E);
-	    E->src = (PNODE)NULL;
-	    E->eport = CONST_PORT;
-	    E->CoNsT = "FALSE";
-	  }
-	}
+        /* ------------------------------------------------------------ */
+        /* If the test edge is used internally, set to true or false    */
+        /* ------------------------------------------------------------ */
+        for(E=FalseSide->exp; E; E = ENext ) {
+          ENext = E->esucc;
+          if ( E->eport == TestPort ) {
+            UnlinkExport(E);
+            E->src = (PNODE)NULL;
+            E->eport = CONST_PORT;
+            E->CoNsT = "FALSE";
+          }
+        }
  
-	for(E=TrueSide->exp; E; E = ENext ) {
-	  ENext = E->esucc;
-	  if ( E->eport == TestPort ) {
-	    UnlinkExport(E);
-	    E->src = (PNODE)NULL;
-	    E->eport = CONST_PORT;
-	    E->CoNsT = "TRUE";
-	  }
-	}
+        for(E=TrueSide->exp; E; E = ENext ) {
+          ENext = E->esucc;
+          if ( E->eport == TestPort ) {
+            UnlinkExport(E);
+            E->src = (PNODE)NULL;
+            E->eport = CONST_PORT;
+            E->CoNsT = "TRUE";
+          }
+        }
         break;
  
 
 
       default:
-	UNEXPECTED("Unknown branch");
+        UNEXPECTED("Unknown branch");
       }
     }
   }

@@ -1,10 +1,20 @@
-/* if2opt.c,v
+/**************************************************************************/
+/* FILE   **************          if2opt.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:02  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:01  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -49,9 +59,9 @@ PNODE n;
       LinkExport( nn, i );
 
       if ( IsGraph( n ) )
-	LinkNode( n, nn );
+        LinkNode( n, nn );
       else
-	LinkNode( n->npred, nn );
+        LinkNode( n->npred, nn );
       }
 }
 
@@ -138,11 +148,11 @@ PNODE r;
       case IFFinalValue:
       case IFFinalValueAT:
         i->pm += i->cm + e->pm;
-	break;
+        break;
 
       default:
-	i->sr += i->cm + e->pm;
-	break;
+        i->sr += i->cm + e->pm;
+        break;
       }
 
     if ( e->pm > 0 ) {
@@ -163,7 +173,7 @@ PNODE r;
 
     for ( ee = l->exp; ee != NULL; ee = ee->esucc )
       if ( ee->eport == e->eport )
-	ee->pm = 0;
+        ee->pm = 0;
     }
 }
 
@@ -180,15 +190,15 @@ PNODE n;
     switch( n->type ) {
       case IFForall:
         FoldReturnPragmas( n, n->F_RET );
-	break;
+        break;
 
       case IFLoopA:
       case IFLoopB:
         FoldReturnPragmas( n, n->L_RET );
-	break;
+        break;
 
       default:
-	break;
+        break;
       }
 }
 
@@ -206,8 +216,8 @@ PNODE n;
     register PEDGE i;
 
     for ( i = n->imp; i != NULL; i = i->isucc )
-	if ( IsMultiple( i->info ) )
-	    i->info = i->info->A_ELEM;
+        if ( IsMultiple( i->info ) )
+            i->info = i->info->A_ELEM;
 }
 
 
@@ -233,59 +243,59 @@ PNODE g;
 
     switch ( n->type ) {
       case IFDefArrayBuf:
-	s = n->imp;
-	m = n->exp;
+        s = n->imp;
+        m = n->exp;
 
-	switch ( m->dst->type ) {
-	  case IFMemAlloc:
-	    break;
+        switch ( m->dst->type ) {
+          case IFMemAlloc:
+            break;
 
-	  default:
-	    Error2( "ApplyVariousIf2Opts", "DESTINATION NOT A IFMemAlloc NODE");
+          default:
+            Error2( "ApplyVariousIf2Opts", "DESTINATION NOT A IFMemAlloc NODE");
           }
 
-	UnlinkImport( s );
-	s->iport = m->iport;
+        UnlinkImport( s );
+        s->iport = m->iport;
 
-	UnlinkImport( m );
-	UnlinkExport( m );
+        UnlinkImport( m );
+        UnlinkExport( m );
 
-	LinkImport( m->dst, s );
-	n = n->npred;
-	UnlinkNode( n->nsucc );
-	rmdab++;
-	break;
+        LinkImport( m->dst, s );
+        n = n->npred;
+        UnlinkNode( n->nsucc );
+        rmdab++;
+        break;
 
       case IFReduceAT:
       case IFRedLeftAT:
       case IFRedTreeAT:
       case IFRedRightAT:
-	if ( !bip ) {
-	  if ( n->exp->dst->G_DAD->vmark ) {
-	    rmvmark++;
+        if ( !bip ) {
+          if ( n->exp->dst->G_DAD->vmark ) {
+            rmvmark++;
 #ifdef MYI
             SPRINTF(vmark,
                 "%s Sequentializing loop %d at line %d, funct %s, file %s\n\n", 
                 vmark, n->ID, n->line, n->funct, n->file);
 #endif
-	    n->exp->dst->G_DAD->vmark = FALSE;
-	    }
+            n->exp->dst->G_DAD->vmark = FALSE;
+            }
 
-	  if ( n->exp->dst->G_DAD->smark ) {
-	    rmsmark++;
+          if ( n->exp->dst->G_DAD->smark ) {
+            rmsmark++;
 #ifdef MYI
             SPRINTF(rmark,
                 "%s Sequentializing loop %d at line %d, funct %s, file %s\n\n", 
-		rmark, n->ID, n->line, n->funct, n->file);
+                rmark, n->ID, n->line, n->funct, n->file);
 #endif
-	    n->exp->dst->G_DAD->smark = FALSE;
-	    }
+            n->exp->dst->G_DAD->smark = FALSE;
+            }
           }
 
-	break;
+        break;
 
       default:
-	break;
+        break;
       }
     }
 }
@@ -319,7 +329,7 @@ PNODE f;
       if ( i->cm == -1 ) {
         rmcmcnt++;
         trmcmcnt++;
-	}
+        }
       else
         trmcmcnt++;
 
@@ -350,7 +360,7 @@ PNODE n;
     case IFMinus:
     case IFNeg:
       if ( IsReal( n->imp->info ) || IsDouble( n->imp->info ) )
-	g->flps[ARITHMETICS]++;
+        g->flps[ARITHMETICS]++;
 
       break;
 
@@ -376,19 +386,19 @@ PNODE n;
 
       /* ADD IMPLICIT FIRST RETURN AND TEST COUNTS TO g'S COUNTS */
       g->flps[LOGICALS]    += n->L_RET->flps[LOGICALS] +
-			      n->L_TEST->flps[LOGICALS];
+                              n->L_TEST->flps[LOGICALS];
       g->flps[ARITHMETICS] += n->L_RET->flps[ARITHMETICS] + 
-			      n->L_TEST->flps[ARITHMETICS];
+                              n->L_TEST->flps[ARITHMETICS];
       g->flps[INTRINSICS]  += n->L_RET->flps[INTRINSICS] + 
-			      n->L_TEST->flps[INTRINSICS];
+                              n->L_TEST->flps[INTRINSICS];
 
       /* EVERY BODY EXECUTION IS FOLLOWED BY RETURN AND TEST EXECUTION */
       n->L_BODY->flps[LOGICALS]    += n->L_RET->flps[LOGICALS] +
-			              n->L_TEST->flps[LOGICALS];
+                                      n->L_TEST->flps[LOGICALS];
       n->L_BODY->flps[ARITHMETICS] += n->L_RET->flps[ARITHMETICS] +
-			              n->L_TEST->flps[ARITHMETICS];
+                                      n->L_TEST->flps[ARITHMETICS];
       n->L_BODY->flps[INTRINSICS]  += n->L_RET->flps[INTRINSICS] +
-			              n->L_TEST->flps[INTRINSICS];
+                                      n->L_TEST->flps[INTRINSICS];
 
       n->L_TEST->flps[LOGICALS]    = 0;
       n->L_TEST->flps[ARITHMETICS] = 0;
@@ -423,7 +433,7 @@ PNODE n;
     case IFGreat:
     case IFGreatEqual:
       if ( IsReal( n->imp->info ) || IsDouble( n->imp->info ) )
-	g->flps[LOGICALS]++;
+        g->flps[LOGICALS]++;
 
       break;
 
@@ -432,22 +442,22 @@ PNODE n;
     case IFRedRight:
     case IFRedTree:
       if ( n->imp->isucc->isucc->isucc != NULL )
-	break;
+        break;
 
       switch( n->imp->CoNsT[0] ) {
        case REDUCE_PRODUCT:
        case REDUCE_SUM:
-	  if ( IsReal( n->exp->info ) || IsDouble( n->exp->info ) )
-	    g->flps[ARITHMETICS]++;
+          if ( IsReal( n->exp->info ) || IsDouble( n->exp->info ) )
+            g->flps[ARITHMETICS]++;
 
-	  break;
+          break;
 
        case REDUCE_GREATEST:
        case REDUCE_LEAST:
-	  if ( IsReal( n->exp->info ) || IsDouble( n->exp->info ) )
-	    g->flps[LOGICALS]++;
+          if ( IsReal( n->exp->info ) || IsDouble( n->exp->info ) )
+            g->flps[LOGICALS]++;
 
-	  break;
+          break;
 
        case REDUCE_USER:
        case REDUCE_CATENATE:
@@ -457,7 +467,7 @@ PNODE n;
           UNEXPECTED("Unknown reduction");
           ERRORINFO("%s", n->imp->CoNsT);
           ERRORINFO("%c", n->imp->CoNsT[0]);
-	}
+        }
 
       break;
 
@@ -465,23 +475,23 @@ PNODE n;
       f = FindFunction( n->imp->CoNsT );
 
       if ( IsIGraph( f ) ) {
-	if ( !GenIsIntrinsic( f ) )
-	  break;
+        if ( !GenIsIntrinsic( f ) )
+          break;
 
-	if ( strcmp( n->imp->CoNsT, "and" ) == 0 ) break;
-	if ( strcmp( n->imp->CoNsT, "or" ) == 0 ) break;
-	if ( strcmp( n->imp->CoNsT, "xor" ) == 0 ) break;
-	if ( strcmp( n->imp->CoNsT, "shiftl" ) == 0 ) break;
-	if ( strcmp( n->imp->CoNsT, "shiftr" ) == 0 ) break;
+        if ( strcmp( n->imp->CoNsT, "and" ) == 0 ) break;
+        if ( strcmp( n->imp->CoNsT, "or" ) == 0 ) break;
+        if ( strcmp( n->imp->CoNsT, "xor" ) == 0 ) break;
+        if ( strcmp( n->imp->CoNsT, "shiftl" ) == 0 ) break;
+        if ( strcmp( n->imp->CoNsT, "shiftr" ) == 0 ) break;
 
-	g->flps[INTRINSICS]++;
+        g->flps[INTRINSICS]++;
         }
       
       break;
 
     case IFExp:
       if ( IsReal( n->exp->info ) || IsDouble( n->exp->info ) )
-	g->flps[INTRINSICS]++;
+        g->flps[INTRINSICS]++;
 
       break;
 

@@ -1,10 +1,20 @@
-/* if2free.c,v
+/**************************************************************************/
+/* FILE   **************         if2free.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:01  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:00  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -41,11 +51,11 @@ int   eport;
     /* BECAUSE OF ReduceArgAccessCost(..) */
     if ( e->dst->type == IFAssign ) {
       for ( ee = e->dst->exp; ee != NULL; ee = ee->esucc ) {
-	if ( ee->wmark )
-	  w = TRUE;
+        if ( ee->wmark )
+          w = TRUE;
 
-	u++;
-	}
+        u++;
+        }
 
       continue;
       }
@@ -124,14 +134,14 @@ int    par; /* TRUE ASSUMED!!! */
 {
   register PINFO i;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   PrintIndentation( indent );
   FPRINTF( output, "{\n" );
 
   PrintIndentation( indent+2 );
   FPRINTF( output, "register %s *un%d = (%s*) %s;\n", u->sname, indent,
-	   u->sname, src                                             );
+           u->sname, src                                             );
 
   PrintIndentation( indent+2 );
   FPRINTF( output, "MY_LOCK( &un%d->Mutex );\n", indent );
@@ -220,14 +230,14 @@ char  *src;
 {
   register PINFO i;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   PrintIndentation( indent );
   FPRINTF( output, "{\n" );
 
   PrintIndentation( indent+2 );
   FPRINTF( output, "register %s *rec%d = (%s*) %s;\n", r->sname, indent,
-	   r->sname, src                                              );
+           r->sname, src                                              );
 
   if ( par ) {
     PrintIndentation( indent+2 );
@@ -376,17 +386,17 @@ char  *src;
       if ( !IsBasic( i->A_ELEM ) ) {
         PrintIndentation( indent+6 );
         FPRINTF( output, "First%d = (%s*) (arr->Phys->Base);\n", 
-		 indent, i->A_ELEM->tname                     );
+                 indent, i->A_ELEM->tname                     );
 
         PrintIndentation( indent+6 );
         FPRINTF( output, "Last%d = First%d + arr->Phys->Size;\n", 
-		 indent, indent                                );
+                 indent, indent                                );
 
         SPRINTF( buf, "(*First%d)", indent );
 
         PrintIndentation( indent+6 );
         FPRINTF( output, "for ( ;First%d < Last%d; First%d++ ) {\n", 
-	         indent, indent, indent                           );
+                 indent, indent, indent                           );
 
         if ( IsUnion( i->A_ELEM ) ) {
           PrintIndentation( indent+8 );
@@ -522,7 +532,7 @@ PNODE  f;
   register PINFO i;
   register int   eport;
   register int   ronly;
-	   char  buf[100];
+           char  buf[100];
 
   SPRINTF( buf, "((%s*)args)->In", f->info->sname );
 
@@ -538,7 +548,7 @@ PNODE  f;
 
     if ( bindtosisal )
       if ( GenIsReadOnly( f, eport ) )
-	ronly = TRUE;
+        ronly = TRUE;
 
     if ( ronly ) {
       PrintIndentation( indent );
@@ -572,7 +582,7 @@ PNODE f;
   register PINFO i;
   register PEDGE ii;
   register int   c;
-	   char  buf[100];
+           char  buf[100];
 
   SPRINTF( buf, "((%s*)args)->Out", f->info->sname );
 
@@ -582,11 +592,11 @@ PNODE f;
 
     if ( IsXGraph( f ) && f->xmark ) {
       if ( (ii = FindImport( f, c )) == NULL )
-	Error2( "PrintOutputDeallocs", "xmark FindImport FAILED!!!" );
+        Error2( "PrintOutputDeallocs", "xmark FindImport FAILED!!!" );
 
       /* DON'T TRY AND FREE PREBUILD OUTPUT VALUES FROM XGraphs */
       if ( ii->xmark )
-	continue;
+        continue;
       }
 
     PrintIndentation( indent );

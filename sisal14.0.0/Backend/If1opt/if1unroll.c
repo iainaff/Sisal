@@ -1,10 +1,20 @@
-/* if1unroll.c,v
+/**************************************************************************/
+/* FILE   **************        if1unroll.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:59  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:38  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -80,14 +90,14 @@ PNODE  g;
       switch ( n->type ) {
       case IFLoopA:
       case IFLoopB:
-	return( MAX_UNROLL_SIZE );
+        return( MAX_UNROLL_SIZE );
 
       case IFForall:
         if ( (cnt2  = ForallIterationCount(n)) >= MAX_UNROLL_SIZE )
-	  return( MAX_UNROLL_SIZE );
+          return( MAX_UNROLL_SIZE );
 
         cnt  += (CostCount( n->F_BODY ) * cnt2);
-	break;
+        break;
 
       case IFSelect:
       case IFTagCase:
@@ -105,7 +115,7 @@ PNODE  g;
         UNEXPECTED("Unknown compound");
       }
     } else {
-	cnt++;
+        cnt++;
     }
   }
 
@@ -227,54 +237,54 @@ char **ReasonP;
   for ( n = f->F_RET->G_NODES; n != NULL; n = n->nsucc )
     switch ( n->type ) {
       case IFAGather:
-	/* FILTER? */
-	/* LOWER BOUND A CONSTANT? */
-	/* VALUE IMPORTED FROM BODY? */
-	/* NO RETURN SUBGRAPH FANOUT FOR THE VALUE */
-	if ( n->imp->isucc->isucc != NULL || !IsConst( n->imp ) ||
-	IsConst(n->imp->isucc) || !IsImport(f->F_BODY, n->imp->isucc->eport ) ||
-	UsageCount( f->F_RET, n->imp->isucc->eport ) != 1 ) {
+        /* FILTER? */
+        /* LOWER BOUND A CONSTANT? */
+        /* VALUE IMPORTED FROM BODY? */
+        /* NO RETURN SUBGRAPH FANOUT FOR THE VALUE */
+        if ( n->imp->isucc->isucc != NULL || !IsConst( n->imp ) ||
+        IsConst(n->imp->isucc) || !IsImport(f->F_BODY, n->imp->isucc->eport ) ||
+        UsageCount( f->F_RET, n->imp->isucc->eport ) != 1 ) {
     *ReasonP = "the return subgraph does not satisfy requirements for unrolling";
-	  return( FALSE );
+          return( FALSE );
         }
-	break;
+        break;
 
       case IFReduce:
       case IFRedLeft:
       case IFRedRight:
       case IFRedTree:
-	switch ( n->imp->CoNsT[0] ) {
-	  case REDUCE_GREATEST:
-	  case REDUCE_LEAST:
-	  case REDUCE_PRODUCT:
-	  case REDUCE_SUM:
-	    /* TWO OR MORE ITERATIONS? */
-	    if ( num <= 1 ) {
+        switch ( n->imp->CoNsT[0] ) {
+          case REDUCE_GREATEST:
+          case REDUCE_LEAST:
+          case REDUCE_PRODUCT:
+          case REDUCE_SUM:
+            /* TWO OR MORE ITERATIONS? */
+            if ( num <= 1 ) {
     *ReasonP = "the return subgraph does not satisfy requirements for unrolling";
-	      return( FALSE ); }
+              return( FALSE ); }
 
-	    break;
+            break;
 
-	  default:
+          default:
     *ReasonP = "the return subgraph does not satisfy requirements for unrolling";
-	    return( FALSE );
+            return( FALSE );
           }
 
-	/* FILTER? */
-	/* VALUE IMPORTED FROM BODY? */
-	/* NO RETURN SUBGRAPH FANOUT FOR THE VALUE */
-	if ( n->imp->isucc->isucc->isucc != NULL || 
-	IsConst( n->imp->isucc->isucc ) ||
-	!IsImport( f->F_BODY, n->imp->isucc->isucc->eport )
-	|| UsageCount( f->F_RET, n->imp->isucc->isucc->eport ) != 1 ) {
+        /* FILTER? */
+        /* VALUE IMPORTED FROM BODY? */
+        /* NO RETURN SUBGRAPH FANOUT FOR THE VALUE */
+        if ( n->imp->isucc->isucc->isucc != NULL || 
+        IsConst( n->imp->isucc->isucc ) ||
+        !IsImport( f->F_BODY, n->imp->isucc->isucc->eport )
+        || UsageCount( f->F_RET, n->imp->isucc->isucc->eport ) != 1 ) {
     *ReasonP = "the return subgraph does not satisfy requirements for unrolling";
-	  return( FALSE );
+          return( FALSE );
         }
-	break;
+        break;
 
       default:
     *ReasonP = "the return subgraph does not satisfy requirements for unrolling";
-	return( FALSE );
+        return( FALSE );
       }
 
     *ReasonP = "Succeeds";
@@ -298,7 +308,7 @@ PNODE g;
   register char  *r;
   register PNODE pr;
   register PNODE pb;
-	   PNODE c[MAX_UNROLL];
+           PNODE c[MAX_UNROLL];
   register int   idx;
            char  s[100];
            char *Reason;
@@ -312,7 +322,7 @@ PNODE g;
     /* if ( IsCompound( n ) && !IsForall( n ) ) */
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	UnrollForalls( sg );
+        UnrollForalls( sg );
 
     if ( !IsForall( n ) )
       continue;
@@ -335,87 +345,87 @@ PNODE g;
     /* MUTATE RETURN SUBGRAPHS */
     for ( ag = c[0]->F_RET->G_NODES; ag != NULL; ag = ag->nsucc ) {
       switch ( ag->type ) {
-	case IFAGather:
+        case IFAGather:
           b = NodeAlloc( ++maxint, IFABuild );
-	  CopyVitals( ag, b );
+          CopyVitals( ag, b );
 
           for ( idx = 0; idx < num; idx++ ) {
-	    e = FindImport( c[idx]->F_BODY, ag->imp->isucc->eport );
-	    UnlinkImport( e );
-	    e->iport = idx + 2;
-	    LinkImport( b, e );
-	    }
-
-          for ( e = c[0]->exp; e != NULL; e = se ) {
-	    se = e->esucc;
-
-	    if ( e->eport == ag->exp->iport ) {
-	      UnlinkExport( e );
-	      e->eport = 1;
-	      LinkExport( b, e );
-	      }
+            e = FindImport( c[idx]->F_BODY, ag->imp->isucc->eport );
+            UnlinkImport( e );
+            e->iport = idx + 2;
+            LinkImport( b, e );
             }
 
-	  /* WIRE LOWER BOUND */
+          for ( e = c[0]->exp; e != NULL; e = se ) {
+            se = e->esucc;
+
+            if ( e->eport == ag->exp->iport ) {
+              UnlinkExport( e );
+              e->eport = 1;
+              LinkExport( b, e );
+              }
+            }
+
+          /* WIRE LOWER BOUND */
           /* IsUnrollCandidate: MUST BE A CONSTANT */
           UnlinkImport( e = ag->imp );
           e->iport = 1;
           LinkImport( b, e );
           LinkNode( n, b );
 
-	  break;
+          break;
 
         case IFReduce:
         case IFRedLeft:
         case IFRedRight:
         case IFRedTree:
-	  /* WIRE THE FIRST MUTATE NODE */
-	  b = AllocMutateNode( ag );
-	  LinkNode( n, b );
+          /* WIRE THE FIRST MUTATE NODE */
+          b = AllocMutateNode( ag );
+          LinkNode( n, b );
 
-	  e = FindImport( c[0]->F_BODY, ag->imp->isucc->isucc->eport );
-	  UnlinkImport( e );
-	  e->iport = 1;
-	  LinkImport( b, e );
+          e = FindImport( c[0]->F_BODY, ag->imp->isucc->isucc->eport );
+          UnlinkImport( e );
+          e->iport = 1;
+          LinkImport( b, e );
 
-	  e = FindImport( c[1]->F_BODY, ag->imp->isucc->isucc->eport );
-	  UnlinkImport( e );
-	  e->iport = 2;
-	  LinkImport( b, e );
+          e = FindImport( c[1]->F_BODY, ag->imp->isucc->isucc->eport );
+          UnlinkImport( e );
+          e->iport = 2;
+          LinkImport( b, e );
 
-	  /* WIRE THE REMAINING MUTATE NODES */
-	  pb = b;
+          /* WIRE THE REMAINING MUTATE NODES */
+          pb = b;
           for ( idx = 2; idx < num; idx++ ) {
-	    b = AllocMutateNode( ag );
-	    LinkNode( pb, b );
+            b = AllocMutateNode( ag );
+            LinkNode( pb, b );
 
-	    e = EdgeAlloc( pb, 1, b, 1 );
-	    e->info = pb->imp->info;
-	    LinkExport( pb, e );
-	    LinkImport( b, e );
+            e = EdgeAlloc( pb, 1, b, 1 );
+            e->info = pb->imp->info;
+            LinkExport( pb, e );
+            LinkImport( b, e );
 
-	    e = FindImport( c[idx]->F_BODY, ag->imp->isucc->isucc->eport );
-	    UnlinkImport( e );
-	    e->iport = 2;
-	    LinkImport( b, e );
+            e = FindImport( c[idx]->F_BODY, ag->imp->isucc->isucc->eport );
+            UnlinkImport( e );
+            e->iport = 2;
+            LinkImport( b, e );
 
-	    pb = b;
-	    }
-
-          for ( e = c[0]->exp; e != NULL; e = se ) {
-	    se = e->esucc;
-
-	    if ( e->eport == ag->exp->iport ) {
-	      UnlinkExport( e );
-	      e->eport = 1;
-	      LinkExport( b, e );
-	      }
+            pb = b;
             }
 
-	  break;
+          for ( e = c[0]->exp; e != NULL; e = se ) {
+            se = e->esucc;
+
+            if ( e->eport == ag->exp->iport ) {
+              UnlinkExport( e );
+              e->eport = 1;
+              LinkExport( b, e );
+              }
+            }
+
+          break;
 
         default:
-	  Error2( "UnrollForalls", "ILLEGAL RETURN SUBGRAPH NODE" );
+          Error2( "UnrollForalls", "ILLEGAL RETURN SUBGRAPH NODE" );
         }
       }
 
@@ -423,12 +433,12 @@ PNODE g;
     /* FIX BODY REFERENCES TO CONTROL ROD */
     for ( idx = 0; idx < num; idx++, lo++ ) { /* CHANGES lo!!! */
       for ( e = c[idx]->F_BODY->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	UnlinkExport( e );
+        UnlinkExport( e );
 
-	if ( (i = FindImport( c[0], e->eport )) == NULL ) {
-	  /* REFERENCE TO CONTROL!!! */
+        if ( (i = FindImport( c[0], e->eport )) == NULL ) {
+          /* REFERENCE TO CONTROL!!! */
           SPRINTF( s, "%d", lo );
 
           r = CopyString( s );
@@ -438,21 +448,21 @@ PNODE g;
           e->esucc = NULL;
           e->epred = NULL;
           e->src   = NULL;
-	} else {
-	  /* K PORT VALUE---NOT A CONSTANT (IsUnrollCandidate) */
-	  e->eport = i->eport;
-	  LinkExport( i->src, e );
-	  }
-	} 
+        } else {
+          /* K PORT VALUE---NOT A CONSTANT (IsUnrollCandidate) */
+          e->eport = i->eport;
+          LinkExport( i->src, e );
+          }
+        } 
 
       /* MOVE BODY NODES */
       pr = n->npred;
       for ( nn = c[idx]->F_BODY->G_NODES; nn != NULL; nn = sn ) {
-	sn = nn->nsucc;
-	UnlinkNode( nn );
-	LinkNode( pr, nn );
-	pr = nn;
-	}
+        sn = nn->nsucc;
+        UnlinkNode( nn );
+        LinkNode( pr, nn );
+        pr = nn;
+        }
       }
 
     /* CLEAN THINGS UP */

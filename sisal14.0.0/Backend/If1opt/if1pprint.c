@@ -1,10 +1,20 @@
-/* if1pprint.c,v
+/**************************************************************************/
+/* FILE   **************        if1pprint.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:58  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:36  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -61,14 +71,14 @@ char  *pre;
     register PEDGE e2;
 
     for ( e1 = n->exp; e1 != NULL; e1 = e1->esucc ) {
-	if ( e1->dname != NULL )
-	    continue;
+        if ( e1->dname != NULL )
+            continue;
 
         e1->dname = PrefixNameAlloc( pre );
 
-	for ( e2 = e1->esucc; e2 != NULL; e2 = e2->esucc )
-	    if ( (e2->eport == e1->eport) )
-		e2->dname = e1->dname;
+        for ( e2 = e1->esucc; e2 != NULL; e2 = e2->esucc )
+            if ( (e2->eport == e1->eport) )
+                e2->dname = e1->dname;
         }
 }
 
@@ -85,17 +95,17 @@ register PNODE g;
     register PNODE n;
 
     if ( IsIGraph( g ) ) 
-	return;
+        return;
 
     if ( !IsSGraph( g ) )
-	AssignExportNames( g, "I" );
+        AssignExportNames( g, "I" );
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	AssignExportNames( n, "D" );
+        AssignExportNames( n, "D" );
 
-	if ( !IsSimple( n ) )
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-	         OptAssignNames( g );
+        if ( !IsSimple( n ) )
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                 OptAssignNames( g );
         }
 }
 
@@ -120,39 +130,39 @@ PNODE g;
     FPRINTF( output, "(" );
 
     for ( e1 = g->exp; e1 != NULL; e1 = e1->esucc ) {
-	if ( e1->eport < 0 )
-	    continue;
-	    
-	FPRINTF( output, " %d:", e1->eport );
+        if ( e1->eport < 0 )
+            continue;
+            
+        FPRINTF( output, " %d:", e1->eport );
 
-	if ( e1->dname == NULL )
+        if ( e1->dname == NULL )
             FPRINTF( output, "%d", e1->eport );
-	else
+        else
             FPRINTF( output, "%s", e1->dname );
 
-	for ( e2 = e1->esucc; e2 != NULL; e2 = e2->esucc )
-	    if ( e2->eport == e1->eport )
-		e2->eport = -(e2->eport);
+        for ( e2 = e1->esucc; e2 != NULL; e2 = e2->esucc )
+            if ( e2->eport == e1->eport )
+                e2->eport = -(e2->eport);
         }
 
     for ( e1 = g->exp; e1 != NULL; e1 = e1->esucc )
         if ( e1->eport <= 0 )
-	    e1->eport = -(e1->eport);
+            e1->eport = -(e1->eport);
 
     FPRINTF( output, " RETURNS" );
 
     for ( i = g->imp; i != NULL; i = i->isucc ) {
-	FPRINTF( output, " %d:", i->iport );
+        FPRINTF( output, " %d:", i->iport );
 
-	if ( IsConst( i ) ) {
-	    PPrintConst( i );
-	    continue;
-	    }
+        if ( IsConst( i ) ) {
+            PPrintConst( i );
+            continue;
+            }
 
         if ( i->dname == NULL )
-	    FPRINTF( output, "%d", i->eport );
+            FPRINTF( output, "%d", i->eport );
         else
-	    FPRINTF( output, "%s", i->dname );
+            FPRINTF( output, "%s", i->dname );
         }
 
     FPRINTF( output, " )\n" );
@@ -179,35 +189,35 @@ PNODE n;
     FPRINTF( output, "(" );
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	FPRINTF( output, " %d:", i->iport );
+        FPRINTF( output, " %d:", i->iport );
 
-	if ( IsConst( i ) ) {
-	    PPrintConst( i );
-	    continue;
-	    }
+        if ( IsConst( i ) ) {
+            PPrintConst( i );
+            continue;
+            }
 
         if ( i->dname == NULL )
-	    FPRINTF( output, "%d", i->eport );
+            FPRINTF( output, "%d", i->eport );
         else
-	    FPRINTF( output, "%s", i->dname );
+            FPRINTF( output, "%s", i->dname );
         }
 
     FPRINTF( output, " RETURNS" );
 
     for ( e1 = n->exp; e1 != NULL; e1 = e1->esucc ) {
-	if ( e1->eport < 0 )
-	    continue;
-	    
+        if ( e1->eport < 0 )
+            continue;
+            
         FPRINTF( output, " %d:%s", e1->eport, e1->dname );
 
-	for ( e2 = e1->esucc; e2 != NULL; e2 = e2->esucc )
-	    if ( e2->eport == e1->eport )
-		e2->eport = -(e2->eport);
+        for ( e2 = e1->esucc; e2 != NULL; e2 = e2->esucc )
+            if ( e2->eport == e1->eport )
+                e2->eport = -(e2->eport);
         }
 
     for ( e1 = n->exp; e1 != NULL; e1 = e1->esucc )
-	if ( e1->eport <= 0 )
-	    e1->eport = -(e1->eport);
+        if ( e1->eport <= 0 )
+            e1->eport = -(e1->eport);
 
     FPRINTF( output, " );\n" );
 }
@@ -228,38 +238,38 @@ PNODE g;
     PPrintIndentation( indent, g->if1line );
 
     switch ( g->type ) {
-	case IFIGraph:
-	    FPRINTF( output, "IMPORT FUNCTION %s(...)\n", g->G_NAME );
-	    return;
+        case IFIGraph:
+            FPRINTF( output, "IMPORT FUNCTION %s(...)\n", g->G_NAME );
+            return;
 
-	case IFLGraph:
-	    FPRINTF( output, "LOCAL FUNCTION %s", g->G_NAME );
-	    break;
+        case IFLGraph:
+            FPRINTF( output, "LOCAL FUNCTION %s", g->G_NAME );
+            break;
 
-	case IFXGraph:
-	    FPRINTF( output, "EXPORT FUNCTION %s", g->G_NAME );
-	    break;
+        case IFXGraph:
+            FPRINTF( output, "EXPORT FUNCTION %s", g->G_NAME );
+            break;
 
-	case IFSGraph:
-	    FPRINTF( output, "SGrph" );
-	    break;
-	}
+        case IFSGraph:
+            FPRINTF( output, "SGrph" );
+            break;
+        }
 
     PPrintGraphParameters( g ); indent++;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	PPrintIndentation( indent, n->if1line );
+        PPrintIndentation( indent, n->if1line );
 
-	if ( IsOther( n ) )
-	    FPRINTF( output, "Other[%d]", n->type );
-	FPRINTF( output, "%s", GetNodeName(n));
+        if ( IsOther( n ) )
+            FPRINTF( output, "Other[%d]", n->type );
+        FPRINTF( output, "%s", GetNodeName(n));
 
         If1PPrintNodeParameters( n );
 
-	if ( IsCompound( n ) )
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		If1PPrintNode( g, indent + 1 );
-	}
+        if ( IsCompound( n ) )
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                If1PPrintNode( g, indent + 1 );
+        }
 }
 
 
@@ -274,9 +284,9 @@ void If1PPrint()
     register PNODE f;
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
-	FPRINTF( output, "\n" );
+        FPRINTF( output, "\n" );
 
-	OptAssignNames( f );
-	If1PPrintNode( f, 0 );
-	}
+        OptAssignNames( f );
+        If1PPrintNode( f, 0 );
+        }
 }

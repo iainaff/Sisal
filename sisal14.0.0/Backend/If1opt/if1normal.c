@@ -1,10 +1,20 @@
-/* if1normal.c,v
+/**************************************************************************/
+/* FILE   **************        if1normal.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:58  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:35  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -80,32 +90,32 @@ PNODE g;
 
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	if ( IsCompound( n ) )
-	    for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-		SimplifyGenerates( sg );
+        if ( IsCompound( n ) )
+            for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
+                SimplifyGenerates( sg );
 
-	if ( !IsForall( n ) ) continue;
+        if ( !IsForall( n ) ) continue;
 
-	/* THEY ALL MUST BE RangeGenerate NODES!!! */
-	for ( rg1 = n->F_GEN->G_NODES; rg1 != NULL; rg1 = rg1->nsucc )
-	    if ( rg1->type != IFRangeGenerate )
-		break;
+        /* THEY ALL MUST BE RangeGenerate NODES!!! */
+        for ( rg1 = n->F_GEN->G_NODES; rg1 != NULL; rg1 = rg1->nsucc )
+            if ( rg1->type != IFRangeGenerate )
+                break;
 
-	if ( rg1 != NULL )
-	  continue;
+        if ( rg1 != NULL )
+          continue;
 
-	rg1 = n->F_GEN->imp->src; /* CONTROL ROD */
+        rg1 = n->F_GEN->imp->src; /* CONTROL ROD */
 
-	/* REMOVE ALL BUT THE CONTROL ROD */
+        /* REMOVE ALL BUT THE CONTROL ROD */
 
-	for ( rg2 = n->F_GEN->G_NODES; rg2 != NULL; rg2 = sn ) {
-	    sn = rg2->nsucc;
-	    if ( rg2 == rg1 ) continue; /* SKIP THE CONTROL ROD */
+        for ( rg2 = n->F_GEN->G_NODES; rg2 != NULL; rg2 = sn ) {
+            sn = rg2->nsucc;
+            if ( rg2 == rg1 ) continue; /* SKIP THE CONTROL ROD */
 
             minus = NodeAlloc( ++maxint, IFMinus );
-	    CopyVitals( rg2, minus );
+            CopyVitals( rg2, minus );
             neg   = NodeAlloc( ++maxint, IFNeg );
-	    CopyVitals( rg2, neg );
+            CopyVitals( rg2, neg );
 
             LinkNode( n->npred, minus );
             LinkNode( minus, neg );
@@ -121,49 +131,49 @@ PNODE g;
             LinkImport( neg, e );
 
             if ( IsConst( rg1->imp ) ) {
-	        e = CopyEdge( rg1->imp, NULL_NODE, minus );
+                e = CopyEdge( rg1->imp, NULL_NODE, minus );
                 e->iport = 1;
             } else {
                 e = CopyEdge((x=FindImport(n,rg1->imp->eport)),NULL_NODE,minus);
-	        e->iport = 1;
+                e->iport = 1;
         
-	        if ( !IsConst( x ) ) {
-	            e->src = x->src;
+                if ( !IsConst( x ) ) {
+                    e->src = x->src;
                     LinkExport( x->src, e );
-	            }
-	        }
+                    }
+                }
 
             LinkImport( minus, e );
         
             if ( IsConst( rg2->imp ) ) {
-	        e = CopyEdge( rg2->imp, NULL_NODE, minus );
+                e = CopyEdge( rg2->imp, NULL_NODE, minus );
                 e->iport = 2;
             } else {
                 e = CopyEdge((x=FindImport(n,rg2->imp->eport)),NULL_NODE,minus);
-	        e->iport = 2;
+                e->iport = 2;
         
-	        if ( !IsConst( x ) ) {
-	            e->src = x->src;
+                if ( !IsConst( x ) ) {
+                    e->src = x->src;
                     LinkExport( x->src, e );
-	            }
-	        }
+                    }
+                }
 
             LinkImport( minus, e );
 
             plus = NodeAlloc( ++maxint, IFPlus );
-	    CopyVitals( minus, plus );
-	    LinkNode( n->F_BODY, plus );
+            CopyVitals( minus, plus );
+            LinkNode( n->F_BODY, plus );
 
             e = CopyEdge( rg1->exp, n->F_BODY, plus );
-	    e->info  = rg1->imp->info;
-	    e->eport = rg1->exp->iport;
-	    e->iport = 1;
+            e->info  = rg1->imp->info;
+            e->eport = rg1->exp->iport;
+            e->iport = 1;
             LinkExport( n->F_BODY, e );
             LinkImport( plus, e );
 
             e = CopyEdge( T, n->F_BODY, plus );
-	    e->iport = 2;
-	    e->eport = t;
+            e->iport = 2;
+            e->eport = t;
             LinkExport( n->F_BODY, e );
             LinkImport( plus, e );
 
@@ -172,27 +182,27 @@ PNODE g;
             LinkExport( plus, e );
             LinkImport( n->F_BODY, e );
 
-	    for ( e = n->F_BODY->exp; e != NULL; e = se ) {
-		se = e->esucc;
-		if ( e->eport == rg2->exp->iport ) {
-		    UnlinkExport( e );
-		    e->eport = 1;
-		    LinkExport( plus, e );
-		    }
+            for ( e = n->F_BODY->exp; e != NULL; e = se ) {
+                se = e->esucc;
+                if ( e->eport == rg2->exp->iport ) {
+                    UnlinkExport( e );
+                    e->eport = 1;
+                    LinkExport( plus, e );
+                    }
                 }
 
-	    for ( e = n->F_RET->exp; e != NULL; e = e->esucc )
-		if ( e->eport == rg2->exp->iport )
-		    e->eport = t;
+            for ( e = n->F_RET->exp; e != NULL; e = e->esucc )
+                if ( e->eport == rg2->exp->iport )
+                    e->eport = t;
 
-	    UnlinkNode( rg2 );
-	    UnlinkImport( rg2->exp );
+            UnlinkNode( rg2 );
+            UnlinkImport( rg2->exp );
 
-	    if ( rg2->imp->isucc != NULL )
-	        UnlinkExport( rg2->imp->isucc );
+            if ( rg2->imp->isucc != NULL )
+                UnlinkExport( rg2->imp->isucc );
 
-	    UnlinkExport( rg2->imp );
-	    rgcnt++;
+            UnlinkExport( rg2->imp );
+            rgcnt++;
             }
 
        /* NORMALIZE CONTROL ROD LOGICALS IN BODY: MAY REMOVE A SUCCESSOR OF n */
@@ -204,98 +214,98 @@ PNODE g;
        hi = lo->isucc;
 
        for ( e = n->F_BODY->exp; e != NULL; e = e->esucc ) {
-	 /* IS e A REFERENCE TO THE CONTROL ROD */
-	 if ( e->eport != c->iport )
-	   continue;
+         /* IS e A REFERENCE TO THE CONTROL ROD */
+         if ( e->eport != c->iport )
+           continue;
 
-	 switch ( e->dst->type ) {
-	   case IFEqual:
-	     if ( e->iport != 1 )
-	       ImportSwap( e->dst );
+         switch ( e->dst->type ) {
+           case IFEqual:
+             if ( e->iport != 1 )
+               ImportSwap( e->dst );
 
-	     break;
+             break;
 
-	   case IFLess:
-	     /* CONTROL < HI */
+           case IFLess:
+             /* CONTROL < HI */
 
-	     /* IS THE CONTROL ROD THE FIRST IMPORT */
-	     if ( e->iport != 1 )
-	       goto MoveOn1;
+             /* IS THE CONTROL ROD THE FIRST IMPORT */
+             if ( e->iport != 1 )
+               goto MoveOn1;
 
-	     /* IS THE SECOND IMPORT A REFERENCE TO HI */
-	     if ( !AreValuesEqual( e->dst->imp->isucc, hi ) )
-	       break;
+             /* IS THE SECOND IMPORT A REFERENCE TO HI */
+             if ( !AreValuesEqual( e->dst->imp->isucc, hi ) )
+               break;
 
-	     e->dst->type = IFNotEqual;
-	     nlog++;
-	     break;
+             e->dst->type = IFNotEqual;
+             nlog++;
+             break;
 
 MoveOn1:
-	     /* LO < CONTROL */
+             /* LO < CONTROL */
 
-	     /* IS THE FIRST IMPORT A REFERENCE TO LO */
-	     if ( !AreValuesEqual( e->dst->imp, lo ) )
-	       break;
+             /* IS THE FIRST IMPORT A REFERENCE TO LO */
+             if ( !AreValuesEqual( e->dst->imp, lo ) )
+               break;
 
-	     e->dst->type = IFNotEqual;
-	     ImportSwap( e->dst );
-	     nlog++;
-	     break;
+             e->dst->type = IFNotEqual;
+             ImportSwap( e->dst );
+             nlog++;
+             break;
 
-	   case IFLessEqual:
-	     if ( e->dst->exp->esucc != NULL )
-	       break;
+           case IFLessEqual:
+             if ( e->dst->exp->esucc != NULL )
+               break;
 
-	     not = e->dst->exp->dst;
+             not = e->dst->exp->dst;
 
-	     if ( !IsNot( not ) )
-	       break;
+             if ( !IsNot( not ) )
+               break;
 
-	     /* NOT( CONTROL <= LO ) FOR CONTROL > LO */
+             /* NOT( CONTROL <= LO ) FOR CONTROL > LO */
 
-	     /* IS THE CONTROL ROD THE FIRST IMPORT */
-	     if ( e->iport != 1 )
-	       goto MoveOn2;
+             /* IS THE CONTROL ROD THE FIRST IMPORT */
+             if ( e->iport != 1 )
+               goto MoveOn2;
 
-	     /* IS THE SECOND IMPORT A REFERENCE TO LO */
-	     if ( !AreValuesEqual( e->isucc, lo ) )
-	       break;
+             /* IS THE SECOND IMPORT A REFERENCE TO LO */
+             if ( !AreValuesEqual( e->isucc, lo ) )
+               break;
 
-	     e->dst->type = IFNotEqual;
+             e->dst->type = IFNotEqual;
 
-	     LinkExportLists( e->dst, not );
+             LinkExportLists( e->dst, not );
 
-	     UnlinkExport( not->imp );
-	     UnlinkNode( not );
-	     /* free( not->imp ); */
-	     /* free( not ); */
-	     nlog++;
-	     break;
+             UnlinkExport( not->imp );
+             UnlinkNode( not );
+             /* free( not->imp ); */
+             /* free( not ); */
+             nlog++;
+             break;
 
 MoveOn2:
-	     /* NOT( HI <= CONTROL ) FOR HI > CONTORL */
+             /* NOT( HI <= CONTROL ) FOR HI > CONTORL */
 
-	     /* IS THE SECOND IMPORT A REFERENCE TO HI */
-	     if ( !AreValuesEqual( e->dst->imp, hi ) )
-	       break;
+             /* IS THE SECOND IMPORT A REFERENCE TO HI */
+             if ( !AreValuesEqual( e->dst->imp, hi ) )
+               break;
 
-	     e->dst->type = IFNotEqual;
+             e->dst->type = IFNotEqual;
 
-	     ImportSwap( e->dst );
+             ImportSwap( e->dst );
 
-	     LinkExportLists( e->dst, not );
+             LinkExportLists( e->dst, not );
 
-	     UnlinkExport( not->imp );
-	     UnlinkNode( not );
-	     /* free( not->imp ); */
-	     /* free( not ); */
-	     nlog++;
-	     break;
+             UnlinkExport( not->imp );
+             UnlinkNode( not );
+             /* free( not->imp ); */
+             /* free( not ); */
+             nlog++;
+             break;
 
-	   default:
-	     break;
-	   }
-	 }
+           default:
+             break;
+           }
+         }
 
        }
 }
@@ -330,8 +340,8 @@ PINFO to;
   switch ( from->type ) {
     case IF_RECORD:
       for ( r = from->R_FIRST; r != NULL; r = r->L_NEXT )
-	if ( IsRecursive( r->L_SUB, ato ) )
-	  return( TRUE );
+        if ( IsRecursive( r->L_SUB, ato ) )
+          return( TRUE );
 
       break;
 
@@ -397,11 +407,11 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	MarkReferencedFunctions( f, sg );
+        MarkReferencedFunctions( f, sg );
 
     if ( IsCall( n ) ) {
       if ( (ff = FindFunctionGraph( f, n->imp->CoNsT )) == NULL )
-	continue;
+        continue;
 
       ff->print = TRUE;
       }
@@ -416,7 +426,7 @@ void EliminateDeadFunctions()
 
   for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
     if ( f->mark == 'e' || f->mark == 's' || 
-	 f->mark == 'c' || f->mark == 'f' ||
+         f->mark == 'c' || f->mark == 'f' ||
          f->mark == 'd' )  /* ENTRY POINTS? */
       f->print = TRUE;
 
@@ -534,29 +544,29 @@ PNODE n;
     register PNODE nn;
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	if ( !IsConst( i ) )
-	  continue;
+        if ( !IsConst( i ) )
+          continue;
 
-	if ( i->CoNsT == NULL ) { /* ERROR CONSTANT */
-	  nn = NodeAlloc( ++maxint, IFError );
-	  CopyVitals( n, nn );
-	  i->eport = 1;
-	  LinkExport( nn, i );
-	  LinkNode( (IsGraph(n))? n : n->npred, nn );
-	  eccnt++;
-	  continue;
-	  }
-
-	if ( IsBoolean( i->info ) ) {
-	  /* CANN: BUG FIX 2/1/90 is neg(y) compilation */
-	  /* if ( i->CoNsT == NULL ) i->CoNsT = "FALSE"; */
-
-	  if ( (i->CoNsT[0] == 'T') || (i->CoNsT[0] == 't') )
-	    i->CoNsT = "TRUE";
-          else
-	    i->CoNsT = "FALSE";
+        if ( i->CoNsT == NULL ) { /* ERROR CONSTANT */
+          nn = NodeAlloc( ++maxint, IFError );
+          CopyVitals( n, nn );
+          i->eport = 1;
+          LinkExport( nn, i );
+          LinkNode( (IsGraph(n))? n : n->npred, nn );
+          eccnt++;
+          continue;
           }
-	}
+
+        if ( IsBoolean( i->info ) ) {
+          /* CANN: BUG FIX 2/1/90 is neg(y) compilation */
+          /* if ( i->CoNsT == NULL ) i->CoNsT = "FALSE"; */
+
+          if ( (i->CoNsT[0] == 'T') || (i->CoNsT[0] == 't') )
+            i->CoNsT = "TRUE";
+          else
+            i->CoNsT = "FALSE";
+          }
+        }
 }
 
 
@@ -575,24 +585,24 @@ PNODE s;
     register PEDGE ii;
 
     if ( !native )
-	return;
+        return;
 
     if ( IsConst( s->S_TEST->imp ) )
-	return;
+        return;
 
     i = FindImport( s, s->S_TEST->imp->eport );
 
     if ( IsConst( i ) )
-	return;
+        return;
 
     if ( IsExport( s->S_ALT, i->iport ) || IsExport( s->S_CONS, i->iport ) )
-	return;
+        return;
 
     if ( UsageCount( i->src, i->eport ) > 1 )
-	return;
+        return;
 
     if ( !IsInt( i->src ) )
-	return;
+        return;
 
     ii = i->src->imp;
     ii->iport = i->iport;
@@ -662,146 +672,146 @@ PNODE f;
         }
 
     if ( !native )
-	return;
+        return;
 
     /* CONVERT AScatter NODES (FOR ARRAYS) INTO RangeGenerate NODES       */
 
     for ( n = f->F_GEN->G_NODES; n != NULL; n = n->nsucc ) {
-	if ( !IsAScatter( n ) )
-	    continue;
+        if ( !IsAScatter( n ) )
+            continue;
 
         if ( IsStream( n->imp->info ) )
-	    continue;
+            continue;
 
-	srcnt++;
-	n->type = IFRangeGenerate;
+        srcnt++;
+        n->type = IFRangeGenerate;
 
-	a = FindImport( f, n->imp->eport );
+        a = FindImport( f, n->imp->eport );
 
-	/* INSERT AND WIRE THE ALimL NODE                                 */
+        /* INSERT AND WIRE THE ALimL NODE                                 */
 
-	nd = NodeAlloc( ++maxint, IFALimL );
-	CopyVitals( n, nd );
-	LinkNode( f->npred, nd );
+        nd = NodeAlloc( ++maxint, IFALimL );
+        CopyVitals( n, nd );
+        LinkNode( f->npred, nd );
 
-	e = EdgeAlloc( a->src, a->eport, nd, 1 ); /* e1 */
-	e->info = a->info;
-	LinkImport( nd, e );
-	LinkExport( a->src, e );
+        e = EdgeAlloc( a->src, a->eport, nd, 1 ); /* e1 */
+        e->info = a->info;
+        LinkImport( nd, e );
+        LinkExport( a->src, e );
 
-	e = EdgeAlloc( nd, 1, f, ++maxint ); /* e2 */
-	e->info = integer;
-	LinkExport( nd, e );
-	LinkImport( f,  e );
+        e = EdgeAlloc( nd, 1, f, ++maxint ); /* e2 */
+        e->info = integer;
+        LinkExport( nd, e );
+        LinkImport( f,  e );
 
-	n->imp->eport = maxint; /* e3 */
-	n->imp->info  = integer;
+        n->imp->eport = maxint; /* e3 */
+        n->imp->info  = integer;
 
-	/* INSERT AND CORRESPONDINGLY WIRE THE ALimH NODE                 */
+        /* INSERT AND CORRESPONDINGLY WIRE THE ALimH NODE                 */
 
-	nd = NodeAlloc( ++maxint, IFALimH );
-	CopyVitals( n, nd );
-	LinkNode( f->npred, nd );
+        nd = NodeAlloc( ++maxint, IFALimH );
+        CopyVitals( n, nd );
+        LinkNode( f->npred, nd );
 
-	e = EdgeAlloc( a->src, a->eport, nd, 1 ); /* e1 */
-	e->info = a->info;
-	LinkImport( nd, e );
-	LinkExport( a->src, e );
+        e = EdgeAlloc( a->src, a->eport, nd, 1 ); /* e1 */
+        e->info = a->info;
+        LinkImport( nd, e );
+        LinkExport( a->src, e );
 
-	e = EdgeAlloc( nd, 1, f, ++maxint ); /* e2 */
-	e->info = integer;
-	LinkExport( nd, e );
-	LinkImport( f,  e );
+        e = EdgeAlloc( nd, 1, f, ++maxint ); /* e2 */
+        e->info = integer;
+        LinkExport( nd, e );
+        LinkImport( f,  e );
 
-	e = EdgeAlloc( f->F_GEN, maxint, n, 2 ); /* e3 */
-	e->info = integer;
-	LinkExport( f->F_GEN, e );
-	LinkImport( n, e );
+        e = EdgeAlloc( f->F_GEN, maxint, n, 2 ); /* e3 */
+        e->info = integer;
+        LinkExport( f->F_GEN, e );
+        LinkImport( n, e );
 
-	/* REMOVE SCATTERED VALUE EDGE FROM NEW RangeGenerate NODE AND    */
-	/* CHANGE EXPORT PORT NUMBER OF REMAINING EDGE TO ONE             */
+        /* REMOVE SCATTERED VALUE EDGE FROM NEW RangeGenerate NODE AND    */
+        /* CHANGE EXPORT PORT NUMBER OF REMAINING EDGE TO ONE             */
 
-	UnlinkExport( v = FindExport( n, 1 ) );
-	UnlinkImport( v );
+        UnlinkExport( v = FindExport( n, 1 ) );
+        UnlinkImport( v );
 
-	n->exp->eport = 1;
+        n->exp->eport = 1;
 
-	/* INSERT AElement IN BODY IF SCATTERED VALUE REFERENCE IN BODY   */
-	/* OR RETURN SUBGRAPH                                             */
-	   
+        /* INSERT AElement IN BODY IF SCATTERED VALUE REFERENCE IN BODY   */
+        /* OR RETURN SUBGRAPH                                             */
+           
         if ( IsExport( f->F_RET, v->iport ) || 
-	     IsExport( f->F_BODY, v->iport ) ) {
+             IsExport( f->F_BODY, v->iport ) ) {
             nd = NodeAlloc( ++maxint, IFAElement );
-	    CopyVitals( n, nd );
-	    LinkNode( f->F_BODY, nd );
+            CopyVitals( n, nd );
+            LinkNode( f->F_BODY, nd );
 
-	    e = EdgeAlloc( f->F_BODY, a->iport, nd, 1 ); /* A */
-	    e->info = a->info;
-	    LinkExport( f->F_BODY, e );
-	    LinkImport( nd, e );
+            e = EdgeAlloc( f->F_BODY, a->iport, nd, 1 ); /* A */
+            e->info = a->info;
+            LinkExport( f->F_BODY, e );
+            LinkImport( nd, e );
 
-	    e = EdgeAlloc( f->F_BODY, n->exp->iport, nd, 2 ); /* INDEX */
-	    e->info = integer;
-	    LinkExport( f->F_BODY, e );
-	    LinkImport( nd, e );
+            e = EdgeAlloc( f->F_BODY, n->exp->iport, nd, 2 ); /* INDEX */
+            e->info = integer;
+            LinkExport( f->F_BODY, e );
+            LinkImport( nd, e );
 
-	    /* LINK v REFERENCES IN BODY SUBGRAPH TO THE AElement NODE    */
+            /* LINK v REFERENCES IN BODY SUBGRAPH TO THE AElement NODE    */
 
             for ( e = f->F_BODY->exp; e != NULL; e = se ) {
-		se = e->esucc;
+                se = e->esucc;
 
-		if ( e->eport != v->iport )
-		    continue;
+                if ( e->eport != v->iport )
+                    continue;
 
                 UnlinkExport( e );
-		e->eport = 1;
-		LinkExport( nd, e );
-		}
+                e->eport = 1;
+                LinkExport( nd, e );
+                }
 
-	    /* WIRE AElement OUTPUT TO RETURN SUBGRAPH REFERENCES         */
+            /* WIRE AElement OUTPUT TO RETURN SUBGRAPH REFERENCES         */
 
-	    if ( IsExport( f->F_RET, v->iport ) ) {
-		e = EdgeAlloc( nd, 1, f->F_BODY, ++maxint );
+            if ( IsExport( f->F_RET, v->iport ) ) {
+                e = EdgeAlloc( nd, 1, f->F_BODY, ++maxint );
 
-		e->info = v->info->A_ELEM;       /* IT IS A MULTIPLE TYPE */
+                e->info = v->info->A_ELEM;       /* IT IS A MULTIPLE TYPE */
 
-		LinkExport( nd, e );
-		LinkImport( f->F_BODY, e );
+                LinkExport( nd, e );
+                LinkImport( f->F_BODY, e );
 
-		ChangeExportPorts( f->F_RET, v->iport, maxint );
-		}
+                ChangeExportPorts( f->F_RET, v->iport, maxint );
+                }
 
-	    }
+            }
 
-	/* free( v ); */
-	}
+        /* free( v ); */
+        }
 
     /* REMOVE THE SECOND INPUT FROM ALL NON-CONTROL RangeGenerate NODES   */
     /* AND THE INDEX OUTPUT FROM ALL AScatter NODES IF THEY ARE NOT USED  */
 
     for ( n = f->F_GEN->G_NODES; n != NULL; n = n->nsucc ) {
-	switch ( n->type ) {
-	    case IFRangeGenerate:
-		if ( n->exp != n->exp->dst->imp ) {
-		    UnlinkExport( n->imp->isucc );
-		    UnlinkImport( n->imp->isucc ); fges++;
-		    }
+        switch ( n->type ) {
+            case IFRangeGenerate:
+                if ( n->exp != n->exp->dst->imp ) {
+                    UnlinkExport( n->imp->isucc );
+                    UnlinkImport( n->imp->isucc ); fges++;
+                    }
  
-		break;
+                break;
 
-	    default:
-		e = FindExport( n, 2 );
+            default:
+                e = FindExport( n, 2 );
 
-		if ( IsExport( f->F_BODY, e->iport ) ||
-		     IsExport( f->F_RET,  e->iport )  )
+                if ( IsExport( f->F_BODY, e->iport ) ||
+                     IsExport( f->F_RET,  e->iport )  )
                     break;
 
                 UnlinkExport( e );
-		UnlinkImport( e ); fges++;
+                UnlinkImport( e ); fges++;
                 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 }
 
 
@@ -829,30 +839,30 @@ int   eport;
     register int   iport;
 
     for ( e = n->exp; e != NULL; e = e->esucc )
-	if ( e->eport == eport )
-	    break;
+        if ( e->eport == eport )
+            break;
 
     if ( e == NULL )
-	return;
+        return;
 
     iport = e->iport;
 
     for ( e = e->esucc; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	if ( e->eport != eport )
-	    continue;
+        if ( e->eport != eport )
+            continue;
 
         ChangeExportPorts( n1, e->iport, iport );
 
-	if ( n2 != NULL )
-	    ChangeExportPorts( n2, e->iport, iport );
+        if ( n2 != NULL )
+            ChangeExportPorts( n2, e->iport, iport );
 
-	UnlinkImport( e );
-	UnlinkExport( e );
-	/* free( e ); */
-	fan++;
-	}
+        UnlinkImport( e );
+        UnlinkExport( e );
+        /* free( e ); */
+        fan++;
+        }
 }
 
 
@@ -870,16 +880,16 @@ PNODE n;
     register PEDGE se;
 
     for ( e = n->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	UnlinkExport( e );
+        UnlinkExport( e );
 
-	e->CoNsT = "1";
-	e->src   = NULL;
-	e->esucc = NULL;
-	e->epred = NULL;
-	e->eport = CONST_PORT;
-	}
+        e->CoNsT = "1";
+        e->src   = NULL;
+        e->esucc = NULL;
+        e->epred = NULL;
+        e->eport = CONST_PORT;
+        }
 
     OptRemoveDeadNode( n );
     sliml++;
@@ -900,30 +910,30 @@ PNODE n;
     register PEDGE  e;
     register PEDGE  se;
     register char  *r;
-	     char   buf[100];
+             char   buf[100];
 
     if ( DeBuG ) return;
 
     i = n->imp;
 
     if ( IsInteger( i->info ) )
-	SPRINTF( buf, "%d", -atoi( i->CoNsT ) );
+        SPRINTF( buf, "%d", -atoi( i->CoNsT ) );
     else
-	SPRINTF( buf, "%.16e", -atof( DoubleToReal( i->CoNsT ) ) );
+        SPRINTF( buf, "%.16e", -atof( DoubleToReal( i->CoNsT ) ) );
 
     r = CopyString( buf );
 
     /* ASSIGN THE NEGATED CONSTANT TO ALL EXPORTS OF NODE n AND DISCARD n */
 
     for ( e = n->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	e->CoNsT = r;
-	e->eport = CONST_PORT;
-	e->esucc = NULL;
-	e->epred = NULL;
-	e->src   = NULL;
-	}
+        e->CoNsT = r;
+        e->eport = CONST_PORT;
+        e->esucc = NULL;
+        e->epred = NULL;
+        e->src   = NULL;
+        }
 
     n->exp = NULL;
     OptRemoveDeadNode( n ); foldcnt++;
@@ -960,10 +970,10 @@ PNODE s;
     /* IS THE ASetL NODE A CANDIDATE FOR REMOVAL? */
 
     if ( !IsArray( a->info ) || IsConst( a ) )           /* STREAM OR STRING */
-	return;
+        return;
 
     if ( UsageCount( a->src, a->eport ) > 1 )
-	return;
+        return;
 
     /* CONDITION ONE: x := array[b:...]; y := array_setl(x,lo); */
     if ( a->src->type == IFABuild ) {
@@ -972,7 +982,7 @@ PNODE s;
       }
 
     if ( !( IsForall( a->src ) || IsLoop( a->src ) ) )
-	return;
+        return;
 
     if ( IsForall( a->src ) )
         i = FindImport( a->src->F_RET, a->eport );
@@ -981,21 +991,21 @@ PNODE s;
 
     switch ( i->src->type ) {
       case IFAGather:
-	lb = i->src->imp;
-	break;
+        lb = i->src->imp;
+        break;
 
       case IFReduce:
       case IFRedTree:
       case IFRedRight:
       case IFRedLeft:
         if ( i->src->imp->CoNsT[0] != REDUCE_CATENATE )
-	  return;
+          return;
 
-	lb = i->src->imp->isucc;
-	break;
+        lb = i->src->imp->isucc;
+        break;
 
       default:
-	return;
+        return;
       }
 
 DoRemoval:
@@ -1003,25 +1013,25 @@ DoRemoval:
     /* NODE MOVEMENT NOT REQUIRED SINCE THE LOWER BOUND IS A CONSTANT */
 
     if ( IsConst( l ) ) {
-	if ( IsConst( lb ) )
-	    lb->CoNsT = l->CoNsT;
+        if ( IsConst( lb ) )
+            lb->CoNsT = l->CoNsT;
         else
-	    ChangeEdgeToConst( lb, l );
+            ChangeEdgeToConst( lb, l );
 
         for ( e = s->exp; e != NULL; e = e->esucc )
-	    e->eport = a->eport;
+            e->eport = a->eport;
 
         LinkExportLists( a->src, s );
-	OptRemoveDeadNode( s ); scnt++;
+        OptRemoveDeadNode( s ); scnt++;
 
-	return;
-	}
+        return;
+        }
 
     /* MAKE SURE THAT DATA FLOW ORDERING IS PRESERVED */
 
     for ( n = a->src; n != s; n = n->nsucc )
         if ( n == l->src )
-	    return;
+            return;
 
 /* THREAD THE LOWER BOUND INTO THE FORALL NODE AND TO THE GATHER NODE. */
     
@@ -1030,18 +1040,18 @@ DoRemoval:
     LinkImport( a->src, l );
 
     for ( e = s->exp; e != NULL; e = e->esucc )
-	e->eport = a->eport;
+        e->eport = a->eport;
 
     LinkExportLists( a->src, s );
 
     if ( IsConst( lb ) ) {
-	lb->CoNsT = NULL;
-	lb->eport = maxint;
+        lb->CoNsT = NULL;
+        lb->eport = maxint;
 
-	LinkExport( i->dst, lb );
-	}
+        LinkExport( i->dst, lb );
+        }
     else
-	lb->eport = maxint;
+        lb->eport = maxint;
 
     OptRemoveDeadNode( s );  scnt++;
 
@@ -1069,51 +1079,51 @@ PNODE n;
              char   buf[100];
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	if ( !(IsConst( i ) && IsArray( i->info )) )  /* STRING CONSTANT? */
-	    continue;
+        if ( !(IsConst( i ) && IsArray( i->info )) )  /* STRING CONSTANT? */
+            continue;
 
         if ( (s = i->CoNsT) == NULL )          /* ERROR STRING CONSTANT?  */
-	    continue;
+            continue;
 
         /* ALLOCATE ABuild NODE AND LINK TO THE SCOPE'S NODE LIST         */
 
         bld = NodeAlloc( ++maxint, IFABuild ); conv++;
-	CopyVitals( n, bld );
+        CopyVitals( n, bld );
 
         if ( IsGraph( n ) )
-	    LinkNode( n, bld );
+            LinkNode( n, bld );
         else
-	    LinkNode( n->npred, bld );
+            LinkNode( n->npred, bld );
 
         /* ATTACH THE LOWER BOUND TO THE ABuild NODE                      */
 
         c = EdgeAlloc( NULL_NODE, CONST_PORT, bld, 1 );
         c->info  = integer;
-	c->CoNsT = "1";
+        c->CoNsT = "1";
 
         LinkImport( bld, c );
 
         /* ATTACH CHARACTERS OF THE STRING TO THE ABuild NODE             */
 
         for ( idx = 0, ip = 2; *s != '\0'; idx = 0, ip++ ) {
-	    if ( (buf[idx++] = *s++) == '\\' ) {
+            if ( (buf[idx++] = *s++) == '\\' ) {
                 if ( IsOctal( *s ) )
-		    while ( IsOctal( *s ) ) 
-		        buf[idx++] = *s++;
+                    while ( IsOctal( *s ) ) 
+                        buf[idx++] = *s++;
                 else if ( *s == '\0' )
-		    Error1( "StringToChars: ILLEGAL BACKSLASH SEQUENCE" );
-	        else
+                    Error1( "StringToChars: ILLEGAL BACKSLASH SEQUENCE" );
+                else
                     buf[idx++] = *s++;
-	        }
+                }
 
             buf[idx] = '\0';
 
-	    c = EdgeAlloc( NULL_NODE, CONST_PORT, bld, ip );
-	    c->info  = i->info->A_ELEM;
-	    c->CoNsT = CopyString( buf );
+            c = EdgeAlloc( NULL_NODE, CONST_PORT, bld, ip );
+            c->info  = i->info->A_ELEM;
+            c->CoNsT = CopyString( buf );
 
-	    LinkImport( bld, c );
-	    }
+            LinkImport( bld, c );
+            }
 
         /* LINK i TO bld'S EXPORT LIST                                    */
 
@@ -1144,28 +1154,28 @@ PNODE n;
     if ( DeBuG ) return;
 
     if ( IsNot( n ) ) {
-	if ( IsConst( n->imp ) )
-	    return;
+        if ( IsConst( n->imp ) )
+            return;
 
-	src = n->imp->src;
+        src = n->imp->src;
 
-	if ( (src->exp->esucc == NULL) && (IsNot( src )) ) {
-	    for ( e = n->exp; e != NULL; e = se ) {
-		se = e->esucc;
+        if ( (src->exp->esucc == NULL) && (IsNot( src )) ) {
+            for ( e = n->exp; e != NULL; e = se ) {
+                se = e->esucc;
 
-		if ( IsConst( src->imp ) )
-		    ChangeEdgeToConst( e, src->imp );
+                if ( IsConst( src->imp ) )
+                    ChangeEdgeToConst( e, src->imp );
                 else
-		    e->eport = src->imp->eport;
+                    e->eport = src->imp->eport;
                 }
 
             if ( !IsConst( n->imp->src->imp ) )
-		LinkExportLists( src->imp->src, n );
+                LinkExportLists( src->imp->src, n );
 
-	    OptRemoveDeadNode( n ); redn++;
+            OptRemoveDeadNode( n ); redn++;
 
-	    return;
-	    }
+            return;
+            }
         }
 
     return;
@@ -1211,27 +1221,27 @@ PNODE n;
       return;
 
     for ( ;; ) {
-	/* IS THE UNIT VALUE REFERENCED WITHIN COMPOUND NODE c?           */
+        /* IS THE UNIT VALUE REFERENCED WITHIN COMPOUND NODE c?           */
 
-	for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
+        for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
             if ( IsExport( g, p ) )
-		return;
+                return;
 
-	u = FindImport( c, p );
+        u = FindImport( c, p );
 
-	UnlinkExport( u );
-	UnlinkImport( u );
+        UnlinkExport( u );
+        UnlinkImport( u );
 
-	/* CONTINUE ONLY IF u->src IS A SUBGRAPH                          */
+        /* CONTINUE ONLY IF u->src IS A SUBGRAPH                          */
 
-	if ( !IsSGraph( u->src ) ) {
-	    OptRemoveDeadNode( u->src );
-	    return;
-	    }
+        if ( !IsSGraph( u->src ) ) {
+            OptRemoveDeadNode( u->src );
+            return;
+            }
 
-	c = u->src->G_DAD;
-	p = u->eport;
-	}
+        c = u->src->G_DAD;
+        p = u->eport;
+        }
 }
 
 
@@ -1257,11 +1267,11 @@ PNODE l;
       case REDUCE_PRODUCT:
       case REDUCE_SUM:
       case REDUCE_USER:
-	break;
+        break;
 
       default:
-	fprintf(stderr,"Warning: Bad reduction \"%s\" on IF1 line %d\n",
-		n->imp->CoNsT,n->imp->if1line);
+        fprintf(stderr,"Warning: Bad reduction \"%s\" on IF1 line %d\n",
+                n->imp->CoNsT,n->imp->if1line);
       }
       /* Fall through... */
 
@@ -1308,11 +1318,11 @@ PNODE f;
       case REDUCE_PRODUCT:
       case REDUCE_SUM:
       case REDUCE_USER:
-	break;
+        break;
 
       default:
-	fprintf(stderr,"Warning: Bad reduction \"%s\" on IF1 line %d\n",
-		n->imp->CoNsT,n->imp->if1line);
+        fprintf(stderr,"Warning: Bad reduction \"%s\" on IF1 line %d\n",
+                n->imp->CoNsT,n->imp->if1line);
       }
       /* Fall through... */
     case IFAGather:
@@ -1351,46 +1361,46 @@ PNODE l;
     register PEDGE i;
 
     if ( IsForall( l ) )
-	n = l->F_RET->G_NODES;
+        n = l->F_RET->G_NODES;
     else
-	n = l->L_RET->G_NODES;
+        n = l->L_RET->G_NODES;
 
     for ( /* EMPTY */; n != NULL; n = n->nsucc ) {
-	if ( !IsReturn( n ) )
-	    return( FALSE );
+        if ( !IsReturn( n ) )
+            return( FALSE );
 
-	if ( native ) {
-	    EliminateFanout( n, l, NULL_NODE, 1 );
+        if ( native ) {
+            EliminateFanout( n, l, NULL_NODE, 1 );
 
-	    switch ( n->type ) {
-		case IFFirstValue:
-		    Error1( "IFFirstValue NOT IMPLEMENTED" );
-		    break;
+            switch ( n->type ) {
+                case IFFirstValue:
+                    Error1( "IFFirstValue NOT IMPLEMENTED" );
+                    break;
 
-		case IFRestValues:
-		    Error1( "returns old NOT IMPLEMENTED" );
-		    break;
+                case IFRestValues:
+                    Error1( "returns old NOT IMPLEMENTED" );
+                    break;
 
-		case IFReduce:
-		case IFRedLeft:
-		case IFRedRight:
-		case IFRedTree:
-		    if ( n->imp->CoNsT[0] == REDUCE_CATENATE )
-			ConvertReduceCatenate( n );
+                case IFReduce:
+                case IFRedLeft:
+                case IFRedRight:
+                case IFRedTree:
+                    if ( n->imp->CoNsT[0] == REDUCE_CATENATE )
+                        ConvertReduceCatenate( n );
 
-		    break;
+                    break;
 
-	        case IFFinalValue:
-		    break;
+                case IFFinalValue:
+                    break;
 
-		default:
-		    break;
-		}
+                default:
+                    break;
+                }
             }
 
         for ( i = n->imp; i != NULL; i = i->isucc )
-	    if ( IsConst( i ) && IsArray( i->info ) )
-		return( FALSE );
+            if ( IsConst( i ) && IsArray( i->info ) )
+                return( FALSE );
         }
 
     return( TRUE );
@@ -1412,32 +1422,32 @@ PNODE n;
     register PEDGE i;
 
     if ( n == NULL )
-	return;
+        return;
 
     switch ( n->type ) {
-	case IFNot:
-	case IFLess:
-	case IFLessEqual:
-	case IFEqual:
-	case IFNotEqual:
+        case IFNot:
+        case IFLess:
+        case IFLessEqual:
+        case IFEqual:
+        case IFNotEqual:
             break;
 
-	case IFSGraph:
+        case IFSGraph:
             return;
 
-	case IFPlus:
-	case IFTimes:
-	    if ( IsBoolean( n->exp->info ) )
-		break;
+        case IFPlus:
+        case IFTimes:
+            if ( IsBoolean( n->exp->info ) )
+                break;
 
         default:
-	    return;
-	}
+            return;
+        }
 
     n->label = -(n->label);
 
     for ( i = n->imp; i != NULL; i = i->isucc )
-	MarkLegalTestNodes( i->src );
+        MarkLegalTestNodes( i->src );
 }
 
 
@@ -1465,26 +1475,26 @@ PNODE l;
         sn = n->nsucc;
 
         if ( n->label > 0 ) {
-	    if ( l->type == IFLoopA ) {
+            if ( l->type == IFLoopA ) {
                 RemoveNode( n, l->L_TEST );
                 InsertNode( l->L_BODY, n );
 
                 latnm++;
-	    } else {
-		RemoveNode( n, l->L_TEST );
+            } else {
+                RemoveNode( n, l->L_TEST );
 
-		CopyExports( n, nn = CopyNode( n ) );
-		CopyImports( n, nn, FALSE );
+                CopyExports( n, nn = CopyNode( n ) );
+                CopyImports( n, nn, FALSE );
 
-		InsertNode( l->L_INIT, n );
-		InsertNode( l->L_BODY, nn );
+                InsertNode( l->L_INIT, n );
+                InsertNode( l->L_BODY, nn );
 
-		lbtnm++;
-		}
-	    }
+                lbtnm++;
+                }
+            }
         else
             n->label = -(n->label);
-	}
+        }
 }
 
 
@@ -1533,186 +1543,186 @@ PNODE g;
     FixBooleanAndErrorConsts( g );
 
     for ( n = g->G_NODES; n != NULL; n = nn ) {
-	nn = n->nsucc;
+        nn = n->nsucc;
 
-	ConvertStringImports( n );
+        ConvertStringImports( n );
         FixBooleanAndErrorConsts( n );
 
-	if ( IsCall( n ) )
-	  n->imp->CoNsT = LowerCase( n->imp->CoNsT, FALSE, FALSE );
+        if ( IsCall( n ) )
+          n->imp->CoNsT = LowerCase( n->imp->CoNsT, FALSE, FALSE );
 
-	if ( n->exp == NULL ) {
-	  OptRemoveDeadNode( n );
-	  continue;
-	  }
+        if ( n->exp == NULL ) {
+          OptRemoveDeadNode( n );
+          continue;
+          }
 
-	ConvertStringImports( n );
+        ConvertStringImports( n );
         FixBooleanAndErrorConsts( n );
 
         switch ( n->type ) {
-	    case IFExp:
-	      /* ELIMINATE FRONTEND INTRODUCED INEFFICIENCY  */
-	      if ( !IsInteger( n->imp->info ) )
-		break;
+            case IFExp:
+              /* ELIMINATE FRONTEND INTRODUCED INEFFICIENCY  */
+              if ( !IsInteger( n->imp->info ) )
+                break;
 
-	      if ( !IsInteger( n->imp->isucc->info ) )
-		break;
+              if ( !IsInteger( n->imp->isucc->info ) )
+                break;
 
-	      if ( IsInteger( n->exp->info ) )
-		break;
+              if ( IsInteger( n->exp->info ) )
+                break;
 
-	      if ( n->exp->esucc != NULL )
-		break;
+              if ( n->exp->esucc != NULL )
+                break;
 
-	      if ( !IsInt( n->exp->dst ) )
-		break;
+              if ( !IsInt( n->exp->dst ) )
+                break;
 
-	      e = n->exp;
-	      UnlinkExport( e );
-	      LinkExportLists( n, e->dst );
-	      UnlinkNode( e->dst );
-	      /* free( e->dst ); */
-	      /* free( e ); */
+              e = n->exp;
+              UnlinkExport( e );
+              LinkExportLists( n, e->dst );
+              UnlinkNode( e->dst );
+              /* free( e->dst ); */
+              /* free( e ); */
 
-	      nn = n->nsucc;
-	      break;
+              nn = n->nsucc;
+              break;
 
-	    case IFLoopA:
-	    case IFLoopB:
-		NormalizeLoopRet( n );
+            case IFLoopA:
+            case IFLoopB:
+                NormalizeLoopRet( n );
 
                 if ( !IsRetNormalized( n ) )
-		    Error1( "LOOP RETURN SUBGRAPHS NOT NORMALIZED" );
+                    Error1( "LOOP RETURN SUBGRAPHS NOT NORMALIZED" );
 
-	        NormalizeLoopTest( n );
+                NormalizeLoopTest( n );
 
-		for ( nd = n->L_TEST->G_NODES; nd != NULL; nd = sn ) {
-		    sn = nd->nsucc;
+                for ( nd = n->L_TEST->G_NODES; nd != NULL; nd = sn ) {
+                    sn = nd->nsucc;
 
-		    if ( IsNot( nd ) )
-			RemoveNotNodePair( nd );    /* MAY REMOVE NODE nd */
+                    if ( IsNot( nd ) )
+                        RemoveNotNodePair( nd );    /* MAY REMOVE NODE nd */
                     }
 
-	        NormalizeNodes( n->L_INIT );
-	        NormalizeNodes( n->L_BODY );
+                NormalizeNodes( n->L_INIT );
+                NormalizeNodes( n->L_BODY );
 
-	        for ( nd = n->L_INIT->G_NODES; nd != NULL; nd = sn ) {
-		    sn = nd->nsucc;
+                for ( nd = n->L_INIT->G_NODES; nd != NULL; nd = sn ) {
+                    sn = nd->nsucc;
 
-		    RemoveNode( nd, n->L_INIT );
-		    InsertNode( n, nd );
+                    RemoveNode( nd, n->L_INIT );
+                    InsertNode( n, nd );
 
-		    linm++;
-		    }
+                    linm++;
+                    }
 
-	        break;
+                break;
 
-	    case IFForall:
+            case IFForall:
 StartForall:
-		NormalizeForallRet( n );
+                NormalizeForallRet( n );
 
                 if ( !IsRetNormalized( n ) )
-		    Error1( "FORALL RETURN SUBGRAPHS NOT NORMALIZED" );
+                    Error1( "FORALL RETURN SUBGRAPHS NOT NORMALIZED" );
 
                 NormalizeGenerateSubgraph( n );
                 NormalizeNodes( n->F_BODY );
 
-	        break;
+                break;
 
-	    case IFSelect:
-	        if ( !IsNodeListEmpty( n->S_TEST ) )
-		    Error1( "SELECT TEST SUBGRAPHS NOT NORMALIZED" );
+            case IFSelect:
+                if ( !IsNodeListEmpty( n->S_TEST ) )
+                    Error1( "SELECT TEST SUBGRAPHS NOT NORMALIZED" );
 
-		RemoveIntNode( n );
+                RemoveIntNode( n );
 
-	    case IFTagCase:
-	        for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		    NormalizeNodes( g );
+            case IFTagCase:
+                for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                    NormalizeNodes( g );
 
-	        break;
+                break;
 
             case IFNot:
-	        RemoveNotNodePair( n );
-		break;
-
-	    case IFASetL:
-		if ( !asetl )
-		    break;
-
-		RemoveSetLowNode( n );
+                RemoveNotNodePair( n );
                 break;
 
-	    case IFNeg:
-		if ( !sgnok )
-		    break;
+            case IFASetL:
+                if ( !asetl )
+                    break;
 
-		if ( IsConst( n->imp ) )
-		    FoldNegNode( n );
-
-                break;
-		
-	    case IFALimL:
-		if ( !IsStream( n->imp->info ) )
-		    break;
-
-		RemoveSLimLNode( n );
-		break;
-
-	    case IFIsError:
-		if ( native )
-		  BindIsError( n );
-
+                RemoveSetLowNode( n );
                 break;
 
-	    case IFNoOp:
-		if ( native )
-		    Error1( "IFNoOp NOT IMPLEMENTED" );
+            case IFNeg:
+                if ( !sgnok )
+                    break;
+
+                if ( IsConst( n->imp ) )
+                    FoldNegNode( n );
+
+                break;
+                
+            case IFALimL:
+                if ( !IsStream( n->imp->info ) )
+                    break;
+
+                RemoveSLimLNode( n );
+                break;
+
+            case IFIsError:
+                if ( native )
+                  BindIsError( n );
 
                 break;
 
-	    case IFBindArguments:
-		if ( native )
-		    Error1( "IFBindArguments NOT IMPLEMENTED" );
+            case IFNoOp:
+                if ( native )
+                    Error1( "IFNoOp NOT IMPLEMENTED" );
 
                 break;
 
-	    case IFAFill:
-		if ( native ) {
-		  if ( IsStream( n->exp->info ) )
-		    Error1( "STREAM IFAFill NOT IMPLEMENTED" );
+            case IFBindArguments:
+                if ( native )
+                    Error1( "IFBindArguments NOT IMPLEMENTED" );
 
-		  ConvertFillToForall( n );
-		  goto StartForall;
+                break;
+
+            case IFAFill:
+                if ( native ) {
+                  if ( IsStream( n->exp->info ) )
+                    Error1( "STREAM IFAFill NOT IMPLEMENTED" );
+
+                  ConvertFillToForall( n );
+                  goto StartForall;
                   }
 
                 break;
 
-	    case IFACatenate:
-		if ( native )
+            case IFACatenate:
+                if ( native )
                     if ( n->imp->isucc->isucc != NULL )
-		        Error1( "IFACatenate: > 2 IMPORTS NOT IMPLEMENTED" );
+                        Error1( "IFACatenate: > 2 IMPORTS NOT IMPLEMENTED" );
 
                 break;
 
-	    case IFALimH:
-		if ( native )
-		    if ( IsStream( n->imp->info ) )
-		        Error1( "STREAM IFALimH NOT IMPLEMENTED" );
+            case IFALimH:
+                if ( native )
+                    if ( IsStream( n->imp->info ) )
+                        Error1( "STREAM IFALimH NOT IMPLEMENTED" );
 
                 break;
 
-	    case IFASize:
+            case IFASize:
                 break;
 
-	    case IFAIsEmpty:
-		if ( native )
-		    if ( IsArray( n->imp->info ) )
-		        Error1( "ARRAY IFAIsEmpty NOT IMPLEMENTED" );
+            case IFAIsEmpty:
+                if ( native )
+                    if ( IsArray( n->imp->info ) )
+                        Error1( "ARRAY IFAIsEmpty NOT IMPLEMENTED" );
 
                 break;
 
-	    default:
-	        break;
+            default:
+                break;
             }
         }
 }
@@ -1729,58 +1739,58 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	ConvertStreamsToArrays( sg );
+        ConvertStreamsToArrays( sg );
 
     switch ( n->type ) {
       case IFPrefixSize:
       case IFASize:
-	if ( IsStream( n->imp->info ) )
-	  Error1( "STREAM_SIZE AND STREAM_PREFIXSIZE NOT IMPLEMENTED" );
+        if ( IsStream( n->imp->info ) )
+          Error1( "STREAM_SIZE AND STREAM_PREFIXSIZE NOT IMPLEMENTED" );
 
-	break;
+        break;
 
       case IFAIsEmpty:         /* STREAM_EMPTY      */
-	n->type = IFASize;
+        n->type = IFASize;
 
-	nn = NodeAlloc( ++maxint, IFLess );
-	CopyVitals( n, nn );
-	LinkNode( n, nn );
-	LinkExportLists( nn, n );
+        nn = NodeAlloc( ++maxint, IFLess );
+        CopyVitals( n, nn );
+        LinkNode( n, nn );
+        LinkExportLists( nn, n );
 
         e = EdgeAlloc( NULL_NODE, CONST_PORT, nn, 2 );
         e->info  = integer;
-	e->CoNsT = "1";
-	LinkImport( nn, e );
+        e->CoNsT = "1";
+        LinkImport( nn, e );
 
-	e = EdgeAlloc( n, 1, nn, 1 );
-	e->info = integer;
-	LinkExport( n, e );
-	LinkImport( nn, e );
-	break;
+        e = EdgeAlloc( n, 1, nn, 1 );
+        e->info = integer;
+        LinkExport( n, e );
+        LinkImport( nn, e );
+        break;
 
       case IFARemL:
-	if ( !IsStream( n->imp->info ) )
-	  break;
+        if ( !IsStream( n->imp->info ) )
+          break;
 
-	/* STREAM_REST */
-	nn = NodeAlloc( ++maxint, IFASetL );
-	CopyVitals( n, nn );
-	LinkNode( n, nn );
-	LinkExportLists( nn, n );
+        /* STREAM_REST */
+        nn = NodeAlloc( ++maxint, IFASetL );
+        CopyVitals( n, nn );
+        LinkNode( n, nn );
+        LinkExportLists( nn, n );
 
         e = EdgeAlloc( NULL_NODE, CONST_PORT, nn, 2 );
         e->info  = integer;
-	e->CoNsT = "1";
-	LinkImport( nn, e );
+        e->CoNsT = "1";
+        LinkImport( nn, e );
 
-	e = EdgeAlloc( n, 1, nn, 1 );
-	e->info = n->imp->info;
-	LinkExport( n, e );
-	LinkImport( nn, e );
-	break;
-	
+        e = EdgeAlloc( n, 1, nn, 1 );
+        e->info = n->imp->info;
+        LinkExport( n, e );
+        LinkImport( nn, e );
+        break;
+        
       default:
-	break;
+        break;
       }
     }
 }
@@ -1810,26 +1820,26 @@ void If1Normalize()
 
     for ( i = ihead; i != NULL; i = i->next )
       switch ( i->type ) {
-	case IF_STREAM:
-	  if ( IsRecursive( i, NULL_INFO ) )
-	    Error1( "ILLEGAL RECURSIVE STREAM ENCOUNTERED" );
+        case IF_STREAM:
+          if ( IsRecursive( i, NULL_INFO ) )
+            Error1( "ILLEGAL RECURSIVE STREAM ENCOUNTERED" );
 
           break;
 
-	case IF_ARRAY:
-	  if ( IsRecursive( i, NULL_INFO ) )
-	    Error1( "ILLEGAL RECURSIVE ARRAY ENCOUNTERED" );
+        case IF_ARRAY:
+          if ( IsRecursive( i, NULL_INFO ) )
+            Error1( "ILLEGAL RECURSIVE ARRAY ENCOUNTERED" );
 
           break;
 
-	case IF_RECORD:
-	  if ( IsRecursive( i, NULL_INFO ) )
-	    Error1( "ILLEGAL RECURSIVE RECORD ENCOUNTERED" );
+        case IF_RECORD:
+          if ( IsRecursive( i, NULL_INFO ) )
+            Error1( "ILLEGAL RECURSIVE RECORD ENCOUNTERED" );
 
-	  break;
+          break;
 
         default:
-	  break;
+          break;
         }
 
     for ( i = ihead; i != NULL; i = i->next )
@@ -1840,13 +1850,13 @@ void If1Normalize()
 
     for ( i = ihead; i != NULL; i = i->next )
         if ( IsStream(i) ) {
-	    i->type = IF_ARRAY;
+            i->type = IF_ARRAY;
 
-	    /* RECORD THAT THIS CONVERTED TYPE WAS ONCE A STREAM!!! */
-	    /* THIS IS USED TO GET PROPER FIBRE PROCESSING OF INPUT */
-	    /* AND OUTPUT STREAMS.                                  */
-	    i->mark = 'S';
-	    }
+            /* RECORD THAT THIS CONVERTED TYPE WAS ONCE A STREAM!!! */
+            /* THIS IS USED TO GET PROPER FIBRE PROCESSING OF INPUT */
+            /* AND OUTPUT STREAMS.                                  */
+            i->mark = 'S';
+            }
     }
 
 

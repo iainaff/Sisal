@@ -1,10 +1,19 @@
-/* if1names.c,v
+/**************************************************************************/
+/* FILE   **************         if1names.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
  * Revision 12.7  1992/11/04  22:04:54  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:07:15  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -95,10 +104,10 @@ PINFO  t;
   if ( ac > 0 ) {
     for ( c = 0, i = t->F_IN; i != NULL; i = i->L_NEXT ) {
       if ( IsArray( i->L_SUB ) )
-	if ( IsInteger( i->L_SUB->A_ELEM ) ) {
-	  c++;
-	  continue;
-	  }
+        if ( IsInteger( i->L_SUB->A_ELEM ) ) {
+          c++;
+          continue;
+          }
 
       c = 0;
       }
@@ -184,8 +193,8 @@ char  *n;
     register PNAME p;
     
     for ( p = l; p != NULL; p = p->next )
-	if ( strcmp( p->name, n ) == 0 )
-	    return( p );
+        if ( strcmp( p->name, n ) == 0 )
+            return( p );
 
     return( NULL );
 }
@@ -244,7 +253,7 @@ void CheckForUnresolvedNames()
     for ( ii = i->usucc; ii != NULL; ii = ii->usucc )
       if ( ii->info->label != i->info->label )
         Error2( "ARGUMENT TYPE CONFLICT:", 
-		(i->node->funct)? i->node->funct : i->name );
+                (i->node->funct)? i->node->funct : i->name );
     }
 
   for ( i = inames; i != NULL; i = i->next ) {
@@ -253,14 +262,14 @@ void CheckForUnresolvedNames()
 
       if ( !IsInterfaceCandidate( i->name, i->info ) )
         Error2( "ILLEGAL INTERFACE-FUNCTION:",
-		(i->node->funct)? i->node->funct : i->name       );
+                (i->node->funct)? i->node->funct : i->name       );
       }
     else if ( IsFortranInterface( i->name ) ) {
       i->mark = 'f';
 
       if ( !IsInterfaceCandidate( i->name, i->info ) )
         Error2( "ILLEGAL INTERFACE-FUNCTION:",
-		(i->node->funct)? i->node->funct : i->name       );
+                (i->node->funct)? i->node->funct : i->name       );
       }
     else if ( IsIntrinsic( i->name, i->info ) )
       i->mark = 'i';
@@ -271,12 +280,12 @@ void CheckForUnresolvedNames()
   for ( i = inames; i != NULL; i = i->next ) {
     if ( (x = NameLookup( xnames, i->name )) != NULL ) {
       if ( i->mark != 's' )
-	Error2( (i->node->funct)? i->node->funct : i->name,
-	        "MULTIPLY DEFINED"                    );
+        Error2( (i->node->funct)? i->node->funct : i->name,
+                "MULTIPLY DEFINED"                    );
 
       if ( i->info->label != x->info->label )
         Error2( "PARAMETER LIST TYPE MISMATCH FOR:",
-		(i->node->funct)? i->node->funct : i->name );
+                (i->node->funct)? i->node->funct : i->name );
 
       i->mark = '\0'; /* GET i OUT OF THE IMPORT LIST */
       continue;
@@ -290,7 +299,7 @@ void CheckForUnresolvedNames()
 
     for ( i = inames; i != NULL; i = i->next )
       if ( i->mark == 's' )
-	monolith = FALSE;
+        monolith = FALSE;
     }
 
 

@@ -1,10 +1,20 @@
-/* if2loop.c,v
+/**************************************************************************/
+/* FILE   **************         if2loop.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:01  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:01  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -75,7 +85,7 @@ PNODE n;
 
 static int IsIvdepOk( g,ReasonP )
      PNODE g;
-     char	**ReasonP;
+     char       **ReasonP;
 {
   register PNODE n;
   register PEDGE e;
@@ -98,8 +108,8 @@ static int IsIvdepOk( g,ReasonP )
 
     if ( IsSelect( n ) ) {
       if ( IsConst( n->S_TEST->imp ) ) {
-	*ReasonP = "If-then-else with constant test";
-	return( FALSE );
+        *ReasonP = "If-then-else with constant test";
+        return( FALSE );
       }
 
       if ( !IsIvdepOk( n->S_CONS,ReasonP ) ) return( FALSE );
@@ -117,10 +127,10 @@ static int IsIvdepOk( g,ReasonP )
     if ( n->type == IFOptAElement ) {
       /* basic record dereferences within selects seem to confuse scc */
       if ( IsBRecord( n->exp->info ) ) {
-	if ( !IsForall( g->G_DAD ) ) {
-	  *ReasonP = "Selecting from array of records";
-	  return( FALSE );
-	}
+        if ( !IsForall( g->G_DAD ) ) {
+          *ReasonP = "Selecting from array of records";
+          return( FALSE );
+        }
       }
 
       continue;
@@ -129,37 +139,37 @@ static int IsIvdepOk( g,ReasonP )
     /* select imported indirection seems to confuse scc */
     if ( n->type == IFGetArrayBase ) {
       for ( e = n->exp; e != NULL; e = e->esucc ) {
-	if ( IsCompound( e->dst ) ) {
+        if ( IsCompound( e->dst ) ) {
 #if 0
-	  {
-	    PNODE Z;
-	    PEDGE Q;
-	    fprintf(stderr,"Feeding %s at line %d\n",GetNodeName(e->dst),e->dst->line);
-	    fprintf(stderr,"outedge\n");
-	    if ( e->name ) fprintf(stderr,">> %s\n",e->name);
-	    fprintf(stderr,"inedge\n");
-	    Q = n->imp;
-	    if ( Q && Q->name ) fprintf(stderr,">> %s\n",Q->name);
-	    if ( Q ) Q = Q->isucc;
-	    if ( Q && Q->name ) fprintf(stderr,">> %s\n",Q->name);
-	    if ( Q ) Q = Q->isucc;
-	    if ( Q && Q->name ) fprintf(stderr,">> %s\n",Q->name);
-	    if ( Q ) Q = Q->isucc;
-	    if ( Q && Q->name ) fprintf(stderr,">> %s\n",Q->name);
+          {
+            PNODE Z;
+            PEDGE Q;
+            fprintf(stderr,"Feeding %s at line %d\n",GetNodeName(e->dst),e->dst->line);
+            fprintf(stderr,"outedge\n");
+            if ( e->name ) fprintf(stderr,">> %s\n",e->name);
+            fprintf(stderr,"inedge\n");
+            Q = n->imp;
+            if ( Q && Q->name ) fprintf(stderr,">> %s\n",Q->name);
+            if ( Q ) Q = Q->isucc;
+            if ( Q && Q->name ) fprintf(stderr,">> %s\n",Q->name);
+            if ( Q ) Q = Q->isucc;
+            if ( Q && Q->name ) fprintf(stderr,">> %s\n",Q->name);
+            if ( Q ) Q = Q->isucc;
+            if ( Q && Q->name ) fprintf(stderr,">> %s\n",Q->name);
 
-	    for(Z=n; Z; Z=Z->npred) {
-	      fprintf(stderr,"%s at line %d\n",GetNodeName(Z),Z->line);
-	      if ( IsCompound(Z) ) break;
-	    }
-	    fprintf(stderr,"---\n");
-	    for(Z=n; Z; Z=Z->nsucc) {
-	      fprintf(stderr,"%s at line %d\n",GetNodeName(Z),Z->line);
-	    }
-	  }
+            for(Z=n; Z; Z=Z->npred) {
+              fprintf(stderr,"%s at line %d\n",GetNodeName(Z),Z->line);
+              if ( IsCompound(Z) ) break;
+            }
+            fprintf(stderr,"---\n");
+            for(Z=n; Z; Z=Z->nsucc) {
+              fprintf(stderr,"%s at line %d\n",GetNodeName(Z),Z->line);
+            }
+          }
 #endif
-	  *ReasonP = "Cray C compiler gets confused over this indirection";
-	  return( FALSE );
-	}
+          *ReasonP = "Cray C compiler gets confused over this indirection";
+          return( FALSE );
+        }
       }
 
       continue;
@@ -181,7 +191,7 @@ FILE  *fd;
 PEDGE  i;
 {
   register int  type;
-	   char buf[100];
+           char buf[100];
 
   if ( i->vtemp <= 0 )
     Error2( "PrintVectorTemp", "VECTOR TEMP NOT ASSIGNED" );
@@ -290,8 +300,8 @@ PNODE g;
     register PNODE n;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc )
-	if ( n->exp->esucc != NULL )
-	    return( FALSE );
+        if ( n->exp->esucc != NULL )
+            return( FALSE );
 
     return( TRUE );
 }
@@ -308,88 +318,88 @@ static void PrintLoopTest( i )
 PEDGE i;
 {
     if ( IsConst( i ) ) {
-	PrintTemp( i );
-	return;
-	}
+        PrintTemp( i );
+        return;
+        }
 
     switch ( i->src->type ) {
         case IFPlus:
-	    FPRINTF( output, "( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " || " );
-	    PrintLoopTest( i->src->imp->isucc );
-	    FPRINTF( output, " )" );
-	    break;
+            FPRINTF( output, "( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " || " );
+            PrintLoopTest( i->src->imp->isucc );
+            FPRINTF( output, " )" );
+            break;
 
-	case IFTimes:
-	    FPRINTF( output, "( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " && " );
-	    PrintLoopTest( i->src->imp->isucc );
-	    FPRINTF( output, " )" );
-	    break;
+        case IFTimes:
+            FPRINTF( output, "( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " && " );
+            PrintLoopTest( i->src->imp->isucc );
+            FPRINTF( output, " )" );
+            break;
 
-	case IFGreat:
-	    FPRINTF( output, "( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " > " );
-	    PrintLoopTest( i->src->imp->isucc );
-	    FPRINTF( output, " )" );
-	    break;
+        case IFGreat:
+            FPRINTF( output, "( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " > " );
+            PrintLoopTest( i->src->imp->isucc );
+            FPRINTF( output, " )" );
+            break;
 
-	case IFGreatEqual:
-	    FPRINTF( output, "( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " >= " );
-	    PrintLoopTest( i->src->imp->isucc );
-	    FPRINTF( output, " )" );
-	    break;
+        case IFGreatEqual:
+            FPRINTF( output, "( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " >= " );
+            PrintLoopTest( i->src->imp->isucc );
+            FPRINTF( output, " )" );
+            break;
 
-	case IFLess:
-	    FPRINTF( output, "( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " < " );
-	    PrintLoopTest( i->src->imp->isucc );
-	    FPRINTF( output, " )" );
-	    break;
+        case IFLess:
+            FPRINTF( output, "( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " < " );
+            PrintLoopTest( i->src->imp->isucc );
+            FPRINTF( output, " )" );
+            break;
 
-	case IFLessEqual:
-	    FPRINTF( output, "( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " <= " );
-	    PrintLoopTest( i->src->imp->isucc );
-	    FPRINTF( output, " )" );
-	    break;
+        case IFLessEqual:
+            FPRINTF( output, "( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " <= " );
+            PrintLoopTest( i->src->imp->isucc );
+            FPRINTF( output, " )" );
+            break;
 
-	case IFNotEqual:
-	    FPRINTF( output, "( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " != " );
-	    PrintLoopTest( i->src->imp->isucc );
-	    FPRINTF( output, " )" );
-	    break;
+        case IFNotEqual:
+            FPRINTF( output, "( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " != " );
+            PrintLoopTest( i->src->imp->isucc );
+            FPRINTF( output, " )" );
+            break;
 
-	case IFEqual:
-	    FPRINTF( output, "( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " == " );
-	    PrintLoopTest( i->src->imp->isucc );
-	    FPRINTF( output, " )" );
-	    break;
+        case IFEqual:
+            FPRINTF( output, "( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " == " );
+            PrintLoopTest( i->src->imp->isucc );
+            FPRINTF( output, " )" );
+            break;
 
-	case IFNot:
-	    FPRINTF( output, "( !( " );
-	    PrintLoopTest( i->src->imp );
-	    FPRINTF( output, " ) )" );
-	    break;
+        case IFNot:
+            FPRINTF( output, "( !( " );
+            PrintLoopTest( i->src->imp );
+            FPRINTF( output, " ) )" );
+            break;
 
-	case IFSGraph:
-	    PrintTemp( i );
-	    break;
+        case IFSGraph:
+            PrintTemp( i );
+            break;
 
-	default:
-	    Error2( "PrintLoopTest", "ILLEGAL LOOP TEST NODE" );
-	}
+        default:
+            Error2( "PrintLoopTest", "ILLEGAL LOOP TEST NODE" );
+        }
 }
 
 
@@ -486,9 +496,9 @@ char  *macro;
     PrintTemp( v );
 
     if ( v->isucc != NULL ) {
-	FPRINTF( output, ", " );
-	PrintTemp( v->isucc );
-	}
+        FPRINTF( output, ", " );
+        PrintTemp( v->isucc );
+        }
 
     FPRINTF( output, " );\n" );
 }
@@ -572,7 +582,7 @@ int    atnode;
   PrintIndentation( indent );
 
   FPRINTF( output, "%s%s%s( %s, ", (bool != NULL)? "B" : "", macro, 
-	   IsBasic( i->info->A_ELEM )? "" : "X", i->info->A_ELEM->tname  );
+           IsBasic( i->info->A_ELEM )? "" : "X", i->info->A_ELEM->tname  );
 
   PrintTemp( i );
 
@@ -623,21 +633,21 @@ PNODE n;
     switch ( n->type ) {
       case IFAGatherATDVI:
       case IFReduceATDVI:
-	s = "DVI";
-	break;
+        s = "DVI";
+        break;
 
       case IFAGatherATDV:
       case IFReduceATDV:
-	s = "DV";
-	break;
+        s = "DV";
+        break;
 
       default:
-	s = "";
-	break;
+        s = "";
+        break;
       }
 
     FPRINTF( output, "%sBldAT%s( %s, ", 
-	     (n->nmark)? "Opt" : "", s, i->info->A_ELEM->tname );
+             (n->nmark)? "Opt" : "", s, i->info->A_ELEM->tname );
 
     PrintTemp( e );
     FPRINTF( output, ", " );
@@ -650,7 +660,7 @@ PNODE n;
 
     if ( i->src->usucc != NULL )
       if ( i->src->usucc->usucc == i->src )
-	 return;
+         return;
 
     if ( !(n->nmark) )
       PrintSetRefCount( indent, e, i->sr, FALSE );
@@ -720,23 +730,23 @@ PEDGE e;
 
         case REDUCE_SUM:
             if ( !IsBoolean( e->info ) ) {
-	        PrintTemp( f->isucc );
-	        FPRINTF( output, ";\n" );
-	        }
+                PrintTemp( f->isucc );
+                FPRINTF( output, ";\n" );
+                }
             else
-	        FPRINTF( output, "False;\n" );
+                FPRINTF( output, "False;\n" );
 
-	    break;
+            break;
 
         case REDUCE_PRODUCT:
             if ( !IsBoolean( e->info ) ) {
-	        PrintTemp( f->isucc );
-	        FPRINTF( output, ";\n" );
-	        }
+                PrintTemp( f->isucc );
+                FPRINTF( output, ";\n" );
+                }
             else
-	        FPRINTF( output, "True;\n" );
+                FPRINTF( output, "True;\n" );
 
-	    break;
+            break;
 
         case REDUCE_USER:
             if ( !IsBoolean( e->info ) ) {
@@ -750,10 +760,10 @@ PEDGE e;
 
             break;
 
-	default:
+        default:
 /*            Error2( "PrintReduceInit", "ILLEGAL REDUCTION\n" ); */
-	    break;
-	}
+            break;
+        }
 }
 
 
@@ -771,7 +781,7 @@ PNODE n;
     register PEDGE ii;
 
     if ( IsConst( i ) )
-	return( i );
+        return( i );
 
     /* MAKE SOME COMPILER CORRECTNESS CHECKS ON PORT NUMBERS, ETC. */
     if ( !IsSGraph( i->src ) )
@@ -858,14 +868,14 @@ PNODE n;
     register PEDGE i;
 
     for ( i = n->usucc->imp->src->F_RET->imp; i != NULL; i = i->isucc ) {
-	if ( i->iport == 0 )
-	    continue;
+        if ( i->iport == 0 )
+            continue;
 
-	switch ( i->src->type ) {
-	    case IFReduce:
-	    case IFRedLeft:
-	    case IFRedRight:
-	    case IFRedTree:
+        switch ( i->src->type ) {
+            case IFReduce:
+            case IFRedLeft:
+            case IFRedRight:
+            case IFRedTree:
                 if ( i->src->imp->CoNsT[0] == REDUCE_USER ) {
                     PEDGE e =  FindExport( n, i->iport);
                     PEDGE edge;
@@ -888,39 +898,39 @@ PNODE n;
                     break;
                     }
 
-		PrintReduceInit( indent, i->src->imp, FindExport( n, i->iport));
-		break;
+                PrintReduceInit( indent, i->src->imp, FindExport( n, i->iport));
+                break;
 
-	    case IFReduceAT:
-	    case IFReduceATDVI:
-	    case IFReduceATDV:
-	    case IFRedLeftAT:
-	    case IFRedRightAT:
-	    case IFRedTreeAT:
-		PrintBldAT( indent, i, FindExport( n, i->iport ), 
-			    GetSliceParam( i->src->imp->isucc, n ),
-			    GetSliceParam( FindImport( i->src, 6 ), n ),
-			    GetSliceParam( FindImport( i->src, 5 ), n ),
-			    i->src );
-		break;
+            case IFReduceAT:
+            case IFReduceATDVI:
+            case IFReduceATDV:
+            case IFRedLeftAT:
+            case IFRedRightAT:
+            case IFRedTreeAT:
+                PrintBldAT( indent, i, FindExport( n, i->iport ), 
+                            GetSliceParam( i->src->imp->isucc, n ),
+                            GetSliceParam( FindImport( i->src, 6 ), n ),
+                            GetSliceParam( FindImport( i->src, 5 ), n ),
+                            i->src );
+                break;
 
-	    case IFAGatherATDVI:
-	    case IFAGatherATDV:
-	    case IFAGatherAT:
-		PrintBldAT( indent, i, FindExport( n, i->iport ), 
-			    GetSliceParam( i->src->imp, n ),
-			    GetSliceParam( FindImport( i->src, 5 ), n ),
-			    GetSliceParam( FindImport( i->src, 4 ), n ),
-			    i->src );
-		break;
+            case IFAGatherATDVI:
+            case IFAGatherATDV:
+            case IFAGatherAT:
+                PrintBldAT( indent, i, FindExport( n, i->iport ), 
+                            GetSliceParam( i->src->imp, n ),
+                            GetSliceParam( FindImport( i->src, 5 ), n ),
+                            GetSliceParam( FindImport( i->src, 4 ), n ),
+                            i->src );
+                break;
 
             case IFUReduce:
                 break;
 
             default:
                 UNEXPECTED("Missing return type");
-	    }
-	}
+            }
+        }
 }
 
 
@@ -939,66 +949,66 @@ PNODE r;
     PNODE n;
 
     if ( r->G_DAD->smark )                               /* SLICED LOOP? */
-	return;
+        return;
 
     for ( i = r->imp; i != NULL; i = i->isucc ) {
-	if ( i->iport == 0 )
-	    continue;
+        if ( i->iport == 0 )
+            continue;
 
-	switch ( i->src->type ) {
-	    case IFFinalValue:
-	    case IFFinalValueAT:
-		if ( i->src->lmark )
-		    PrintAssgn( indent, i, i->src->imp );
+        switch ( i->src->type ) {
+            case IFFinalValue:
+            case IFFinalValueAT:
+                if ( i->src->lmark )
+                    PrintAssgn( indent, i, i->src->imp );
 
-		PrintProducerModifiers( indent, i->src );
-		break;
+                PrintProducerModifiers( indent, i->src );
+                break;
 
             case IFReduceAT:
-	    case IFReduceATDVI:
-	    case IFReduceATDV:
-	    case IFRedLeftAT:
-	    case IFRedRightAT:
-	    case IFRedTreeAT:
-		PrintBldAT( indent, i, i, i->src->imp->isucc,  
-			    FindImport( i->src, 6 ), FindImport( i->src, 5 ),
-			    i->src );
+            case IFReduceATDVI:
+            case IFReduceATDV:
+            case IFRedLeftAT:
+            case IFRedRightAT:
+            case IFRedTreeAT:
+                PrintBldAT( indent, i, i, i->src->imp->isucc,  
+                            FindImport( i->src, 6 ), FindImport( i->src, 5 ),
+                            i->src );
 
-		if ( i->src->imp->isucc->isucc->pmark )
-		    if ( !(i->src->nmark)  ) {
-		      PrintIndentation( indent );
+                if ( i->src->imp->isucc->isucc->pmark )
+                    if ( !(i->src->nmark)  ) {
+                      PrintIndentation( indent );
 
-		      FPRINTF( output, "PRedATRapUp( " );
-		      PrintTemp( FindImport( i->src, 5 ) );
-		      FPRINTF( output, " );\n" );
-		      }
+                      FPRINTF( output, "PRedATRapUp( " );
+                      PrintTemp( FindImport( i->src, 5 ) );
+                      FPRINTF( output, " );\n" );
+                      }
 
-		break;
+                break;
 
-	    case IFAGatherATDVI:
-	    case IFAGatherATDV:
-	    case IFAGatherAT:
+            case IFAGatherATDVI:
+            case IFAGatherATDV:
+            case IFAGatherAT:
                 PrintBldAT( indent, i, i, i->src->imp, 
-			    FindImport( i->src, 5 ), FindImport( i->src, 4 ),
-			    i->src );
-		break;
+                            FindImport( i->src, 5 ), FindImport( i->src, 4 ),
+                            i->src );
+                break;
 
-	    case IFAGather:
-		break;
+            case IFAGather:
+                break;
 
             case IFReduce:
-	    case IFRedLeft:
-	    case IFRedRight:
-	    case IFRedTree:
-		break;
+            case IFRedLeft:
+            case IFRedRight:
+            case IFRedTree:
+                break;
 
             case IFUReduce:
                 break;
 
-	    default:
-		UNEXPECTED("Missing return type");
-	    }
-	}
+            default:
+                UNEXPECTED("Missing return type");
+            }
+        }
 
         /* PRINT USER-REDUCTION WRAP UP PER NODE.                         */
 
@@ -1024,85 +1034,85 @@ PNODE r;
     PNODE n;
 
     for ( i = r->imp; i != NULL; i = i->isucc ) {
-	if ( i->iport == 0 )
-	    continue;
+        if ( i->iport == 0 )
+            continue;
 
-	switch ( i->src->type ) {
-	    case IFAGather:
-		b = i->src->imp->isucc->isucc;
+        switch ( i->src->type ) {
+            case IFAGather:
+                b = i->src->imp->isucc->isucc;
 
-		PrintIndentation( indent );
+                PrintIndentation( indent );
 
-		FPRINTF( output, "%sGathUpd%s( %s, ", (b != NULL)? "B" : "",
-			 (b != NULL && !IsBasic( i->info->A_ELEM ))? "X" : "",
-			 i->info->A_ELEM->tname                           );
+                FPRINTF( output, "%sGathUpd%s( %s, ", (b != NULL)? "B" : "",
+                         (b != NULL && !IsBasic( i->info->A_ELEM ))? "X" : "",
+                         i->info->A_ELEM->tname                           );
 
-		PrintTemp( i );
-		FPRINTF( output, ", " );
-		PrintTemp( i->src->imp->isucc );
+                PrintTemp( i );
+                FPRINTF( output, ", " );
+                PrintTemp( i->src->imp->isucc );
 
-		if ( b != NULL ) {
-		    FPRINTF( output, ", " );
-		    PrintTemp( b );
+                if ( b != NULL ) {
+                    FPRINTF( output, ", " );
+                    PrintTemp( b );
 
-		    if ( !IsBasic( i->info->A_ELEM ) )
-	              FPRINTF( output, ", %s ", GetFreeName( i->info->A_ELEM ));
+                    if ( !IsBasic( i->info->A_ELEM ) )
+                      FPRINTF( output, ", %s ", GetFreeName( i->info->A_ELEM ));
                     }
 
-		FPRINTF( output, " );\n" );
-		break;
+                FPRINTF( output, " );\n" );
+                break;
 
-	    case IFReduceAT:
-	    case IFReduceATDVI:
-	    case IFReduceATDV:
-	    case IFRedLeftAT:
-	    case IFRedRightAT:
-	    case IFRedTreeAT:
+            case IFReduceAT:
+            case IFReduceATDVI:
+            case IFReduceATDV:
+            case IFRedLeftAT:
+            case IFRedRightAT:
+            case IFRedTreeAT:
               if ( !(i->src->imp->isucc->isucc->pmark) )
-		PrintRCatUpd( indent, i,i->src->imp->isucc->isucc, NULL_EDGE, TRUE );
+                PrintRCatUpd( indent, i,i->src->imp->isucc->isucc, NULL_EDGE, TRUE );
 
-	      PrintConsumerModifiers( indent, i->src );
+              PrintConsumerModifiers( indent, i->src );
               break;
 
-	    case IFReduce:
-	    case IFRedLeft:
-	    case IFRedRight:
-	    case IFRedTree:
-		if ( i->src->gsucc != NULL )
-		    break;
+            case IFReduce:
+            case IFRedLeft:
+            case IFRedRight:
+            case IFRedTree:
+                if ( i->src->gsucc != NULL )
+                    break;
 
-		if ( i->src->imp->CoNsT[0] == REDUCE_CATENATE ) {
-		    PrintRCatUpd( indent, i, i->src->imp->isucc->isucc,
-			          i->src->imp->isucc->isucc->isucc, FALSE );
+                if ( i->src->imp->CoNsT[0] == REDUCE_CATENATE ) {
+                    PrintRCatUpd( indent, i, i->src->imp->isucc->isucc,
+                                  i->src->imp->isucc->isucc->isucc, FALSE );
 
-		    PrintConsumerModifiers( indent, i->src );
-		    break;
-		    }
+                    PrintConsumerModifiers( indent, i->src );
+                    break;
+                    }
 
-		switch ( i->src->imp->CoNsT[0] ) {
+                switch ( i->src->imp->CoNsT[0] ) {
                     case REDUCE_LEAST: 
-			PrintBasicRed( indent, i, "Min" );
-			break;
+                        PrintBasicRed( indent, i, "Min" );
+                        break;
 
                     case REDUCE_GREATEST:
                         PrintBasicRed( indent, i, "Max" );
-			break;
+                        break;
 
                     case REDUCE_PRODUCT:
-			if ( IsBoolean( i->info ) )
+                        if ( IsBoolean( i->info ) )
                             PrintBasicRed( indent, i, "And" );
-			else
+                        else
                             PrintBasicRed( indent, i, "Times" );
 
-			break;
+                        break;
 
                     case REDUCE_SUM:
-			if ( IsBoolean( i->info ) )
+                        if ( IsBoolean( i->info ) )
                             PrintBasicRed( indent, i, "Or" );
-			else
+                        else
                             PrintBasicRed( indent, i, "Plus" );
 
-			break;
+                        break;
 
                     case REDUCE_USER:
                         PrintUserRed( indent, i );
@@ -1112,86 +1122,86 @@ PNODE r;
                     default:
 /*                      Error2( "PrintReturnUpd", "ILLEGAL REDUCTION\n" ); */
                         break;
-		    }
+                    }
 
-		break;
-		
-	    case IFAGatherATDVI:
-	    case IFAGatherATDV:
-	    case IFAGatherAT:
-		/* NEW CANN 2/92 SKIP IMPLICIT ITERATION */
-		if ( i->src->umark ) {
-		  if ( !IsBasic( i->src->imp->isucc->info ) )
-		    if ( i->src->imp->isucc->cm != -1 )
-		      PrintFreeCall( indent, i->src->imp->isucc );
+                break;
+                
+            case IFAGatherATDVI:
+            case IFAGatherATDV:
+            case IFAGatherAT:
+                /* NEW CANN 2/92 SKIP IMPLICIT ITERATION */
+                if ( i->src->umark ) {
+                  if ( !IsBasic( i->src->imp->isucc->info ) )
+                    if ( i->src->imp->isucc->cm != -1 )
+                      PrintFreeCall( indent, i->src->imp->isucc );
 
-		  i->src->umark = FALSE;
-		  break;
-		  }
+                  i->src->umark = FALSE;
+                  break;
+                  }
 
-		if ( i->src->gsucc != NULL )
-		    break;
+                if ( i->src->gsucc != NULL )
+                    break;
 
-		PrintIndentation( indent );
+                PrintIndentation( indent );
 
-		if ( r->G_DAD->vmark || r->G_DAD->smark ) {
-		    FPRINTF( output, "VecGathATUpd( " );
-		    PrintTemp( r->G_DAD->F_GEN->imp );
-		    FPRINTF( output, ", %s, ", i->info->A_ELEM->tname );
-		    }
-		else
-		    FPRINTF( output, "GathATUpd( %s, ", i->info->A_ELEM->tname);
+                if ( r->G_DAD->vmark || r->G_DAD->smark ) {
+                    FPRINTF( output, "VecGathATUpd( " );
+                    PrintTemp( r->G_DAD->F_GEN->imp );
+                    FPRINTF( output, ", %s, ", i->info->A_ELEM->tname );
+                    }
+                else
+                    FPRINTF( output, "GathATUpd( %s, ", i->info->A_ELEM->tname);
 
-		PrintTemp( i );
-		FPRINTF( output, ", " );
-		PrintTemp( i->src->imp->isucc );
-		FPRINTF( output, " );\n" );
-		break;
+                PrintTemp( i );
+                FPRINTF( output, ", " );
+                PrintTemp( i->src->imp->isucc );
+                FPRINTF( output, " );\n" );
+                break;
 
-	    case IFFinalValueAT:
-	    case IFFinalValue:
-		if ( i->src->lmark )
-		    break;
+            case IFFinalValueAT:
+            case IFFinalValue:
+                if ( i->src->lmark )
+                    break;
 
-		PrintIndentation( indent );
+                PrintIndentation( indent );
 
-		b = i->src->imp->isucc;
+                b = i->src->imp->isucc;
 
-		FPRINTF( output, "%sFvUpd", (b != NULL)? "B" : "" );
+                FPRINTF( output, "%sFvUpd", (b != NULL)? "B" : "" );
 
-		if ( IsBasic( i->info ) )
-		  FPRINTF( output, "( " );
-		else { 
-		  if ( i->src->imp->cm == -1 || i->src->imp->dmark )
-		    FPRINTF( output, "X( " );
-		  else 
-		    FPRINTF( output, "( " );
-		  /* else Error2( "DEBUG", "FvUpdX ERROR" ); */
-		  }
+                if ( IsBasic( i->info ) )
+                  FPRINTF( output, "( " );
+                else { 
+                  if ( i->src->imp->cm == -1 || i->src->imp->dmark )
+                    FPRINTF( output, "X( " );
+                  else 
+                    FPRINTF( output, "( " );
+                  /* else Error2( "DEBUG", "FvUpdX ERROR" ); */
+                  }
 
-		PrintTemp( i );
-		FPRINTF( output, ", " );
-		PrintTemp( i->src->imp );
+                PrintTemp( i );
+                FPRINTF( output, ", " );
+                PrintTemp( i->src->imp );
 
-		if ( b != NULL ) {
-		    FPRINTF( output, ", " );
-		    PrintTemp( b );
-		    }
+                if ( b != NULL ) {
+                    FPRINTF( output, ", " );
+                    PrintTemp( b );
+                    }
 
-		if ( !IsBasic( i->info ) )
-		  if ( i->src->imp->cm == -1 || i->src->imp->dmark )
-	            FPRINTF( output, ", %s ", GetFreeName( i->info ) );
+                if ( !IsBasic( i->info ) )
+                  if ( i->src->imp->cm == -1 || i->src->imp->dmark )
+                    FPRINTF( output, ", %s ", GetFreeName( i->info ) );
 
-		FPRINTF( output, " );\n" );
-		break;
+                FPRINTF( output, " );\n" );
+                break;
 
             case IFUReduce:
                 break;
 
             default:
                 UNEXPECTED("Missing return type");
-	    }
-	}
+            }
+        }
 
         /* PRINT USER-REDUCTION UPDATES PER NODE.                         */
 
@@ -1217,114 +1227,114 @@ PNODE r;
     PNODE n;
 
     for ( i = r->imp; i != NULL; i = i->isucc ) {
-	if ( i->iport == 0 )
-	    continue;
+        if ( i->iport == 0 )
+            continue;
 
-	switch ( i->src->type ) {
-	    case IFAGather:
-		PrintIndentation( indent );
+        switch ( i->src->type ) {
+            case IFAGather:
+                PrintIndentation( indent );
 
-		FPRINTF( output, "DoABld( " );
-		PrintTemp( i );
-		FPRINTF( output, ", " );
-		PrintTemp( i->src->imp );
-		FPRINTF( output, ", %d );\n", i->sr );
-		break;
+                FPRINTF( output, "DoABld( " );
+                PrintTemp( i );
+                FPRINTF( output, ", " );
+                PrintTemp( i->src->imp );
+                FPRINTF( output, ", %d );\n", i->sr );
+                break;
 
-	    case IFReduce:
-	    case IFRedLeft:
-	    case IFRedRight:
-	    case IFRedTree:
-		if ( i->src->imp->CoNsT[0] == REDUCE_CATENATE ) {
-		    PrintIndentation( indent );
+            case IFReduce:
+            case IFRedLeft:
+            case IFRedRight:
+            case IFRedTree:
+                if ( i->src->imp->CoNsT[0] == REDUCE_CATENATE ) {
+                    PrintIndentation( indent );
 
-		    FPRINTF( output, "DoABld( " );
-		    PrintTemp( i );
-		    FPRINTF( output, ", " );
-		    PrintTemp( i->src->imp->isucc );
-		    FPRINTF( output, ", %d );\n", i->sr );
-		    break;
-		    }
+                    FPRINTF( output, "DoABld( " );
+                    PrintTemp( i );
+                    FPRINTF( output, ", " );
+                    PrintTemp( i->src->imp->isucc );
+                    FPRINTF( output, ", %d );\n", i->sr );
+                    break;
+                    }
 
-		PrintReduceInit( indent, i->src->imp, i );
-		break;
-		
-	    case IFFinalValue:
-	    case IFFinalValueAT:
-		if ( i->src->lmark || IsBasic( i->info ) )
-		    break;
+                PrintReduceInit( indent, i->src->imp, i );
+                break;
+                
+            case IFFinalValue:
+            case IFFinalValueAT:
+                if ( i->src->lmark || IsBasic( i->info ) )
+                    break;
 
-		if ( i->src->imp->cm == -1 || i->src->imp->dmark ) {
-		  PrintIndentation( indent );
-		  FPRINTF( output, "InitFvUpdX( " );
-		  PrintTemp( i );
-		  FPRINTF( output, " );\n" );
-		  }
-		/* else Error2( "DEBUG", "InitFvUpdX ERROR" ); */
+                if ( i->src->imp->cm == -1 || i->src->imp->dmark ) {
+                  PrintIndentation( indent );
+                  FPRINTF( output, "InitFvUpdX( " );
+                  PrintTemp( i );
+                  FPRINTF( output, " );\n" );
+                  }
+                /* else Error2( "DEBUG", "InitFvUpdX ERROR" ); */
 
-		break;
+                break;
 
-	    case IFReduceAT:
-	    case IFReduceATDVI:
-	    case IFReduceATDV:
-	    case IFRedLeftAT:
-	    case IFRedRightAT:
-	    case IFRedTreeAT:
-		if ( r->G_DAD->smark )
-		    break;
+            case IFReduceAT:
+            case IFReduceATDVI:
+            case IFReduceATDV:
+            case IFRedLeftAT:
+            case IFRedRightAT:
+            case IFRedTreeAT:
+                if ( r->G_DAD->smark )
+                    break;
 
-		s = NULL;
+                s = NULL;
 
-		if ( i->src->imp->isucc->isucc->pmark ) {
-		  if ( !(i->src->nmark) )
-		    s = "PRedATInit";
-		  }
+                if ( i->src->imp->isucc->isucc->pmark ) {
+                  if ( !(i->src->nmark) )
+                    s = "PRedATInit";
+                  }
                 else
-		    s = "RedATInit";
+                    s = "RedATInit";
 
-		if ( s == NULL )
-		  break;
+                if ( s == NULL )
+                  break;
 
-		PrintIndentation( indent );
-		FPRINTF( output, "%s( ", s );
-		PrintTemp( i );
-		FPRINTF( output, ", " );
-		PrintTemp( FindImport( i->src, 5 ) );
-		FPRINTF( output, " );\n" );
-		break;
+                PrintIndentation( indent );
+                FPRINTF( output, "%s( ", s );
+                PrintTemp( i );
+                FPRINTF( output, ", " );
+                PrintTemp( FindImport( i->src, 5 ) );
+                FPRINTF( output, " );\n" );
+                break;
 
-	    case IFAGatherATDVI:
-	    case IFAGatherATDV:
-	    case IFAGatherAT:
-		PrintIndentation( indent );
+            case IFAGatherATDVI:
+            case IFAGatherATDV:
+            case IFAGatherAT:
+                PrintIndentation( indent );
 
-		if ( r->G_DAD->smark ) {
-		    FPRINTF( output, "VecSliceGathATInit( " );
-		    PrintTemp( r->G_DAD->F_GEN->imp );
-		    FPRINTF( output, "," );
-		    }
-		else if ( r->G_DAD->vmark ) {
-		    FPRINTF( output, "VecGathATInit( " );
-		    PrintTemp( r->G_DAD->F_GEN->imp );
-		    FPRINTF( output, "," );
-		    }
+                if ( r->G_DAD->smark ) {
+                    FPRINTF( output, "VecSliceGathATInit( " );
+                    PrintTemp( r->G_DAD->F_GEN->imp );
+                    FPRINTF( output, "," );
+                    }
+                else if ( r->G_DAD->vmark ) {
+                    FPRINTF( output, "VecGathATInit( " );
+                    PrintTemp( r->G_DAD->F_GEN->imp );
+                    FPRINTF( output, "," );
+                    }
                 else
-		    FPRINTF( output, "GathATInit(" );
+                    FPRINTF( output, "GathATInit(" );
 
-		FPRINTF( output, " %s, ", i->info->A_ELEM->tname );
-		PrintTemp( i );
-		FPRINTF( output, ", " );
-		PrintTemp( FindImport( i->src, 4 ) );
-		FPRINTF( output, " );\n" );
-		break;
+                FPRINTF( output, " %s, ", i->info->A_ELEM->tname );
+                PrintTemp( i );
+                FPRINTF( output, ", " );
+                PrintTemp( FindImport( i->src, 4 ) );
+                FPRINTF( output, " );\n" );
+                break;
 
             case IFUReduce:
                 break;
 
             default:
                 UNEXPECTED("Missing return type");
-	    }
-	}
+            }
+        }
 
         /* PRINT USER-REDUCTION RETURN INITIALIZATIONS PER NODE.          */
 
@@ -1348,10 +1358,10 @@ PNODE f;
 {
     register PNODE n;
     register PEDGE i;
-	     char  buf[100];
+             char  buf[100];
 
     if ( f->smark ) {
-	i = f->F_GEN->imp;
+        i = f->F_GEN->imp;
 
         PrintIndentation( indent );
         PrintTemp( i->src->imp );
@@ -1360,57 +1370,57 @@ PNODE f;
         PrintIndentation( indent );
         PrintTemp( i->src->imp->isucc );
         FPRINTF( output, " = hi;\n" );
-	}
+        }
 
     for ( n = f->F_GEN->G_NODES; n != NULL; n = n->nsucc )
-	switch ( n->type ) {
-	    case IFRangeGenerate:
-		break;
+        switch ( n->type ) {
+            case IFRangeGenerate:
+                break;
 
-	    case IFScatterBufPartitions:
-		if ( f->smark )
+            case IFScatterBufPartitions:
+                if ( f->smark )
                     SPRINTF( buf, "%sSliceBufCpy( %s, ",
-			     (f->vmark)? "Vec" : "",
-			     n->imp->info->A_ELEM->A_ELEM->tname );
+                             (f->vmark)? "Vec" : "",
+                             n->imp->info->A_ELEM->A_ELEM->tname );
                 else if ( n->imp->temp != n->exp->temp )
                     SPRINTF( buf, "%sBufCpy( ", (f->vmark)? "Vec" : "" );
                 else
-		    break;
+                    break;
 
-		PrintIndentation( indent );
+                PrintIndentation( indent );
 
-		FPRINTF( output, "%s", buf );
-		PrintTemp( n->exp );
-		FPRINTF( output, ", " );
-		PrintTemp( n->imp );
-		FPRINTF( output, ", " );
-		PrintTemp( n->imp->isucc );
+                FPRINTF( output, "%s", buf );
+                PrintTemp( n->exp );
+                FPRINTF( output, ", " );
+                PrintTemp( n->imp );
+                FPRINTF( output, ", " );
+                PrintTemp( n->imp->isucc );
 
-		if ( f->smark ) {
-		  FPRINTF( output, ", " );
-		  PrintTemp( f->F_GEN->imp );
-		  }
-
-		FPRINTF( output, " );\n" );
-
-		break;
-
-	    case IFAssign:
-		if ( IsScatterBufPartitions( n->exp->dst ) ) {
-		  if ( !(f->vmark) )
-		    PrintAssgn( indent, n->exp, n->imp );
-
-		  break;
+                if ( f->smark ) {
+                  FPRINTF( output, ", " );
+                  PrintTemp( f->F_GEN->imp );
                   }
 
-		if ( !(f->smark) )
-		  PrintAssgn( indent, n->exp, n->imp );
+                FPRINTF( output, " );\n" );
 
-		break;
+                break;
 
-	    default:
-		break;
-	    }
+            case IFAssign:
+                if ( IsScatterBufPartitions( n->exp->dst ) ) {
+                  if ( !(f->vmark) )
+                    PrintAssgn( indent, n->exp, n->imp );
+
+                  break;
+                  }
+
+                if ( !(f->smark) )
+                  PrintAssgn( indent, n->exp, n->imp );
+
+                break;
+
+            default:
+                break;
+            }
 }
 
 
@@ -1428,33 +1438,33 @@ PNODE f;
 
     for ( n = f->F_GEN->G_NODES; n != NULL; n = n->nsucc )
         switch ( n->type ) {
-	    case IFScatterBufPartitions:
-		PrintIndentation( indent );
+            case IFScatterBufPartitions:
+                PrintIndentation( indent );
 
-		FPRINTF( output, "%sOptShiftB( %s, ", 
-			 (f->vmark)? "Vec" : "",
-			 n->exp->info->A_ELEM->A_ELEM->tname );
-		PrintTemp( n->exp );
-		FPRINTF( output, ", " );
-		PrintTemp( n->exp );
-		FPRINTF( output, ", " );
-		PrintTemp( n->imp->isucc );
-		FPRINTF( output, " );\n" );
-		break;
+                FPRINTF( output, "%sOptShiftB( %s, ", 
+                         (f->vmark)? "Vec" : "",
+                         n->exp->info->A_ELEM->A_ELEM->tname );
+                PrintTemp( n->exp );
+                FPRINTF( output, ", " );
+                PrintTemp( n->exp );
+                FPRINTF( output, ", " );
+                PrintTemp( n->imp->isucc );
+                FPRINTF( output, " );\n" );
+                break;
 
-	    case IFRangeGenerate:
-		if ( (alliantfx && (!f->vmark)) || 
-		     (!(n == f->F_GEN->imp->src)) ) {
-		  PrintIndentation( indent );
-		  PrintTemp( n->exp );
-		  FPRINTF( output, "++;\n" );
-		  }
+            case IFRangeGenerate:
+                if ( (alliantfx && (!f->vmark)) || 
+                     (!(n == f->F_GEN->imp->src)) ) {
+                  PrintIndentation( indent );
+                  PrintTemp( n->exp );
+                  FPRINTF( output, "++;\n" );
+                  }
 
-		break;
+                break;
 
-	    default:
-		break;
-	    }
+            default:
+                break;
+            }
 }
 
 
@@ -1486,8 +1496,8 @@ PNODE f;
     register PEDGE  i;
     register PEDGE  e;
     register PNODE  g;
-	     char   buf[200];
-	     char   *Reason;
+             char   buf[200];
+             char   *Reason;
 
     n = f->F_GEN->imp->src;
     g = f->F_BODY;
@@ -1538,135 +1548,135 @@ PNODE f;
         g->flps = NULL;
         }
 
-	if ( f->vmark ) {
-	  if ( alliantfx ) {
-	    for ( i = f->imp; i != NULL; i = i->isucc )
-	      if ( IsBuffer( i->info ) ) {
-	        PrintVectorTemp( output, i );
-	        e = FindExport( f->F_RET, i->iport );
-	        FPRINTF( output, " = (%s *) ", i->info->A_ELEM->A_ELEM->tname );
-	        PrintTemp( e->dst->exp );
-	        FPRINTF( output, ";\n" );
-	        }
+        if ( f->vmark ) {
+          if ( alliantfx ) {
+            for ( i = f->imp; i != NULL; i = i->isucc )
+              if ( IsBuffer( i->info ) ) {
+                PrintVectorTemp( output, i );
+                e = FindExport( f->F_RET, i->iport );
+                FPRINTF( output, " = (%s *) ", i->info->A_ELEM->A_ELEM->tname );
+                PrintTemp( e->dst->exp );
+                FPRINTF( output, ";\n" );
+                }
 
-	    PrintVECTOR();
-	    }
+            PrintVECTOR();
+            }
 
-	  if ( cRay ) {
-	    if ( IsIvdepOk( f->F_BODY, &Reason ) ) {
-	      PrintVECTOR();
+          if ( cRay ) {
+            if ( IsIvdepOk( f->F_BODY, &Reason ) ) {
+              PrintVECTOR();
             } else {
               FPRINTF( stderr, "OSC INTERNAL WARNING: IVDEP FAILURE %s\n", 
-		      GetSisalInfo( f, buf )                           );
-	      FPRINTF( stderr, "-- %s\n",Reason );
-	    }
-	  }
+                      GetSisalInfo( f, buf )                           );
+              FPRINTF( stderr, "-- %s\n",Reason );
+            }
+          }
 
-	  PrintASSOC();
+          PrintASSOC();
 
-	  if ( cRay && fvc )
-	    FPRINTF( output, "#line %d \"%s\"\n", 
-		     (f->line <= 0)? 1 : f->line,
-		     (f->file == NULL)? "UNKNOWN_FILE.SIS" : f->file );
+          if ( cRay && fvc )
+            FPRINTF( output, "#line %d \"%s\"\n", 
+                     (f->line <= 0)? 1 : f->line,
+                     (f->file == NULL)? "UNKNOWN_FILE.SIS" : f->file );
 
-	  if ( alliantfx )
-	    for ( nn = f->F_RET->G_NODES; nn != NULL; nn = nn->nsucc )
-	      if ( nn->type == IFAGatherAT || 
-		   nn->type == IFAGatherATDV ||
-		   nn->type == IFAGatherATDVI ) {
-	        i = FindImport( nn, 4 );
-		PrintSAFE(PrintVectorTemp( (FILE*)NULL, FindImport(f,i->eport) ));
-	        }
+          if ( alliantfx )
+            for ( nn = f->F_RET->G_NODES; nn != NULL; nn = nn->nsucc )
+              if ( nn->type == IFAGatherAT || 
+                   nn->type == IFAGatherATDV ||
+                   nn->type == IFAGatherATDVI ) {
+                i = FindImport( nn, 4 );
+                PrintSAFE(PrintVectorTemp( (FILE*)NULL, FindImport(f,i->eport) ));
+                }
           }
         /* NOVECTOR sometimes breaks fxc */
         else if ( f->ThinCopy && (!alliantfx) )
-	  PrintNOVECTOR();
+          PrintNOVECTOR();
 
-	if ( (!alliantfx) || f->vmark ) {
-	  PrintIndentation( indent );
-	  FPRINTF( output, "for ( " );
+        if ( (!alliantfx) || f->vmark ) {
+          PrintIndentation( indent );
+          FPRINTF( output, "for ( " );
 
-	  if ( alliantfx ) {
-	    PrintTemp( n->imp );
-	    FPRINTF( output, " = " );
-	    PrintTemp( n->imp );
-	  }
+          if ( alliantfx ) {
+            PrintTemp( n->imp );
+            FPRINTF( output, " = " );
+            PrintTemp( n->imp );
+          }
 
-	  FPRINTF( output, "; " );
+          FPRINTF( output, "; " );
 
-	  /* ------------------------------------------------------------ */
-	  /* Choose a loop style for this generator if parallel, else	  */
-	  /* just use the standard step style.				  */
-	  /* ------------------------------------------------------------ */
-	  if ( !f->smark ) {
-	    /* Normal, inline loop */
-	    PrintTemp( n->imp );
-	    FPRINTF( output, " <= " );
-	    PrintTemp( n->imp->isucc );
-	    FPRINTF( output, "; " );
+          /* ------------------------------------------------------------ */
+          /* Choose a loop style for this generator if parallel, else     */
+          /* just use the standard step style.                            */
+          /* ------------------------------------------------------------ */
+          if ( !f->smark ) {
+            /* Normal, inline loop */
+            PrintTemp( n->imp );
+            FPRINTF( output, " <= " );
+            PrintTemp( n->imp->isucc );
+            FPRINTF( output, "; " );
 
-	    PrintTemp( n->imp );
-	    FPRINTF( output, "++ ) {  /* Normal Loop */\n" );
+            PrintTemp( n->imp );
+            FPRINTF( output, "++ ) {  /* Normal Loop */\n" );
 
-	  } else {
-	    switch ( f->Style ) {
-	      /* -------------------------------------------------------- */
-	      /* STRIDED */
-	     case 'S':
-	      PrintTemp( n->imp );
-	      FPRINTF( output, " <= " );
-	      PrintTemp( n->imp->isucc );
-	      FPRINTF( output, "; " );
+          } else {
+            switch ( f->Style ) {
+              /* -------------------------------------------------------- */
+              /* STRIDED */
+             case 'S':
+              PrintTemp( n->imp );
+              FPRINTF( output, " <= " );
+              PrintTemp( n->imp->isucc );
+              FPRINTF( output, "; " );
 
-	      PrintTemp( n->imp );
-	      FPRINTF( output, " += step ) {" );
-	      break;
+              PrintTemp( n->imp );
+              FPRINTF( output, " += step ) {" );
+              break;
 
-	      /* -------------------------------------------------------- */
-	      /* GSS or BLOCKED */
-	     case 'G':
-	     case 'B':
-	     case 'C':
-	      PrintTemp( n->imp );
-	      FPRINTF( output, " <= " );
-	      PrintTemp( n->imp->isucc );
-	      FPRINTF( output, "; " );
+              /* -------------------------------------------------------- */
+              /* GSS or BLOCKED */
+             case 'G':
+             case 'B':
+             case 'C':
+              PrintTemp( n->imp );
+              FPRINTF( output, " <= " );
+              PrintTemp( n->imp->isucc );
+              FPRINTF( output, "; " );
 
-	      PrintTemp( n->imp );
-	      FPRINTF( output, "++ ) {" );
-	      break;
+              PrintTemp( n->imp );
+              FPRINTF( output, "++ ) {" );
+              break;
 
-	      /* -------------------------------------------------------- */
-	      /* RUNTIME DECISION */
-	     case 'R':
-	      PrintTemp( n->imp );
-	      FPRINTF( output, " <= " );
-	      PrintTemp( n->imp->isucc );
-	      FPRINTF( output, "; " );
+              /* -------------------------------------------------------- */
+              /* RUNTIME DECISION */
+             case 'R':
+              PrintTemp( n->imp );
+              FPRINTF( output, " <= " );
+              PrintTemp( n->imp->isucc );
+              FPRINTF( output, "; " );
 
-	      PrintTemp( n->imp );
-	      FPRINTF( output, " += step ) {" );
-	      break;
+              PrintTemp( n->imp );
+              FPRINTF( output, " += step ) {" );
+              break;
 
-	     default:
-	      SPRINTF(buf,"Invalid Loop Style '%c' -- loop %d",
-		      f->Style,f->ID);
-	      Error1(buf);
-	    }
-	    FPRINTF(output,"	/* Style=%c */\n",f->Style);
-	  }
+             default:
+              SPRINTF(buf,"Invalid Loop Style '%c' -- loop %d",
+                      f->Style,f->ID);
+              Error1(buf);
+            }
+            FPRINTF(output,"    /* Style=%c */\n",f->Style);
+          }
         } else {
-	  PrintIndentation( indent );
-	  FPRINTF( output, "while ( " );
-	  PrintTemp( n->imp );
-	  FPRINTF( output, " <= " );
-	  PrintTemp( n->imp->isucc );
-	  FPRINTF( output, ") {\n" );
-	}
+          PrintIndentation( indent );
+          FPRINTF( output, "while ( " );
+          PrintTemp( n->imp );
+          FPRINTF( output, " <= " );
+          PrintTemp( n->imp->isucc );
+          FPRINTF( output, ") {\n" );
+        }
     } else {
-	PrintIndentation( indent );
-	FPRINTF( output, "for ( ;; ) {\n" );
-	}
+        PrintIndentation( indent );
+        FPRINTF( output, "for ( ;; ) {\n" );
+        }
 }
 
 
@@ -1708,17 +1718,17 @@ PNODE n;
 
 PrintIt:
       if ( ncnt++ > 6 ) {
-	 FPRINTF( output, "\n" );
+         FPRINTF( output, "\n" );
          PrintIndentation( indent + 2 );
-	 ncnt = 0;
-	 }
+         ncnt = 0;
+         }
 
       FPRINTF( output, "(" );
       PrintVecNodeImport( indent,  n->imp );
       FPRINTF( output, " %c ", op );
 
       if ( IsDivByZero( n ) )
-	FPRINTF( output, "DivByZero()" );
+        FPRINTF( output, "DivByZero()" );
       else
         PrintVecNodeImport( indent, n->imp->isucc );
       FPRINTF( output, ")" );
@@ -1726,10 +1736,10 @@ PrintIt:
 
     case IFNeg:
       if ( ncnt++ > 6 ) {
-	 FPRINTF( output, "\n" );
+         FPRINTF( output, "\n" );
          PrintIndentation( indent + 2 );
-	 ncnt = 0;
-	 }
+         ncnt = 0;
+         }
 
       FPRINTF( output, "(-(" );
       PrintVecNodeImport( indent, n->imp );
@@ -1738,10 +1748,10 @@ PrintIt:
 
     case IFDouble:
       if ( ncnt++ > 6 ) {
-	 FPRINTF( output, "\n" );
+         FPRINTF( output, "\n" );
          PrintIndentation( indent + 2 );
-	 ncnt = 0;
-	 }
+         ncnt = 0;
+         }
 
       FPRINTF( output, "((double)" );
       PrintVecNodeImport( indent, n->imp );
@@ -1750,10 +1760,10 @@ PrintIt:
 
     case IFTrunc:
       if ( ncnt++ > 6 ) {
-	 FPRINTF( output, "\n" );
+         FPRINTF( output, "\n" );
          PrintIndentation( indent + 2 );
-	 ncnt = 0;
-	 }
+         ncnt = 0;
+         }
 
       FPRINTF( output, "((int)" );
       PrintVecNodeImport( indent, n->imp );
@@ -1762,10 +1772,10 @@ PrintIt:
 
     case IFSingle:
       if ( ncnt++ > 6 ) {
-	 FPRINTF( output, "\n" );
+         FPRINTF( output, "\n" );
          PrintIndentation( indent + 2 );
-	 ncnt = 0;
-	 }
+         ncnt = 0;
+         }
 
       FPRINTF( output, "((float)" );
       PrintVecNodeImport( indent, n->imp );
@@ -1774,10 +1784,10 @@ PrintIt:
 
     case IFAbs:
       if ( ncnt++ > 6 ) {
-	 FPRINTF( output, "\n" );
+         FPRINTF( output, "\n" );
          PrintIndentation( indent + 2 );
-	 ncnt = 0;
-	 }
+         ncnt = 0;
+         }
 
       if (n->exp->info->type == IF_INTEGER)
         FPRINTF( output, "abs(" );
@@ -1790,10 +1800,10 @@ PrintIt:
 
     case IFOptAElement:
       if ( ncnt++ > 6 ) {
-	 FPRINTF( output, "\n" );
+         FPRINTF( output, "\n" );
          PrintIndentation( indent + 2 );
-	 ncnt = 0;
-	 }
+         ncnt = 0;
+         }
 
       PrintTemp( FindImport( n->imp->src->G_DAD, n->imp->eport ) );
       FPRINTF( output, "[" );
@@ -1850,19 +1860,19 @@ PNODE f;
       case IFRedTree:
         switch ( n->imp->CoNsT[0] ) {
           case REDUCE_LEAST: 
-	    op = '>'; goto PrintIt1;
+            op = '>'; goto PrintIt1;
           case REDUCE_GREATEST:
-	    op = '<';
+            op = '<';
 PrintIt1:
-	    if ( !IsConst( n->imp->isucc->isucc ) )
-	      if ( IsImport( n->exp->dst->G_DAD->F_BODY, 
-			     n->imp->isucc->isucc->eport ) ) {
-	      PrintIndentation( indent );
-	      PrintTemp( n->imp->isucc->isucc );
-	      FPRINTF( output, " = " );
-	      PrintVecUpd( indent, n->imp->isucc->isucc, f );
-	      FPRINTF( output, ";\n" );
-	      }
+            if ( !IsConst( n->imp->isucc->isucc ) )
+              if ( IsImport( n->exp->dst->G_DAD->F_BODY, 
+                             n->imp->isucc->isucc->eport ) ) {
+              PrintIndentation( indent );
+              PrintTemp( n->imp->isucc->isucc );
+              FPRINTF( output, " = " );
+              PrintVecUpd( indent, n->imp->isucc->isucc, f );
+              FPRINTF( output, ";\n" );
+              }
 
             PrintIndentation( indent );
             FPRINTF( output, "if ( " );
@@ -1877,16 +1887,16 @@ PrintIt1:
             break;
       
           case REDUCE_PRODUCT:
-	    op = '*'; goto PrintIt2;
+            op = '*'; goto PrintIt2;
           case REDUCE_SUM:
             op = '+';
 PrintIt2:
-	    ncnt =0;
+            ncnt =0;
             PrintIndentation( indent );
             PrintTemp( n->exp );
             FPRINTF( output, " %c= ", op );
 
-	    PrintVecUpd( indent, n->imp->isucc->isucc, f );
+            PrintVecUpd( indent, n->imp->isucc->isucc, f );
 
             FPRINTF( output, ";\n" );
             break;
@@ -1901,15 +1911,15 @@ PrintIt2:
       case IFAGatherATDVI:
       case IFAGatherATDV:
       case IFAGatherAT:
-	ncnt =0;
+        ncnt =0;
         PrintIndentation( indent );
-	i = FindImport( n, 4 );
+        i = FindImport( n, 4 );
         PrintVectorTemp( output, FindImport( f, i->eport ) );
         FPRINTF( output, "[" );
         PrintTemp( f->F_GEN->imp );
         FPRINTF( output, " ] = " );
 
-	PrintVecUpd( indent, n->imp->isucc, f );
+        PrintVecUpd( indent, n->imp->isucc, f );
 
         FPRINTF( output, ";\n" );
         break;
@@ -1931,52 +1941,52 @@ PEDGE e;
 {
     if ( IsConst( e ) ) {
         FPRINTF( hyfd, "(%s)", e->CoNsT );
-	return;
-	}
+        return;
+        }
 
     if ( e->temp == NULL ) {
-	if ( e->src->type == IFAIndexMinus ) {
-	  PrintHTemp( e->src->imp );
+        if ( e->src->type == IFAIndexMinus ) {
+          PrintHTemp( e->src->imp );
 
-	  if ( IsConst( e->src->imp->isucc ) )
-	    if ( atoi( e->src->imp->isucc->CoNsT ) == 0 )
-	      return;
+          if ( IsConst( e->src->imp->isucc ) )
+            if ( atoi( e->src->imp->isucc->CoNsT ) == 0 )
+              return;
 
-	  FPRINTF( hyfd, "-" );
-	  PrintHTemp( e->src->imp->isucc );
-	  return;
-	  }
+          FPRINTF( hyfd, "-" );
+          PrintHTemp( e->src->imp->isucc );
+          return;
+          }
 
-	if ( e->src->type == IFAIndexPlus ) {
-	  PrintHTemp( e->src->imp );
+        if ( e->src->type == IFAIndexPlus ) {
+          PrintHTemp( e->src->imp );
 
-	  if ( IsConst( e->src->imp->isucc ) )
-	    if ( atoi( e->src->imp->isucc->CoNsT ) == 0 )
-	      return;
+          if ( IsConst( e->src->imp->isucc ) )
+            if ( atoi( e->src->imp->isucc->CoNsT ) == 0 )
+              return;
 
-	  FPRINTF( hyfd, "+" );
-	  PrintHTemp( e->src->imp->isucc );
-	  return;
-	  } 
+          FPRINTF( hyfd, "+" );
+          PrintHTemp( e->src->imp->isucc );
+          return;
+          } 
 
-	Error1( "PrintHTemp: temp == NULL" );
-	}
+        Error1( "PrintHTemp: temp == NULL" );
+        }
 
     switch ( e->info->type ) {
       case IF_REAL:
-	FPRINTF( hyfd, "R" );
-	break;
+        FPRINTF( hyfd, "R" );
+        break;
 
       case IF_DOUBLE:
-	FPRINTF( hyfd, "D" );
-	break;
+        FPRINTF( hyfd, "D" );
+        break;
 
       case IF_INTEGER:
-	FPRINTF( hyfd, "I" );
-	break;
+        FPRINTF( hyfd, "I" );
+        break;
 
       default:
-	break;
+        break;
       }
 
     FPRINTF( hyfd, "%s", e->temp->name );
@@ -1989,18 +1999,18 @@ PEDGE i;
   switch( i->info->type ) {
     case IF_ARRAY:
       switch( i->info->A_ELEM->type ) {
-	case IF_INTEGER:
-	  return( "integer" );
+        case IF_INTEGER:
+          return( "integer" );
 
-	case IF_REAL:
-	  return( "real*4" );
+        case IF_REAL:
+          return( "real*4" );
 
-	case IF_DOUBLE:
-	  return( "real*8" );
+        case IF_DOUBLE:
+          return( "real*8" );
 
-	default:
-	  Error2( "GetHybridTypeProlog", "ILLEGAL ARRAY COMPONENT TYPE!!!" );
-	}
+        default:
+          Error2( "GetHybridTypeProlog", "ILLEGAL ARRAY COMPONENT TYPE!!!" );
+        }
 
       break;
 
@@ -2036,11 +2046,11 @@ PEDGE crod;
     switch ( n->type ) {
       case IFAssign:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->exp );
-	FPRINTF( hyfd, " = " );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, "\n" );
-	break;
+        PrintHTemp( n->exp );
+        FPRINTF( hyfd, " = " );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, "\n" );
+        break;
 
       case IFGreat:
       case IFGreatEqual:
@@ -2052,39 +2062,39 @@ PEDGE crod;
 
       case IFSelect:
         FPRINTF( hyfd, "       if ( " );
-	PrintHTemp( n->usucc->imp );
+        PrintHTemp( n->usucc->imp );
 
         switch ( n->usucc->type ) {
           case IFGreat:
-	    FPRINTF( hyfd, " .gt. " );
-	    break;
+            FPRINTF( hyfd, " .gt. " );
+            break;
 
           case IFGreatEqual:
-	    FPRINTF( hyfd, " .ge. " );
-	    break;
+            FPRINTF( hyfd, " .ge. " );
+            break;
 
           case IFLess:
-	    FPRINTF( hyfd, " .lt. " );
-	    break;
+            FPRINTF( hyfd, " .lt. " );
+            break;
 
           case IFLessEqual:
-	    FPRINTF( hyfd, " .le. " );
-	    break;
+            FPRINTF( hyfd, " .le. " );
+            break;
 
           case IFEqual:
-	    FPRINTF( hyfd, " .eq. " );
-	    break;
+            FPRINTF( hyfd, " .eq. " );
+            break;
 
           case IFNotEqual:
-	    FPRINTF( hyfd, " .ne. " );
-	    break;
+            FPRINTF( hyfd, " .ne. " );
+            break;
 
           default:
-	    break;
+            break;
           }
 
-	PrintHTemp( n->usucc->imp->isucc );
-	FPRINTF( hyfd, " ) then\n" );
+        PrintHTemp( n->usucc->imp->isucc );
+        FPRINTF( hyfd, " ) then\n" );
 
         PrintHybridGraph( f, n->S_CONS, crod );
 
@@ -2096,143 +2106,143 @@ PEDGE crod;
         break;
 
       case IFLeast:
-	op = "min";
-	goto DoReduction1;
+        op = "min";
+        goto DoReduction1;
       case IFGreatest:
-	op = "max";
+        op = "max";
 DoReduction1:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->gsucc->exp );
-	FPRINTF( hyfd, " = %s( ", op );
-	PrintHTemp( n->gsucc->exp );
-	FPRINTF( hyfd, ", " );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, " )\n" );
-	break;
+        PrintHTemp( n->gsucc->exp );
+        FPRINTF( hyfd, " = %s( ", op );
+        PrintHTemp( n->gsucc->exp );
+        FPRINTF( hyfd, ", " );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, " )\n" );
+        break;
 
       case IFProduct:
-	op = " * ";
-	goto DoReduction2;
+        op = " * ";
+        goto DoReduction2;
       case IFSum:
         op = " + ";
 DoReduction2:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->gsucc->exp );
-	FPRINTF( hyfd, " = " );
-	PrintHTemp( n->gsucc->exp );
-	FPRINTF( hyfd, "%s", op );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, "\n" );
-	break;
+        PrintHTemp( n->gsucc->exp );
+        FPRINTF( hyfd, " = " );
+        PrintHTemp( n->gsucc->exp );
+        FPRINTF( hyfd, "%s", op );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, "\n" );
+        break;
 
       case IFAStore:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->gsucc->exp );
-	FPRINTF( hyfd, "(" );
+        PrintHTemp( n->gsucc->exp );
+        FPRINTF( hyfd, "(" );
 
-	if ( f->vmark || f->smark )
-	  PrintHTemp( crod );
-	else
-	  FPRINTF( hyfd, "iii" );
+        if ( f->vmark || f->smark )
+          PrintHTemp( crod );
+        else
+          FPRINTF( hyfd, "iii" );
 
-	FPRINTF( hyfd, ") = " );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, "\n" );
-	break;
+        FPRINTF( hyfd, ") = " );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, "\n" );
+        break;
 
       case IFCall:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->exp );
-	FPRINTF( hyfd, " = %s(", n->imp->CoNsT );
-	PrintHTemp( n->imp->isucc );
-	FPRINTF( hyfd, ")\n" );
-	break;
+        PrintHTemp( n->exp );
+        FPRINTF( hyfd, " = %s(", n->imp->CoNsT );
+        PrintHTemp( n->imp->isucc );
+        FPRINTF( hyfd, ")\n" );
+        break;
 
       case IFSingle:
-	op = "real";
-	goto DoMop;
+        op = "real";
+        goto DoMop;
       case IFDouble:
         op = "dble";
-	goto DoMop;
+        goto DoMop;
       case IFTrunc:
         op = "int";
-	goto DoMop;
+        goto DoMop;
       case IFNeg:
-	op = "-";
+        op = "-";
 DoMop:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->exp );
-	FPRINTF( hyfd, " = %s(", op );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, ")\n" );
-	break;
+        PrintHTemp( n->exp );
+        FPRINTF( hyfd, " = %s(", op );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, ")\n" );
+        break;
 
       case IFPlus:
-	op = " + ";
-	goto DoDyadic;
+        op = " + ";
+        goto DoDyadic;
       case IFMinus:
-	op = " - ";
-	goto DoDyadic;
+        op = " - ";
+        goto DoDyadic;
       case IFTimes:
-	op = " * ";
-	goto DoDyadic;
+        op = " * ";
+        goto DoDyadic;
       case IFDiv:
-	op = " / ";
+        op = " / ";
 DoDyadic:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->exp );
-	FPRINTF( hyfd, " = " );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, "%s", op );
-	PrintHTemp( n->imp->isucc );
-	FPRINTF( hyfd, "\n" );
-	break;
+        PrintHTemp( n->exp );
+        FPRINTF( hyfd, " = " );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, "%s", op );
+        PrintHTemp( n->imp->isucc );
+        FPRINTF( hyfd, "\n" );
+        break;
  
 
       case IFMod:
-	op = "mod";
-	goto DoPrefix;
+        op = "mod";
+        goto DoPrefix;
       case IFMin:
         op = "min";
-	goto DoPrefix;
+        goto DoPrefix;
       case IFMax:
         op = "max";
 DoPrefix:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->exp );
-	FPRINTF( hyfd, " = %s(", op );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, ", " );
-	PrintHTemp( n->imp->isucc );
-	FPRINTF( hyfd, " )\n" );
-	break;
+        PrintHTemp( n->exp );
+        FPRINTF( hyfd, " = %s(", op );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, ", " );
+        PrintHTemp( n->imp->isucc );
+        FPRINTF( hyfd, " )\n" );
+        break;
 
       case IFAbs:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->exp );
-	FPRINTF( hyfd, " = " );
-	FPRINTF( hyfd, "abs( " );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, " ) \n"  );
-	break;
+        PrintHTemp( n->exp );
+        FPRINTF( hyfd, " = " );
+        FPRINTF( hyfd, "abs( " );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, " ) \n"  );
+        break;
 
 
       case IFAIndexPlus:
       case IFAIndexMinus:
-	break;
+        break;
 
       case IFOptAElement:
         FPRINTF( hyfd, "       " );
-	PrintHTemp( n->exp );
-	FPRINTF( hyfd, " = " );
-	PrintHTemp( n->imp );
-	FPRINTF( hyfd, "(" );
-	PrintHTemp( n->imp->isucc );
-	FPRINTF( hyfd, ")\n" );
-	break;
+        PrintHTemp( n->exp );
+        FPRINTF( hyfd, " = " );
+        PrintHTemp( n->imp );
+        FPRINTF( hyfd, "(" );
+        PrintHTemp( n->imp->isucc );
+        FPRINTF( hyfd, ")\n" );
+        break;
 
       default:
-	Error2( "PrintHybridGraph", "ILLEGAL BODY NODE!!!" );
+        Error2( "PrintHybridGraph", "ILLEGAL BODY NODE!!!" );
       }
     }
 }
@@ -2426,7 +2436,7 @@ int   outer;
     switch ( n->type ) {
       case IFAssign:
         if ( !IsArithmetic( n->imp->info ) )
-	  return( FALSE );
+          return( FALSE );
 
         break;
 
@@ -2437,10 +2447,10 @@ int   outer;
       case IFEqual:
       case IFNotEqual:
         if ( !IsArithmetic( n->imp->info ) )
-	  return( FALSE );
+          return( FALSE );
 
-	if ( n->exp != NULL )
-	  return( FALSE );
+        if ( n->exp != NULL )
+          return( FALSE );
 
         c++;
         break;
@@ -2456,59 +2466,59 @@ int   outer;
           case IFLessEqual:
           case IFEqual:
           case IFNotEqual:
-	    break;
+            break;
   
           default:
-	    return( FALSE );
+            return( FALSE );
           }
   
-	for ( i = n->S_ALT->imp; i != NULL; i = i->isucc )
+        for ( i = n->S_ALT->imp; i != NULL; i = i->isucc )
           if ( !IsArithmetic( i->info ) )
             if ( !IsArithmeticPtr( i->info ) )
-	      return( FALSE );
+              return( FALSE );
 
-	for ( i = n->S_CONS->imp; i != NULL; i = i->isucc )
+        for ( i = n->S_CONS->imp; i != NULL; i = i->isucc )
           if ( !IsArithmetic( i->info ) )
             if ( !IsArithmeticPtr( i->info ) )
-	      return( FALSE );
+              return( FALSE );
 
-	for ( i = n->imp; i != NULL; i = i->isucc )
+        for ( i = n->imp; i != NULL; i = i->isucc )
           if ( !IsArithmetic( i->info ) )
             if ( !IsArithmeticPtr( i->info ) )
-	      return( FALSE );
+              return( FALSE );
 
         if ( IsHybridGraph( n->S_ALT, FALSE ) )
-	  if ( IsHybridGraph( n->S_CONS, FALSE ) ) {
-	    c++;
-	    break;
-	    }
+          if ( IsHybridGraph( n->S_CONS, FALSE ) ) {
+            c++;
+            break;
+            }
   
         return( FALSE );
 
       case IFCall:
-	if ( n->exp == NULL )
-	  return( FALSE );
+        if ( n->exp == NULL )
+          return( FALSE );
 
-	if ( (f = FindFunction( n->imp->CoNsT )) == NULL )
-	  Error2( "IsHybridGraph", "FindFunction FAILED!!!" );
+        if ( (f = FindFunction( n->imp->CoNsT )) == NULL )
+          Error2( "IsHybridGraph", "FindFunction FAILED!!!" );
 
-	if ( !GenIsIntrinsic( f ) )
-	  return( FALSE );
+        if ( !GenIsIntrinsic( f ) )
+          return( FALSE );
 
-	if ( strcmp( n->imp->CoNsT, "sin" ) == 0 )
-	  goto DoIntrinsic;
-	if ( strcmp( n->imp->CoNsT, "cos" ) == 0 )
-	  goto DoIntrinsic;
-	if ( strcmp( n->imp->CoNsT, "tan" ) == 0 )
-	  goto DoIntrinsic;
-	if ( strcmp( n->imp->CoNsT, "asin" ) == 0 )
-	  goto DoIntrinsic;
-	if ( strcmp( n->imp->CoNsT, "acos" ) == 0 )
-	  goto DoIntrinsic;
-	if ( strcmp( n->imp->CoNsT, "atan" ) == 0 )
-	  goto DoIntrinsic;
-	if ( strcmp( n->imp->CoNsT, "sqrt" ) == 0 )
-	  goto DoIntrinsic;
+        if ( strcmp( n->imp->CoNsT, "sin" ) == 0 )
+          goto DoIntrinsic;
+        if ( strcmp( n->imp->CoNsT, "cos" ) == 0 )
+          goto DoIntrinsic;
+        if ( strcmp( n->imp->CoNsT, "tan" ) == 0 )
+          goto DoIntrinsic;
+        if ( strcmp( n->imp->CoNsT, "asin" ) == 0 )
+          goto DoIntrinsic;
+        if ( strcmp( n->imp->CoNsT, "acos" ) == 0 )
+          goto DoIntrinsic;
+        if ( strcmp( n->imp->CoNsT, "atan" ) == 0 )
+          goto DoIntrinsic;
+        if ( strcmp( n->imp->CoNsT, "sqrt" ) == 0 )
+          goto DoIntrinsic;
 
         if ( strcmp( n->imp->CoNsT, "atan2" ) == 0 )
           if (  (IsReal( n->imp->isucc->info ) ||
@@ -2520,10 +2530,10 @@ int   outer;
         return( FALSE );
 DoIntrinsic:
         if ( !(IsReal( n->imp->isucc->info ) || 
-	       IsDouble( n->imp->isucc->info )) )
-	  return( FALSE );
+               IsDouble( n->imp->isucc->info )) )
+          return( FALSE );
 
-	break;
+        break;
 
       case IFSum:
       case IFSingle:
@@ -2535,44 +2545,44 @@ DoIntrinsic:
       case IFGreatest:
       case IFProduct:
         if ( !IsArithmetic( n->imp->info ) )
-	  return( FALSE );
+          return( FALSE );
 
-	break;
+        break;
 
       case IFPlus:
       case IFMinus:
       case IFTimes:
-	if ( n->imp->info->type != IF_INTEGER )
-	  c++;
+        if ( n->imp->info->type != IF_INTEGER )
+          c++;
 
-	if ( !IsArithmetic( n->imp->info ) )
-	  return( FALSE );
+        if ( !IsArithmetic( n->imp->info ) )
+          return( FALSE );
 
-	break;
+        break;
 
       case IFMod:
       case IFMin:
       case IFMax:
       case IFAbs:
       case IFDiv:
-	if ( !IsArithmetic( n->imp->info ) )
-	  return( FALSE );
+        if ( !IsArithmetic( n->imp->info ) )
+          return( FALSE );
 
-	c++;
-	break;
+        c++;
+        break;
 
       case IFAIndexPlus:
       case IFAIndexMinus:
-	break;
+        break;
 
       case IFOptAElement:
-	if ( !IsArithmeticPtr( n->imp->info ) )
-	  return( FALSE );
+        if ( !IsArithmeticPtr( n->imp->info ) )
+          return( FALSE );
 
-	break;
+        break;
 
       default:
-	return( FALSE );
+        return( FALSE );
       }
     }
 
@@ -2608,7 +2618,7 @@ PNODE f;
       case IFGreatest:
       case IFProduct:
       case IFSum:
-	break;
+        break;
 
       default:
         return( FALSE );
@@ -2618,7 +2628,7 @@ PNODE f;
   for ( e = f->F_BODY->exp; e != NULL; e = e->esucc ) 
     if ( !IsArithmetic( e->info ) )
       if ( !IsArithmeticPtr( e->info ) )
-	return( FALSE );
+        return( FALSE );
 
   for ( c = 0, i = f->imp; i != NULL; i = i->isucc ) {
 
@@ -2643,7 +2653,7 @@ PNODE f;
   for ( i = f->F_BODY->imp; i != NULL; i = i->isucc ) 
     if ( !IsArithmetic( i->info ) )
       if ( !IsArithmeticPtr( i->info ) )
-	return( FALSE );
+        return( FALSE );
 
   if ( !IsHybridGraph( f->F_BODY, TRUE ) )
     return( FALSE );
@@ -2671,12 +2681,12 @@ PNODE f;
       if ( IsHybridCandidate( f ) ) {
         PrintHybrid( f );
 
-	if ( info )
+        if ( info )
           FPRINTF( stderr, "Hybrid Loop: [%s,%s,%d]\n", 
-		   f->funct, f->file, f->line );
+                   f->funct, f->file, f->line );
 
-	goto MoveOn;
-	}
+        goto MoveOn;
+        }
 
     PrintGenControl( indent, f );
     PrintProducerModifiers( indent + 2, f->F_BODY );
@@ -2732,21 +2742,21 @@ PNODE l;
     PrintIndentation( indent );
 
     if ( IsLoopB( l ) ) {
-	if ( AreAllUnitFanout( l->L_TEST ) ) {
+        if ( AreAllUnitFanout( l->L_TEST ) ) {
           FPRINTF( output, "for ( ; " );
-	  PrintLoopTest( l->L_TEST->imp );
+          PrintLoopTest( l->L_TEST->imp );
           FPRINTF( output, "; ) {\n" );
-	} else {
+        } else {
             FPRINTF( output, "for ( ;; ) {\n" );
-	    PrintGraph( indent + 2, l->L_TEST );
-	    PrintIndentation( indent + 2 );
-	    FPRINTF( output, "if ( !" );
-	    PrintTemp( l->L_TEST->imp );
-	    FPRINTF( output, " ) break;\n" );
-	    }
-	}
+            PrintGraph( indent + 2, l->L_TEST );
+            PrintIndentation( indent + 2 );
+            FPRINTF( output, "if ( !" );
+            PrintTemp( l->L_TEST->imp );
+            FPRINTF( output, " ) break;\n" );
+            }
+        }
     else
-	FPRINTF( output, "do {\n" );
+        FPRINTF( output, "do {\n" );
 
     /* PRINT LOOP BODY */
     PrintProducerModifiers( indent + 2, l->L_BODY );
@@ -2756,58 +2766,58 @@ PNODE l;
 
     for ( i = l->L_BODY->imp; i != NULL; i = i->isucc ) {
         if ( IsBasic( i->info ) )
-	    continue;
+            continue;
 
-	if ( i->cm != -1 && (!(i->dmark)) )
-	    continue;
+        if ( i->cm != -1 && (!(i->dmark)) )
+            continue;
 
-	if ( i->iport == 0 )
-	    PrintFreeCall( indent+2, i );
-	else
-	    PrintFreeCall( indent+2, FindImport( l->L_INIT, i->iport ) );
-	}
-
-    for ( i = l->L_BODY->imp; i != NULL; i = i->isucc ) {
-	if ( i->iport == 0 )
-	    continue;
-
-        if ( IsConst( i ) )
-	    continue;
-
-        if ( (ii = FindImport( l->L_INIT, i->iport )) == NULL )     /* T */
-	    continue;
-
-	if ( ii->temp == i->temp )
-	    continue;
-
-	if ( !IsSGraph( i->src ) )
-	    continue;
-
-	PrintAssgn( indent + 2, ii, i );
-	}
+        if ( i->iport == 0 )
+            PrintFreeCall( indent+2, i );
+        else
+            PrintFreeCall( indent+2, FindImport( l->L_INIT, i->iport ) );
+        }
 
     for ( i = l->L_BODY->imp; i != NULL; i = i->isucc ) {
-	if ( i->iport == 0 )
-	    continue;
+        if ( i->iport == 0 )
+            continue;
 
         if ( IsConst( i ) )
-	    continue;
-
-	if ( IsSGraph( i->src ) )
-	    continue;
+            continue;
 
         if ( (ii = FindImport( l->L_INIT, i->iport )) == NULL )     /* T */
-	    continue;
+            continue;
 
-	if ( ii->temp == i->temp )
-	    continue;
+        if ( ii->temp == i->temp )
+            continue;
 
-	PrintAssgn( indent+2, ii, i );
-	}
+        if ( !IsSGraph( i->src ) )
+            continue;
+
+        PrintAssgn( indent + 2, ii, i );
+        }
+
+    for ( i = l->L_BODY->imp; i != NULL; i = i->isucc ) {
+        if ( i->iport == 0 )
+            continue;
+
+        if ( IsConst( i ) )
+            continue;
+
+        if ( IsSGraph( i->src ) )
+            continue;
+
+        if ( (ii = FindImport( l->L_INIT, i->iport )) == NULL )     /* T */
+            continue;
+
+        if ( ii->temp == i->temp )
+            continue;
+
+        PrintAssgn( indent+2, ii, i );
+        }
 
     for ( i = l->L_BODY->imp; i != NULL; i = i->isucc )
-	if ( IsConst( i ) )
-	    PrintAssgn( indent+2, FindImport( l->L_INIT, i->iport ), i );
+        if ( IsConst( i ) )
+            PrintAssgn( indent+2, FindImport( l->L_INIT, i->iport ), i );
 
     /* PRINT RETURN UPDATE FOR BODY EXECUTION */
     PrintProducerModifiers( indent+2, l->L_RET );
@@ -2816,18 +2826,18 @@ PNODE l;
 
     /* PRINT LOOP CONTINUATION TEST FOR LoopA NODES */
     if ( IsLoopA( l ) ) {
-	if ( AreAllUnitFanout( l->L_TEST ) ) {
-	    PrintIndentation( indent );
-	    FPRINTF( output, "} while ( " );
-	    PrintLoopTest( l->L_TEST->imp );
-	    FPRINTF( output, " );\n" );
-	} else {
-	    PrintGraph( indent+2, l->L_TEST );
-	    PrintIndentation( indent );
-	    FPRINTF( output, "} while ( " );
-	    PrintTemp( l->L_TEST->imp );
-	    FPRINTF( output, " );\n" );
-	    }
+        if ( AreAllUnitFanout( l->L_TEST ) ) {
+            PrintIndentation( indent );
+            FPRINTF( output, "} while ( " );
+            PrintLoopTest( l->L_TEST->imp );
+            FPRINTF( output, " );\n" );
+        } else {
+            PrintGraph( indent+2, l->L_TEST );
+            PrintIndentation( indent );
+            FPRINTF( output, "} while ( " );
+            PrintTemp( l->L_TEST->imp );
+            FPRINTF( output, " );\n" );
+            }
     } else {
       PrintIndentation( indent+2 );
       FPRINTF( output, "}\n" );
@@ -2845,23 +2855,23 @@ PNODE l;
 
       /* IF COMPLEX LIES AHEAD THEN FREE THE STORAGE */
       for ( nn = l->nsucc; nn != NULL; nn = nn->nsucc )
-	if ( IsCompound( nn ) || IsCall( nn ) )
-	  break;
+        if ( IsCompound( nn ) || IsCall( nn ) )
+          break;
 
       if ( nn == NULL ) {
-	register PEDGE ee;
-	register PEDGE iii;
+        register PEDGE ee;
+        register PEDGE iii;
 
-	for ( ee = l->exp; ee != NULL; ee = ee->esucc )
-	  if ( ee->dst != NULL )
-	    if ( IsXGraph( ee->dst ) ) {
-	      for ( iii = l->L_INIT->imp; iii != NULL; iii = iii->isucc )
-		if ( iii->cm == -1 )
-		  rmcmcnt++;
+        for ( ee = l->exp; ee != NULL; ee = ee->esucc )
+          if ( ee->dst != NULL )
+            if ( IsXGraph( ee->dst ) ) {
+              for ( iii = l->L_INIT->imp; iii != NULL; iii = iii->isucc )
+                if ( iii->cm == -1 )
+                  rmcmcnt++;
 
-	      goto LastThing;
-	      }
-	}
+              goto LastThing;
+              }
+        }
       }
       
 DoTheFrees:
@@ -2932,7 +2942,7 @@ PNODE l;
 
     for ( y = l->L_BODY->exp; y != NULL; y = y->esucc )
       if ( IsArrayBase( y->info ) )
-	break;
+        break;
 
     y = FindImport( l, y->eport );
 
@@ -2953,7 +2963,7 @@ PNODE l;
     PrintTemp( iv ); 
     FPRINTF( output, ", %s, %s );\n",
              l->L_RET->imp->src->imp->isucc->info->tname, 
-	     BindInterfaceName( fn, FOR_FORTRAN, 's' ) );
+             BindInterfaceName( fn, FOR_FORTRAN, 's' ) );
 
     PrintReturnRapUp( indent, l->L_RET );
     PrintConsumerModifiers( indent, l );
@@ -2994,14 +3004,14 @@ PNODE l;
     z = y = NULL;
     for ( e = l->L_BODY->exp; e != NULL; e = e->esucc )
       if ( IsArrayBase( e->info ) ) {
-	if ( e->dst->exp->dst->type == IFTimes ) {
-	  z = e;
-	  continue;
-	  }
+        if ( e->dst->exp->dst->type == IFTimes ) {
+          z = e;
+          continue;
+          }
 
-	y = e;
-	continue;
-	}
+        y = e;
+        continue;
+        }
 
     if ( z == NULL ) z = y;
     if ( y == NULL ) y = z;
@@ -3027,8 +3037,8 @@ PNODE l;
     FPRINTF( output, ", " );
     PrintTemp( iv ); 
     FPRINTF( output, ", %s, %s );\n", 
-	     l->L_RET->imp->src->imp->isucc->info->tname, 
-	     BindInterfaceName( fn, FOR_FORTRAN, 's' ) );
+             l->L_RET->imp->src->imp->isucc->info->tname, 
+             BindInterfaceName( fn, FOR_FORTRAN, 's' ) );
 
     PrintReturnRapUp( indent, l->L_RET );
     PrintConsumerModifiers( indent, l );
@@ -3067,7 +3077,7 @@ char  *root;
 
     for ( x = l->L_BODY->exp; x != NULL; x = x->esucc )
       if ( IsArrayBase( x->info ) )
-	  break;
+          break;
 
     y = l->L_RET->imp;
 
@@ -3085,7 +3095,7 @@ char  *root;
     FPRINTF( output, ", " );
     PrintTemp( iv ); 
     FPRINTF( output, ", %s, %s );\n", x->dst->exp->info->tname, 
-	     BindInterfaceName( fn, FOR_FORTRAN, 's' )     );
+             BindInterfaceName( fn, FOR_FORTRAN, 's' )     );
 
     PrintReturnRapUp( indent, l->L_RET );
     PrintConsumerModifiers( indent, l );
@@ -3119,7 +3129,7 @@ LCMSize(g)
 PNODE g;
 {
 #if !defined(CACHE_LINE)
-	return(0);
+        return(0);
 #else
         PEDGE e;
         unsigned int sizes[255];
@@ -3127,17 +3137,17 @@ PNODE g;
         int last;
         unsigned int min = BIGINT;
 
-	for(i=0; i < 255; i++)
-		sizes[i] = BIGINT;
+        for(i=0; i < 255; i++)
+                sizes[i] = BIGINT;
         i = 0;
         for(e = g->imp; e != NULL; e = e->isucc)
         {
                 if(e->info->type == IF_ARRAY)
                 {
                         sizes[i] = BasicTypeSize(e->info->A_ELEM);
-                	if(min > sizes[i])
-                       		min = sizes[i];
-                	i++;
+                        if(min > sizes[i])
+                                min = sizes[i];
+                        i++;
                 }
         }
 
@@ -3149,10 +3159,10 @@ PNODE g;
                         return(-1);
         }
 
-	if(min != BIGINT)
-		return(min);
-	else
-        	return(0);
+        if(min != BIGINT)
+                return(min);
+        else
+                return(0);
 #endif
 }
 

@@ -1,10 +1,20 @@
-/* if2vector.c,v
+/**************************************************************************/
+/* FILE   **************        if2vector.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:04  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:05  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -61,7 +71,7 @@ void WriteVectorInfo()
   while ( k <= n ) repeat
     k := old k + 1;
     max24 := if ( X[old k] < X[old max24] ) then 
-	     old k  else old max24 end if;
+             old k  else old max24 end if;
   returns value of max24
   end for
 **/
@@ -1086,7 +1096,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	Vectorize( sg );
+        Vectorize( sg );
 
     if ( !IsLoopB( n ) )
       continue;

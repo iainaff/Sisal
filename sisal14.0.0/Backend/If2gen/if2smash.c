@@ -1,10 +1,20 @@
-/* if2smash.c,v
+/**************************************************************************/
+/* FILE   **************         if2smash.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:03  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:04  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -30,13 +40,13 @@ PNODE g;
 
     for ( i = n->imp; i != NULL; i = i->isucc )
       if ( i->info != NULL )
-	if ( i->info->fmem != NULL )
-	  i->info = i->info->fmem;
+        if ( i->info->fmem != NULL )
+          i->info = i->info->fmem;
 
     /* BUG FIX cann 7/15/91 */
     if ( IsCompound( n ) || (n->type >= IFFirstSum && n->type <= IFFirstAbsMax))
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	AdjustInfoReferences( sg );
+        AdjustInfoReferences( sg );
     }
 }
 
@@ -69,23 +79,23 @@ void GenSmashTypes()
         chgd = FALSE;
 
         for ( c = 0; c <= lclass; c++ ) {
-	    r = htable[c];
-	    p = r;
+            r = htable[c];
+            p = r;
 
-	    if ( p == NULL )
-	        m = NULL;
-	    else
-	        m = p->mnext;
+            if ( p == NULL )
+                m = NULL;
+            else
+                m = p->mnext;
 
-	    while ( m != NULL )
-	        if ( SameEquivClass( r, m ) ) {
-		    p = m;
-		    m = p->mnext;
-	        } else {
-		    GatherOthers( p, m );
-		    chgd = TRUE; m = NULL;
-		    }
-	    }
+            while ( m != NULL )
+                if ( SameEquivClass( r, m ) ) {
+                    p = m;
+                    m = p->mnext;
+                } else {
+                    GatherOthers( p, m );
+                    chgd = TRUE; m = NULL;
+                    }
+            }
         }    
 
     PointToHead();
@@ -93,27 +103,27 @@ void GenSmashTypes()
     /* RELABEL ALL NODES TO APPEAR IN THE TYPE TABLE                      */
 
     for ( c = 0, p = ihead; p != NULL; p = p->next )
-	switch ( p->type ) {
-	    case IF_TUPLE:
-	    case IF_FUNCTION:
-	    case IF_UNKNOWN:
-	    case IF_NONTYPE:
-	    case IF_MULTIPLE:
-	    case IF_BUFFER:
-		continue;
+        switch ( p->type ) {
+            case IF_TUPLE:
+            case IF_FUNCTION:
+            case IF_UNKNOWN:
+            case IF_NONTYPE:
+            case IF_MULTIPLE:
+            case IF_BUFFER:
+                continue;
 
-	    default:
-		/* ONLY ADJUST LABEL OF FIRST EQUIVALENCE CLASS MEMBER    */
-		if ( p->fmem == NULL )
-		    p->label = ++c;
+            default:
+                /* ONLY ADJUST LABEL OF FIRST EQUIVALENCE CLASS MEMBER    */
+                if ( p->fmem == NULL )
+                    p->label = ++c;
 
                 break;
             }
 
     /* IN EACH CLASS, ADJUST THE LABEL OF EACH MEMBER TO THAT OF THE 1ST  */
     for ( p = ihead; p != NULL; p = p->next )
-	if ( p->fmem != NULL )
-	    p->label = p->fmem->label;
+        if ( p->fmem != NULL )
+            p->label = p->fmem->label;
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc )
       AdjustInfoReferences( f );
@@ -121,47 +131,47 @@ void GenSmashTypes()
     /* FIX integer AND VARIOUS OTHER SPECIAL TYPES */
     if ( integer != NULL )
       if ( integer->fmem != NULL )
-	integer = integer->fmem;
+        integer = integer->fmem;
 
     if ( ptr_integer != NULL )
       if ( ptr_integer->fmem != NULL )
-	ptr_integer = ptr_integer->fmem;
+        ptr_integer = ptr_integer->fmem;
 
     if ( ptr_real != NULL )
       if ( ptr_real->fmem != NULL )
-	ptr_real = ptr_real->fmem;
+        ptr_real = ptr_real->fmem;
 
     if ( ptr_double != NULL )
       if ( ptr_double->fmem != NULL )
-	ptr_double = ptr_double->fmem;
+        ptr_double = ptr_double->fmem;
 
     if ( ptr != NULL )
       if ( ptr->fmem != NULL )
-	ptr = ptr->fmem;
+        ptr = ptr->fmem;
 
     /* ONLY KEEP THE FIRST MEMBER OF EACH EQUIVALENCE CLASS IN THE SYMBOL */
     /* TABLE.                                                             */
     for ( ppred = NULL, p = ihead; p != NULL; p = ps ) {
       if ( p->info1 != NULL )
-	if ( p->info1->fmem != NULL )
-	  p->info1 = p->info1->fmem;
+        if ( p->info1->fmem != NULL )
+          p->info1 = p->info1->fmem;
 
       if ( p->info2 != NULL )
-	if ( p->info2->fmem != NULL )
-	  p->info2 = p->info2->fmem;
+        if ( p->info2->fmem != NULL )
+          p->info2 = p->info2->fmem;
 
       ps = p->next;
 
       if ( p->fmem == NULL ) {
-	p->mnext = NULL;
-	ppred    = p;
-	continue;
-	}
+        p->mnext = NULL;
+        ppred    = p;
+        continue;
+        }
 
       if ( ppred == NULL )
-	ihead = ps;
+        ihead = ps;
       else
-	ppred->next = p->next;
+        ppred->next = p->next;
 
       p->type = IF_UNKNOWN; /* HOPEFULLY, THIS WILL HELP UNCOVER BUGS! */
       }

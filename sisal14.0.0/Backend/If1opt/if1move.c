@@ -1,10 +1,20 @@
-/* if1move.c,v
+/**************************************************************************/
+/* FILE   **************         if1move.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:58  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:35  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -33,22 +43,22 @@ PNODE alt;
     i = FindImport( n, d->eport );
 
     if ( i == NULL ) {
-	if ( alt != NULL ) {
-	    LinkExport( alt, d );
-	    return;
-	    }
+        if ( alt != NULL ) {
+            LinkExport( alt, d );
+            return;
+            }
 
-	FPRINTF( stderr, "HELP: n->type = %d n->line %d d->eport %d\n",
-		      n->type, n->if1line, d->eport );
+        FPRINTF( stderr, "HELP: n->type = %d n->line %d d->eport %d\n",
+                      n->type, n->if1line, d->eport );
         Error1( "FindAndLinkToSource: FindImport FAILED" );
-	}
+        }
 
     if ( ! IsConst( i ) ) {
         d->eport = i->eport;
         LinkExport( i->src, d );
-	}
+        }
     else
-	ChangeToConst( d, i );
+        ChangeToConst( d, i );
 }
 
 
@@ -69,7 +79,7 @@ void RemoveNode( n, g )
 PNODE n;
 PNODE g;
 {
-    	     PEDGE export;
+             PEDGE export;
     register PEDGE e;
     register PEDGE se;
     register PEDGE ee;
@@ -81,32 +91,32 @@ PNODE g;
     n->exp   = NULL;
 
     for ( e = export; e != NULL; e = e->esucc ) {
-	if ( e->eport < 0 )                                 /* ALREADY COPIED */
-	    continue;
+        if ( e->eport < 0 )                                 /* ALREADY COPIED */
+            continue;
 
         ee        = CopyEdge( e, n, NULL_NODE );
-	ee->iport = ++maxint;
+        ee->iport = ++maxint;
 
-	eport = e->eport;
+        eport = e->eport;
 
-	for ( d = e; d != NULL; d = d->esucc )
-	    if ( d->eport == eport )                 /* DONE WITH THIS EXPORT */
-		d->eport = -maxint;
+        for ( d = e; d != NULL; d = d->esucc )
+            if ( d->eport == eport )                 /* DONE WITH THIS EXPORT */
+                d->eport = -maxint;
 
         LinkExport( n, ee );
-	}
+        }
 
     for ( e = export; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	if ( e->eport <= 0 )
-	    e->eport = -(e->eport);
+        if ( e->eport <= 0 )
+            e->eport = -(e->eport);
 
-	LinkExport( g, e );
-	}
+        LinkExport( g, e );
+        }
 
     for ( i = n->imp; i != NULL; i = i->isucc )
-	UnlinkExport( i );
+        UnlinkExport( i );
 
     UnlinkNode( n );
 }
@@ -138,15 +148,15 @@ PNODE n2;
     register PEDGE e;
 
     for ( i = n2->imp; i != NULL; i = si ) {
-	si = i->isucc;
+        si = i->isucc;
         FindAndLinkToSource( n1, i, n1 );
-	}
+        }
 
     for ( e = n2->exp; e != NULL; e = e->esucc )
-	LinkImport( n1, e );
+        LinkImport( n1, e );
 
     if ( IsSGraph( n1 ) )
-	LinkNode( FindLastNode( n1 ), n2 );
+        LinkNode( FindLastNode( n1 ), n2 );
     else
-	LinkNode( n1->npred, n2 );
+        LinkNode( n1->npred, n2 );
 }

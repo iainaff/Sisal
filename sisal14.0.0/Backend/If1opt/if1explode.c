@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************        if1explode.c       ************************/
+/**************************************************************************/
+/* Author: Dave Can                                                       */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /* if1explode.c,v
  * Revision 12.7  1992/11/04  22:04:57  miller
  * Initial revision
@@ -53,11 +65,11 @@ char **ReasonP;
       case IFAElementN:
       case IFAElementM:
       case IFAElementP:
-	break;
+        break;
 
       default:
       *ReasonP = "loop import is the wrong type";
-	return( FALSE );
+        return( FALSE );
       }
     }
 
@@ -225,7 +237,7 @@ PNODE n;
       se = ee->esucc;
 
       if ( ee->eport != e->eport )
-	continue;
+        continue;
 
       UnlinkExport( ee );
       ee->eport = 1;
@@ -282,9 +294,9 @@ int   explodeI;
       in1 = in1 || nin;
 
       if ( IsLoop( n ) ) {
-	in1 = TRUE;
-	continue;
-	}
+        in1 = TRUE;
+        continue;
+        }
       }
 
     if ( !IsForall( n ) )
@@ -299,7 +311,7 @@ int   explodeI;
 
     /* CHECK IF THE CONTROL IS SUITABLE FOR EXPLOSION: A SINGLE Range NODE */
     if ( n->F_GEN->G_NODES->nsucc != NULL ||
-    	n->F_GEN->imp->src->type != IFRangeGenerate ) 
+        n->F_GEN->imp->src->type != IFRangeGenerate ) 
       continue;
 
     efs++;
@@ -309,7 +321,7 @@ int   explodeI;
       snn = nn->nsucc;
 
       if ( !IsExplodeCandidate( nn , &Reason) ) 
-	continue;
+        continue;
       if (RequestInfo(I_Info1,info)) {
       DYNEXPAND(printinfo, printbuf, printlen, printcount, char, printlen+200);
       printlen += (SPRINTF(printinfo + printlen,

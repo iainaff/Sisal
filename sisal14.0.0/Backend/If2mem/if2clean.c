@@ -1,10 +1,20 @@
-/* if2clean.c,v
+/**************************************************************************/
+/* FILE   **************         if2clean.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:05  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:21  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -56,7 +66,7 @@ int   fast;
     
     while ( (i1 != NULL) && (i2 != NULL) ) {
       if ( !FastAreValuesEqual( i1, i2, fast ) )
-	return( FALSE );
+        return( FALSE );
 
       i1 = i1->isucc;
       i2 = i2->isucc;
@@ -96,11 +106,11 @@ PEDGE i;
     register PNODE g;
 
     if ( IsTagCase(c) && i->iport == 1 )
-	return( TRUE );
+        return( TRUE );
 
     for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
         if ( IsExport( g, i->iport ) )
-	    return( TRUE );
+            return( TRUE );
 
     return( FALSE );
 }
@@ -129,12 +139,12 @@ PEDGE  non_const;
     register PEDGE se;
 
     for ( e = n->exp ; e != NULL ; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	e->CoNsT = CoNsT;
-	e->eport = CONST_PORT;
-	e->esucc = e->epred = NULL;
-	e->src   = NULL;
+        e->CoNsT = CoNsT;
+        e->eport = CONST_PORT;
+        e->esucc = e->epred = NULL;
+        e->src   = NULL;
         }
 
     /* MAKE NODE n A DEAD NODE                                            */
@@ -142,7 +152,7 @@ PEDGE  non_const;
     n->exp = NULL;
 
     if ( non_const != NULL )
-	UnlinkExport( non_const );
+        UnlinkExport( non_const );
 
     n->imp = NULL;
 }
@@ -168,7 +178,7 @@ PEDGE i;
     for ( e = i->dst->exp ; e != NULL ; e = se ) {
         se = e->esucc;
 
-	UnlinkExport( e );
+        UnlinkExport( e );
         e->eport = i->eport;
         LinkExport( i->src, e);
         }
@@ -208,7 +218,7 @@ PNODE add1;
     max = add1->exp->dst;
 
     if ( !IsMax( max ) )
-	return( FALSE );
+        return( FALSE );
 
     /* MAKE SURE THE SECOND IMPORT TO max IS A NON-ERROR VALUE CONSTANT   */
     /* AND max's EXPORT IS USED ONLY BY ONE NODE (IMPORTED ON PORT 1)     */
@@ -291,14 +301,14 @@ PEDGE e;
         if ( !(IsPlus( n ) || IsMinus( n )) )
             return( FALSE );
 
-	if ( !IsNonErrorConst( n->imp->isucc ) ) {
+        if ( !IsNonErrorConst( n->imp->isucc ) ) {
             if ( (!IsOneExport( n )) || (n->exp->iport != 1) )
                 return( FALSE );
 
             continue;
-	    }
+            }
 
-	break;
+        break;
         }
 
     /* A FOLDABLE CHAIN EXISTS; HENCE, FOLD IT                            */
@@ -388,7 +398,7 @@ PNODE g;
             op1    = atoi( i1->CoNsT );
             }
 
-	/* Neg AND ASize NODES ARE CANDIDATES WITH ONE IMPORT             */
+        /* Neg AND ASize NODES ARE CANDIDATES WITH ONE IMPORT             */
 
         if ( !(IsNeg( n ) || IsASize( n ) || IsALimL( n )) ) {
             if ( IsConst( i2 ) ) {
@@ -401,7 +411,7 @@ PNODE g;
 
             if ( !( const1 || const2 ) )   /* AT LEAST ONE MUST BE A CONSTANT */
                 continue;
-	    }
+            }
 
         switch ( n->type ) {
             case IFMinus:
@@ -421,23 +431,23 @@ PNODE g;
 
      
                 if ( AddMaxAddChain( -op2, n ) ) {
-		    n->type = IFPlus;
+                    n->type = IFPlus;
                     sn      = n;                       /* PROCESS n AGAIN */
-		    break;
-		    }
+                    break;
+                    }
 
                 if ( ChainPresent( -op2, n, i2 ) ) {
                     n->type = IFPlus;
                     sn = n;                            /* PROCESS n AGAIN */
-		    break;
+                    break;
                     }
 
-		if ( op2 < 0 ) {          /* A - (Const) WHERE Const < 0  */
-		    n->type = IFPlus; pncnt++;
-		    i2->CoNsT++;
-		    }
+                if ( op2 < 0 ) {          /* A - (Const) WHERE Const < 0  */
+                    n->type = IFPlus; pncnt++;
+                    i2->CoNsT++;
+                    }
 
-		break;
+                break;
 
             case IFPlus:
                 if ( const1 && const2 ) {       /* CONSTANT PLUS CONSTANT */
@@ -460,20 +470,20 @@ PNODE g;
                     break;
 
                 if ( AddMaxAddChain( op2, n ) ) {
-		    n->type = IFPlus;
+                    n->type = IFPlus;
                     sn      = n;                      /* PROCESS n AGAIN  */
                     break;
                     }
 
                 if ( ChainPresent( op2, n, i2 ) ) {
                     sn = n;                           /* PROCESS n AGAIN  */
-		    break;
-		    }
+                    break;
+                    }
 
-		if ( op2 < 0 ) {
-		    n->type = IFMinus; pncnt++;
-		    i2->CoNsT++;
-		    }
+                if ( op2 < 0 ) {
+                    n->type = IFMinus; pncnt++;
+                    i2->CoNsT++;
+                    }
 
                 break;
 
@@ -515,14 +525,14 @@ PNODE g;
             
             case IFDiv:
                 if ( const1 && const2 ) {        /* CONSTANT DIV CONSTANT */
-		    if ( op2 == 0 ) break;
+                    if ( op2 == 0 ) break;
                     norm_cnt++;
                     HandleUselessNode(n, IntToAscii( op1 / op2 ), NULL_EDGE );
                     break;
                     }
 
                 if ( const2 ) {
-		    if ( op2 == 0 ) break;
+                    if ( op2 == 0 ) break;
 
                     if (op2 == 1 ) {              /* NON-CONSTANT DIV ONE */
                         SkipIdentityNode( i1 );
@@ -530,7 +540,7 @@ PNODE g;
                         }
 
                     if (op2 == -1) {                  /* NON-CONST DIV -1 */
-		        dncnt++;
+                        dncnt++;
                         UnlinkImport( i2 );
                         n->type = IFNeg;
                         sn = n;                     /* START AGAIN WITH n */
@@ -549,9 +559,9 @@ PNODE g;
                 /* CHECK FOR -(A-B)                                       */
 
                 if ( IsMinus( i1->src ) && IsOneExport( i1->src ) ) {
-		    pncnt++ ;
+                    pncnt++ ;
 
-		    /* SWAP IMPORTS TO THE MINUS NODE AND MAKE n DEAD     */
+                    /* SWAP IMPORTS TO THE MINUS NODE AND MAKE n DEAD     */
 
                     UnlinkImport( (e= i1->src->imp) );
                     e->iport = 2;
@@ -580,14 +590,14 @@ PNODE g;
                     if ( !IsMax( e->dst) )
                         continue;
 
-		    if ( !IsNonErrorConst( e->dst->imp->isucc ) )
-		        continue;
+                    if ( !IsNonErrorConst( e->dst->imp->isucc ) )
+                        continue;
 
                     if ( atoi( e->dst->imp->isucc->CoNsT) != 0 )
                         continue;
 
-		    asize_cnt++;
-		    sn = n;                   /* WHEN DONE, CHECK n AGAIN */
+                    asize_cnt++;
+                    sn = n;                   /* WHEN DONE, CHECK n AGAIN */
 
                     LinkExportLists( n, e->dst );
                     e->dst->imp = NULL;
@@ -713,9 +723,9 @@ PNODE n;
     register PEDGE i;
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	if ( !MemIsEdgeInvariant( i ) )
-	  return( FALSE );
-	}
+        if ( !MemIsEdgeInvariant( i ) )
+          return( FALSE );
+        }
 
     return( TRUE );
 }
@@ -740,17 +750,17 @@ PNODE c;
     i1 = (IsTagCase( c ))? c->imp->isucc : c->imp;
 
     for ( ; i1 != NULL; i1 = i1->isucc ) 
-	for ( i2 = i1->isucc; i2 != NULL; i2 = si ) {
-	    si = i2->isucc;
+        for ( i2 = i1->isucc; i2 != NULL; i2 = si ) {
+            si = i2->isucc;
 
-	    if ( AreEdgesEqual( i1, i2 ) ) {
-		for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
-	            ChangeExportPorts( g, i2->iport, i1->iport );
+            if ( AreEdgesEqual( i1, i2 ) ) {
+                for ( g = c->C_SUBS; g != NULL; g = g->gsucc )
+                    ChangeExportPorts( g, i2->iport, i1->iport );
                 
-		UnlinkImport( i2 );
-		UnlinkExport( i2 ); kcnt++;
-		}
-	    }
+                UnlinkImport( i2 );
+                UnlinkExport( i2 ); kcnt++;
+                }
+            }
 }
 
 
@@ -784,27 +794,27 @@ PNODE g;
       sa = aa->nsucc;
 
       if ( !IsCandidate( aa ) )
-	continue;
+        continue;
 
       for ( cc = n->S_CONS->G_NODES; cc != NULL; cc = cc->nsucc ) {
-	/* A SHORT CIRCUIT FOR FASTER EXECUTION */
-	if ( aa->type != cc->type )
-	  continue;
+        /* A SHORT CIRCUIT FOR FASTER EXECUTION */
+        if ( aa->type != cc->type )
+          continue;
 
-	/* DEAD ALREADY???? */
-	if ( cc->exp == NULL )
-	  continue;
+        /* DEAD ALREADY???? */
+        if ( cc->exp == NULL )
+          continue;
 
         if ( !MemIsInvariant( aa ) )
-	  continue;
+          continue;
 
-	if ( !MemIsInvariant( cc ) )
-	  continue;
+        if ( !MemIsInvariant( cc ) )
+          continue;
 
         if ( !MemAreNodesEqual(aa,cc,FALSE) )
           continue;
 
-	/* BE CAREFUL NOT TO HURT UPDATE-IN-PLACE ANALYSIS */
+        /* BE CAREFUL NOT TO HURT UPDATE-IN-PLACE ANALYSIS */
         if ( aa->type == IFAElement ) {
           for ( e = aa->imp->src->exp; e != NULL; e = e->esucc )
             if ( e->dst->type == IFAReplace )
@@ -813,7 +823,7 @@ PNODE g;
           for ( e = cc->imp->src->exp; e != NULL; e = e->esucc )
             if ( e->dst->type == IFAReplace )
               goto MoveOn;
-	  }
+          }
 
         /* RemoveNode( cc, n->S_CONS ); */
         /* InsertNode( n, cc );         */
@@ -823,8 +833,8 @@ PNODE g;
 
         sccnt++;
 
-	/* SUCCESS!!! SO BREAK OUT AND MOVE ON */
-	break;
+        /* SUCCESS!!! SO BREAK OUT AND MOVE ON */
+        break;
         }
 
       MoveOn: continue;
@@ -854,7 +864,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	RemoveCCses( sg );
+        RemoveCCses( sg );
 
     if ( !IsSelect( n ) ) continue;
 
@@ -862,68 +872,68 @@ PNODE g;
       sa = aa->nsucc;
 
       if ( !IsCandidate( aa ) )
-	continue;
+        continue;
 
       for ( cc = n->S_CONS->G_NODES; cc != NULL; cc = cc->nsucc ) {
-	if ( !IsCandidate( cc ) )
-	  continue;
+        if ( !IsCandidate( cc ) )
+          continue;
 
-	if ( !MemIsInvariant( aa ) )
-	  continue;
+        if ( !MemIsInvariant( aa ) )
+          continue;
 
-	if ( !MemIsInvariant( cc ) )
-	  continue;
+        if ( !MemIsInvariant( cc ) )
+          continue;
 
-	if ( !MemAreNodesEqual(aa,cc,FALSE) )
-	  continue;
+        if ( !MemAreNodesEqual(aa,cc,FALSE) )
+          continue;
 
-	/* RemoveNode( aa, n->S_ALT );
-	InsertNode( n, aa ); */
+        /* RemoveNode( aa, n->S_ALT );
+        InsertNode( n, aa ); */
 
-		    nn = NodeAlloc( ++maxint, aa->type );
-		    nn->lstack = n->lstack;
-		    nn->level  = n->level;
-		    LinkNode( n->npred, nn );
+                    nn = NodeAlloc( ++maxint, aa->type );
+                    nn->lstack = n->lstack;
+                    nn->level  = n->level;
+                    LinkNode( n->npred, nn );
                     
                     /* ATTACH nn'S IMPORTS                                */
 
-		    for ( i = aa->imp; i != NULL; i = si ) {
-			si = i->isucc;
+                    for ( i = aa->imp; i != NULL; i = si ) {
+                        si = i->isucc;
 
-			UnlinkImport( i );
-			UnlinkExport( i );
+                        UnlinkImport( i );
+                        UnlinkExport( i );
 
                         if ( IsConst( i ) ) {
-			    LinkImport( nn, i );
-			    continue;
-			    }
-			    
-			ii = FindImport( n, i->eport );
+                            LinkImport( nn, i );
+                            continue;
+                            }
+                            
+                        ii = FindImport( n, i->eport );
 
                         CopyEdgeAndThreadToUse( ii, nn, i->iport );
 
-			/* IF ii IS NO LONGER USED WITHIN n, UNLINK IT    */
-			/* NOW TO FACILITATE CHAIN FOLDING.               */
+                        /* IF ii IS NO LONGER USED WITHIN n, UNLINK IT    */
+                        /* NOW TO FACILITATE CHAIN FOLDING.               */
 
                         if ( !MemIsUsed( n, ii ) ) {
-			    UnlinkImport( ii );
-			    UnlinkExport( ii );
+                            UnlinkImport( ii );
+                            UnlinkExport( ii );
                             }
 
-			}
+                        }
 
-		    /* THREAD A REFERENCE TO nn'S EXPORT TO EACH USE IN n */
+                    /* THREAD A REFERENCE TO nn'S EXPORT TO EACH USE IN n */
 
                     for ( e = aa->exp; e != NULL; e = se ) {
-			se = e->esucc;
+                        se = e->esucc;
 
-			UnlinkImport( e );
-			ThreadToUse( nn, 1, e->dst, e->iport, e->info );
-			}
+                        UnlinkImport( e );
+                        ThreadToUse( nn, 1, e->dst, e->iport, e->info );
+                        }
 
-		    aa->exp = NULL; /* MAKE nd A DEAD NODE */
+                    aa->exp = NULL; /* MAKE nd A DEAD NODE */
 
-	}
+        }
 
       continue;
       }
@@ -950,40 +960,40 @@ PNODE g;
     register int   lft;
 
     for ( n1 = g->G_NODES; n1 != NULL; n1 = sn ) {
-	sn = n1->nsucc;
+        sn = n1->nsucc;
 
-	if ( IsCompound( n1 ) ) {
-	    for ( g = n1->C_SUBS; g != NULL; g = g->gsucc )
-		BasicGCseRemoval( g );        /* MAY MOVE n1'S SUCCESSOR */
+        if ( IsCompound( n1 ) ) {
+            for ( g = n1->C_SUBS; g != NULL; g = g->gsucc )
+                BasicGCseRemoval( g );        /* MAY MOVE n1'S SUCCESSOR */
 
-	    sn = n1->nsucc;
-	    continue;
-	    }
-
-        if ( !IsCandidate( n1 ) )
-	    continue;
-
-        if ( !MemIsInvariant( n1 ) )
-	    continue;
-
-        for ( f = n1->level - 1; f >= 0; f-- ) {
-	    lft = TRUE;
-
-	    for ( n2 = (n1->lstack[f])->G_NODES; n2 != NULL; n2 = n2->nsucc ) {
-	        if ( n2 == (n1->lstack[f+1])->G_DAD )
-		    lft = FALSE;
-
-		if ( n2->exp == NULL )                /* IS NODE n2 DEAD? */
-		    continue;
-
-                if ( !MemAreNodesEqual( n1, n2, FALSE ) )
-		    continue;
-
-                goto CombineAndThread;
-	        }
+            sn = n1->nsucc;
+            continue;
             }
 
-	continue;
+        if ( !IsCandidate( n1 ) )
+            continue;
+
+        if ( !MemIsInvariant( n1 ) )
+            continue;
+
+        for ( f = n1->level - 1; f >= 0; f-- ) {
+            lft = TRUE;
+
+            for ( n2 = (n1->lstack[f])->G_NODES; n2 != NULL; n2 = n2->nsucc ) {
+                if ( n2 == (n1->lstack[f+1])->G_DAD )
+                    lft = FALSE;
+
+                if ( n2->exp == NULL )                /* IS NODE n2 DEAD? */
+                    continue;
+
+                if ( !MemAreNodesEqual( n1, n2, FALSE ) )
+                    continue;
+
+                goto CombineAndThread;
+                }
+            }
+
+        continue;
 
 CombineAndThread:
 
@@ -993,15 +1003,15 @@ CombineAndThread:
             }
 
         for ( e = n1->exp; e != NULL; e = e->esucc ) {
-	    ThreadToUse( n2, 1, e->dst, e->iport, e->info );
-	    UnlinkImport( e );
-	    }
+            ThreadToUse( n2, 1, e->dst, e->iport, e->info );
+            UnlinkImport( e );
+            }
 
         n1->exp = NULL; gccnt++;                   /* MAKE n1 A DEAD NODE */
 
         for ( f++; f <= n1->level; f++ )
             MemCombineKports( (n1->lstack[f])->G_DAD );
-	}
+        }
 }
 
 
@@ -1021,41 +1031,41 @@ PNODE g;
     register PEDGE i;
 
     for ( n1 = g->G_NODES; n1 != NULL; n1 = n1->nsucc ) {
-	if ( IsCandidate( n1 ) ) {
+        if ( IsCandidate( n1 ) ) {
             /* BEGIN SHORT CIRCUIT TESTS */
-	    if ( n1->imp != NULL ) {
+            if ( n1->imp != NULL ) {
               i = n1->imp;
               if ( i->src != NULL && i->esucc == NULL && i->epred == NULL )
-	        continue;
+                continue;
 
               i = i->isucc;
               if ( i != NULL )
                 if ( i->src != NULL && i->esucc == NULL && i->epred == NULL )
-	          continue;
+                  continue;
               /* END OF SHORT CIRCUIT TESTS */
-	      }
+              }
 
             for ( n2 = n1->nsucc; n2 != NULL; n2 = sn ) {
                 sn = n2->nsucc;
 
-		if ( n2->exp == NULL )                /* IS NODE n2 DEAD? */
-		    continue;
+                if ( n2->exp == NULL )                /* IS NODE n2 DEAD? */
+                    continue;
 
-	        if ( MemAreNodesEqual( n1, n2, TRUE ) ) {
-	            LinkExportLists( n1, n2 );
-	            ccnt++;
-	            }
+                if ( MemAreNodesEqual( n1, n2, TRUE ) ) {
+                    LinkExportLists( n1, n2 );
+                    ccnt++;
+                    }
                 }     
 
-	    continue;
+            continue;
             }
 
-	if ( IsCompound( n1 ) ) {
-	    MemCombineKports( n1 );
+        if ( IsCompound( n1 ) ) {
+            MemCombineKports( n1 );
 
             for ( g = n1->C_SUBS; g != NULL; g = g->gsucc )
                 BasicCseRemoval( g );
-	    }
+            }
         }
 }
 
@@ -1085,72 +1095,72 @@ PNODE g;
     register PEDGE ii;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc )
-	if ( IsCompound( n ) ) {
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		BasicInvarRemoval(lvl+1, g );
+        if ( IsCompound( n ) ) {
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                BasicInvarRemoval(lvl+1, g );
 
             if ( !(IsForall( n ) || IsLoop( n )) )
-		continue;
+                continue;
 
-	    if ( (lvl == 1) && (!Oinvar) )
-		continue;
+            if ( (lvl == 1) && (!Oinvar) )
+                continue;
 
             for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		for ( nd = g->G_NODES; nd != NULL; nd = sn ) {
-	            sn = nd->nsucc;
+                for ( nd = g->G_NODES; nd != NULL; nd = sn ) {
+                    sn = nd->nsucc;
 
-		    if ( !IsCandidate( nd ) )
-			continue;
+                    if ( !IsCandidate( nd ) )
+                        continue;
 
-	            if ( !MemIsInvariant( nd ) ) 
-			continue;
+                    if ( !MemIsInvariant( nd ) ) 
+                        continue;
 
-		    /* PLACE A COPY OF NODE nd BEFORE THE LOOP NODE       */
+                    /* PLACE A COPY OF NODE nd BEFORE THE LOOP NODE       */
 
-		    nn = NodeAlloc( ++maxint, nd->type );
-		    nn->lstack = n->lstack;
-		    nn->level  = n->level;
-		    LinkNode( n->npred, nn );
+                    nn = NodeAlloc( ++maxint, nd->type );
+                    nn->lstack = n->lstack;
+                    nn->level  = n->level;
+                    LinkNode( n->npred, nn );
                     
                     /* ATTACH nn'S IMPORTS                                */
 
-		    for ( i = nd->imp; i != NULL; i = si ) {
-			si = i->isucc;
+                    for ( i = nd->imp; i != NULL; i = si ) {
+                        si = i->isucc;
 
-			UnlinkImport( i );
-			UnlinkExport( i );
+                        UnlinkImport( i );
+                        UnlinkExport( i );
 
                         if ( IsConst( i ) ) {
-			    LinkImport( nn, i );
-			    continue;
-			    }
-			    
-			ii = FindImport( n, i->eport );
+                            LinkImport( nn, i );
+                            continue;
+                            }
+                            
+                        ii = FindImport( n, i->eport );
 
                         CopyEdgeAndThreadToUse( ii, nn, i->iport );
 
-			/* IF ii IS NO LONGER USED WITHIN n, UNLINK IT    */
-			/* NOW TO FACILITATE CHAIN FOLDING.               */
+                        /* IF ii IS NO LONGER USED WITHIN n, UNLINK IT    */
+                        /* NOW TO FACILITATE CHAIN FOLDING.               */
 
                         if ( !MemIsUsed( n, ii ) ) {
-			    UnlinkImport( ii );
-			    UnlinkExport( ii );
+                            UnlinkImport( ii );
+                            UnlinkExport( ii );
                             }
 
-			}
+                        }
 
-		    /* THREAD A REFERENCE TO nn'S EXPORT TO EACH USE IN n */
+                    /* THREAD A REFERENCE TO nn'S EXPORT TO EACH USE IN n */
 
                     for ( e = nd->exp; e != NULL; e = se ) {
-			se = e->esucc;
+                        se = e->esucc;
 
-			UnlinkImport( e );
-			ThreadToUse( nn, 1, e->dst, e->iport, e->info );
-			}
+                        UnlinkImport( e );
+                        ThreadToUse( nn, 1, e->dst, e->iport, e->info );
+                        }
 
-		    nd->exp = NULL; vcnt++;       /* MAKE nd A DEAD NODE */
-		    }
-	    }
+                    nd->exp = NULL; vcnt++;       /* MAKE nd A DEAD NODE */
+                    }
+            }
 }
 
 
@@ -1167,7 +1177,7 @@ PNODE n;
     register PEDGE i;
 
     if ( IsSGraph( n ) )
-	return;
+        return;
 
     if ( IsPeek( n ) )
       return;
@@ -1176,11 +1186,11 @@ PNODE n;
       return;
 
     for ( i = n->imp; i != NULL; i = i->isucc )
-	if ( !IsConst( i ) ) {
-	    UnlinkExport( i );
+        if ( !IsConst( i ) ) {
+            UnlinkExport( i );
 
-	    if ( i->src->exp == NULL )
-		MemRemoveDeadNode( i->src );
+            if ( i->src->exp == NULL )
+                MemRemoveDeadNode( i->src );
             }
 
     UnlinkNode( n );
@@ -1203,36 +1213,36 @@ PNODE g;
     register PEDGE si;
 
     for ( n = g->G_NODES; n != NULL; n = sn ) {
-	sn = n->nsucc;
+        sn = n->nsucc;
 
-	if ( !IsCompound( n ) ) {
-	    if ( n->exp == NULL )
-		MemRemoveDeadNode( n );
+        if ( !IsCompound( n ) ) {
+            if ( n->exp == NULL )
+                MemRemoveDeadNode( n );
 
             continue;
-	    }
+            }
 
         for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-	    MemRemoveDeadNodesFromGraph( g );
+            MemRemoveDeadNodesFromGraph( g );
 
-	/* ARE ALL K-IMPORTS TO n USED? DISCARD THOSE THAT ARE NOT        */
+        /* ARE ALL K-IMPORTS TO n USED? DISCARD THOSE THAT ARE NOT        */
 
-	for ( i = n->imp; i != NULL; i = si ) {
-	    si = i->isucc;
+        for ( i = n->imp; i != NULL; i = si ) {
+            si = i->isucc;
 
             if ( MemIsUsed( n, i ) )
-		continue;
+                continue;
 
-	    UnlinkImport( i );
+            UnlinkImport( i );
 
             if ( !IsConst( i ) ) {
-		UnlinkExport( i );
+                UnlinkExport( i );
 
-		if ( i->src->exp == NULL )
-		    MemRemoveDeadNode( i->src );
-		}
-	    }
-	}
+                if ( i->src->exp == NULL )
+                    MemRemoveDeadNode( i->src );
+                }
+            }
+        }
 }
 
 
@@ -1279,33 +1289,33 @@ int   iport;
       sg = (n->type == IFForall)? n->F_RET : n->L_RET;
 
       if ( (ee = FindImport( sg, i->eport )) == NULL )
-	Error2( "FindAndAttachLowerBound", "FindImport FAILURE (B)" );
+        Error2( "FindAndAttachLowerBound", "FindImport FAILURE (B)" );
 
       rt = ee->src;
 
       switch ( rt->type ) {
-	case IFReduceAT:
-	case IFRedLeftAT:
-	case IFRedRightAT:
-	case IFRedTreeAT:
-	case IFAGatherAT:
-	case IFAGather:
-	  ee = (rt->type == IFAGatherAT || rt->type == IFAGather)? 
-		rt->imp : rt->imp->isucc;
+        case IFReduceAT:
+        case IFRedLeftAT:
+        case IFRedRightAT:
+        case IFRedTreeAT:
+        case IFAGatherAT:
+        case IFAGather:
+          ee = (rt->type == IFAGatherAT || rt->type == IFAGather)? 
+                rt->imp : rt->imp->isucc;
 
-	  if ( !IsConst( ee ) ) {
-	    if ( (ee = FindImport( n, ee->eport )) == NULL )
-	      Error2( "FindAndAttachLowerBound", "FindImport FAILURE (C)" );
+          if ( !IsConst( ee ) ) {
+            if ( (ee = FindImport( n, ee->eport )) == NULL )
+              Error2( "FindAndAttachLowerBound", "FindImport FAILURE (C)" );
 
-	    AttachEdge( ee->src, ee->eport, dst, iport, integer, ee->CoNsT );
-	    }
-	  else
-	    AttachEdge( NULL_NODE, ee->eport, dst, iport, integer, ee->CoNsT );
+            AttachEdge( ee->src, ee->eport, dst, iport, integer, ee->CoNsT );
+            }
+          else
+            AttachEdge( NULL_NODE, ee->eport, dst, iport, integer, ee->CoNsT );
 
-	  return;
+          return;
 
-	default:
-	  break;
+        default:
+          break;
         }
 
       break;
@@ -1359,7 +1369,7 @@ int   iport;
     case IFAAddHAT:
     case IFACatenateAT:
       if ( (lo = FindImport( n, 5 )) == NULL )
-	Error2( "FindAndAttachLowerBound", "FindImport FAILURE (A)" );
+        Error2( "FindAndAttachLowerBound", "FindImport FAILURE (A)" );
 
       AttachEdge( lo->src, lo->eport, dst, iport, integer, lo->CoNsT );
       break;
@@ -1370,64 +1380,64 @@ int   iport;
       sg = (n->type == IFForall)? n->F_RET : n->L_RET;
 
       if ( (ee = FindImport( sg, e->eport )) == NULL )
-	Error2( "FindAndAttachLowerBound", "FindImport FAILURE (B)" );
+        Error2( "FindAndAttachLowerBound", "FindImport FAILURE (B)" );
 
       rt = ee->src;
 
       switch ( rt->type ) {
-	case IFReduceAT:
-	case IFRedLeftAT:
-	case IFRedRightAT:
-	case IFRedTreeAT:
-	case IFAGatherAT:
-	case IFAGather:
-	  ee = (rt->type == IFAGatherAT || rt->type == IFAGather)? 
-	       rt->imp : rt->imp->isucc;
+        case IFReduceAT:
+        case IFRedLeftAT:
+        case IFRedRightAT:
+        case IFRedTreeAT:
+        case IFAGatherAT:
+        case IFAGather:
+          ee = (rt->type == IFAGatherAT || rt->type == IFAGather)? 
+               rt->imp : rt->imp->isucc;
 
-	  if ( !IsConst( ee ) ) {
-	    if ( (ee = FindImport( n, ee->eport )) == NULL )
-	      Error2( "FindAndAttachLowerBound", "FindImport FAILURE (C)" );
+          if ( !IsConst( ee ) ) {
+            if ( (ee = FindImport( n, ee->eport )) == NULL )
+              Error2( "FindAndAttachLowerBound", "FindImport FAILURE (C)" );
 
-	    AttachEdge( ee->src, ee->eport, dst, iport, integer, ee->CoNsT );
-	    }
-	  else
-	    AttachEdge( NULL_NODE, ee->eport, dst, iport, integer, ee->CoNsT );
+            AttachEdge( ee->src, ee->eport, dst, iport, integer, ee->CoNsT );
+            }
+          else
+            AttachEdge( NULL_NODE, ee->eport, dst, iport, integer, ee->CoNsT );
 
-	  break;
+          break;
 
-	default:
+        default:
           ComputeAndAttachLowerBound( e, dst, iport );
-	  break;
+          break;
         }
 
       break;
 
     case IFSGraph:
       switch ( e->dst->type ) {
-	case IFACatenateAT:
-	  if ( e->iport != 1 ) {
+        case IFACatenateAT:
+          if ( e->iport != 1 ) {
             ComputeAndAttachLowerBound( e, dst, iport );
-	    break;
-	    }
+            break;
+            }
 
-	case IFAAddHAT:
+        case IFAAddHAT:
           if ( (ee = FindImport( n->G_DAD->L_INIT, e->eport )) == NULL )
-	    Error2( "FindAndAttachLowerBound", "FindImport FAILURE (D)" );
+            Error2( "FindAndAttachLowerBound", "FindImport FAILURE (D)" );
           if ( (ee = FindImport( n->G_DAD, ee->eport )) == NULL )
-	    Error2( "FindAndAttachLowerBound", "FindImport FAILURE (E)" );
+            Error2( "FindAndAttachLowerBound", "FindImport FAILURE (E)" );
 
-	  port = ++maxint;
-	  ComputeAndAttachLowerBound( ee, n->G_DAD, port );
-	  AttachEdge( n->G_DAD->L_BODY, port, dst, iport, integer, (char*)NULL );
-	  break;
+          port = ++maxint;
+          ComputeAndAttachLowerBound( ee, n->G_DAD, port );
+          AttachEdge( n->G_DAD->L_BODY, port, dst, iport, integer, (char*)NULL );
+          break;
 
-	case IFAAddLAT:
-	  ComputeAndAttachLowerBound( e, dst, iport );
-	  break;
+        case IFAAddLAT:
+          ComputeAndAttachLowerBound( e, dst, iport );
+          break;
 
-	default:
-	  Error2( "FindAndAttachLowerBound", "IFSGraph switch FAILURE" );
-	  break;
+        default:
+          Error2( "FindAndAttachLowerBound", "IFSGraph switch FAILURE" );
+          break;
         }
 
       break;
@@ -1456,7 +1466,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	AssignLowerBounds( sg );
+        AssignLowerBounds( sg );
 
       continue;
       }
@@ -1464,30 +1474,30 @@ PNODE g;
     switch( n->type ) {
       case IFACatenateAT:
       case IFAAddHAT:
-	if ( !(n->imp->mark == 'P') )
-	  ComputeAndAttachLowerBound( n->imp, n, 5 );
+        if ( !(n->imp->mark == 'P') )
+          ComputeAndAttachLowerBound( n->imp, n, 5 );
         else
-	  FindAndAttachLowerBound( n->imp, n, 5 );
+          FindAndAttachLowerBound( n->imp, n, 5 );
 
-	break;
+        break;
 
       case IFAAddLAT:
-	nn = NodeAlloc( ++maxint, IFMinus );
+        nn = NodeAlloc( ++maxint, IFMinus );
         nn->lstack = n->lstack;
         nn->level  = n->level;
-	LinkNode( n->npred, nn );
+        LinkNode( n->npred, nn );
 
-	AttachEdge( NULL_NODE, CONST_PORT, nn, 2, integer, CopyString( "1" ) );
-	AttachEdge( nn, 1, n, 5, integer, (char*)NULL );
+        AttachEdge( NULL_NODE, CONST_PORT, nn, 2, integer, CopyString( "1" ) );
+        AttachEdge( nn, 1, n, 5, integer, (char*)NULL );
 
-	if ( !(n->imp->mark == 'P') )
-	  ComputeAndAttachLowerBound( n->imp, nn, 1 );
+        if ( !(n->imp->mark == 'P') )
+          ComputeAndAttachLowerBound( n->imp, nn, 1 );
         else
-	  FindAndAttachLowerBound( n->imp, nn, 1 );
-	break;
+          FindAndAttachLowerBound( n->imp, nn, 1 );
+        break;
 
       default:
-	break;
+        break;
       }
     }
 }

@@ -1,10 +1,20 @@
-/* opt.c,v
+/**************************************************************************/
+/* FILE   **************           opt.c           ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:59  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:39  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -17,7 +27,7 @@ char *program = "if1opt";           /* PROGRAM NAME                       */
 
 static int norm    = TRUE;          /* PERFORM GRAPH NORMALIZATION?       */
 static int fission = TRUE;          /* PERFORM RECORD AND ARRAY FISSION?  */
-static int cascade = TRUE;	    /* Look for loop test cascades	  */
+static int cascade = TRUE;          /* Look for loop test cascades        */
 static int invar   = TRUE;          /* PERFORM LOOP INVARIANT REMOVAL?    */
        int Oinvar  = TRUE;
 static int cse     = TRUE;          /* PERFORM CSE?                       */
@@ -25,8 +35,8 @@ static int gcse    = TRUE;          /* PERFORM GLOBAL CSE?                */
        int tgcse   = TRUE;          /* TRY AND FORCE GCSE IMPORVEMENTS?   */
 static int fold    = TRUE;          /* PERFORM CONSTANT FOLDING?          */
 static int dead    = TRUE;          /* PERFORM DEAD CODE REMOVAL?         */
-static int InLineExpansion  = TRUE;	 /* PERFORM INLINE EXPANSION? */
-       int intrinsics = FALSE;		/* Fold constants in math intrinsics */
+static int InLineExpansion  = TRUE;      /* PERFORM INLINE EXPANSION? */
+       int intrinsics = FALSE;          /* Fold constants in math intrinsics */
        int inlineall = FALSE;         /* INLINE EVERYTHING BUT REQUESTS?     */
        int inter     = FALSE;         /* INLINE EXPAND IN INTERACTIVE MODE?  */
        int AggressiveVectors = FALSE; /* Aggressive fusion of vector loops */
@@ -43,7 +53,7 @@ static int strip   = TRUE;          /* DO RETURN NODE STRIPPING?          */
        int ifuse   = TRUE;          /* PERFORM FORALL FUSION?             */
        int sfuse   = TRUE;          /* PERFORM SELECT FUSION?             */
        int dfuse   = TRUE;          /* PERFORM FORALL DEPENDENT FUSION?   */
-       int info	   = FALSE;	    /* DUMP OPTIMIZATION INFORMATION?     */
+       int info    = FALSE;         /* DUMP OPTIMIZATION INFORMATION?     */
        int sgnok   = TRUE;          /* ALLOW SIGNED ARITHMETIC CONSTANTS? */
        int slfis   = TRUE;          /* PERFORM STREAM LOOP FISSION?       */
        int native  = FALSE;         /* FLAG NODES NOT SUPPORTED IN NATIVE */
@@ -79,64 +89,64 @@ static char *ofile = NULL;   /* NAME OF THE OUTPUT FILE                   */
 /*          FILE IS FOR IF1 OUTPUT.  ANY OTHER FILES ON THE COMMAND LINE  */
 /*          CAUSE AN ERROR MESSAGE TO BE PRINTED.                         */
 /*                                                                        */
-/*	    FILES:							  */
-/*		0:	-> IF1 monolith					  */
-/*		1:	-> Optimized IF1				  */
-/*									  */
-/*          OPTIONS:							  */
-/*		-	-> Skip a standard file (in, out, etc..)	  */
+/*          FILES:                                                        */
+/*              0:      -> IF1 monolith                                   */
+/*              1:      -> Optimized IF1                                  */
+/*                                                                        */
+/*          OPTIONS:                                                      */
+/*              -       -> Skip a standard file (in, out, etc..)          */
 
-/*		-a	-> DO ONLY NORMALIZATION AND DEAD CODE REMOVAL	  */
-/*		-c	-> NO CSE					  */
-/*		-d	-> NO DEAD CODE REMOVAL				  */
-/*		-e	-> FLAG NODES ONLY SUPPORTED BY DI		  */
-/*		-f	-> NO CONSTANT FOLDING				  */
-/*		-g	-> NO GLOBAL CSE				  */
-/*		-j	-> Do not do select loop fusion			  */
-/*		-i	-> GENERATE LISTING OF GATHERED INFO		  */
-/*		-i<num>	-> Generate more listing of gathered info	  */
-/*		-l	-> ENABLE SETL REMOVAL				  */
-/*		-n	-> NO NORMALIZATION				  */
-/*		-p<num>	-> Apply dynamic patch <num>			  */
-/*		-r	-> NO RECORD FISSION				  */
-/*		-s	-> SIGNED CONSTANTS AREN'T ALLOWED		  */
-/*		-t	-> DO INTERACTIVE EXPANSION			  */
-/*		-u	-> NO FORALL FUSION				  */
-/*		-v	-> NO INVARIANT MOVEMENT			  */
-/*		-w	-> Supress warnings messages			  */
-/*		-x	-> NO EXPANSION					  */
-/*		-y	-> NO STREAM LOOP FISSION			  */
-/*		-z	-> Do not do dependent loop fusion		  */
+/*              -a      -> DO ONLY NORMALIZATION AND DEAD CODE REMOVAL    */
+/*              -c      -> NO CSE                                         */
+/*              -d      -> NO DEAD CODE REMOVAL                           */
+/*              -e      -> FLAG NODES ONLY SUPPORTED BY DI                */
+/*              -f      -> NO CONSTANT FOLDING                            */
+/*              -g      -> NO GLOBAL CSE                                  */
+/*              -j      -> Do not do select loop fusion                   */
+/*              -i      -> GENERATE LISTING OF GATHERED INFO              */
+/*              -i<num> -> Generate more listing of gathered info         */
+/*              -l      -> ENABLE SETL REMOVAL                            */
+/*              -n      -> NO NORMALIZATION                               */
+/*              -p<num> -> Apply dynamic patch <num>                      */
+/*              -r      -> NO RECORD FISSION                              */
+/*              -s      -> SIGNED CONSTANTS AREN'T ALLOWED                */
+/*              -t      -> DO INTERACTIVE EXPANSION                       */
+/*              -u      -> NO FORALL FUSION                               */
+/*              -v      -> NO INVARIANT MOVEMENT                          */
+/*              -w      -> Supress warnings messages                      */
+/*              -x      -> NO EXPANSION                                   */
+/*              -y      -> NO STREAM LOOP FISSION                         */
+/*              -z      -> Do not do dependent loop fusion                */
 
-/*		-A	-> COMPILING FOR THE ALLIANT			  */
-/*		-AggV	-> DO AGGRESSIVE FUSION of VECTOR LOOPS		  */
-/*		-C	-> COMPILING FOR THE CRAY XMP			  */
-/*		-D	-> Don't perform dope vector optimizations	  */
-/*		-G	-> DO ANTI-GLOBAL CSE				  */
-/*		-I	-> Generate vector information listing		  */
-/*		-I<num>	-> Generate more vector information listing	  */
-/*		-M	-> Fold constants in math intrinsics		  */
-/*		-N	-> DON'T NORMALIZE ARRAY INDEXING		  */
-/*		-R	-> Compiling for concurrent computation		  */
-/*		-S	-> NO FORALL SPLITTING				  */
-/*		-T	-> Explode forall nodes				  */
-/*		-U#	-> FORALL ITERATION UNROLLING VALUE		  */
-/*		-V	-> Do not remove invariants in outer level loops  */
-/*		-W	-> Do profiling					  */
-/*		-X	-> Vectorize					  */
-/*		-Y	-> Allow constant folding and assoc. transforms.  */
-/*		-Z	-> Do not perform loop inversion optimization	  */
+/*              -A      -> COMPILING FOR THE ALLIANT                      */
+/*              -AggV   -> DO AGGRESSIVE FUSION of VECTOR LOOPS           */
+/*              -C      -> COMPILING FOR THE CRAY XMP                     */
+/*              -D      -> Don't perform dope vector optimizations        */
+/*              -G      -> DO ANTI-GLOBAL CSE                             */
+/*              -I      -> Generate vector information listing            */
+/*              -I<num> -> Generate more vector information listing       */
+/*              -M      -> Fold constants in math intrinsics              */
+/*              -N      -> DON'T NORMALIZE ARRAY INDEXING                 */
+/*              -R      -> Compiling for concurrent computation           */
+/*              -S      -> NO FORALL SPLITTING                            */
+/*              -T      -> Explode forall nodes                           */
+/*              -U#     -> FORALL ITERATION UNROLLING VALUE               */
+/*              -V      -> Do not remove invariants in outer level loops  */
+/*              -W      -> Do profiling                                   */
+/*              -X      -> Vectorize                                      */
+/*              -Y      -> Allow constant folding and assoc. transforms.  */
+/*              -Z      -> Do not perform loop inversion optimization     */
 
-/*		-1	-> DON'T FORCE GCSE IMPORVEMENTS		  */
-/*		-3	-> Turn on debugging				  */
-/*		-6	-> Strip return nodes				  */
-/*		-8	-> Do not eliminate dead function calls		  */
-/*		-9	-> Do not perform anti-movement			  */
+/*              -1      -> DON'T FORCE GCSE IMPORVEMENTS                  */
+/*              -3      -> Turn on debugging                              */
+/*              -6      -> Strip return nodes                             */
+/*              -8      -> Do not eliminate dead function calls           */
+/*              -9      -> Do not perform anti-movement                   */
 
-/*		-@#	-> Assumed iteration count			  */
-/*		-+	-> Explode all forall loops			  */
-/*		-$	-> Inline all (nonrecursive) functions		  */
-/*		-# f	-> DON'T INLINE FUNCTION f			  */
+/*              -@#     -> Assumed iteration count                        */
+/*              -+      -> Explode all forall loops                       */
+/*              -$      -> Inline all (nonrecursive) functions            */
+/*              -# f    -> DON'T INLINE FUNCTION f                        */
 /**************************************************************************/
 
 static void ParseCommandLine( argc, argv )
@@ -153,9 +163,9 @@ char **argv;
             switch ( fmode ) {
                 case 0: 
                     if ( (fd = fopen( c, "r" )) == NULL )
-			Error2( "CAN'T OPEN", c );
+                        Error2( "CAN'T OPEN", c );
 
-		    input = fd;
+                    input = fd;
 
                     AssignSourceFileName( c );
 
@@ -163,9 +173,9 @@ char **argv;
                     break;
 
                 case 1:
-		    ofile = c;
+                    ofile = c;
 
-		    fmode++;
+                    fmode++;
                     break;
 
                 default:
@@ -177,228 +187,228 @@ char **argv;
 
         switch ( *( ++c ) ) {
 
-	  /* ------------------------------------------------------------ */
-	  /* Suppress warning messages					  */
-	  /* ------------------------------------------------------------ */
-	case 'w':
-	  Warnings = FALSE;
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Suppress warning messages                                    */
+          /* ------------------------------------------------------------ */
+        case 'w':
+          Warnings = FALSE;
+          break;
 
-	  /* ------------------------------------------------------------ */
-	  /* Apply dynamic patch					  */
-	  /* ------------------------------------------------------------ */
-	case 'p':
-	  if ( *c ) AddPatch(atoi(c));
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Apply dynamic patch                                          */
+          /* ------------------------------------------------------------ */
+        case 'p':
+          if ( *c ) AddPatch(atoi(c));
+          break;
 
-	case 'W':
-	  prof = TRUE;
-	  break;
+        case 'W':
+          prof = TRUE;
+          break;
 
-	case 'x':
-	  InLineExpansion = FALSE;
-	  break;
+        case 'x':
+          InLineExpansion = FALSE;
+          break;
 
-	case '#':
-	  noin[++noincnt] = LowerCase( argv[++idx], FALSE, FALSE );
-	  break;
+        case '#':
+          noin[++noincnt] = LowerCase( argv[++idx], FALSE, FALSE );
+          break;
 
-	case '6':
-	  strip = FALSE;
-	  break;
+        case '6':
+          strip = FALSE;
+          break;
 
-	case 'N':
-	  normidx = FALSE;
-	  break;
+        case 'N':
+          normidx = FALSE;
+          break;
 
-	case 'M':
-	  intrinsics = TRUE;
-	  break;
+        case 'M':
+          intrinsics = TRUE;
+          break;
 
-	case '1':
-	  tgcse = FALSE;
-	  break;
+        case '1':
+          tgcse = FALSE;
+          break;
 
-	case '\0':
-	  fmode++;
-	  break;
+        case '\0':
+          fmode++;
+          break;
 
-	case 'S':
-	  split = FALSE;
-	  break;
+        case 'S':
+          split = FALSE;
+          break;
 
-	case 'Z':
-	  invert = FALSE;
-	  break;
+        case 'Z':
+          invert = FALSE;
+          break;
 
-	case 'V':
-	  Oinvar = FALSE;
-	  break;
+        case 'V':
+          Oinvar = FALSE;
+          break;
 
-	case 'e':
-	  native = TRUE;
-	  break;
+        case 'e':
+          native = TRUE;
+          break;
 
-	case 'D':
-	  dope = FALSE;
-	  break;
+        case 'D':
+          dope = FALSE;
+          break;
 
-	case 'a':
-	  maxunroll = 0;
-	  fission = FALSE;
-	  invar   = FALSE;
-	  Oinvar  = FALSE;
-	  cse     = FALSE;
-	  gcse    = FALSE;
-	  tgcse   = FALSE;
-	  fold    = FALSE;
-	  strip   = FALSE;
-	  dope    = FALSE;
-	  ifuse   = FALSE;
-	  sfuse   = FALSE;
-	  dfuse   = FALSE;
-	  split   = FALSE;
-	  invert  = FALSE;
-	  normidx = FALSE;
-	  break;
+        case 'a':
+          maxunroll = 0;
+          fission = FALSE;
+          invar   = FALSE;
+          Oinvar  = FALSE;
+          cse     = FALSE;
+          gcse    = FALSE;
+          tgcse   = FALSE;
+          fold    = FALSE;
+          strip   = FALSE;
+          dope    = FALSE;
+          ifuse   = FALSE;
+          sfuse   = FALSE;
+          dfuse   = FALSE;
+          split   = FALSE;
+          invert  = FALSE;
+          normidx = FALSE;
+          break;
 
-	case 'Y':
-	  fold  = FALSE;
-	  noassoc = TRUE;
-	  break;
+        case 'Y':
+          fold  = FALSE;
+          noassoc = TRUE;
+          break;
 
-	case 'y':
-	  slfis = FALSE;
-	  break;
+        case 'y':
+          slfis = FALSE;
+          break;
 
-	case 'n':
-	  norm = FALSE;
-	  break;
+        case 'n':
+          norm = FALSE;
+          break;
 
-	case 'l':
-	  asetl = TRUE;
-	  break;
+        case 'l':
+          asetl = TRUE;
+          break;
 
-	case 'A':
-	  if ( strcmp(c,"AggV") == 0 )  {
-	    AggressiveVectors = TRUE;
-	  } else {
-	    alliantfx = TRUE;
-	  }
-	  break;
+        case 'A':
+          if ( strcmp(c,"AggV") == 0 )  {
+            AggressiveVectors = TRUE;
+          } else {
+            alliantfx = TRUE;
+          }
+          break;
 
-	case 'C':
-	  cRay = TRUE;
-	  break;
+        case 'C':
+          cRay = TRUE;
+          break;
 
-	case 'X':
-	  vec = TRUE;
-	  break;
+        case 'X':
+          vec = TRUE;
+          break;
 
-	case 'R':
-	  concur = TRUE;
-	  break;
+        case 'R':
+          concur = TRUE;
+          break;
 
-	case 'U':
-	  if ( maxunroll == 0 )
-	    break;
+        case 'U':
+          if ( maxunroll == 0 )
+            break;
 
-	  maxunroll = atoi( c + 1 );
+          maxunroll = atoi( c + 1 );
 
-	  if ( maxunroll < 0 )
-	    maxunroll = 0;
+          if ( maxunroll < 0 )
+            maxunroll = 0;
 
-	  break;
+          break;
 
-	case 'r':
-	  fission = FALSE;
-	  break;
+        case 'r':
+          fission = FALSE;
+          break;
 
-	case 'v':
-	  invar = FALSE;
-	  break;
+        case 'v':
+          invar = FALSE;
+          break;
 
-	case 'c':
-	  cse = FALSE;
-	  break;
+        case 'c':
+          cse = FALSE;
+          break;
 
-	case 'G':
-	  agcse = TRUE;
-	  break;
+        case 'G':
+          agcse = TRUE;
+          break;
 
-	case 'g':
-	  gcse = FALSE;
-	  break;
+        case 'g':
+          gcse = FALSE;
+          break;
 
-	case 'f':
-	  fold = FALSE;
-	  break;
+        case 'f':
+          fold = FALSE;
+          break;
 
-	case '8':
-	  glue = TRUE;
-	  break;
+        case '8':
+          glue = TRUE;
+          break;
 
-	case 'd':
-	  dead = FALSE;
-	  break;
+        case 'd':
+          dead = FALSE;
+          break;
 
-	case 'j':
-	  sfuse = FALSE;
-	  break;
+        case 'j':
+          sfuse = FALSE;
+          break;
 
-	case 'u':
-	  ifuse = FALSE;
-	  break;
+        case 'u':
+          ifuse = FALSE;
+          break;
 
-	case 'z':
-	  dfuse = FALSE;
-	  break;
+        case 'z':
+          dfuse = FALSE;
+          break;
 
-	case '3':
-	  DeBuG = TRUE;
-	  break;
+        case '3':
+          DeBuG = TRUE;
+          break;
 
-	case '9':
-	  amove = FALSE;
-	  break;
+        case '9':
+          amove = FALSE;
+          break;
 
-	case '@':
-	  iter = (double) atoi( (c+1) );
-	  break;
+        case '@':
+          iter = (double) atoi( (c+1) );
+          break;
 
-	case 'i':
-	  info = TRUE;
-	  if ( isdigit((int)(c[1])) ) info=atoi(c+1);
-	  break;
+        case 'i':
+          info = TRUE;
+          if ( isdigit((int)(c[1])) ) info=atoi(c+1);
+          break;
 
         case 'F' :
           strcpy (infofile, c+1);
-	  break;
+          break;
 
-	case '+':
-	  explode  = TRUE;
-	  explodeI = TRUE;
-	  break;
+        case '+':
+          explode  = TRUE;
+          explodeI = TRUE;
+          break;
 
-	case 'T':
-	  explode = TRUE;
-	  break;
+        case 'T':
+          explode = TRUE;
+          break;
 
-	case '$':
-	  inlineall = TRUE;
-	  break;
+        case '$':
+          inlineall = TRUE;
+          break;
 
-	case 't':
-	  inter = TRUE;
-	  break;
+        case 't':
+          inter = TRUE;
+          break;
 
-	case 's':
-	  sgnok = FALSE;
-	  break;
+        case 's':
+          sgnok = FALSE;
+          break;
 
-	default:
-	  Error2( "ILLEGAL ARGUMENT", --c );
-	}
+        default:
+          Error2( "ILLEGAL ARGUMENT", --c );
+        }
         }
 }
 
@@ -441,8 +451,8 @@ char **argv;
     }
 
   if (RequestInfo(I_Info1, info)) 
-	if ((infoptr = fopen (infofile, "a")) == NULL)
-		infoptr = stderr;
+        if ((infoptr = fopen (infofile, "a")) == NULL)
+                infoptr = stderr;
 
   StartProfiler();
   If1Read();

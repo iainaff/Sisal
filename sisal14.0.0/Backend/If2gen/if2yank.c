@@ -1,10 +1,20 @@
-/* if2yank.c,v
+/**************************************************************************/
+/* FILE   **************         if2yank.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:04  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:06  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -164,7 +174,7 @@ PNODE n;
     if ( !Used( c, ii->iport ) )
       /* DO NOT REMOVE A REFERENCE COUNTED EDGE */
       if ( ii->cm == 0 && ii->pm == 0 && ii->sr == 0 && ii->pl == 0 &&
-	   (!(ii->dmark)) ) { /* HELP */
+           (!(ii->dmark)) ) { /* HELP */
         UnlinkImport( ii );
         UnlinkExport( ii );
         /* free( ii ); */
@@ -248,16 +258,16 @@ int   inloop;
 
       switch ( n->type ) {
         case IFSaveCallParam:
-	  if ( YankIsInvariant( n->imp ) ) {
+          if ( YankIsInvariant( n->imp ) ) {
             MoveInvariant( g->G_DAD, n );
             scpinvcnt++;
             }
 
-	break;
+        break;
 
         default:
-	  break;
-	}
+          break;
+        }
       }
 }
 
@@ -292,8 +302,8 @@ PEDGE i;
             continue;
 
           switch ( e->dst->type ) {
-	    case IFAGatherATDVI:
-	    case IFAGatherATDV:
+            case IFAGatherATDVI:
+            case IFAGatherATDV:
             case IFAGatherAT:
               /* VALUE OR BUFFER                            */
               if ( e->iport == 2 || e->iport == 4 )
@@ -315,8 +325,8 @@ PEDGE i;
             case IFRedLeftAT:
             case IFRedRightAT:
             case IFRedTreeAT:
-	    case IFReduceATDV:
-	    case IFReduceATDVI:
+            case IFReduceATDV:
+            case IFReduceATDVI:
               /* VALUE OR FILTER (NOTE FILTER SHOULD NEVER HAPPEN) */
               /* OR SHIFT SIZE OR BUFFER                           */
               if ( e->iport == 3 || e->iport == 4 || 
@@ -375,21 +385,21 @@ int   inloop;
         lo = GetSliceParam( f->imp->src->F_GEN->imp->src->imp, n );
         hi = GetSliceParam( f->imp->src->F_GEN->imp->src->imp->isucc, n );
 
-	if ( oruntime ) {
+        if ( oruntime ) {
           nn = NodeAlloc( ++maxint, IFBuildSlices );
           nn->usucc = n;
-	  nn->ID = n->ID;
-	  nn->Style = n->Style;
-	  nn->MinSlice = n->MinSlice;
-	  nn->LoopSlice= n->LoopSlice;
+          nn->ID = n->ID;
+          nn->Style = n->Style;
+          nn->MinSlice = n->MinSlice;
+          nn->LoopSlice= n->LoopSlice;
 
           LinkNode( n->npred, nn );
 
           CopyEdgeAndLink( lo, nn, 1 );
           CopyEdgeAndLink( hi, nn, 2 );
 
-	  n->type = IFOptLoopPoolEnq;
-	  }
+          n->type = IFOptLoopPoolEnq;
+          }
 
         for ( i = n->imp; i != NULL; i = si ) {
           si = i->isucc;
@@ -429,7 +439,7 @@ int   inloop;
           if ( !IsExport( f->imp->src->F_GEN, i->iport ) && 
                !IsExport( f->imp->src->F_RET, i->iport )  )
             if ( i->cm == 0 && i->pm == 0 && i->sr == 0 && i->pl == 0 &&
-		 (!(i->dmark)) ) { /* HELP */
+                 (!(i->dmark)) ) { /* HELP */
               UnlinkExport( i );
               UnlinkImport( i );
               leicnt++;
@@ -448,7 +458,7 @@ int   inloop;
       sn = n->nsucc;
 
       switch ( n->type ) {
-	case IFBuildSlices:
+        case IFBuildSlices:
         case IFSaveSliceParam:
           for ( i = n->imp; i != NULL; i = i->isucc )
             if ( !YankIsInvariant( i ) )
@@ -459,11 +469,11 @@ int   inloop;
             sspinvcnt++;
             }
 
-	  break;
+          break;
 
         default:
-	  break;
-	}
+          break;
+        }
       }
 }
 
@@ -613,7 +623,7 @@ char  *nm;
     register int   port;
     register int   in  = 0;
     register int   out = 0;
-    int		   Unique;
+    int            Unique;
 
     /* MAKE INPUT TUPLES: NOTE THERE MIGHT NOT BE ANY! ENTRIES ARE MADE   */
     /* IN LABEL ORDER!                                                    */
@@ -656,7 +666,7 @@ char  *nm;
 
     /* ------------------------------------------------------------ */
     /* Build the name.  Use the source ID if set else use the nmid  */
-    /* to generate a unique one.				    */
+    /* to generate a unique one.                                    */
     /* ------------------------------------------------------------ */
     Unique = (s->ID)?(s->ID):(++nmid);
 
@@ -766,13 +776,13 @@ PNODE s;
   register PNODE sg;
 
   /* ------------------------------------------------------------ */
-  /* Change the opcode of the yanked loop marker left behind	  */
+  /* Change the opcode of the yanked loop marker left behind      */
   /* ------------------------------------------------------------ */
   s->type = IFLoopPoolEnq;
 
   /* ------------------------------------------------------------ */
-  /* Allocate a new graph for the function and one for a new	  */
-  /* forall node within the new function			  */
+  /* Allocate a new graph for the function and one for a new      */
+  /* forall node within the new function                          */
   /* ------------------------------------------------------------ */
   g = NodeAlloc( ++maxint, IFLPGraph );
   g->Pmark = TRUE;
@@ -782,7 +792,7 @@ PNODE s;
   g->LoopSlice = s->LoopSlice;
   g->MinSlice = s->MinSlice;
   g->Style    = s->Style;
-  g->ID	      = s->ID;
+  g->ID       = s->ID;
 
   f = NodeAlloc( ++maxint, IFForall );
   f->ccost = s->ccost;
@@ -796,10 +806,10 @@ PNODE s;
   f->LoopSlice = s->LoopSlice;
   f->MinSlice = s->MinSlice;
   f->Style    = s->Style;
-  f->ID	      = s->ID;
+  f->ID       = s->ID;
 
   /* ------------------------------------------------------------ */
-  /* Modify all the subgraphs to point to a new parent (f)	  */
+  /* Modify all the subgraphs to point to a new parent (f)        */
   /* ------------------------------------------------------------ */
 
   for ( sg = s->C_SUBS; sg != NULL; sg = sg->gsucc )
@@ -906,11 +916,11 @@ PNODE g;
 
             n->cmark = FALSE;
             break;
-	    }
+            }
 
           AppendToUtilityList( chead, ctail, n );
           n->G_NAME = MakeName( "gbl", "", ++nmid );
-	  }
+          }
 
         break;
 
@@ -946,8 +956,8 @@ PNODE g;
       case IFForall:
         for ( r = n->F_RET->G_NODES; r != NULL; r = r->nsucc ) {
           switch ( r->type ) {
-	    case IFAGatherATDVI:
-	    case IFAGatherATDV:
+            case IFAGatherATDVI:
+            case IFAGatherATDV:
             case IFAGatherAT:
               v = r->imp->isucc;
 
@@ -1039,9 +1049,9 @@ PNODE g;
                   break;
 
                 default:
-		  fprintf(stderr,"Bad reduction constant \"%s\" on line %d\n",
-			  r->imp->CoNsT,r->imp->if1line);
-		  exit(1);
+                  fprintf(stderr,"Bad reduction constant \"%s\" on line %d\n",
+                          r->imp->CoNsT,r->imp->if1line);
+                  exit(1);
                   break;
                 }
 

@@ -1,10 +1,22 @@
-/* sisal.h,v
+#ifndef SISAL_H
+#define SISAL_H
+
+/**************************************************************************/
+/* FILE   **************          sisal.h          ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
  * Revision 12.7  1992/11/04  22:05:04  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:06  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "sisalrt.h"
 
@@ -44,17 +56,17 @@
 ** Spawn( x = loop type, y = child address, z = task frame, w = lower bound,
 **        u = upper bound, size, norm )
 ** OptSpawn( tt = task frame structure type ...)
-** BSlices( x,			SIMPLE or COMPLEX spawn
-	    tt,			Frame type for casting
-	    y,			Child body function
-	    z,			Frame
-	    w,			Low value
-	    u,			High value
-	    Min Slice Size,	Minimum acceptable slice
-	    LoopSlices,		Number of slices to make
+** BSlices( x,                  SIMPLE or COMPLEX spawn
+            tt,                 Frame type for casting
+            y,                  Child body function
+            z,                  Frame
+            w,                  Low value
+            u,                  High value
+            Min Slice Size,     Minimum acceptable slice
+            LoopSlices,         Number of slices to make
             size,               LCM of loop output sizes
             norm                normalization distance
-	  )
+          )
 */
 #define Spawn(x,y,z,w,u,Size, Norm)  SpawnSlices(x,y,(POINTER)z,w,u, Size, Norm)
 
@@ -65,73 +77,73 @@
     OptSpawnSlicesFast(((tt*)z)->FirstAR,((tt*)z)->Count)
 
 #define BSlices(x,tt,y,z,w,u,MinSlice, LoopSlice, Size, Norm) \
-    BuildSlices(x,		       /* Type of Spawn */ \
-		&(((tt*)z)->FirstAR),  /* To return location of first slice */\
-		&(((tt*)z)->Count),    /* To return number of slices made */ \
-		y,		       /* Child Code */ \
-		(POINTER)z,	       /* Task frame block */ \
-		w,		       /* Low value */ \
-		u,		       /* High value */ \
-		MinSlice,	       /* Min. accepatable slice */ \
-		LoopSlices,	       /* How many slices to attempt */ \
-		Size, \
-		Norm)
+    BuildSlices(x,                     /* Type of Spawn */ \
+                &(((tt*)z)->FirstAR),  /* To return location of first slice */\
+                &(((tt*)z)->Count),    /* To return number of slices made */ \
+                y,                     /* Child Code */ \
+                (POINTER)z,            /* Task frame block */ \
+                w,                     /* Low value */ \
+                u,                     /* High value */ \
+                MinSlice,              /* Min. accepatable slice */ \
+                LoopSlices,            /* How many slices to attempt */ \
+                Size, \
+                Norm)
 
 /* ------------------------------------------------------------ */
 #define BlockSpawn(x,y,z,w,u)    SpawnBlockSlices(y,(POINTER)z,w,u)
 #define BlockBSlices(x,tt,y,z,w,u,MinSlice,LoopSlice, Size, Norm) \
-    BuildBlockSlices(		/* Don't need loop type */ \
-		     &(((tt*)z)->FirstAR), \
-		     &(((tt*)z)->Count), \
-		     y, \
-		     (POINTER)z, \
-		     w, \
-		     u, \
-		     MinSlice, \
-		     LoopSlice)
+    BuildBlockSlices(           /* Don't need loop type */ \
+                     &(((tt*)z)->FirstAR), \
+                     &(((tt*)z)->Count), \
+                     y, \
+                     (POINTER)z, \
+                     w, \
+                     u, \
+                     MinSlice, \
+                     LoopSlice)
 
 /* for POWER4 */
 /* ------------------------------------------------------------ */
 #define CachedSpawn(x,y,z,w,u,s,Size,Norm) \
-		SpawnCachedSlices(y,(POINTER)z,w,u,s,Size,Norm)
+                SpawnCachedSlices(y,(POINTER)z,w,u,s,Size,Norm)
 #define CachedBSlices(x,tt,y,z,w,u,MinSlice,LoopSlice,Size, Norm) \
-    BuildCachedSlices(		/* Don't need loop type */ \
-		     &(((tt*)z)->FirstAR), \
-		     &(((tt*)z)->Count), \
-		     y, \
-		     (POINTER)z, \
-		     w, \
-		     u, \
-		     MinSlice, \
-		     LoopSlice, \
-		     Size, \
-		     Norm)
+    BuildCachedSlices(          /* Don't need loop type */ \
+                     &(((tt*)z)->FirstAR), \
+                     &(((tt*)z)->Count), \
+                     y, \
+                     (POINTER)z, \
+                     w, \
+                     u, \
+                     MinSlice, \
+                     LoopSlice, \
+                     Size, \
+                     Norm)
 
 /* ------------------------------------------------------------ */
 #define StridedSpawn(x,y,z,w,u)    SpawnStridedSlices(y,(POINTER)z,w,u)
 #define StridedBSlices(x,tt,y,z,w,u,MinSlice,LoopSlice, Size, Norm) \
-    BuildStridedSlices(		/* Don't need loop type */ \
-		     &(((tt*)z)->FirstAR), \
-		     &(((tt*)z)->Count), \
-		     y, \
-		     (POINTER)z, \
-		     w, \
-		     u, \
-		     MinSlice, \
-		     LoopSlice)
+    BuildStridedSlices(         /* Don't need loop type */ \
+                     &(((tt*)z)->FirstAR), \
+                     &(((tt*)z)->Count), \
+                     y, \
+                     (POINTER)z, \
+                     w, \
+                     u, \
+                     MinSlice, \
+                     LoopSlice)
 
 /* ------------------------------------------------------------ */
 #define GSSSpawn(x,y,z,w,u)    SpawnGssSlices(y,(POINTER)z,w,u)
 #define GSSBSlices(x,tt,y,z,w,u,MinSlice,LoopSlice, Size, Norm) \
-    BuildGssSlices(		/* Don't need loop type */ \
-		     &(((tt*)z)->FirstAR), \
-		     &(((tt*)z)->Count), \
-		     y, \
-		     (POINTER)z, \
-		     w, \
-		     u, \
-		     MinSlice, \
-		     LoopSlice)
+    BuildGssSlices(             /* Don't need loop type */ \
+                     &(((tt*)z)->FirstAR), \
+                     &(((tt*)z)->Count), \
+                     y, \
+                     (POINTER)z, \
+                     w, \
+                     u, \
+                     MinSlice, \
+                     LoopSlice)
 
 /* x = sisal function; y = formal arguments */
 #define Call(x,y)  x( y )
@@ -177,7 +189,7 @@ char    *Name;
   register ARRAYP Array = (ARRAYP) Ptr;
 
   fprintf( stderr, "TOKEN: (%s,lo=%d,size=%d)\n",
-	   Name, Array->LoBound, Array->Size   );
+           Name, Array->LoBound, Array->Size   );
   fprintf( stderr, "Array: 0x%x (%d), sizeof: %d\n",Array,Array,sizeof(*Array));
   fprintf( stderr, "  LoBound: %d (0x%x)\n",Array->LoBound,Array->LoBound);
   fprintf( stderr, "  Size: %d (0x%x)\n",Array->Size,Array->Size);
@@ -240,7 +252,7 @@ char    *Name;
     x = Alloc( sizeof( z ) ); \
     *((z*)x) = *((z*)y); \
     MY_INIT_LOCK( &((z*)x)->Mutex )
-	
+        
 /* x = pointer target; y = pointer source */
 #define EndCRNoOp(x,y) \
     } \
@@ -288,7 +300,7 @@ char    *Name;
 #define OptMinus(x,y,z) x -= z
 #define Minus(x,y,z)    x  = y - z
 
-static int DivByZero() { return( 0 ); }
+staticforward int DivByZero PROTO((void)) { return( 0 ); }
 
 #define OptDivZero(x,y,z)  x /= DivByZero()
 #define DivZero(x,y,z)     x  = y / DivByZero()
@@ -436,7 +448,7 @@ static int DivByZero() { return( 0 ); }
 #define ASetL(x,y,z,w) \
 { \
   ((ARRAYP)y)->Base = (POINTER) \
-	              (((x*)(((ARRAYP)y)->Base))+(((ARRAYP)y)->LoBound-w)); \
+                      (((x*)(((ARRAYP)y)->Base))+(((ARRAYP)y)->LoBound-w)); \
   ((ARRAYP)y)->LoBound = w; \
 }
 
@@ -1335,8 +1347,8 @@ static int DivByZero() { return( 0 ); }
       Src =  &(((x*)(((ARRAYP)z)->Base))[((ARRAYP)z)->LoBound]); \
       while ( Num-- > 0 ) { \
         AGather( y, *Src, x ); \
-	Src++; \
-	} \
+        Src++; \
+        } \
       } \
     } \
 }
@@ -1366,8 +1378,8 @@ static int DivByZero() { return( 0 ); }
       while ( Num-- > 0 ) { \
         IncRefCount( (*Src), q, 1 ); \
         AGather( y, *Src, x ); \
-	Src++; \
-	} \
+        Src++; \
+        } \
       } \
     } \
 }
@@ -1597,7 +1609,7 @@ static int DivByZero() { return( 0 ); }
 { \
   int  vX; \
   int lX,hX; \
-  extern int w(); \
+  extern int w PROTO((void)); \
   lX = l; \
   hX = h; \
   vX = v; \
@@ -1955,3 +1967,5 @@ static int DivByZero() { return( 0 ); }
     w = (POINTER) &(x); \
     } \
 }
+
+#endif

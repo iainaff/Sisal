@@ -1,10 +1,20 @@
-/* if2select.c,v
+/**************************************************************************/
+/* FILE   **************        if2select.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:03  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:04  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -24,70 +34,70 @@ PNODE n;
     FPRINTF( output, "if ( " );
 
     if ( n->usucc != NULL ) {
-	if ( IsNot( n->usucc ) )
-	    FPRINTF( output, " !( " );
+        if ( IsNot( n->usucc ) )
+            FPRINTF( output, " !( " );
 
         PrintTemp( n->usucc->imp );
 
-	switch ( n->usucc->type ) {
-	    case IFGreat:
-		FPRINTF( output, " > " );
-		goto DyadicFinish;
+        switch ( n->usucc->type ) {
+            case IFGreat:
+                FPRINTF( output, " > " );
+                goto DyadicFinish;
 
-	    case IFGreatEqual:
-		FPRINTF( output, " >= " );
-		goto DyadicFinish;
+            case IFGreatEqual:
+                FPRINTF( output, " >= " );
+                goto DyadicFinish;
 
-	    case IFLess:
-		FPRINTF( output, " < " );
-		goto DyadicFinish;
+            case IFLess:
+                FPRINTF( output, " < " );
+                goto DyadicFinish;
 
-	    case IFLessEqual:
-		FPRINTF( output, " <= " );
-		goto DyadicFinish;
+            case IFLessEqual:
+                FPRINTF( output, " <= " );
+                goto DyadicFinish;
 
-	    case IFEqual:
-		FPRINTF( output, " == " );
-		goto DyadicFinish;
+            case IFEqual:
+                FPRINTF( output, " == " );
+                goto DyadicFinish;
 
-	    case IFNotEqual:
-		FPRINTF( output, " != " );
-		goto DyadicFinish;
+            case IFNotEqual:
+                FPRINTF( output, " != " );
+                goto DyadicFinish;
 
-	    case IFPlus:
-		FPRINTF( output, " || " );
-		goto DyadicFinish;
+            case IFPlus:
+                FPRINTF( output, " || " );
+                goto DyadicFinish;
 
-	    case IFTimes:
-		FPRINTF( output, " && " );
+            case IFTimes:
+                FPRINTF( output, " && " );
 
 DyadicFinish:
-		PrintTemp( n->usucc->imp->isucc );
-		break;
+                PrintTemp( n->usucc->imp->isucc );
+                break;
 
-	    case IFNot:
-		FPRINTF( output, " )" );
-		break;
-	    }
+            case IFNot:
+                FPRINTF( output, " )" );
+                break;
+            }
 
-	}
+        }
     else
         PrintTemp( n->S_TEST->imp );
 
     FPRINTF( output, " ) {\n" );
 
-	PrintProducerModifiers( indent + 2, n->S_CONS );
-	PrintGraph( indent + 2, n->S_CONS );
-	PrintProducerModifiers( indent + 2, n );
-	PrintConsumerModifiers( indent + 2, n->S_CONS );
+        PrintProducerModifiers( indent + 2, n->S_CONS );
+        PrintGraph( indent + 2, n->S_CONS );
+        PrintProducerModifiers( indent + 2, n );
+        PrintConsumerModifiers( indent + 2, n->S_CONS );
 
     PrintIndentation( indent );
     FPRINTF( output, "} else {\n" );
 
-	PrintProducerModifiers( indent + 2, n->S_ALT );
-	PrintGraph( indent + 2, n->S_ALT );
-	PrintProducerModifiers( indent + 2, n );
-	PrintConsumerModifiers( indent + 2, n->S_ALT );
+        PrintProducerModifiers( indent + 2, n->S_ALT );
+        PrintGraph( indent + 2, n->S_ALT );
+        PrintProducerModifiers( indent + 2, n );
+        PrintConsumerModifiers( indent + 2, n->S_ALT );
 
     PrintIndentation( indent );
     FPRINTF( output, "}\n" );

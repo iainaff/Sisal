@@ -1,7 +1,42 @@
-/* $Log$
+/**************************************************************************/
+/* FILE   **************           util.c          ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log$
+ * Revision 1.1.1.1  2000/12/31 17:56:43  patmiller
+ * Well, here is the first set of big changes in the distribution
+ * in 5 years!  Right now, I did a lot of work on configuration/
+ * setup (now all autoconf), breaking out the machine dependent
+ * #ifdef's (with a central acconfig.h driven config file), changed
+ * the installation directories to be more gnu style /usr/local
+ * (putting data in the /share/sisal14 dir for instance), and
+ * reduced the footprint in the top level /usr/local/xxx hierarchy.
+ *
+ * I also wrote a new compiler tool (sisalc) to replace osc.  I
+ * found that the old logic was too convoluted.  This does NOT
+ * replace the full functionality, but then again, it doesn't have
+ * 300 options on it either.
+ *
+ * Big change is making the code more portably correct.  It now
+ * compiles under gcc -ansi -Wall mostly.  Some functions are
+ * not prototyped yet.
+ *
+ * Next up: Full prototypes (little) checking out the old FLI (medium)
+ * and a new Frontend for simpler extension and a new FLI (with clean
+ * C, C++, F77, and Python! support).
+ *
+ * Pat
+ *
+ *
  * Revision 1.1  1993/01/07  00:37:58  miller
  * Make changes for LINT and combined files.
- * */
+ */
+/**************************************************************************/
+
 
 #include "world.h"
 
@@ -64,42 +99,42 @@ PNODE b;
 
     switch ( n->type ) {
       case IFAElementN:
-	n->type = IFAElement;
-	break;
+        n->type = IFAElement;
+        break;
 
       case IFAElementM:
       case IFAElementP:
-	if ( n->type == IFAElementM )
-	  nn = NodeAlloc( ++maxint, IFMinus );
+        if ( n->type == IFAElementM )
+          nn = NodeAlloc( ++maxint, IFMinus );
         else
-	  nn = NodeAlloc( ++maxint, IFPlus );
+          nn = NodeAlloc( ++maxint, IFPlus );
 
-	CopyPragmas( n, nn );
-	LinkNode( n->npred, nn );
+        CopyPragmas( n, nn );
+        LinkNode( n->npred, nn );
 
-	ii = n->imp->isucc;
-	iii = ii->isucc;
+        ii = n->imp->isucc;
+        iii = ii->isucc;
 
-	UnlinkImport( ii );
-	UnlinkImport( iii );
+        UnlinkImport( ii );
+        UnlinkImport( iii );
 
-	ii->iport  = 1;
-	iii->iport = 2;
+        ii->iport  = 1;
+        iii->iport = 2;
 
-	LinkImport( nn, ii );
-	LinkImport( nn, iii );
+        LinkImport( nn, ii );
+        LinkImport( nn, iii );
 
-	ee = EdgeAlloc( nn, 1, n, 2 );
-	ee->info = iii->info;
+        ee = EdgeAlloc( nn, 1, n, 2 );
+        ee->info = iii->info;
 
-	LinkExport( nn, ee );
-	LinkImport( n, ee );
+        LinkExport( nn, ee );
+        LinkImport( n, ee );
 
-	n->type = IFAElement;
-	break;
+        n->type = IFAElement;
+        break;
 
       default:
-	break;
+        break;
       }
     }
 }
@@ -138,20 +173,20 @@ int   *maelmp;
 
     if ( !IsConst( n->imp ) ) {
       if ( !IsSGraph( n->imp->src ) ) {
-	if ( maelmp ) continue;
+        if ( maelmp ) continue;
 
-	switch ( n->imp->src->type ) {
-	  case IFAElementN:
-	  case IFAElementP:
-	  case IFAElementM:
-	    break;
+        switch ( n->imp->src->type ) {
+          case IFAElementN:
+          case IFAElementP:
+          case IFAElementM:
+            break;
 
-	  default:
-	    continue;
-	  }
+          default:
+            continue;
+          }
         }
       else if ( !IsImport( b->G_DAD, n->imp->eport ) )
-	continue;
+        continue;
       }
       
     /* CHECK THE INDEXING */
@@ -170,7 +205,7 @@ int   *maelmp;
       if ( IsImport( b->G_DAD, eport ) || eport == cport ) {
         n->type = IFAElementN;
         if ( maelmp ) (*maelmp)++;
-	}
+        }
 
       continue;
       }
@@ -178,43 +213,43 @@ int   *maelmp;
     switch ( op->type ) {
       case IFPlus:
       case IFMinus:
-	OptNormalizeNode( op );
+        OptNormalizeNode( op );
 
-	if ( !IsConst( op->imp ) ) {
-	  if ( !IsSGraph( op->imp->src ) )
-	    break;
+        if ( !IsConst( op->imp ) ) {
+          if ( !IsSGraph( op->imp->src ) )
+            break;
 
-	  eport = op->imp->eport;
-
-          if ( !( IsImport( b->G_DAD, eport ) || eport == cport ) )
-	    break;
-	  }
-
-	if ( !IsConst( op->imp->isucc ) ) {
-	  if ( !IsSGraph( op->imp->isucc->src ) )
-	    break;
-
-	  eport = op->imp->isucc->eport;
+          eport = op->imp->eport;
 
           if ( !( IsImport( b->G_DAD, eport ) || eport == cport ) )
-	    break;
+            break;
           }
-	    
-	n->type = (IsPlus(op))? IFAElementP : IFAElementM;
 
-	i = n->imp->isucc;
-	UnlinkImport( i );
+        if ( !IsConst( op->imp->isucc ) ) {
+          if ( !IsSGraph( op->imp->isucc->src ) )
+            break;
 
-	CopyEdgeAndLink( op->imp, n, 2 );
-	CopyEdgeAndLink( op->imp->isucc, n, 3 );
+          eport = op->imp->isucc->eport;
 
-	UnlinkExport( i );
-	OptRemoveDeadNode( op ); /* WILL REMOVE op IF op->exp IS NULL */
+          if ( !( IsImport( b->G_DAD, eport ) || eport == cport ) )
+            break;
+          }
+            
+        n->type = (IsPlus(op))? IFAElementP : IFAElementM;
+
+        i = n->imp->isucc;
+        UnlinkImport( i );
+
+        CopyEdgeAndLink( op->imp, n, 2 );
+        CopyEdgeAndLink( op->imp->isucc, n, 3 );
+
+        UnlinkExport( i );
+        OptRemoveDeadNode( op ); /* WILL REMOVE op IF op->exp IS NULL */
         if ( maelmp ) (*maelmp)++;
-	break;
+        break;
 
       default:
-	break;
+        break;
       }
     }
 }

@@ -1,8 +1,19 @@
-/* if1reduce.c,v 
+/**************************************************************************/
+/* FILE   **************        if1reduce.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:57  denton
  * Initial revision
  *
- * */
+ *
+ */
+/**************************************************************************/
  
 #include "world.h"
 
@@ -14,30 +25,30 @@ static int maelm = 0;                 /* COUNT OF MODIFIED AElement NODES */
 static int Tmaelm = 0;                 /* COUNT OF AElement NODES */
 
 
-#define CALL_INIT	0
-#define CALL_BODY	1
-#define CALL_MERGE	2
-#define MAX_CALLS	3
+#define CALL_INIT       0
+#define CALL_BODY       1
+#define CALL_MERGE      2
+#define MAX_CALLS       3
 
-#define WAY_IN		0
-#define WAY_OUT		1
-#define MAX_WAYS	2
+#define WAY_IN          0
+#define WAY_OUT         1
+#define MAX_WAYS        2
 
-#define R_TYPE_IN	0
-#define R_TYPE_IN_OUT	1
-#define R_TYPE_OUT	2
-#define MAX_TYPES	3
+#define R_TYPE_IN       0
+#define R_TYPE_IN_OUT   1
+#define R_TYPE_OUT      2
+#define MAX_TYPES       3
 
-#define LABEL_ARGS	0
-#define LABEL_RETS	1
-#define LABEL_FUNC	2
-#define MAX_LABELS	3
+#define LABEL_ARGS      0
+#define LABEL_RETS      1
+#define LABEL_FUNC      2
+#define MAX_LABELS      3
 
-#define BASE_ONE	1
-#define CALL_OFFSET	1
+#define BASE_ONE        1
+#define CALL_OFFSET     1
 
-#define MAX_PORTS	10
-#define MAX_NFORALL	10	/* MAXIMUM NUMBER OF NESTED FORALL */
+#define MAX_PORTS       10
+#define MAX_NFORALL     10      /* MAXIMUM NUMBER OF NESTED FORALL */
 
 /**************************************************************************/
 /* LOCAL  **************    IsReductionCandidate   ************************/
@@ -46,8 +57,8 @@ static int Tmaelm = 0;                 /* COUNT OF AElement NODES */
 /**************************************************************************/
 
 static int IsReductionCandidate( r_graph, r_loop_handle, r_port_count, r_ports )
-  PNODE r_graph;			/* reduction function graph */
-  PNODE *r_loop_handle;			/* reduction LOOP subgraphs */
+  PNODE r_graph;                        /* reduction function graph */
+  PNODE *r_loop_handle;                 /* reduction LOOP subgraphs */
   int r_port_count[MAX_CALLS][MAX_TYPES];
   int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];
 {
@@ -90,7 +101,7 @@ static int IsReductionCandidate( r_graph, r_loop_handle, r_port_count, r_ports )
   if (edge==NULL || edge->dst!=r_graph->nsucc)
       return FALSE;
   r_port_count[CALL_INIT][R_TYPE_IN] = 1;     /* r_loop->L_INIT exp input */
-  r_ports[CALL_INIT][R_TYPE_IN][0] = 1;	      /* %na=gr (eport==1) */
+  r_ports[CALL_INIT][R_TYPE_IN][0] = 1;       /* %na=gr (eport==1) */
 
   r_port_count[CALL_INIT][R_TYPE_IN_OUT] = 0; /* r_loop->L_INIT input/output */
   r_port_count[CALL_MERGE][R_TYPE_IN_OUT] = 0;
@@ -135,8 +146,8 @@ static int IsReductionCandidate( r_graph, r_loop_handle, r_port_count, r_ports )
 
 static int IsReductionDriverCandidate( d_call, d_for_stack, d_depth_ptr, 
   d_ports )
-  PNODE d_call;				/* reduction function graph */
-  PNODE d_for_stack[MAX_NFORALL];	/* reduction driver outer FOR */
+  PNODE d_call;                         /* reduction function graph */
+  PNODE d_for_stack[MAX_NFORALL];       /* reduction driver outer FOR */
   int *d_depth_ptr;
   int d_ports[MAX_PORTS];
 {
@@ -146,7 +157,7 @@ static int IsReductionDriverCandidate( d_call, d_for_stack, d_depth_ptr,
 
   /*** Search backwards from the call to the IFForall driver. ***/
 
-  edge = FindImport( d_call, 3 );	/* update argument */
+  edge = FindImport( d_call, 3 );       /* update argument */
   if ( edge==NULL || edge->src==NULL )
       return FALSE;
   if (edge->src->type==IFASetL) {
@@ -165,22 +176,22 @@ static int IsReductionDriverCandidate( d_call, d_for_stack, d_depth_ptr,
   if ( edge==NULL || edge->src==NULL)
       return FALSE;
   if ( IsReduction(edge->src) && edge->src->imp->CoNsT[0]=='C' ) {
-      edge = FindImport( edge->src, 3 );			/* A */
+      edge = FindImport( edge->src, 3 );                        /* A */
       if ( edge==NULL )
           return FALSE;
       for ( ; ; ) {
           redge = edge;                  
           redge = FindImport( (d_for_stack[(*d_depth_ptr)-1])->F_BODY, 
-              redge->eport );					/* B */
+              redge->eport );                                   /* B */
           if ( redge==NULL || !IsForall( redge->src ) )
               break;
           d_for = redge->src;
-          redge = FindImport( d_for->F_RET, redge->eport );	/* C */
+          redge = FindImport( d_for->F_RET, redge->eport );     /* C */
           if ( redge==NULL || redge->src==NULL)
               break;
           if ( IsReduction(redge->src) && redge->src->imp->CoNsT[0]=='C' ) {
               d_for_stack[(*d_depth_ptr)++] = d_for;
-              edge = FindImport( redge->src, 3 );		/* D */
+              edge = FindImport( redge->src, 3 );               /* D */
           } else {
               break;
           }
@@ -197,7 +208,7 @@ static int IsReductionDriverCandidate( d_call, d_for_stack, d_depth_ptr,
                    /* d_port_count==r_port_count[CALL_BODY][R_TYPE_IN]  */
                                               /* %na=x (hooks to b) (2) */
   d_for_stack[*d_depth_ptr] = NULL;
-  (*d_depth_ptr)--;					  /* zero-based */
+  (*d_depth_ptr)--;                                       /* zero-based */
   return TRUE;
 }
 
@@ -231,7 +242,7 @@ static int CopySelectedImports2( template_node, port_count, ports,
 PNODE template_node;
 int port_count;
 int *ports;
-PNODE source_node;	/* use template sources if NULL */
+PNODE source_node;      /* use template sources if NULL */
 int *source_ports;
 PNODE dest_node;
 int *dest_ports;
@@ -239,9 +250,9 @@ int *dest_ports;
     int i;
 
     for ( i = 0; i < port_count; i++ ) {
-        PEDGE	template_edge;
-        PEDGE	other_edge;
-        PNODE	src;
+        PEDGE   template_edge;
+        PEDGE   other_edge;
+        PNODE   src;
         if ( IsGraph( template_node ) ) {
             template_edge = FindExport( template_node, ports[i] );
         } else {
@@ -274,7 +285,7 @@ static int CopySelectedImports( template_node, port_count, ports,
 PNODE template_node;
 int port_count;
 int *ports;
-PNODE source_node;	/* use template sources if NULL */
+PNODE source_node;      /* use template sources if NULL */
 int source_offset;
 PNODE dest_node;
 int dest_offset;
@@ -282,9 +293,9 @@ int dest_offset;
     int i;
 
     for ( i = 0; i < port_count; i++ ) {
-        PEDGE	template_edge;
-        PEDGE	other_edge;
-        PNODE	src;
+        PEDGE   template_edge;
+        PEDGE   other_edge;
+        PNODE   src;
         if ( IsGraph( template_node ) ) {
             template_edge = FindExport( template_node, ports[i] );
         } else {
@@ -319,15 +330,15 @@ int port_count;
 int *ports;
 PNODE source_node;
 int source_offset;
-PNODE dest_node;	/* use template destinations if NULL */
+PNODE dest_node;        /* use template destinations if NULL */
 int dest_offset;
 {
     int i;
 
     for ( i = 0; i < port_count; i++ ) {
-        PEDGE	template_edge;
-        PEDGE	other_edge;
-        PNODE	dst;
+        PEDGE   template_edge;
+        PEDGE   other_edge;
+        PNODE   dst;
         if ( IsGraph( template_node ) ) {
             template_edge = FindImport( template_node, ports[i] );
         } else {
@@ -364,7 +375,7 @@ PNODE dest_node;
     PEDGE edge;
 
     for ( edge = dest_node->imp; edge!=NULL; edge = edge->isucc ) {
-        int	i;
+        int     i;
         for ( i = 0; i < port_count; i++ ) {
             if ( edge->iport == ports[i] ) {
                 edge->iport = i + 1 + dest_offset;
@@ -397,7 +408,7 @@ PNODE source_node;
     PEDGE edge;
 
     for ( edge = source_node->exp; edge!=NULL; edge = edge->esucc ) {
-        int	i;
+        int     i;
         for ( i = 0; i < port_count; i++ ) {
             if ( edge->eport == ports[i] ) {
                 edge->eport = i + 1 + source_offset;
@@ -421,10 +432,10 @@ PNODE source_node;
 /**************************************************************************/
 
 static void GroupInOutPorts( r_port_count, r_ports, port_count, ports )
-  int r_port_count[MAX_CALLS][MAX_TYPES];			/* in */
-  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];			/* in */
-  int port_count[MAX_CALLS][MAX_WAYS];				/* out */
-  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];			/* out */
+  int r_port_count[MAX_CALLS][MAX_TYPES];                       /* in */
+  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];                 /* in */
+  int port_count[MAX_CALLS][MAX_WAYS];                          /* out */
+  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];                    /* out */
 {
   int i, j, k;
 
@@ -458,12 +469,12 @@ static void GroupInOutPorts( r_port_count, r_ports, port_count, ports )
 
 static void AddInitCallTypes( r_loop, r_port_count, r_ports, 
   port_count, ports, labels )
-  PNODE r_loop;							/* in */
-  int r_port_count[MAX_CALLS][MAX_TYPES];			/* in */
-  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];			/* in */
-  int port_count[MAX_CALLS][MAX_WAYS];				/* in */
-  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];			/* in */
-  int labels[MAX_CALLS][MAX_LABELS];				/* out */
+  PNODE r_loop;                                                 /* in */
+  int r_port_count[MAX_CALLS][MAX_TYPES];                       /* in */
+  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];                 /* in */
+  int port_count[MAX_CALLS][MAX_WAYS];                          /* in */
+  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];                    /* in */
+  int labels[MAX_CALLS][MAX_LABELS];                            /* out */
 {
   PEDGE edge;
   int last_label;
@@ -499,12 +510,12 @@ static void AddInitCallTypes( r_loop, r_port_count, r_ports,
 
 static void AddBodyCallTypes( r_loop, r_port_count, r_ports, 
   port_count, ports, labels )
-  PNODE r_loop;							/* in */
-  int r_port_count[MAX_CALLS][MAX_TYPES];			/* in */
-  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];			/* in */
-  int port_count[MAX_CALLS][MAX_WAYS];				/* in */
-  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];			/* in */
-  int labels[MAX_CALLS][MAX_LABELS];				/* out */
+  PNODE r_loop;                                                 /* in */
+  int r_port_count[MAX_CALLS][MAX_TYPES];                       /* in */
+  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];                 /* in */
+  int port_count[MAX_CALLS][MAX_WAYS];                          /* in */
+  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];                    /* in */
+  int labels[MAX_CALLS][MAX_LABELS];                            /* out */
 {
   PEDGE edge;
   int last_label;
@@ -517,7 +528,7 @@ static void AddBodyCallTypes( r_loop, r_port_count, r_ports,
     edge = FindExport( r_loop->L_BODY, r_ports[CALL_BODY][R_TYPE_IN][i] );
     labels[CALL_BODY][LABEL_ARGS] = FindLargestLabel() + 1;
     MakeInfo( labels[CALL_BODY][LABEL_ARGS], IF_TUPLE, 
-        edge->info->info1->label, last_label );		/* Take off AElement */
+        edge->info->info1->label, last_label );         /* Take off AElement */
     last_label = labels[CALL_BODY][LABEL_ARGS];
   }
   for ( i = 0; i<r_port_count[CALL_BODY][R_TYPE_IN_OUT]; i++ ) {
@@ -550,12 +561,12 @@ static void AddBodyCallTypes( r_loop, r_port_count, r_ports,
 
 static void AddMergeCallTypes( r_loop, r_port_count, r_ports, 
   port_count, ports, labels )
-  PNODE r_loop;							/* in */
-  int r_port_count[MAX_CALLS][MAX_TYPES];			/* in */
-  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];			/* in */
-  int port_count[MAX_CALLS][MAX_WAYS];				/* in */
-  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];			/* in */
-  int labels[MAX_CALLS][MAX_LABELS];				/* out */
+  PNODE r_loop;                                                 /* in */
+  int r_port_count[MAX_CALLS][MAX_TYPES];                       /* in */
+  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];                 /* in */
+  int port_count[MAX_CALLS][MAX_WAYS];                          /* in */
+  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];                    /* in */
+  int labels[MAX_CALLS][MAX_LABELS];                            /* out */
 {
   PEDGE edge;
   int last_label;
@@ -598,11 +609,11 @@ static void AddMergeCallTypes( r_loop, r_port_count, r_ports,
 /**************************************************************************/
 
 static void AddInitCallGraph( r_loop, labels, call_name, counter, call_graph )
-  PNODE r_loop;							/* in */
-  int labels[MAX_CALLS][MAX_LABELS];				/* in */
-  char* call_name[MAX_CALLS];					/* in */
-  int counter;							/* in */
-  PNODE call_graph[MAX_CALLS];					/* out */
+  PNODE r_loop;                                                 /* in */
+  int labels[MAX_CALLS][MAX_LABELS];                            /* in */
+  char* call_name[MAX_CALLS];                                   /* in */
+  int counter;                                                  /* in */
+  PNODE call_graph[MAX_CALLS];                                  /* out */
 {
   call_graph[CALL_INIT] = CopyNode( r_loop->L_INIT ); /* imports are copied */
   call_graph[CALL_INIT]->type = IFLGraph;
@@ -623,16 +634,16 @@ static void AddInitCallGraph( r_loop, labels, call_name, counter, call_graph )
 /**************************************************************************/
 
 static void AddBodyCallGraph( r_loop, labels, call_name, counter, call_graph )
-  PNODE r_loop;							/* in */
-  int labels[MAX_CALLS][MAX_LABELS];				/* in */
-  char* call_name[MAX_CALLS];					/* in */
-  int counter;							/* in */
-  PNODE call_graph[MAX_CALLS];					/* out */
+  PNODE r_loop;                                                 /* in */
+  int labels[MAX_CALLS][MAX_LABELS];                            /* in */
+  char* call_name[MAX_CALLS];                                   /* in */
+  int counter;                                                  /* in */
+  PNODE call_graph[MAX_CALLS];                                  /* out */
 {
-  call_graph[CALL_BODY] = CopyNode( r_loop->L_BODY );	/* imports are copied */
+  call_graph[CALL_BODY] = CopyNode( r_loop->L_BODY );   /* imports are copied */
   call_graph[CALL_BODY]->type = IFLGraph;
   call_graph[CALL_BODY]->funct = r_loop->L_BODY->funct;
-  call_graph[CALL_BODY]->mark = 'd';			/* mark as reduction */
+  call_graph[CALL_BODY]->mark = 'd';                    /* mark as reduction */
   call_graph[CALL_BODY]->gname = (char*)malloc(20);
   sprintf(call_graph[CALL_BODY]->gname, call_name[CALL_BODY], counter);
   call_graph[CALL_BODY]->info = FindInfo( labels[CALL_BODY][LABEL_FUNC], 
@@ -648,15 +659,15 @@ static void AddBodyCallGraph( r_loop, labels, call_name, counter, call_graph )
 /**************************************************************************/
 
 static void AddMergeCallGraph( r_loop, labels, call_name, counter, call_graph )
-  PNODE r_loop;							/* in */
-  int labels[MAX_CALLS][MAX_LABELS];				/* in */
-  char* call_name[MAX_CALLS];					/* in */
-  int counter;							/* in */
-  PNODE call_graph[MAX_CALLS];					/* out */
+  PNODE r_loop;                                                 /* in */
+  int labels[MAX_CALLS][MAX_LABELS];                            /* in */
+  char* call_name[MAX_CALLS];                                   /* in */
+  int counter;                                                  /* in */
+  PNODE call_graph[MAX_CALLS];                                  /* out */
 {
   call_graph[CALL_MERGE] = NodeAlloc( 0, IFLGraph );
   call_graph[CALL_MERGE]->funct = r_loop->L_INIT->funct;
-  call_graph[CALL_MERGE]->mark = 'd';			/* mark as reduction */
+  call_graph[CALL_MERGE]->mark = 'd';                   /* mark as reduction */
   call_graph[CALL_MERGE]->gname = (char*)malloc(20);
   sprintf(call_graph[CALL_MERGE]->gname, call_name[CALL_MERGE], counter);
   call_graph[CALL_MERGE]->info = FindInfo( labels[CALL_MERGE][LABEL_FUNC], 
@@ -673,11 +684,11 @@ static void AddMergeCallGraph( r_loop, labels, call_name, counter, call_graph )
 
 static void CreateMerge( r_port_count, r_ports, d_for_stack, d_depth, 
   call_graph )
-  int r_port_count[MAX_CALLS][MAX_TYPES];			/* in */
-  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];			/* in */
-  PNODE d_for_stack[MAX_NFORALL];				/* in */
-  int d_depth;							/* in */
-  PNODE call_graph[MAX_CALLS];					/* in/out */
+  int r_port_count[MAX_CALLS][MAX_TYPES];                       /* in */
+  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];                 /* in */
+  PNODE d_for_stack[MAX_NFORALL];                               /* in */
+  int d_depth;                                                  /* in */
+  PNODE call_graph[MAX_CALLS];                                  /* in/out */
 { 
   PEDGE edge, other_edge;
   int i;
@@ -721,9 +732,9 @@ static void CreateMerge( r_port_count, r_ports, d_for_stack, d_depth,
 /**************************************************************************/
 
 static void EliminateAEMultiples( r_port_count, r_ports, call_graph )
-  int r_port_count[MAX_CALLS][MAX_TYPES];			/* in */
-  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];			/* in */
-  PNODE call_graph[MAX_CALLS];					/* in/out */
+  int r_port_count[MAX_CALLS][MAX_TYPES];                       /* in */
+  int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];                 /* in */
+  PNODE call_graph[MAX_CALLS];                                  /* in/out */
 {
   PEDGE edge, other_edge;
   int i;
@@ -733,11 +744,11 @@ static void EliminateAEMultiples( r_port_count, r_ports, call_graph )
   for ( i = 0; i < r_port_count[CALL_BODY][R_TYPE_IN]; i++) {
       for ( edge = call_graph[CALL_BODY]->exp; edge!=NULL; edge = edge->esucc) {
           if ( IsAElement( edge->dst )) {
-	      ++Tmaelm;
+              ++Tmaelm;
           if ( edge->eport==r_ports[CALL_BODY][R_TYPE_IN][i] && edge->iport==1 )
-	  {
+          {
               UnlinkExport( edge );
-              other_edge = FindExport( edge->dst, 1 );	/* the value */
+              other_edge = FindExport( edge->dst, 1 );  /* the value */
               UnlinkExport( other_edge );
               other_edge->eport = edge->eport;
               other_edge->src = edge->src; /* route around AElement */
@@ -757,9 +768,9 @@ static void EliminateAEMultiples( r_port_count, r_ports, call_graph )
 /**************************************************************************/
 
 static void AdjustCallGraphs( port_count, ports, call_graph )
-  int port_count[MAX_CALLS][MAX_WAYS];				/* in */
-  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];			/* in */
-  PNODE call_graph[MAX_CALLS];					/* in/out */
+  int port_count[MAX_CALLS][MAX_WAYS];                          /* in */
+  int ports[MAX_CALLS][MAX_WAYS][MAX_PORTS];                    /* in */
+  PNODE call_graph[MAX_CALLS];                                  /* in/out */
 {
   /*** Shift the init function ports over. ***/
 
@@ -790,13 +801,13 @@ static void AdjustCallGraphs( port_count, ports, call_graph )
 
 static void RewireReduction( r_graph, r_loop, r_port_count, r_ports, 
   d_call, d_for_stack, d_depth, d_ports )
-  PNODE r_graph;			/* reduction function graph */
-  PNODE r_loop;				/* reduction LOOP subgraphs */
+  PNODE r_graph;                        /* reduction function graph */
+  PNODE r_loop;                         /* reduction LOOP subgraphs */
   int r_port_count[MAX_CALLS][MAX_TYPES];
   int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];
-  PNODE d_call;				/* reduction driver CALL */ 
-  PNODE d_for_stack[MAX_NFORALL];	/* reduction driver embedded FOR's */
-  int d_depth;				/* reduction driver FOR max depth */
+  PNODE d_call;                         /* reduction driver CALL */ 
+  PNODE d_for_stack[MAX_NFORALL];       /* reduction driver embedded FOR's */
+  int d_depth;                          /* reduction driver FOR max depth */
   int d_ports[MAX_PORTS];
 {
   int labels[MAX_CALLS][MAX_LABELS];
@@ -811,21 +822,21 @@ static void RewireReduction( r_graph, r_loop, r_port_count, r_ports,
   int d_for_ret_port;
   int d_for_offset;
   char* name;
-  int depth;		/* 0-based forall depth counter, outer to inner */
+  int depth;            /* 0-based forall depth counter, outer to inner */
   int i;
 
   static char* call_name[MAX_CALLS] = {
       "_r_init_%d", "_r_body_%d", "_r_merge_%d"};
   static int counter = -1;
 
-  PNODE d_for = d_for_stack[d_depth];	/* reduction driver inner FOR */
+  PNODE d_for = d_for_stack[d_depth];   /* reduction driver inner FOR */
   int d_for_port = 0;
 
-  counter++;				/* file name counter */
+  counter++;                            /* file name counter */
 
   /*** Group input and output into single lists. ***/
 
-  if ( d_depth==0 ) {				/* no merge required */
+  if ( d_depth==0 ) {                           /* no merge required */
       r_port_count[CALL_MERGE][R_TYPE_IN] = 0;
       r_port_count[CALL_MERGE][R_TYPE_IN_OUT] = 0;
       r_port_count[CALL_MERGE][R_TYPE_OUT] = 0;
@@ -864,10 +875,10 @@ static void RewireReduction( r_graph, r_loop, r_port_count, r_ports,
     temp_ports[i] = edge->eport + CALL_OFFSET; /* match graph to call */
   }
   d_for_offset = FindLargestPort( d_for_stack[0] );
-  (void)CopySelectedImports( d_call,				/* Y */
+  (void)CopySelectedImports( d_call,                            /* Y */
     port_count[CALL_INIT][WAY_IN], temp_ports, 
     (PNODE)NULL, 0, caller_node[CALL_INIT], CALL_OFFSET );
-  (void)CopySelectedExports( r_loop->L_INIT,			/* Z */
+  (void)CopySelectedExports( r_loop->L_INIT,                    /* Z */
     port_count[CALL_INIT][WAY_OUT], ports[CALL_INIT][WAY_OUT], 
     caller_node[CALL_INIT], 0, d_for_stack[0], d_for_offset );
 
@@ -882,7 +893,7 @@ static void RewireReduction( r_graph, r_loop, r_port_count, r_ports,
         other_edge->eport = d_for_offset + i + 1;
         d_for_offset = FindLargestPort( d_for_stack[depth] );
         other_edge->iport = d_for_offset + i + 1;
-        LinkExport( d_for_stack[depth-1]->F_BODY, other_edge );	/* X */
+        LinkExport( d_for_stack[depth-1]->F_BODY, other_edge ); /* X */
         LinkImport( d_for_stack[depth], other_edge );
       }
     }
@@ -906,7 +917,7 @@ static void RewireReduction( r_graph, r_loop, r_port_count, r_ports,
       d_for_offset );
   CollapsePortArray( r_port_count[CALL_BODY][R_TYPE_IN_OUT], dest_ports, 
       CALL_OFFSET );
-  (void)CopySelectedImports2( r_loop->L_BODY, 	/* L ports from L_BODY */
+  (void)CopySelectedImports2( r_loop->L_BODY,   /* L ports from L_BODY */
     r_port_count[CALL_BODY][R_TYPE_IN_OUT], r_ports[CALL_BODY][R_TYPE_IN_OUT], 
     d_for->F_RET, source_ports, caller_node[CALL_BODY], dest_ports );
 
@@ -934,15 +945,15 @@ static void RewireReduction( r_graph, r_loop, r_port_count, r_ports,
   
       /*** Add body function call outputs to returns graph output. ***/
   
-      if ( depth==d_depth ) {		/* bottom level reduce */
+      if ( depth==d_depth ) {           /* bottom level reduce */
         edge = FindExport( d_for_stack[d_depth]->F_RET, source_ports[i] );
         other_edge = CopyEdge( edge, caller_node[CALL_BODY], 
             d_for_stack[depth]->F_RET );
         other_edge->eport = i+BASE_ONE;
         other_edge->iport = d_for_ret_port;
-        LinkExport( caller_node[CALL_BODY], other_edge );	/* E */
+        LinkExport( caller_node[CALL_BODY], other_edge );       /* E */
         LinkImport( d_for_stack[depth]->F_RET, other_edge );
-      } else {					/* middle level pass through */
+      } else {                                  /* middle level pass through */
         edge = FindExport( d_for_stack[d_depth]->F_RET, source_ports[i] );
         node = FindLastNode( d_for_stack[depth]->F_RET );
         other_node = NodeAlloc( node->label+1, IFReduce );
@@ -963,36 +974,36 @@ static void RewireReduction( r_graph, r_loop, r_port_count, r_ports,
             other_node); 
         other_edge->eport = d_for_port;
         other_edge->iport = CALL_OFFSET + 1;
-        LinkExport( d_for_stack[depth]->F_RET, other_edge );	/* G */
-        LinkImport( other_node, other_edge );	
+        LinkExport( d_for_stack[depth]->F_RET, other_edge );    /* G */
+        LinkImport( other_node, other_edge );   
 
         other_edge = CopyEdge( edge, other_node, 
             d_for_stack[depth]->F_RET );
         other_edge->eport = BASE_ONE + i;
         other_edge->iport = d_for_ret_port;
-        LinkExport( other_node, other_edge );			/* H */
+        LinkExport( other_node, other_edge );                   /* H */
         LinkImport( d_for_stack[depth]->F_RET, other_edge );
       }
     
       /*** From forall new exports to downstream (cutting other outputs). ***/
     
-      if ( depth==0 ) {		/* connect call to downstream */
+      if ( depth==0 ) {         /* connect call to downstream */
         for ( edge = d_call->exp; edge != NULL; edge = other_edge ) {
           other_edge = edge->esucc;
           if ( edge->eport == i+BASE_ONE ) {
             UnlinkExport( edge ); 
             edge->eport = d_for_ret_port;
-            LinkExport( d_for_stack[depth], edge );		/* I */
+            LinkExport( d_for_stack[depth], edge );             /* I */
           }
         }
-      } else {					/* connect middle level up */
+      } else {                                  /* connect middle level up */
         d_for_port = FindLargestImport( d_for_stack[depth-1] ) + 1;
         edge = FindExport( d_for_stack[d_depth]->F_RET, source_ports[i] );
         other_edge = CopyEdge( edge,  d_for_stack[d_depth],  
             d_for_stack[depth-1]->F_BODY );
         other_edge->eport = d_for_ret_port;
         other_edge->iport = d_for_port;
-        LinkExport( d_for_stack[depth], other_edge );		/* F */
+        LinkExport( d_for_stack[depth], other_edge );           /* F */
         LinkImport(  d_for_stack[depth-1]->F_BODY, other_edge );
       }
     }
@@ -1009,23 +1020,23 @@ static void RewireReduction( r_graph, r_loop, r_port_count, r_ports,
 /**************************************************************************/
 
 static int ReduceArrayFuncs( r_graph, r_loop, r_port_count, r_ports, g )
-  PNODE r_graph;			/* reduction function graph */
-  PNODE r_loop;				/* reduction LOOP subgraphs */
+  PNODE r_graph;                        /* reduction function graph */
+  PNODE r_loop;                         /* reduction LOOP subgraphs */
   int r_port_count[MAX_CALLS][MAX_TYPES];
   int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];
-  PNODE g;				/* graph which may call r_graph */
+  PNODE g;                              /* graph which may call r_graph */
 {
   int d_ports[MAX_PORTS];
-  PNODE d_call;				/* reduction driver CALL */ 
+  PNODE d_call;                         /* reduction driver CALL */ 
   PNODE sn, sg;
   int d_depth;
-  PNODE d_for_stack[MAX_NFORALL];	/* reduction driver embedded FOR's */
+  PNODE d_for_stack[MAX_NFORALL];       /* reduction driver embedded FOR's */
   int rafcalls = 0;
 
   /*** Search across all nodes for matching driver call to reduction. ***/
 
   for ( d_call = g->nsucc; d_call != NULL; d_call = sn ) {
-    sn = d_call->nsucc;			/* d_call may be deleted */
+    sn = d_call->nsucc;                 /* d_call may be deleted */
 
     /*** Recursively search down also. ***/
 
@@ -1075,9 +1086,9 @@ void WriteReduceInfo()
 
 void If1Reduce( )
 {
-  PNODE r_graph;			/* reduction function graph */
-  PNODE g;				/* graph which may call r_graph */
-  PNODE r_loop;				/* reduction LOOP subgraphs */
+  PNODE r_graph;                        /* reduction function graph */
+  PNODE g;                              /* graph which may call r_graph */
+  PNODE r_loop;                         /* reduction LOOP subgraphs */
   PNODE last_graph;
   int r_port_count[MAX_CALLS][MAX_TYPES];
   int r_ports[MAX_CALLS][MAX_TYPES][MAX_PORTS];
@@ -1102,7 +1113,7 @@ void If1Reduce( )
 
 #ifdef DEBUG
   {
-    FILE	*save_output;
+    FILE        *save_output;
     save_output = output;
     output = fopen("reduce.opt", "w");
     If1Write();

@@ -1,10 +1,20 @@
-/* if2preamble.c,v
+/**************************************************************************/
+/* FILE   **************       if2preamble.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:02  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:02  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -27,7 +37,7 @@ PEDGE lst;
   register PEDGE i2;
   register int   comma1;
   register int   comma2;
-	   char  buf[100];
+           char  buf[100];
 
   for ( i1 = frst; i1 != lst; i1 = i1->isucc ) {
     comma1 = (i1->isucc == lst)? ' ' : ',';
@@ -42,7 +52,7 @@ PEDGE lst;
           SPRINTF( buf, "%s", i2->CoNsT );
 
         FPRINTF( output, "  %s%c\n", buf, comma2 );
-	}
+        }
 
       continue;
       }
@@ -105,14 +115,14 @@ static void PrintCopyFunctions()
       FPRINTF( output, "  register %s  *dst = (%s*) dest;\n", t, t );
 
       if ( IsChar( i->A_ELEM ) )
-	FPRINTF( output, "  MyBCopy( src, dst, num );\n" );
+        FPRINTF( output, "  MyBCopy( src, dst, num );\n" );
       else {
-	PrintVECTOR();
-	PrintASSOC();
-	PrintSAFE( "dst" );
+        PrintVECTOR();
+        PrintASSOC();
+        PrintSAFE( "dst" );
         FPRINTF( output, "  for ( i = 0; i < num; i++ )\n" );
         FPRINTF( output, "    dst[i] = src[i];\n" );
-	}
+        }
 
       FPRINTF( output, "}\n" );
 
@@ -168,7 +178,7 @@ static void PrintGlobals()
         FPRINTF( output, "\nstatic shared %s %s = {\n",
                  n->exp->info->tname, n->G_NAME      );
 
-	PrintConstants( n->imp, NULL_EDGE );
+        PrintConstants( n->imp, NULL_EDGE );
         FPRINTF( output, "  };\n" );
         break;
 
@@ -176,31 +186,31 @@ static void PrintGlobals()
         FPRINTF( output, "\nstatic shared %s %sData = {\n",
                  n->exp->info->sname, n->G_NAME          );
 
-	PrintConstants( n->imp, NULL_EDGE );
+        PrintConstants( n->imp, NULL_EDGE );
         FPRINTF( output, "  , %d\n", n->exp->sr + 9 );
 
         FPRINTF( output, "  };\n" );
 
-	FPRINTF( output, "\nstatic shared %s %s = (%s) &%sData;\n",
-	         n->exp->info->tname, n->G_NAME, n->exp->info->tname,
-		 n->G_NAME                                         );
-	break;
+        FPRINTF( output, "\nstatic shared %s %s = (%s) &%sData;\n",
+                 n->exp->info->tname, n->G_NAME, n->exp->info->tname,
+                 n->G_NAME                                         );
+        break;
 
       case IFABuildAT:
         for ( s = 0, i = n->imp->isucc; i != NULL; i = i->isucc ) {
           if ( i->isucc != NULL )
             s++;
           else
-	    b = i;
+            b = i;
           }
 
-	if ( s == 0 )
-	  Error2( "PrintGlobals", "IFABuildAT WITHOUT ARGUMENTS" );
+        if ( s == 0 )
+          Error2( "PrintGlobals", "IFABuildAT WITHOUT ARGUMENTS" );
 
         FPRINTF( output, "\nstatic shared %s Storage%d[%d] = {\n", 
                  n->exp->info->A_ELEM->tname, ++gid, s          );
 
-	PrintConstants( n->imp->isucc, b );
+        PrintConstants( n->imp->isucc, b );
         FPRINTF( output, "  };\n" );
 
         FPRINTF( output, "\nstatic shared PHYS Phys%d = APhysStruct(\n", gid );
@@ -214,9 +224,9 @@ static void PrintGlobals()
                  gid, n->imp->CoNsT, n->imp->CoNsT, s           );
         FPRINTF( output, ", &Phys%d, 0, 0, %d\n  );\n", gid, n->exp->sr + 9 );
 
-	FPRINTF( output, "\nstatic shared POINTER %s = (POINTER) &%sData;\n",
-		 n->G_NAME, n->G_NAME                                      );
-	break;
+        FPRINTF( output, "\nstatic shared POINTER %s = (POINTER) &%sData;\n",
+                 n->G_NAME, n->G_NAME                                      );
+        break;
 
       default:
         break;
@@ -237,55 +247,55 @@ static void GenAssignNames()
   register PINFO i;
 
   for ( i = ihead; i != NULL; i = i->next ) {
-    i->LibNames = FALSE;	/* Assume created names */
-    nmid++;			/* Unique label for type */
+    i->LibNames = FALSE;        /* Assume created names */
+    nmid++;                     /* Unique label for type */
     switch ( i->type ) {
     case IF_ARRAY:
       i->sname  = "ARRAY";
       i->LibNames = TRUE;
       switch ( i->A_ELEM->type ) {
         case IF_BOOL:
-	  i->rname  = "ReadBoolVector";
-	  i->wname  = "WriteBoolVector";
-	  i->fname1 = "SFreeBoolVector";
-	  i->fname2 = "PFreeBoolVector";
-	  break;
-	case IF_CHAR:
-	  i->rname  = "ReadCharVector";
-	  i->wname  = "WriteCharVector";
-	  i->fname1 = "SFreeCharVector";
-	  i->fname2 = "PFreeCharVector";
-	  break;
-	case IF_DOUBLE:
-	  i->rname  = "ReadDoubleVector";
-	  i->wname  = "WriteDoubleVector";
-	  i->fname1 = "SFreeDoubleVector";
-	  i->fname2 = "PFreeDoubleVector";
-	  break;
-	case IF_INTEGER:
-	  i->rname  = "ReadIntegerVector";
-	  i->wname  = "WriteIntegerVector";
-	  i->fname1 = "SFreeIntegerVector";
-	  i->fname2 = "PFreeIntegerVector";
-	  break;
-	case IF_NULL:
-	  i->rname  = "ReadNullVector";
-	  i->wname  = "WriteNullVector";
-	  i->fname1 = "SFreeNullVector";
-	  i->fname2 = "PFreeNullVector";
-	  break;
-	case IF_REAL:
-	  i->rname  = "ReadRealVector";
-	  i->wname  = "WriteRealVector";
-	  i->fname1 = "SFreeRealVector";
-	  i->fname2 = "PFreeRealVector";
-	  break;
+          i->rname  = "ReadBoolVector";
+          i->wname  = "WriteBoolVector";
+          i->fname1 = "SFreeBoolVector";
+          i->fname2 = "PFreeBoolVector";
+          break;
+        case IF_CHAR:
+          i->rname  = "ReadCharVector";
+          i->wname  = "WriteCharVector";
+          i->fname1 = "SFreeCharVector";
+          i->fname2 = "PFreeCharVector";
+          break;
+        case IF_DOUBLE:
+          i->rname  = "ReadDoubleVector";
+          i->wname  = "WriteDoubleVector";
+          i->fname1 = "SFreeDoubleVector";
+          i->fname2 = "PFreeDoubleVector";
+          break;
+        case IF_INTEGER:
+          i->rname  = "ReadIntegerVector";
+          i->wname  = "WriteIntegerVector";
+          i->fname1 = "SFreeIntegerVector";
+          i->fname2 = "PFreeIntegerVector";
+          break;
+        case IF_NULL:
+          i->rname  = "ReadNullVector";
+          i->wname  = "WriteNullVector";
+          i->fname1 = "SFreeNullVector";
+          i->fname2 = "PFreeNullVector";
+          break;
+        case IF_REAL:
+          i->rname  = "ReadRealVector";
+          i->wname  = "WriteRealVector";
+          i->fname1 = "SFreeRealVector";
+          i->fname2 = "PFreeRealVector";
+          break;
         default:
-          i->LibNames = FALSE;	/* Assume created names */
-	  i->rname  = MakeName( "ReadArr",   "",   nmid );
-	  i->wname  = MakeName( "WriteArr",  "",   nmid );
-	  i->fname1 = MakeName( "SFreeArr",  "",     nmid );
-	  i->fname2 = MakeName( "PFreeArr",  "",     nmid );
+          i->LibNames = FALSE;  /* Assume created names */
+          i->rname  = MakeName( "ReadArr",   "",   nmid );
+          i->wname  = MakeName( "WriteArr",  "",   nmid );
+          i->fname1 = MakeName( "SFreeArr",  "",     nmid );
+          i->fname2 = MakeName( "PFreeArr",  "",     nmid );
       }
       break;
 
@@ -370,7 +380,7 @@ static void PrintStructs()
 
       case IF_RECORD:
         FPRINTF( output, "\n%s {\n  ", i->sname );
-	
+        
         for ( c = 0, ii = i->R_FIRST; ii != NULL; ii = ii->L_NEXT ) {
           SPRINTF( buf, "%-7s Fld%d; ", ii->L_SUB->tname, ++c );
           FPRINTF( output, "%-16s", buf ); 
@@ -383,13 +393,13 @@ static void PrintStructs()
           FPRINTF( output, "\n  " );
 
         FPRINTF( output, "%-16s %-16s\n  ",
-		 "int  RefCount;", "LOCK_TYPE Mutex; " );
+                 "int  RefCount;", "LOCK_TYPE Mutex; " );
         FPRINTF( output, "};\n" );
         break;
 
       case IF_BRECORD:
         FPRINTF( output, "\n%s {\n  ", i->sname );
-	
+        
         for ( c = 0, ii = i->R_FIRST; ii != NULL; ii = ii->L_NEXT ) {
           SPRINTF( buf, "%-7s Fld%d; ", ii->L_SUB->tname, ++c );
           FPRINTF( output, "%-16s", buf ); 
@@ -406,7 +416,7 @@ static void PrintStructs()
 
       case IF_FUNCTION:
         FPRINTF( output,"\n%s {   \n", i->sname );
-	FPRINTF( output, "struct ActRec *FirstAR; int Count;   \n" );
+        FPRINTF( output, "struct ActRec *FirstAR; int Count;   \n" );
 
         for ( c = 0, ii = i->F_IN; ii != NULL; ii = ii->L_NEXT ) {
           if ( ii->L_SUB->type == IF_BUFFER ) 
@@ -438,7 +448,7 @@ static void PrintStructs()
           cc++;
 #endif
 
-	  cc++;
+          cc++;
 
           if ( (cc % 4) == 0 )
             FPRINTF( output, "\n  " );
@@ -476,18 +486,18 @@ char  *f;
 PNODE  ff;
 {
   /* ------------------------------------------------------------ */
-  /* If this name happens to be a predefined macro, bad things	  */
-  /* can happen.  We're best off undefining it			  */
+  /* If this name happens to be a predefined macro, bad things    */
+  /* can happen.  We're best off undefining it                    */
   /* ------------------------------------------------------------ */
   FPRINTF( output, "#undef %s\n",f);
   
   /* ------------------------------------------------------------ */
-  /* Mark internal forwards as static.  Otherwise, mark extern	  */
+  /* Mark internal forwards as static.  Otherwise, mark extern    */
   /* ------------------------------------------------------------ */
   if ( ff && (ff->mark == 's' || 
-	      ff->mark == 'f' ||
-	      ff->mark == 'c' ||
-	      ff->mark == 'i') ) {
+              ff->mark == 'f' ||
+              ff->mark == 'c' ||
+              ff->mark == 'i') ) {
     FPRINTF( output, "extern %-12s %s();", t, f );
   } else {
     FPRINTF( output, "static %-12s %s();", t, f );
@@ -495,11 +505,11 @@ PNODE  ff;
 
   if ( ff != NULL ) {
     FPRINTF( output, "\t/* [Call=%c,Rec=%c,Par=%c,Xmk=%c,Mk=%c] */",
-	    (ff->Cmark)? 'T' : 'F', 
-	    (ff->bmark)? 'T' : 'F', 
-	    (ff->Pmark)? 'T' : 'F',
-	    (ff->xmark)? 'T' : 'F',
-	    (ff->mark) ? ff->mark : ' ');
+            (ff->Cmark)? 'T' : 'F', 
+            (ff->bmark)? 'T' : 'F', 
+            (ff->Pmark)? 'T' : 'F',
+            (ff->xmark)? 'T' : 'F',
+            (ff->mark) ? ff->mark : ' ');
   }
 
   FPRINTF( output, "\n" );
@@ -517,7 +527,7 @@ static void PrintForwards()
 {
   register PNODE f;
   register PINFO i;
-	   char  buf[100];
+           char  buf[100];
 
   /* PRINT FORWARD DECLARATIONS */
   FPRINTF( output, "static void InitGlobalData();\n\n" );
@@ -525,7 +535,7 @@ static void PrintForwards()
   for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
     if ( IsIGraph( f ) ) {
       if ( GenIsIntrinsic( f ) )
-	continue;
+        continue;
 
       if ( f->mark != 's' ) /* NEW CANN 2/92 */
         PrintExternFunction( f->info->F_OUT->L_SUB->tname, f->G_NAME, f );
@@ -544,8 +554,8 @@ static void PrintForwards()
     case IF_RECORD:
     case IF_ARRAY:
       if ( !i->LibNames ) {
-	PrintExternFunction( i->tname, i->rname,   NULL_NODE );
-	PrintExternFunction( "void",   i->wname,   NULL_NODE );
+        PrintExternFunction( i->tname, i->rname,   NULL_NODE );
+        PrintExternFunction( "void",   i->wname,   NULL_NODE );
       }
 
       /* INTERFACE ROUTINES */
@@ -560,8 +570,8 @@ static void PrintForwards()
 
     case IF_BRECORD:
       if ( !i->LibNames ) {
-	PrintExternFunction( i->tname, i->rname,   NULL_NODE );
-	PrintExternFunction( "void",   i->wname,   NULL_NODE );
+        PrintExternFunction( i->tname, i->rname,   NULL_NODE );
+        PrintExternFunction( "void",   i->wname,   NULL_NODE );
       }
       break;
 
@@ -601,38 +611,38 @@ void PrintFilePrologue()
 
 
   /* ------------------------------------------------------------ */
-  /* START: DUMP MODULE COORDINATION VARIABLES			  */
+  /* START: DUMP MODULE COORDINATION VARIABLES                    */
   /* ------------------------------------------------------------ */
   if ( IsStamp( PDBASE ) ) {
     FPRINTF( output,"int AllCompilesMustUseTheModuleDataBase;\n\n" );
   } else if ( IsStamp( MDBASE ) ) {
     FPRINTF( output,"extern int AllCompilesMustUseTheModuleDataBase;\n" );
     FPRINTF( output,
-	    "static int *ModuleValue = &AllCompilesMustUseTheModuleDataBase;\n\n");
+            "static int *ModuleValue = &AllCompilesMustUseTheModuleDataBase;\n\n");
   } else if ( IsStamp( PNODBASE ) ) {
     FPRINTF( output,"int ProvideModuleDataBaseOnAllCompiles;\n\n" );
   } else if ( IsStamp( MNODBASE ) ) {
     FPRINTF( output,"extern int ProvideModuleDataBaseOnAllCompiles;\n" );
     FPRINTF( output,
-	    "static int *ModuleValue = &ProvideModuleDataBaseOnAllCompiles;\n\n");
+            "static int *ModuleValue = &ProvideModuleDataBaseOnAllCompiles;\n\n");
   }
 
   for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
     int Pmark = f->Pmark;
-    Pmark = TRUE;		/* Not doing what I expect, PJM! */
+    Pmark = TRUE;               /* Not doing what I expect, PJM! */
     if ( f->mark == 's' && IsIGraph( f ) && Pmark ) {
       FPRINTF( output, 
-	      "extern int RecompileTheModuleDefining%s;\n",
-	      f->G_NAME );
+              "extern int RecompileTheModuleDefining%s;\n",
+              f->G_NAME );
       FPRINTF( output, 
-	      "static int *%sValue = &RecompileTheModuleDefining%s;\n\n",
-	      f->G_NAME, f->G_NAME );
+              "static int *%sValue = &RecompileTheModuleDefining%s;\n\n",
+              f->G_NAME, f->G_NAME );
     } else if (Pmark && IsXGraph( f ) && f->mark == 's' ) {
       FPRINTF( output, "int RecompileTheModuleDefining%s;\n\n", f->G_NAME );
     }
   }
   /* ------------------------------------------------------------ */
-  /* END: DUMP MODULE COORDINATION VARIABLES			  */
+  /* END: DUMP MODULE COORDINATION VARIABLES                      */
   /* ------------------------------------------------------------ */
 
 
@@ -668,7 +678,7 @@ int   bmark;
   for ( change = FALSE, n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	change = change || DriveRecursiveMarks( sg, bmark );
+        change = change || DriveRecursiveMarks( sg, bmark );
 
     if ( !IsCall( n ) )
       continue;
@@ -709,30 +719,30 @@ void MarkRecursiveFunctions()
   for ( f = glstop->gsucc; f != NULL; f = f->gsucc )
     if ( IsIGraph( f ) )
       if ( f->mark == 's' )
-	 rsmodule = TRUE;
+         rsmodule = TRUE;
 
   while ( change ) {
     change = FALSE;
 
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc )
       switch( f->type ) {
-	case IFIGraph:
-	  break;
+        case IFIGraph:
+          break;
 
-	case IFXGraph:
-	  /* NEW CANN 2/92 ASSUME A SISAL MODULE THAT CALLS ANOTHER SISAL */
-	  /* MODULE IS RECURSIVE; LOOKUP WOULD HELP! */
-	  /* NOTE: PROGRAM MODULE ENTRY POINTS (e,c,f) CANNOT BE RECURSIVE!!! */
-	  if ( f->mark == 's' && rsmodule )
-	     f->bmark = TRUE;
+        case IFXGraph:
+          /* NEW CANN 2/92 ASSUME A SISAL MODULE THAT CALLS ANOTHER SISAL */
+          /* MODULE IS RECURSIVE; LOOKUP WOULD HELP! */
+          /* NOTE: PROGRAM MODULE ENTRY POINTS (e,c,f) CANNOT BE RECURSIVE!!! */
+          if ( f->mark == 's' && rsmodule )
+             f->bmark = TRUE;
 
-	case IFLGraph:
-	  change = DriveRecursiveMarks( f, (int)f->bmark );
-	  break;
+        case IFLGraph:
+          change = DriveRecursiveMarks( f, (int)f->bmark );
+          break;
 
-	default:
-	  Error2( "MarkRecursiveFunctions", "ILLEGAL GRAPH NODE" );
-	}
+        default:
+          Error2( "MarkRecursiveFunctions", "ILLEGAL GRAPH NODE" );
+        }
     }
 }
 
@@ -754,7 +764,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	CheckParallelMarks( sg );
+        CheckParallelMarks( sg );
 
     if ( !IsCall( n ) )
       continue;
@@ -780,24 +790,24 @@ void CheckParallelFunctions()
   for ( f = glstop->gsucc; f != NULL; f = f->gsucc )
     switch( f->type ) {
       case IFLPGraph:
-	if ( !(f->Pmark) )
-	  Error2( "CheckParallelFunctions", "Pmark NOT SET ON LPGraph" );
+        if ( !(f->Pmark) )
+          Error2( "CheckParallelFunctions", "Pmark NOT SET ON LPGraph" );
 
-	CheckParallelMarks( f );
-	break;
+        CheckParallelMarks( f );
+        break;
 
       case IFIGraph:
-	break;
+        break;
 
       case IFLGraph:
       case IFXGraph:
-	if ( f->Pmark )
-	  CheckParallelMarks( f );
+        if ( f->Pmark )
+          CheckParallelMarks( f );
 
-	break;
+        break;
 
       default:
-	Error2( "CheckParallelFunctions", "ILLEGAL GRAPH NODE" );
+        Error2( "CheckParallelFunctions", "ILLEGAL GRAPH NODE" );
       }
 }
 
@@ -822,7 +832,7 @@ PNODE f;
     /* ------------------------------------------------------------ */
     /* Depending on the parallelism style, the frame looks a little */
     /* different.  The runtime decision and strided styles require  */
-    /* a step.  The block style does not.			    */
+    /* a step.  The block style does not.                           */
     /* ------------------------------------------------------------ */
     switch ( f->Style ) {
       /* ------------------------------------------------------------ */
@@ -858,28 +868,28 @@ PNODE f;
 
    default:
     /* ------------------------------------------------------------ */
-    /* Check to make sure all arguments are used		    */
+    /* Check to make sure all arguments are used                    */
     /* ------------------------------------------------------------ */
     eport = 1;
     for ( ii = f->info->F_IN; ii != NULL; ii = ii->L_NEXT, eport++ ) {
       if ( IsExport( f, eport ) ) continue;
 
       if ( Warnings ) {
-	FPRINTF( stderr,
-		"%s: W - ARGUMENT %d OF %s ON LINE %d IN %s IS NEVER USED\n",
-		program, eport, 
-		(f->funct == NULL)? "FUNCT?()" : f->funct, f->line, 
-		(f->file == NULL)? "FILE?.sis" : f->file 
-		);
+        FPRINTF( stderr,
+                "%s: W - ARGUMENT %d OF %s ON LINE %d IN %s IS NEVER USED\n",
+                program, eport, 
+                (f->funct == NULL)? "FUNCT?()" : f->funct, f->line, 
+                (f->file == NULL)? "FILE?.sis" : f->file 
+                );
       }
     }
 
     /* ------------------------------------------------------------ */
-    /* A standard function has only its frame as an argument	    */
+    /* A standard function has only its frame as an argument        */
     /* ------------------------------------------------------------ */
     FPRINTF( output, "\n%svoid %s( args )\n",
-	    /* (f->emark)? "" : "static ", f->G_NAME ); */
-	    (f->mark == 's')? "" : "static ", f->G_NAME); /* NEW CANN 2/92 */
+            /* (f->emark)? "" : "static ", f->G_NAME ); */
+            (f->mark == 's')? "" : "static ", f->G_NAME); /* NEW CANN 2/92 */
     FPRINTF( output, "%s args;\n{\n", f->info->tname );
     break;
   }
@@ -910,14 +920,14 @@ PNODE f;
 
   if ( f->time ) {
     FPRINTF( output, "  StartFunctionTimer(\"%s\");\n\n", 
-	    (f->funct == NULL)? f->G_NAME : f->funct );
+            (f->funct == NULL)? f->G_NAME : f->funct );
   }
 
   if ( f->trace ) {
     FPRINTF( output, "  Trace(Write_%s_FibreInputs,\"%s\");\n\n", 
-	    (f->funct == NULL)? f->G_NAME : f->funct,
-	    (f->funct == NULL)? f->G_NAME : f->funct
-	    );
+            (f->funct == NULL)? f->G_NAME : f->funct,
+            (f->funct == NULL)? f->G_NAME : f->funct
+            );
   }
 
 }
@@ -938,7 +948,7 @@ PNODE f;
 
   if ( f->time )
     FPRINTF( output, "\n  StopFunctionTimer(\"%s\");\n", 
-	     (f->funct == NULL)? f->G_NAME : f->funct );
+             (f->funct == NULL)? f->G_NAME : f->funct );
 
   if ( sdbx )
     FPRINTF( output, "SdbxMonitor( SDBX_POP );\n" );
@@ -1099,7 +1109,7 @@ void PrintFileEpilogue()
   if ( standalone ) {
     for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
       /* if ( !f->emark ) */
-      if ( f->mark != 'e' )	/* NEW CANN 2/92 */
+      if ( f->mark != 'e' )     /* NEW CANN 2/92 */
         continue;
 
       PrintReadFibreInputs( f );

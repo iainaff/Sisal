@@ -1,10 +1,20 @@
-/* if2prebuild.c,v
+/**************************************************************************/
+/* FILE   **************       if2prebuild.c       ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:02  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:02  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -116,7 +126,7 @@ PNODE a2;
 
     if ( IsConst( i1 ) )
       if ( strcmp( i1->CoNsT, i2->CoNsT ) != 0 )
-	return( FALSE );
+        return( FALSE );
 
     if ( i1->iport != i2->iport )
       return( FALSE );
@@ -159,7 +169,7 @@ PNODE g;
 
     if ( IsCompound( a1 ) )
       for ( sg = a1->C_SUBS; sg != NULL; sg = sg->gsucc )
-	ShareStorage( sg );
+        ShareStorage( sg );
     }
 
   for ( a1 = g->G_NODES; a1 != NULL; a1 = sa1 ) {
@@ -174,88 +184,88 @@ PNODE g;
       sa2 = a2->nsucc;
 
       if ( a1->type != a2->type ) 
-	continue;
+        continue;
 
       if ( !ArePSAllocsIdentical( a1, a2 ) ) {
         /* SHORTCUT THE OUTER LOOP SO IT WILL RUN FASTER */
         if ( sa1 == NULL )
-	  sa1 = a2;
+          sa1 = a2;
 
-	continue;
-	}
+        continue;
+        }
 
       /* DO THEY HAVE DIFFERENT m DESTINATION NODES? */
       c = 0;
       for ( e = a1->exp; e != NULL; e = e->esucc ) {
-	if ( e->dst->type == IFPSFreeOne ) {
-	  c++;
-	  continue;
-	  }
+        if ( e->dst->type == IFPSFreeOne ) {
+          c++;
+          continue;
+          }
 
-	/* SANITY CHECK!!! */
-	if ( !(IsForall( e->dst ) || IsLoop( e->dst )) )
-	  break;
+        /* SANITY CHECK!!! */
+        if ( !(IsForall( e->dst ) || IsLoop( e->dst )) )
+          break;
 
-	for ( i = e->dst->imp; i != NULL; i = i->isucc )
-	  if ( i->src == a2 )
-	    goto MoveOn;
-	}
+        for ( i = e->dst->imp; i != NULL; i = i->isucc )
+          if ( i->src == a2 )
+            goto MoveOn;
+        }
 MoveOn:
       if ( c > 1 )
-	Error2( "ShareStorage", "MORE THAN ONE FREE NODE!!!" );
+        Error2( "ShareStorage", "MORE THAN ONE FREE NODE!!!" );
 
       if ( e != NULL ) {
-	/* SHORTCUT THE OUTER LOOP SO IT WILL RUN FASTER */
-	if ( sa1 == NULL )
-	  sa1 = a2;
+        /* SHORTCUT THE OUTER LOOP SO IT WILL RUN FASTER */
+        if ( sa1 == NULL )
+          sa1 = a2;
 
-	continue;
-	}
+        continue;
+        }
 
       /* WIRE THEM USING a1 AS THE ALLOCATION NODE; PICK THE RIGHT MOST */
       /* FREE NODE AND DISCARD THE OTHER. */
 
       for ( i = a2->imp; i != NULL; i = si ) {
-	si = i->isucc;
+        si = i->isucc;
 
-	UnlinkExport( i );
-	UnlinkImport( i );
-	/* free( i ); */
-	}
+        UnlinkExport( i );
+        UnlinkImport( i );
+        /* free( i ); */
+        }
 
       for ( e = a2->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
-	UnlinkExport( e );
-	LinkExport( a1, e );
-	}
+        UnlinkExport( e );
+        LinkExport( a1, e );
+        }
 
       UnlinkNode( a2 );
 
       /* RUN a1's EXPORTS AND KEEP RIGHTMOST IFPSFreeOne NODE */
       for ( f1 = NULL, e = a1->exp; e != NULL; e = e->esucc ) {
-	if ( e->dst->type != IFPSFreeOne )
-	  continue;
+        if ( e->dst->type != IFPSFreeOne )
+          continue;
 
-	if ( f1 != NULL ) {
-	  if ( f1->label > e->dst->label )
-	    f1 = e->dst;
-	  }
+        if ( f1 != NULL ) {
+          if ( f1->label > e->dst->label )
+            f1 = e->dst;
+          }
         else
-	  f1 = e->dst;
-	}
+          f1 = e->dst;
+        }
 
       if ( f1 == NULL )
-	Error2( "ShareStorage", "FREE NODE SEARCH FAILED" );
+        Error2( "ShareStorage", "FREE NODE SEARCH FAILED" );
 
       if ( f1->imp->isucc != NULL )
-	Error2( "ShareStorage", "FREE NODE WITH TWO IMPORTS" );
+        Error2( "ShareStorage", "FREE NODE WITH TWO IMPORTS" );
 
       UnlinkExport( f1->imp );
 
       /* ADJUST sa2 */
       if ( f1 == sa2 )
-	sa2 = f1->nsucc;
+        sa2 = f1->nsucc;
 
       UnlinkNode( f1 );
       ss1cnt++;
@@ -290,21 +300,21 @@ PEDGE e;
 
     if ( !IsSGraph( e->src ) ) {
       if ( IsGraph( e->src ) ) {
-	if ( m == e->src )
-	  break;
+        if ( m == e->src )
+          break;
 
-	Error2( "FindSourceEdgeAndLink", "ILLEGAL SOURCE EDGE SOURCE [A]" );
-	}
+        Error2( "FindSourceEdgeAndLink", "ILLEGAL SOURCE EDGE SOURCE [A]" );
+        }
 
       if ( FindGraphNode( e->src ) == m )
-	break;
+        break;
 
       Error2( "FindSourceEdgeAndLink", "ILLEGAL SOURCE EDGE SOURCE [B]" );
       }
 
     if ( e->src->xmark ) {
       if ( e->src == m )
-	break;
+        break;
       }
 
     l = e->src->G_DAD;
@@ -477,17 +487,17 @@ PEDGE b;
     case IFSGraph:
     case IFLGraph:
       if ( mdtype != -1 )
-	Error2( "WireRegionalSwap", "ILLEGAL psmd NODE" );
+        Error2( "WireRegionalSwap", "ILLEGAL psmd NODE" );
 
       if ( !m->xmark )
-	Error2( "WireRegionalSwap", "ILLEGAL GRAPH NODE [no xmark]" );
+        Error2( "WireRegionalSwap", "ILLEGAL GRAPH NODE [no xmark]" );
 
       if ( sztop >= 0 ) {
-	l = sz[0]->dst->exp->dst->G_DAD;
-	LinkNode( l->npred, psma );
-	}
+        l = sz[0]->dst->exp->dst->G_DAD;
+        LinkNode( l->npred, psma );
+        }
       else
-	LinkNode( ma->npred, psma );
+        LinkNode( ma->npred, psma );
 
       LinkNode( psma, psmm );
 
@@ -511,7 +521,7 @@ PEDGE b;
 
     if ( spare != NULL ) {
       if ( !(pstype == PS_SPARE1 || pstype == PS_SPARE2) )
-	Error2( "WireRegionalSwap", "ILLEGAL spare!!!" );
+        Error2( "WireRegionalSwap", "ILLEGAL spare!!!" );
 
       e = EdgeAlloc( spare->src, spare->eport, psmd, 2 );
 
@@ -665,52 +675,52 @@ PEDGE i;
     case IFAAddLAT:
     case IFAAddHAT:
       if ( !(n->nmark) ) 
-	Error2( "RestructureTheBIP", "ILLEGAL AAdd[LH]AT BIP NODE" );
+        Error2( "RestructureTheBIP", "ILLEGAL AAdd[LH]AT BIP NODE" );
     case IFAAddLATDV:
     case IFAAddHATDV:
       if ( n->imp->pmark ) 
-	RestructureTheBIP( m, n->imp );
+        RestructureTheBIP( m, n->imp );
 
       /* POINTER SWAP n's MemAllocDVI NODE */
       if ( n->type == IFAAddLATDV || n->type == IFAAddHATDV ) {
         b = n->imp->isucc->isucc;
         WireRegionalSwap( m, b );
-	}
+        }
 
       RestructureTheBIP( m, n->imp->isucc );
       break;
 
     case IFACatenateAT:
       if ( !(n->nmark) ) 
-	Error2( "RestructureTheBIP", "ILLEGAL ACatenateAT BIP NODE" );
+        Error2( "RestructureTheBIP", "ILLEGAL ACatenateAT BIP NODE" );
     case IFACatenateATDV:
       if ( n->imp->pmark ) 
-	RestructureTheBIP( m, n->imp );
+        RestructureTheBIP( m, n->imp );
 
       /* POINTER SWAP n's MemAllocDVI NODE */
       if ( n->type == IFACatenateATDV ) {
         b = n->imp->isucc->isucc;
         WireRegionalSwap( m, b );
-	}
+        }
 
       if ( n->imp->isucc->pmark ) 
-	RestructureTheBIP( m, n->imp->isucc );
+        RestructureTheBIP( m, n->imp->isucc );
 
       break;
 
     case IFABuildAT:
       if ( !(n->nmark) ) 
-	Error2( "RestructureTheBIP", "ILLEGAL ABuildAT BIP NODE" );
+        Error2( "RestructureTheBIP", "ILLEGAL ABuildAT BIP NODE" );
     case IFABuildATDV:
       lii = FindLastImport( n );
       for ( ii = n->imp->isucc; ii != lii; ii = ii->isucc )
-	RestructureTheBIP( m, ii );
+        RestructureTheBIP( m, ii );
 
       /* POINTER SWAP n's MemAllocDVI NODE */
       if ( n->type == IFABuildATDV ) {
         b = FindLastImport( n );
         WireRegionalSwap( m, b );
-	}
+        }
 
       break;
 
@@ -718,21 +728,21 @@ PEDGE i;
     case IFLoopB:
       /* ONLY ALLOWED FOR THE INNER DIMENSION: SEE IsBIPWellFormed */
       if ( (ii = FindImport( n->L_RET, i->eport )) == NULL )
-	Error2( "RestructureTheBIP", "FindImport FOR IFLoop[AB] FAILED!" );
+        Error2( "RestructureTheBIP", "FindImport FOR IFLoop[AB] FAILED!" );
 
       RestructureTheBIP( m, ii );
       break;
 
     case IFForall:
       if ( (ii = FindImport( n->F_RET, i->eport )) == NULL )
-	Error2( "RestructureTheBIP", "FindImport FOR IFForall FAILED!" );
+        Error2( "RestructureTheBIP", "FindImport FOR IFForall FAILED!" );
 
       RestructureTheBIP( m, ii );
       break;
 
     case IFAGatherAT:
       if ( !(n->nmark) ) 
-	Error2( "RestructureTheBIP", "ILLEGAL AGatherAT BIP NODE" );
+        Error2( "RestructureTheBIP", "ILLEGAL AGatherAT BIP NODE" );
     case IFAGatherATDV:
       l = n->exp->dst->G_DAD;
 
@@ -741,20 +751,20 @@ PEDGE i;
       if ( (e = FindImport( l->F_BODY, e->eport ) ) != NULL ) {
         /* PUSH THE SIZE ONTO THE REGION SIZE STACK */
         if ( (++sztop) == MAX_DIMS )
-	  Error2( "RestructureTheBIP", "sz OVERFLOW" );
+          Error2( "RestructureTheBIP", "sz OVERFLOW" );
         sz[sztop] = n->imp->isucc->isucc->isucc;
 
         RestructureTheBIP( m, e );
 
         /* POP THE REGION SIZE STACK */
         sztop--;
-	}
+        }
 
       /* POINTER SWAP n's MemAllocDVI NODE */
       if ( n->type == IFAGatherATDV ) {
         b = FindImport( l, n->imp->isucc->isucc->eport );
         WireRegionalSwap( m, b );
-	}
+        }
 
       break;
 
@@ -764,7 +774,7 @@ PEDGE i;
     case IFRedTreeAT:
       /* ONLY ALLOWED FOR THE INNER DIMENSION: SEE IsBIPWellFormed */
       if ( !(n->nmark) ) 
-	Error2( "RestructureTheBIP", "ILLEGAL ReduceAT BIP NODE" );
+        Error2( "RestructureTheBIP", "ILLEGAL ReduceAT BIP NODE" );
 
       break;
 
@@ -945,7 +955,7 @@ PEDGE i;
     case IFLoopB:
       /* ONLY ALLOW LOOPS TO INTERCEDE IF d IS THE INNERMOST DIMENSION */
       if ( d != dim )
-	return( FALSE );
+        return( FALSE );
 
       if ( (e = FindImport( n->L_RET, i->eport)) == NULL )
         Error2( "IsNextDimWellFormed", "FindImport FAILED (A)" );
@@ -965,11 +975,11 @@ DoTheRest:
 
         case IFReduceATDV:
           /* ONLY ALLOW REDUCTIONS IF d IS THE INNERMOST DIMENSION */
-	  if ( d != dim )
+          if ( d != dim )
             return( FALSE );
 
           b = FindImport( e->dst->G_DAD, rn->imp->isucc->isucc->isucc->eport );
-	  break;
+          break;
 
         default:
           return( FALSE );
@@ -1207,7 +1217,7 @@ PEDGE  e;
           Error2( "IsEdgeReadOnly", "FindFunction FOR CALL FAILED" );
 
       if ( IsIGraph( f ) )
-	if ( f->mark != 's' )  /* NEW CANN 2/92 */
+        if ( f->mark != 's' )  /* NEW CANN 2/92 */
           break;
 
       return( FALSE );
@@ -1580,14 +1590,14 @@ PNODE g;
 DoTheRest:
         dim = 1;
 
-	macnt1 = 0;
-	macnt2 = 0;
+        macnt1 = 0;
+        macnt2 = 0;
 
         if ( !IsPSCandidate( e->info->A_ELEM ) )
           break;
 
         if ( dim > max_dims ) 
-	  break;
+          break;
 
         if ( e->sr != 0 || e->pm > 0 )
           break;
@@ -1605,21 +1615,21 @@ DoTheRest:
           break;
           }
 
-	root  = n;
-	spare = NULL;
+        root  = n;
+        spare = NULL;
 
         switch ( m->type ) {
           case IFForall:
             if ( IsGround( we ) ) {
 
-	      pstype = PS_ONE;
-	      sztop = -1; 
-	      RestructureTheBIP( m, n->exp );
+              pstype = PS_ONE;
+              sztop = -1; 
+              RestructureTheBIP( m, n->exp );
 
-	      /* GET RID OF THE GROUND EDGE */
-	      UnlinkImport( we );
-	      UnlinkExport( we );
-	      /* free( we ); */
+              /* GET RID OF THE GROUND EDGE */
+              UnlinkImport( we );
+              UnlinkExport( we );
+              /* free( we ); */
 
               IncDimCounter();
               case1++;
@@ -1653,15 +1663,15 @@ DoTheRest:
               if ( ret->dst->lmark )
                 break;
 
-	      pstype = PS_SPARE1;
-	      sztop = -1; 
-	      RestructureTheBIP( m, n->exp );
+              pstype = PS_SPARE1;
+              sztop = -1; 
+              RestructureTheBIP( m, n->exp );
 
-	      /* we IS GUARANTEED OK! */
+              /* we IS GUARANTEED OK! */
 
-	      /* CLEAN THE RETURN SUBGRAPH REFERENCE */
-	      ret->dmark = FALSE;
-	      ret->cm = 0;
+              /* CLEAN THE RETURN SUBGRAPH REFERENCE */
+              ret->dmark = FALSE;
+              ret->cm = 0;
 
               IncDimCounter();
 #ifdef MYI
@@ -1681,14 +1691,14 @@ DoTheRest:
           case IFLoopA:
           case IFLoopB:
             if ( IsGround( we ) ) {
-	      pstype = PS_ONE;
-	      sztop = -1; 
-	      RestructureTheBIP( m, n->exp );
+              pstype = PS_ONE;
+              sztop = -1; 
+              RestructureTheBIP( m, n->exp );
 
-	      /* GET RID OF THE GROUND EDGE */
-	      UnlinkExport( we );
-	      UnlinkImport( we );
-	      /* free( we ); */
+              /* GET RID OF THE GROUND EDGE */
+              UnlinkExport( we );
+              UnlinkImport( we );
+              /* free( we ); */
 
               IncDimCounter();
 #ifdef MYI
@@ -1718,34 +1728,34 @@ DoTheRest:
               if ( !IsGround( wee ) )
                 break;
 
-	      /* MAKE SURE THE INITIAL REFERENCE IS OK! */
-	      if ( (ci = FindImport( m->L_INIT, wee->eport )) == NULL )
-		break;
-	      if ( ci->cm != -1 || ci->pm > 0 )
-		break;
+              /* MAKE SURE THE INITIAL REFERENCE IS OK! */
+              if ( (ci = FindImport( m->L_INIT, wee->eport )) == NULL )
+                break;
+              if ( ci->cm != -1 || ci->pm > 0 )
+                break;
 
-	      pstype = PS_TWO;
-	      sztop = -1; 
-	      RestructureTheBIP( m, n->exp );
+              pstype = PS_TWO;
+              sztop = -1; 
+              RestructureTheBIP( m, n->exp );
 
-	      /* GET RID OF THE GROUND EDGE */
-	      UnlinkExport( wee );
-	      UnlinkImport( wee );
-	      /* free( wee ); */
+              /* GET RID OF THE GROUND EDGE */
+              UnlinkExport( wee );
+              UnlinkImport( wee );
+              /* free( wee ); */
 
-	      /* NOTE: we IS GUARANTEED OK! */
+              /* NOTE: we IS GUARANTEED OK! */
 
-	      /* CLEAN THE INITIAL SUBGRAPH */
-	      if ( ci->cm == -1 || ci->dmark ) {
-		ci->cm = 0;
-		ci->dmark = FALSE;
+              /* CLEAN THE INITIAL SUBGRAPH */
+              if ( ci->cm == -1 || ci->dmark ) {
+                ci->cm = 0;
+                ci->dmark = FALSE;
 
-		/* TRY AND FREE m'S INITIAL IMPORT */
-	        if ( (ci = FindImport( m, ci->eport )) == NULL )
-		  Error2( "PointerSwap", "m FindImport FAILED [A]\n" );
+                /* TRY AND FREE m'S INITIAL IMPORT */
+                if ( (ci = FindImport( m, ci->eport )) == NULL )
+                  Error2( "PointerSwap", "m FindImport FAILED [A]\n" );
 
-		ci->cm = -1;
-		}
+                ci->cm = -1;
+                }
 
               IncDimCounter();
 #ifdef MYI
@@ -1777,27 +1787,27 @@ DoTheRest:
               if ( !(ret->dst->lmark) )
                 break;
 
-	      /* MAKE SURE THE INITIAL REFERENCE IS OK! AND SET THE SPARE */
-	      if ( (ci = FindImport( m->L_INIT, wee->eport )) == NULL )
-		break;
-	      if ( ci->cm == -1 || ci->dmark || ci->pm > 0 )
-		break;
+              /* MAKE SURE THE INITIAL REFERENCE IS OK! AND SET THE SPARE */
+              if ( (ci = FindImport( m->L_INIT, wee->eport )) == NULL )
+                break;
+              if ( ci->cm == -1 || ci->dmark || ci->pm > 0 )
+                break;
               if ( (ci = FindImport( m, ci->eport )) == NULL )
-		break;
+                break;
               if ( ci->cm == -1 || ci->dmark )
-		break;
-	      if ( IsConst( ci ) )
-		break;
+                break;
+              if ( IsConst( ci ) )
+                break;
               spare = ci;
 
-	      pstype = PS_SPARE2;
-	      sztop = -1; 
-	      RestructureTheBIP( m, n->exp );
+              pstype = PS_SPARE2;
+              sztop = -1; 
+              RestructureTheBIP( m, n->exp );
 
-	      /* GET RID OF THE GROUND EDGE, REST IS OK! */
-	      UnlinkExport( wee );
-	      UnlinkImport( wee );
-	      /* free( wee ); */
+              /* GET RID OF THE GROUND EDGE, REST IS OK! */
+              UnlinkExport( wee );
+              UnlinkImport( wee );
+              /* free( wee ); */
 
               IncDimCounter();
 #ifdef MYI
@@ -1825,26 +1835,26 @@ DoTheRest:
               if ( ret->dst->lmark )
                 break;
 
-	      /* MAKE SURE THE INITIAL REFERENCE IS OK! AND SET THE SPARE */
-	      if ( (ci = FindImport( m->L_INIT, ret->eport )) == NULL )
-		break;
-	      if ( ci->cm == -1 || ci->dmark || ci->pm > 0 )
-		break;
+              /* MAKE SURE THE INITIAL REFERENCE IS OK! AND SET THE SPARE */
+              if ( (ci = FindImport( m->L_INIT, ret->eport )) == NULL )
+                break;
+              if ( ci->cm == -1 || ci->dmark || ci->pm > 0 )
+                break;
               if ( (ci = FindImport( m, ci->eport )) == NULL )
-		break;
+                break;
               if ( ci->cm == -1 || ci->dmark )
-		break;
-	      if ( IsConst( ci ) )
-		break;
+                break;
+              if ( IsConst( ci ) )
+                break;
               spare = ci;
 
-	      pstype = PS_SPARE1;
-	      sztop = -1; 
-	      RestructureTheBIP( m, n->exp );
+              pstype = PS_SPARE1;
+              sztop = -1; 
+              RestructureTheBIP( m, n->exp );
 
-	      /* CLEAN UP THE FinalValue NODE */
-	      ret->dmark = FALSE;
-	      ret->cm = 0;
+              /* CLEAN UP THE FinalValue NODE */
+              ret->dmark = FALSE;
+              ret->cm = 0;
 
               IncDimCounter();
 #ifdef MYI
@@ -1868,14 +1878,14 @@ DoTheRest:
               break;
 
             if ( IsGround( we ) ) {
-	      pstype = PS_COND;
-	      sztop = -1;
-	      RestructureTheBIP( m, n->exp );
+              pstype = PS_COND;
+              sztop = -1;
+              RestructureTheBIP( m, n->exp );
 
-	      /* GET RID OF THE GROUND EDGE */
-	      UnlinkExport( we );
-	      UnlinkImport( we );
-	      /* free( we ); */
+              /* GET RID OF THE GROUND EDGE */
+              UnlinkExport( we );
+              UnlinkImport( we );
+              /* free( we ); */
 
               IncDimCounter();
 #ifdef MYI
@@ -1890,20 +1900,20 @@ DoTheRest:
               break;
               }
 
-	    /* WOW I'M SMART!!! */
+            /* WOW I'M SMART!!! */
             if ( !IsXGraph(m) )
               break;
 
-	    /* CCCCC */
+            /* CCCCC */
             /* A TRUE GRAPH EXPORT??? */
             if ( (we->dst == m) && (we->iport != 0) && 
                  (we->cm != -1) && (we->pm <= 0) ) {
-	      pstype = PS_COND;
-	      sztop = -1; 
-	      RestructureTheBIP( m, n->exp );
+              pstype = PS_COND;
+              sztop = -1; 
+              RestructureTheBIP( m, n->exp );
 
-	      /* MINOR CLEANUP REQUIRED TO PREVENT DEALLOCATION */
-	      we->xmark = TRUE;
+              /* MINOR CLEANUP REQUIRED TO PREVENT DEALLOCATION */
+              we->xmark = TRUE;
 
               IncDimCounter();
 #ifdef MYI
@@ -1990,12 +2000,12 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc )
     switch ( n->type ) {
       case IFSelect:
-	if ( g->xmark ) {
+        if ( g->xmark ) {
           n->S_CONS->xmark = TRUE;
           n->S_ALT->xmark  = TRUE;
           DriveXmark( n->S_CONS );
           DriveXmark( n->S_ALT );
-	  }
+          }
 
         break;
 
@@ -2135,10 +2145,10 @@ int   ok;
   
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc ) {
-	/* NEW CANN 2/92 */
+        /* NEW CANN 2/92 */
         FixBRecordOperators( sg, ok || 
-				 ((IsForall(n)&&(!(n->smark))) || IsLoop(n)) ); 
-	}
+                                 ((IsForall(n)&&(!(n->smark))) || IsLoop(n)) ); 
+        }
     }
 }
 
@@ -2553,7 +2563,7 @@ DoIt:
           return( GetRedATType( ee->src->imp->isucc->isucc ) );
 
         default:
-	  ;
+          ;
         }
       return( BIP_REG );
 
@@ -2724,7 +2734,7 @@ PEDGE i;
       case IFLoopB:
         if ( ii == NULL ) {
           return( TRUE );
-	  }
+          }
 
       case IFForall:
         if ( ii == NULL )
@@ -2742,7 +2752,7 @@ PEDGE i;
     for ( ii = src->imp; ii != NULL; ii = ii->isucc ) {
       if ( IsRagged( ii ) ) {
         return( TRUE );
-	}
+        }
       }
 
   return( FALSE );
@@ -2836,22 +2846,22 @@ PNODE g;
         IdentifyRaggedMemAllocs( sg );
 
       switch ( n->type ) {
-	case IFLoopA:
-	case IFLoopB:
-	  MoveRaggedInvariants( n->L_BODY );
-	  break;
+        case IFLoopA:
+        case IFLoopB:
+          MoveRaggedInvariants( n->L_BODY );
+          break;
 
-	case IFForall:
-	  MoveRaggedInvariants( n->F_BODY );
-	  break;
+        case IFForall:
+          MoveRaggedInvariants( n->F_BODY );
+          break;
 
-	case IFSelect:
-	  MoveRaggedInvariants( n->S_ALT );
-	  MoveRaggedInvariants( n->S_CONS );
-	  break;
+        case IFSelect:
+          MoveRaggedInvariants( n->S_ALT );
+          MoveRaggedInvariants( n->S_CONS );
+          break;
 
-	default:
-	  break;
+        default:
+          break;
         }
 
       continue;
@@ -3111,7 +3121,7 @@ PNODE g;
         if ( cn->type != IFMemAllocDVI )
           continue;
 
-	++tmchcnt;
+        ++tmchcnt;
 
         /* 1-DIM ONLY */
         if ( !IsBasic( cn->exp->info->A_ELEM->A_ELEM ) )
@@ -3132,7 +3142,7 @@ PNODE g;
           if ( an->type != IFMemAllocDVI )
             continue;
 
-	++tmchcnt;
+        ++tmchcnt;
 
           if ( an->exp->sr != cn->exp->sr )
             continue;
@@ -3170,10 +3180,10 @@ PNODE g;
 #ifdef MYI
           SPRINTF(mem, 
               "%s Combining MemAllocDVI %d at line %d, funct %s, file %s\n",
-              mem, n->ID, n->line, n->funct, n->file);	
+              mem, n->ID, n->line, n->funct, n->file);  
           SPRINTF(mem, 
               "%s with MemAllocDVI %d at line %d, funct %s, file %s\n\n",
-              mem, an->ID, an->line, an->funct, an->file);	
+              mem, an->ID, an->line, an->funct, an->file);      
 #endif
           port  = ++maxint;
           binfo = an->exp->info;
@@ -3391,12 +3401,12 @@ void If2Prebuild2()
   for ( f = glstop->gsucc; f != NULL; f = f->gsucc ) {
     switch ( f->type ) {
       case IFLPGraph:
-	if ( max_dims > 0 )
+        if ( max_dims > 0 )
           PointerSwap( f, f );
 
       default:
         if ( !IsIGraph( f ) && share && max_dims > 0 )
-	  ShareStorage( f );
+          ShareStorage( f );
 
         break;
       }

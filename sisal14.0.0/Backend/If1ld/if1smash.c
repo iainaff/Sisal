@@ -1,10 +1,21 @@
-/* if1smash.c,v
+/**************************************************************************/
+/* FILE   **************         if1smash.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:54  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:07:16  miller
  * Initial RCS Version by Cann
- * */
+ *
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -31,23 +42,23 @@ void LoadSmashTypes()
         chgd = FALSE;
 
         for ( c = 0; c <= lclass; c++ ) {
-	    r = htable[c];
-	    p = r;
+            r = htable[c];
+            p = r;
 
-	    if ( p == NULL )
-	        m = NULL;
-	    else
-	        m = p->mnext;
+            if ( p == NULL )
+                m = NULL;
+            else
+                m = p->mnext;
 
-	    while ( m != NULL )
-	        if ( SameEquivClass( r, m ) ) {
-		    p = m;
-		    m = p->mnext;
-	        } else {
-		    GatherOthers( p, m );
-		    chgd = TRUE; m = NULL;
-		    }
-	    }
+            while ( m != NULL )
+                if ( SameEquivClass( r, m ) ) {
+                    p = m;
+                    m = p->mnext;
+                } else {
+                    GatherOthers( p, m );
+                    chgd = TRUE; m = NULL;
+                    }
+            }
         }    
 
     PointToHead();

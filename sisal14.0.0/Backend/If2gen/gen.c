@@ -1,10 +1,20 @@
-/* Gen.c,v
+/**************************************************************************/
+/* FILE   **************           gen.c           ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:00  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:57  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -23,14 +33,14 @@ char infofile4[200];
 
 char *program    = "if2gen";           /* PROGRAM NAME                    */
 
-int   info	 = FALSE;    /* GENERATE INFORMATION ABOUT OPTIMIZATIONS? */
+int   info       = FALSE;    /* GENERATE INFORMATION ABOUT OPTIMIZATIONS? */
 int   dbl        = FALSE;    /* TREAT real DATA AS double_real?           */
 int   flt        = FALSE;    /* TREAT double_real DATA AS real?           */
 int   aimp       = TRUE;     /* OPTIMIZE ARRAY DEREFERENCE OPERATIONS?    */
 int   if2opt     = TRUE;     /* OPTIMIZE GatherAT NODES?                  */
 int   if3show    = FALSE;    /* Show IF3 variable temporaries?            */
-int   timeall	 = FALSE;	/* Time all functions */
-int   traceall	 = FALSE;	/* Trace all functions */
+int   timeall    = FALSE;       /* Time all functions */
+int   traceall   = FALSE;       /* Trace all functions */
 
 int   bounds     = FALSE;    /* GENERATE BOUNDS CHECKING?                 */
 int   sdbx       = FALSE;    /* GENERATE SDBX CODE?                       */
@@ -84,7 +94,7 @@ int nobrec = FALSE;                 /* DISABLE BASIC RECORD OPTIMIZATION? */
 
 int CodeComments = FALSE;           /* DISABLE BASIC RECORD OPTIMIZATION? */ 
 
-int MinSliceThrottle = TRUE;	/* Throttle parallelism if minslice to small */
+int MinSliceThrottle = TRUE;    /* Throttle parallelism if minslice to small */
 static int   tracecnt = -1;                    /* TRACE FUNCTION LIST INDEX */
 static char *trace[200];                       /* TRACE FUNCTION LIST       */
 
@@ -103,61 +113,61 @@ static char *flop[200];                       /* FLOP FUNCTION LIST       */
 /*          WITH A DASH, IT IS CONSIDERED THE NAME OF A FILE.  THE FIRST  */
 /*          ENCOUNTERED FILE IS FOR IF2 INPUT.  THE SECOND ENCOUNTERED    */
 /*          FILE IS FOR IF2 OUTPUT.  ANY OTHER FILES ON THE COMMAND LINE  */
-/*          CAUSE AN ERROR MESSAGE TO BE PRINTED.			  */
-/*									  */
-/*	    FILES:							  */
-/*		0:	-> Partitioned IF2 file				  */
-/*		1:	-> C code file					  */
-/*									  */
-/*          OPTIONS:							  */
-/*		-	-> Skip a standard file (in, out, etc..)	  */
+/*          CAUSE AN ERROR MESSAGE TO BE PRINTED.                         */
+/*                                                                        */
+/*          FILES:                                                        */
+/*              0:      -> Partitioned IF2 file                           */
+/*              1:      -> C code file                                    */
+/*                                                                        */
+/*          OPTIONS:                                                      */
+/*              -       -> Skip a standard file (in, out, etc..)          */
 
-/*		-a	-> DON'T OPTIMIZE ARRAY DEREFERENCE NODES	  */
-/*		-d	-> TREAT real DATA AS double_real		  */
-/*		-f	-> TREAT double_real DATA AS real		  */
-/*		-i	-> PRINT GENERATION FEEDBACK TO stderr.		  */
-/*		-i<num>	-> Print more information			  */
-/*		-p<num>	-> Apply dynamic patch <num>			  */
-/*		-m	-> Turn off minslice throttle			  */
-/*		-r	-> DON"T ASSIGN register PREFIXES		  */
-/*		-t	-> Produce IF3 variable temporary file		  */
-/*		-u	-> DON'T OPTIMIZE GatherAT NODES		  */
-/*		-w	-> Suppress warning messages			  */
-/*		-x	-> CALL THE FORTRAN VECTOR ROUTINES		  */
-/*		-y	-> Do not allow associative transformations	  */
+/*              -a      -> DON'T OPTIMIZE ARRAY DEREFERENCE NODES         */
+/*              -d      -> TREAT real DATA AS double_real                 */
+/*              -f      -> TREAT double_real DATA AS real                 */
+/*              -i      -> PRINT GENERATION FEEDBACK TO stderr.           */
+/*              -i<num> -> Print more information                         */
+/*              -p<num> -> Apply dynamic patch <num>                      */
+/*              -m      -> Turn off minslice throttle                     */
+/*              -r      -> DON"T ASSIGN register PREFIXES                 */
+/*              -t      -> Produce IF3 variable temporary file            */
+/*              -u      -> DON'T OPTIMIZE GatherAT NODES                  */
+/*              -w      -> Suppress warning messages                      */
+/*              -x      -> CALL THE FORTRAN VECTOR ROUTINES               */
+/*              -y      -> Do not allow associative transformations       */
 
-/*		-A	-> ALLIANT					  */
-/*		-B	-> GENERATE BOUNDS CHECKING			  */
-/*		-C	-> CRAY X-MP					  */
-/*		-G	-> GLOBAL SHARED DATA SUPPORTED			  */
-/*		-K<file>-> Hybrid file name				  */
-/*		-O	-> USE ORIGINAL MICROTASKING SOFTWARE		  */
-/*		-P	-> DUMP PROGRESS PRINT MESSAGE			  */
-/*		-T f	-> INTERACTIVE TRACE OF FUNCTION f.		  */
-/*		-TT	-> Interactive trace of all functions.		  */
-/*		-U	-> Use FORTRAN intrinsic functions		  */
-/*		-W	-> Profile the optimizer			  */
-/*		-X	-> FURTHER VECTORIZE CODE?			  */
-/*		-Y<num>	-> Set depth of pointer swap search		  */
+/*              -A      -> ALLIANT                                        */
+/*              -B      -> GENERATE BOUNDS CHECKING                       */
+/*              -C      -> CRAY X-MP                                      */
+/*              -G      -> GLOBAL SHARED DATA SUPPORTED                   */
+/*              -K<file>-> Hybrid file name                               */
+/*              -O      -> USE ORIGINAL MICROTASKING SOFTWARE             */
+/*              -P      -> DUMP PROGRESS PRINT MESSAGE                    */
+/*              -T f    -> INTERACTIVE TRACE OF FUNCTION f.               */
+/*              -TT     -> Interactive trace of all functions.            */
+/*              -U      -> Use FORTRAN intrinsic functions                */
+/*              -W      -> Profile the optimizer                          */
+/*              -X      -> FURTHER VECTORIZE CODE?                        */
+/*              -Y<num> -> Set depth of pointer swap search               */
 
-/*		-=	-> DO NOT TRY AND SHARE POINTER SWAP STORAGE	  */
-/*		-%	-> Generate inline code comments		  */
-/*		-#	-> NO BASIC RECORD OPTIMIZATION			  */
-/*		-& f	-> TIME THE EXECUTION OF FUNCTION f.		  */
-/*		-&&	-> Time the execution of all functions		  */
-/*		-@ f	-> Flop counts for function f.			  */
-/*		-{	-> SDBX and bounds checking			  */
+/*              -=      -> DO NOT TRY AND SHARE POINTER SWAP STORAGE      */
+/*              -%      -> Generate inline code comments                  */
+/*              -#      -> NO BASIC RECORD OPTIMIZATION                   */
+/*              -& f    -> TIME THE EXECUTION OF FUNCTION f.              */
+/*              -&&     -> Time the execution of all functions            */
+/*              -@ f    -> Flop counts for function f.                    */
+/*              -{      -> SDBX and bounds checking                       */
 
-/*		-0	-> Move BIP's					  */
-/*		-1	-> Identify ragged mem-allocs			  */
-/*		-2	-> MOVE ARRAY READ OPERATIONS			  */
-/*		-3	-> FORM Cray X-MP CHAINS			  */
-/*		-4	-> Bind interface calls to Sisal		  */
-/*		-5	-> Force alliant vectorization pragmas		  */
-/*		-6	-> Force cray vectorization pragmas		  */
-/*		-7	-> Compile for NLTSS C compiler			  */
-/*		-8	-> Remove dead function calls (<not active>)	  */
-/*		-9	-> Force release of all storage			  */
+/*              -0      -> Move BIP's                                     */
+/*              -1      -> Identify ragged mem-allocs                     */
+/*              -2      -> MOVE ARRAY READ OPERATIONS                     */
+/*              -3      -> FORM Cray X-MP CHAINS                          */
+/*              -4      -> Bind interface calls to Sisal                  */
+/*              -5      -> Force alliant vectorization pragmas            */
+/*              -6      -> Force cray vectorization pragmas               */
+/*              -7      -> Compile for NLTSS C compiler                   */
+/*              -8      -> Remove dead function calls (<not active>)      */
+/*              -9      -> Force release of all storage                   */
 /**************************************************************************/
 
 static void ParseCommandLine( argc, argv )
@@ -168,26 +178,26 @@ char **argv;
     register int   fmode = 0;
     register int   idx;
     register FILE *fd;
-	     char  buf[200];
+             char  buf[200];
 
     for ( idx = 1; idx < argc; ++idx ) {
         if ( *(c = argv[ idx ]) != '-' ) {
             switch ( fmode ) {
                 case 0: 
                     if ( (fd = fopen( c, "r" )) == NULL )
-			Error2( "CAN'T OPEN", c );
+                        Error2( "CAN'T OPEN", c );
 
-		    input = fd;
+                    input = fd;
 
-		    AssignSourceFileName( c );
+                    AssignSourceFileName( c );
 
                     fmode++;
                     break;
 
                 case 1:
-		    ofile = c;
+                    ofile = c;
 
-		    fmode++;
+                    fmode++;
                     break;
 
                 default:
@@ -199,207 +209,207 @@ char **argv;
 
         switch ( *( ++c ) ) {
 
-	  /* ------------------------------------------------------------ */
-	  /* Suppress warning messages					  */
-	  /* ------------------------------------------------------------ */
-	case 'w':
-	  Warnings = FALSE;
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Suppress warning messages                                    */
+          /* ------------------------------------------------------------ */
+        case 'w':
+          Warnings = FALSE;
+          break;
 
-	  /* ------------------------------------------------------------ */
-	  /* Turn off MinSlice throttle					  */
-	  /* ------------------------------------------------------------ */
-	case 'm':
-	  MinSliceThrottle = FALSE;
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Turn off MinSlice throttle                                   */
+          /* ------------------------------------------------------------ */
+        case 'm':
+          MinSliceThrottle = FALSE;
+          break;
 
-	  /* ------------------------------------------------------------ */
-	  /* Apply dynamic patch					  */
-	  /* ------------------------------------------------------------ */
-	case 'p':
-	  if ( *c ) AddPatch(atoi(c));
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Apply dynamic patch                                          */
+          /* ------------------------------------------------------------ */
+        case 'p':
+          if ( *c ) AddPatch(atoi(c));
+          break;
 
-	  /* ------------------------------------------------------------ */
-	  /* Insert source line comments in code			  */
-	  /* ------------------------------------------------------------ */
-	case '%':
-	  CodeComments = TRUE;
-	  break;
+          /* ------------------------------------------------------------ */
+          /* Insert source line comments in code                          */
+          /* ------------------------------------------------------------ */
+        case '%':
+          CodeComments = TRUE;
+          break;
 
-	case '#':
-	  nobrec = TRUE;
-	  break;
+        case '#':
+          nobrec = TRUE;
+          break;
 
-	case '=':
-	  share = FALSE;
-	  break;
+        case '=':
+          share = FALSE;
+          break;
 
-	case 'K':
-	  SPRINTF( buf, "%s.f", c+1 );
+        case 'K':
+          SPRINTF( buf, "%s.f", c+1 );
 
-	  if ( (hyfd = fopen( buf, "w" )) == NULL )
-	    Error2( "CAN'T OPEN", buf );
+          if ( (hyfd = fopen( buf, "w" )) == NULL )
+            Error2( "CAN'T OPEN", buf );
 
-	  hybrid = CopyString( c+1 );
+          hybrid = CopyString( c+1 );
 
-	  FPRINTF( hyfd, "       subroutine %7.7s()\n", hybrid );
-	  FPRINTF( hyfd, "       return\n" );
-	  FPRINTF( hyfd, "       end\n\n" );
-	  break;
+          FPRINTF( hyfd, "       subroutine %7.7s()\n", hybrid );
+          FPRINTF( hyfd, "       return\n" );
+          FPRINTF( hyfd, "       end\n\n" );
+          break;
 
-	case '@':
-	  flop[++flopcnt] = LowerCase( argv[++idx], FALSE, FALSE );
-	  break;
+        case '@':
+          flop[++flopcnt] = LowerCase( argv[++idx], FALSE, FALSE );
+          break;
 
-	case '&':
-	  if ( c[1] == '&' ) {
-	    timeall = TRUE;
-	  } else {
-	    timelist[++timecnt] = LowerCase( argv[++idx], FALSE, FALSE );
-	  }
-	  break;
+        case '&':
+          if ( c[1] == '&' ) {
+            timeall = TRUE;
+          } else {
+            timelist[++timecnt] = LowerCase( argv[++idx], FALSE, FALSE );
+          }
+          break;
 
-	case 'T':
-	  if ( c[1] == 'T' ) {
-	    traceall = TRUE;
-	  } else {
-	    trace[++tracecnt] = LowerCase( argv[++idx], FALSE, FALSE );
-	  }
-	  break;
+        case 'T':
+          if ( c[1] == 'T' ) {
+            traceall = TRUE;
+          } else {
+            trace[++tracecnt] = LowerCase( argv[++idx], FALSE, FALSE );
+          }
+          break;
 
-	case 'P':
-	  bip = FALSE;
-	  break;
+        case 'P':
+          bip = FALSE;
+          break;
 
-	case 'W':
-	  prof = TRUE;
-	  break;
+        case 'W':
+          prof = TRUE;
+          break;
 
-	case 'U':
-	  intrinsics = TRUE;
-	  break;
+        case 'U':
+          intrinsics = TRUE;
+          break;
 
-	case '1':
-	  rag = FALSE;
-	  break;
+        case '1':
+          rag = FALSE;
+          break;
 
-	case '0':
-	  bipmv = FALSE;
-	  break;
+        case '0':
+          bipmv = FALSE;
+          break;
 
-	case '9':
-	  freeall = TRUE;
-	  break;
+        case '9':
+          freeall = TRUE;
+          break;
 
-	case '4':
-	  bindtosisal = TRUE;
-	  break;
+        case '4':
+          bindtosisal = TRUE;
+          break;
 
-	case '8':
-	  SISdebug = TRUE;
-	  break;
+        case '8':
+          SISdebug = TRUE;
+          break;
 
-	case '5':
-	  fva = TRUE;
-	  break;
+        case '5':
+          fva = TRUE;
+          break;
 
-	case '7':
-	  nltss = TRUE;
-	  break;
+        case '7':
+          nltss = TRUE;
+          break;
 
-	case '6':
-	  fvc = TRUE;
-	  break;
+        case '6':
+          fvc = TRUE;
+          break;
 
-	case 'y':
-	  assoc = FALSE;
-	  break;
+        case 'y':
+          assoc = FALSE;
+          break;
 
-	case '3':
-	  if ( *(c+1) == 'N' )
-	    newchains = TRUE;
+        case '3':
+          if ( *(c+1) == 'N' )
+            newchains = TRUE;
 
-	  xmpchains = TRUE;
-	  break;
+          xmpchains = TRUE;
+          break;
 
-	case '2':
-	  movereads = TRUE;
-	  break;
+        case '2':
+          movereads = TRUE;
+          break;
 
-	case 'O':
-	  oruntime = TRUE;
-	  break;
+        case 'O':
+          oruntime = TRUE;
+          break;
 
-	case '\0':
-	  fmode++;
-	  break;
+        case '\0':
+          fmode++;
+          break;
 
-	case 'x':
-	  useF = TRUE;
-	  break;
+        case 'x':
+          useF = TRUE;
+          break;
 
-	case 'X':
-	  vec = TRUE;
-	  break;
+        case 'X':
+          vec = TRUE;
+          break;
 
-	case '{':
-	  sdbx = TRUE;
-	  bounds = TRUE;
-	  break;
+        case '{':
+          sdbx = TRUE;
+          bounds = TRUE;
+          break;
 
-	case 'B':
-	  bounds = TRUE;
-	  break;
+        case 'B':
+          bounds = TRUE;
+          break;
 
-	case 'G':
-	  gshared = TRUE;
-	  break;
+        case 'G':
+          gshared = TRUE;
+          break;
 
-	case 'Y':
-	  max_dims = atoi( c+1 );
-	  break;
+        case 'Y':
+          max_dims = atoi( c+1 );
+          break;
 
-	case 'C':
-	  cRay = TRUE;
-	  break;
+        case 'C':
+          cRay = TRUE;
+          break;
 
-	case 'd':
-	  dbl = TRUE;
-	  break;
+        case 'd':
+          dbl = TRUE;
+          break;
 
-	case 't':
-	  if3show = TRUE;
-	  break;
+        case 't':
+          if3show = TRUE;
+          break;
 
-	case 'u':
-	  if2opt = FALSE;
-	  break;
+        case 'u':
+          if2opt = FALSE;
+          break;
 
-	case 'f':
-	  flt = TRUE;
-	  break;
+        case 'f':
+          flt = TRUE;
+          break;
 
-	case 'A':
-	  alliantfx = TRUE;
-	  break;
+        case 'A':
+          alliantfx = TRUE;
+          break;
 
-	case 'a':
-	  aimp = FALSE;
-	  break;
+        case 'a':
+          aimp = FALSE;
+          break;
 
-	case 'i':
-	  info = TRUE;
-	  if ( isdigit((int)(c[1])) ) info=atoi(c+1);
-	  break;
+        case 'i':
+          info = TRUE;
+          if ( isdigit((int)(c[1])) ) info=atoi(c+1);
+          break;
 
        case 'F' :
           strcpy (infofile1, c+1);
           break;
 
-	default:
-	  Error2( "ILLEGAL ARGUMENT", --c );
-	}
+        default:
+          Error2( "ILLEGAL ARGUMENT", --c );
+        }
         }
 
   if ( sdbx || bounds ) {
@@ -432,52 +442,52 @@ PNODE g;
   for ( n = g; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) ) {
       for ( i = n->imp; i != NULL; i = i->isucc )
-	if ( IsConst( i ) )
-	  Error2( "CheckRefCountOps", "CONSTANT NOT PROPAGATED" );
+        if ( IsConst( i ) )
+          Error2( "CheckRefCountOps", "CONSTANT NOT PROPAGATED" );
 
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	CheckRefCountOps( sg );
+        CheckRefCountOps( sg );
       }
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
       eport = e->eport;
 
       if ( eport <= 0 ) {
-	e->eport = abs( eport );
-	continue;
-	}
+        e->eport = abs( eport );
+        continue;
+        }
 
       sr = e->sr;
       pm = e->pm;
 
       if ( pm < 0 )
-	Error2( "CheckRefCountOps", "pm < 0" );
+        Error2( "CheckRefCountOps", "pm < 0" );
 
       if ( sr < 0 )
-	Error2( "CheckRefCountOps", "sr < 0" );
+        Error2( "CheckRefCountOps", "sr < 0" );
 
       if ( sr > 0 &&  pm > 0 )
-	Error2( "CheckRefCountOps", "sr > 0 AND pm > 0" );
+        Error2( "CheckRefCountOps", "sr > 0 AND pm > 0" );
 
       /* VERIFY sr AND pm VALUES FOR eport */
       for ( ee = e; ee != NULL; ee = ee->esucc ) {
-	if ( ee->eport != eport )
-	  continue;
+        if ( ee->eport != eport )
+          continue;
 
-	if ( ee->pm != pm )
-	  Error2( "CheckRefCountOps", "ee->pm != pm" );
+        if ( ee->pm != pm )
+          Error2( "CheckRefCountOps", "ee->pm != pm" );
 
-	if ( ee->sr != sr )
-	  Error2( "CheckRefCountOps", "ee->sr != sr" );
-	}
+        if ( ee->sr != sr )
+          Error2( "CheckRefCountOps", "ee->sr != sr" );
+        }
 
       for ( ee = e; ee != NULL; ee = ee->esucc ) {
-	if ( ee->eport != eport )
-	  continue;
+        if ( ee->eport != eport )
+          continue;
 
       /* NOT IF e IS THE LAST EDGE IN THE LIST OR FIRST EDGE IN THE SEQUENCE */
-	if ( ee != e && e->esucc != NULL )
-	  ee->eport = -(ee->eport);
+        if ( ee != e && e->esucc != NULL )
+          ee->eport = -(ee->eport);
         }
       }
     }
@@ -505,7 +515,7 @@ PNODE g;
 
     for ( i = 0; i <= flopcnt; i++ )
       if ( strcmp( s, flop[i] ) == 0 )
-	break;
+        break;
 
     if ( i <= flopcnt )
       g->flp = TRUE;
@@ -521,11 +531,11 @@ PNODE g;
       g->time = TRUE;
     } else {
       for ( i = 0; i <= timecnt; i++ )
-	if ( strcmp( s, timelist[i] ) == 0 )
-	  break;
+        if ( strcmp( s, timelist[i] ) == 0 )
+          break;
 
       if ( i <= timecnt )
-	g->time = TRUE;
+        g->time = TRUE;
 
       /* free( s ); */
     }
@@ -539,11 +549,11 @@ PNODE g;
       g->trace = TRUE;
     } else {
       for ( i = 0; i <= tracecnt; i++ )
-	if ( strcmp( s, trace[i] ) == 0 )
-	  break;
+        if ( strcmp( s, trace[i] ) == 0 )
+          break;
 
       if ( i <= tracecnt )
-	g->trace = TRUE;
+        g->trace = TRUE;
 
       /* free( s ); */
     }
@@ -552,7 +562,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	BindCallNames( sg );
+        BindCallNames( sg );
 
     if ( !IsCall( n ) )
       continue;
@@ -560,7 +570,7 @@ PNODE g;
     f = FindFunction( n->imp->CoNsT );
 
     n->imp->CoNsT = BindInterfaceName( n->imp->CoNsT, 
-				       GetLanguage( f ), f->mark );
+                                       GetLanguage( f ), f->mark );
     }
 }
 
@@ -592,37 +602,37 @@ char **argv;
   ParseCommandLine( argc, argv );
 
   if (RequestInfo(I_Info1, info))  
-	if((infoptr1 = fopen(infofile1, "a")) == NULL)
-		infoptr1 = stderr;
+        if((infoptr1 = fopen(infofile1, "a")) == NULL)
+                infoptr1 = stderr;
 
   if (RequestInfo(I_Info2, info)) { 
         strncpy (infofile2,infofile1, strlen(infofile1) - 1);
-	strcat (infofile2, "2");
-	if((infoptr2 = fopen(infofile2, "a")) == NULL)
-		infoptr2 = stderr;
+        strcat (infofile2, "2");
+        if((infoptr2 = fopen(infofile2, "a")) == NULL)
+                infoptr2 = stderr;
   }
 
   if (RequestInfo(I_Info3, info)) { 
         strncpy (infofile3,infofile1, strlen(infofile1) - 1);
-	strcat (infofile3, "3");
-	if((infoptr3 = fopen(infofile3, "a")) == NULL)
-		infoptr3 = stderr;
+        strcat (infofile3, "3");
+        if((infoptr3 = fopen(infofile3, "a")) == NULL)
+                infoptr3 = stderr;
   }
 
   if (RequestInfo(I_Info4, info)) { 
         strncpy (infofile4,infofile1, strlen(infofile1) - 1);
-	strcat (infofile4, "4");
-	if((infoptr4 = fopen(infofile4, "a")) == NULL)
-		infoptr4 = stderr;
+        strcat (infofile4, "4");
+        if((infoptr4 = fopen(infofile4, "a")) == NULL)
+                infoptr4 = stderr;
   }
 
   StartProfiler();
   If2Read();
   StopProfiler( "If2Read" );
-  (void)fclose( input );	/* AS IT MAY BE THE OUTPUT FILE */
+  (void)fclose( input );        /* AS IT MAY BE THE OUTPUT FILE */
 
   if ( !IsStamp( DFORDERED ) )
-	Error1( "IF2 INPUT IS NOT DFOrdered" );
+        Error1( "IF2 INPUT IS NOT DFOrdered" );
 
   if ( IsStamp( OFFSETS ) )
     Error1( "HELP! OFFSETS ASSIGNED" );
@@ -727,7 +737,7 @@ char **argv;
   StartProfiler();
 
   /* ------------------------------------------------------------ */
-  /* Print header, forward functions, and types			  */
+  /* Print header, forward functions, and types                   */
   /* ------------------------------------------------------------ */
   PrintFilePrologue();
 
@@ -751,9 +761,9 @@ char **argv;
       BuildAndPrintSdbxScope( f );
 
     /* ------------------------------------------------------------ */
-    /* 1. Open function with args and temps			    */
-    /* 2. Executable statements					    */
-    /* 3. Close function					    */
+    /* 1. Open function with args and temps                         */
+    /* 2. Executable statements                                     */
+    /* 3. Close function                                            */
     /* ------------------------------------------------------------ */
     PrintFunctPrologue( f );
     PrintGraph( 2, f );
@@ -761,7 +771,7 @@ char **argv;
     }
 
   /* ------------------------------------------------------------ */
-  /* The Epilogue contains startup and I/O routines		  */
+  /* The Epilogue contains startup and I/O routines               */
   /* ------------------------------------------------------------ */
   PrintFileEpilogue();
 

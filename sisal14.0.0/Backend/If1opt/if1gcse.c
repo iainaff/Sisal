@@ -1,10 +1,19 @@
-/* if1gcse.c,v
+/**************************************************************************/
+/* FILE   **************         if1gcse.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
  * Revision 12.7  1992/11/04  22:04:57  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:34  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -280,7 +289,7 @@ PNODE g;
 
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	DoAntiGCse( sg );
+        DoAntiGCse( sg );
 
     if ( !IsSelect( n ) )
       continue;
@@ -290,145 +299,145 @@ PNODE g;
 
     if ( agcse ) {
       for ( e = n->exp; e != NULL; e = se ) {
-	se = e->esucc;
+        se = e->esucc;
 
         if ( (i1 = FindImport( sg1, e->eport )) == NULL )
-	  Error2( "DoAntiGCse", "FindImport FAILED FOR agcse i1" );
+          Error2( "DoAntiGCse", "FindImport FAILED FOR agcse i1" );
         if ( (i2 = FindImport( sg2, e->eport )) == NULL )
-	  Error2( "DoAntiGCse", "FindImport FAILED FOR agcse i2" );
+          Error2( "DoAntiGCse", "FindImport FAILED FOR agcse i2" );
 
-	n1 = i1->src;
-	n2 = i2->src;
+        n1 = i1->src;
+        n2 = i2->src;
 
         if ( IsConst(i1) || IsConst(i2) )
-	  continue;
-	if ( IsSGraph(n1) || IsSGraph(n2) )
-	  continue;
+          continue;
+        if ( IsSGraph(n1) || IsSGraph(n2) )
+          continue;
         if ( i1->eport != 1 || i2->eport != 1 )
-	  continue;
+          continue;
 
-	/* ARE i1->src AND i2->src CANDIDATES? */
-	if ( !IsBasic( i1->info ) )
-	  continue;
-	if ( !IsSimple( n1 ) )
-	  continue;
-	/* MUST BE MONADIC OR DYADIC */
-	if ( n1->imp == NULL )
-	  continue;
-	if ( n1->imp->isucc != NULL )
-	  if ( n1->imp->isucc->isucc != NULL )
-	    continue;
-	if ( n1->exp->esucc != NULL )
-	  continue;
+        /* ARE i1->src AND i2->src CANDIDATES? */
+        if ( !IsBasic( i1->info ) )
+          continue;
+        if ( !IsSimple( n1 ) )
+          continue;
+        /* MUST BE MONADIC OR DYADIC */
+        if ( n1->imp == NULL )
+          continue;
+        if ( n1->imp->isucc != NULL )
+          if ( n1->imp->isucc->isucc != NULL )
+            continue;
+        if ( n1->exp->esucc != NULL )
+          continue;
 
-	if ( i2->esucc != NULL )
-	  continue;
-	if ( !IsBasic( i2->info ) )
-	  continue;
-	/* MUST BE MONADIC OR DYADIC */
-	if ( n2->imp == NULL )
-	  continue;
-	if ( n2->imp->isucc != NULL )
-	  if ( n2->imp->isucc->isucc != NULL )
-	    continue;
-	if ( n2->exp->esucc != NULL )
-	  continue;
+        if ( i2->esucc != NULL )
+          continue;
+        if ( !IsBasic( i2->info ) )
+          continue;
+        /* MUST BE MONADIC OR DYADIC */
+        if ( n2->imp == NULL )
+          continue;
+        if ( n2->imp->isucc != NULL )
+          if ( n2->imp->isucc->isucc != NULL )
+            continue;
+        if ( n2->exp->esucc != NULL )
+          continue;
 
-	if ( n1->type != n2->type )
-	  continue;
+        if ( n1->type != n2->type )
+          continue;
 
-	/* CALL??? */
-	c = FALSE;
-	if ( IsCall(n1) ) {
-	  if ( strcmp( n1->imp->CoNsT, n2->imp->CoNsT ) != 0 )
-	    continue;
-	  c = TRUE;
-	  }
+        /* CALL??? */
+        c = FALSE;
+        if ( IsCall(n1) ) {
+          if ( strcmp( n1->imp->CoNsT, n2->imp->CoNsT ) != 0 )
+            continue;
+          c = TRUE;
+          }
 
         /* DO THE ANTI-MOVEMENT !!!! */
-	sacnt++;
-	p1 = -1;
-	p2 = -1;
+        sacnt++;
+        p1 = -1;
+        p2 = -1;
 
-	ii1 = NULL;
-	ii2 = NULL;
+        ii1 = NULL;
+        ii2 = NULL;
 
-	/* PREPARE FOR e REMOVAL! */
-	se = e->epred;
+        /* PREPARE FOR e REMOVAL! */
+        se = e->epred;
 
-	UnlinkNode( n1 );
-	UnlinkNode( n2 );
-	UnlinkImport( i1 );
-	UnlinkImport( i2 );
+        UnlinkNode( n1 );
+        UnlinkNode( n2 );
+        UnlinkImport( i1 );
+        UnlinkImport( i2 );
 
-	/* PROCESS FIRST ARGUMENT TO n1 AND n2 */
-	if ( c ) {
-	  ii1 = n1->imp;
-	  UnlinkImport( ii1 );
-	  UnlinkImport( n2->imp );
+        /* PROCESS FIRST ARGUMENT TO n1 AND n2 */
+        if ( c ) {
+          ii1 = n1->imp;
+          UnlinkImport( ii1 );
+          UnlinkImport( n2->imp );
         } else {
-	  UnlinkImport( ii1 = n1->imp );
-	  p1 = ++maxint;
-	  ii1->iport = p1;
-	  LinkImport( sg1, ii1 );
+          UnlinkImport( ii1 = n1->imp );
+          p1 = ++maxint;
+          ii1->iport = p1;
+          LinkImport( sg1, ii1 );
 
-	  UnlinkImport( ee = n2->imp );
-	  ee->iport = p1;
-	  LinkImport( sg2, ee );
-	  }
+          UnlinkImport( ee = n2->imp );
+          ee->iport = p1;
+          LinkImport( sg2, ee );
+          }
 
-	/* PROCESS SECOND ARGUMENT TO n1 AND n2? */
+        /* PROCESS SECOND ARGUMENT TO n1 AND n2? */
         if ( n1->imp != NULL ) {
-	  UnlinkImport( ii2 = n1->imp );
-	  p2 = ++maxint;
-	  ii2->iport = p2;
-	  LinkImport( sg1, ii2 );
+          UnlinkImport( ii2 = n1->imp );
+          p2 = ++maxint;
+          ii2->iport = p2;
+          LinkImport( sg1, ii2 );
 
-	  UnlinkImport( ee = n2->imp );
-	  ee->iport = p2;
-	  LinkImport( sg2, ee );
-	  }
+          UnlinkImport( ee = n2->imp );
+          ee->iport = p2;
+          LinkImport( sg2, ee );
+          }
 
-	/* MOVE n1 OUT, FORGET ABOUT n2 */
-	UnlinkExport( n1->exp );
-	LinkNode( n, n1 );
+        /* MOVE n1 OUT, FORGET ABOUT n2 */
+        UnlinkExport( n1->exp );
+        LinkNode( n, n1 );
 
-	/* LINK UP THE IMPORTS TO n1 */
-	if ( c )
-	  LinkImport( n, ii1 );
+        /* LINK UP THE IMPORTS TO n1 */
+        if ( c )
+          LinkImport( n, ii1 );
         else {
-	  ee = EdgeAlloc( n, p1, n1, 1 );
-	  ee->info = ii1->info;
-	  LinkExportToEnd( n, ee );
-	  LinkImport( n1, ee );
-	  }
+          ee = EdgeAlloc( n, p1, n1, 1 );
+          ee->info = ii1->info;
+          LinkExportToEnd( n, ee );
+          LinkImport( n1, ee );
+          }
 
-	if ( ii2 != NULL ) {
-	  ee = EdgeAlloc( n, p2, n1, 2 );
-	  ee->info = ii2->info;
-	  LinkExportToEnd( n, ee );
-	  LinkImport( n1, ee );
-	  }
+        if ( ii2 != NULL ) {
+          ee = EdgeAlloc( n, p2, n1, 2 );
+          ee->info = ii2->info;
+          LinkExportToEnd( n, ee );
+          LinkImport( n1, ee );
+          }
 
         /* MOVE e REFERENCES TO n1's EXPORT LIST */
-	p1 = e->eport;
+        p1 = e->eport;
 
         for ( /* NOTHING */; e != NULL; e = see ) {
-	  see = e->esucc;
+          see = e->esucc;
 
-	  if ( e->eport != p1 )
-	    continue;
+          if ( e->eport != p1 )
+            continue;
 
-	  UnlinkExport( e );
-	  e->eport = 1;     /* EXPORT NUMBER VERIFIED ABOVE!!! */
+          UnlinkExport( e );
+          e->eport = 1;     /* EXPORT NUMBER VERIFIED ABOVE!!! */
           LinkExport( n1, e );
           }
 
-	/* ADJUST se SO WE CAN CONTINUE */
-	if ( se == NULL )
-	  se = n->exp;
+        /* ADJUST se SO WE CAN CONTINUE */
+        if ( se == NULL )
+          se = n->exp;
         else
-	  se = se->esucc;
+          se = se->esucc;
         }
       }
 
@@ -438,34 +447,34 @@ PNODE g;
       se = e->esucc;
 
       if ( (i1 = FindImport( sg1, e->eport )) == NULL )
-	Error2( "DoAntiGCse", "FindImport FAILED FOR i1" );
+        Error2( "DoAntiGCse", "FindImport FAILED FOR i1" );
       if ( (i2 = FindImport( sg2, e->eport )) == NULL )
-	Error2( "DoAntiGCse", "FindImport FAILED FOR i2" );
+        Error2( "DoAntiGCse", "FindImport FAILED FOR i2" );
 
       /* CASE OF TWO IDENTICAL CONSTANT EXPORTS IS COVERED IN if1fold.c */
       if ( IsConst(i1) || IsConst(i2) )
-	continue;
+        continue;
 
       if ( IsSGraph(i1->src) && IsSGraph(i2->src) ) {
         if ( i1->eport == i2->eport ) {
-	  UnlinkExport( e );
+          UnlinkExport( e );
 
-	  if ( (ee = FindImport( n, i1->eport )) == NULL )
-	    Error2( "DoAntiGCse", "FindImport FAILED FOR ee" );
+          if ( (ee = FindImport( n, i1->eport )) == NULL )
+            Error2( "DoAntiGCse", "FindImport FAILED FOR ee" );
 
-	  if ( IsConst( ee ) ) {
-	    e->eport = CONST_PORT;
-	    e->CoNsT = ee->CoNsT;
-	  } else {
-	    e->eport = ee->eport;
-	    LinkExport( ee->src, e );
-	    }
+          if ( IsConst( ee ) ) {
+            e->eport = CONST_PORT;
+            e->CoNsT = ee->CoNsT;
+          } else {
+            e->eport = ee->eport;
+            LinkExport( ee->src, e );
+            }
 
-	  sccnt++;
-	  }
+          sccnt++;
+          }
 
-	continue;
-	}
+        continue;
+        }
       }
     }
 }
@@ -502,21 +511,21 @@ PNODE g;
     switch ( n->type ) {
       case IFPlus:
       case IFTimes:
-	if ( IsBoolean( n->imp->info ) )
-	  break;
+        if ( IsBoolean( n->imp->info ) )
+          break;
 
-	OptNormalizeNode( n );
-	ExposeInvariants( n, n );
-	break;
+        OptNormalizeNode( n );
+        ExposeInvariants( n, n );
+        break;
 
       default:
-	break;
+        break;
       }
 
     if ( IsCompound( n ) ) {
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc ) {
         OptRemoveSCses( sg );
-	}
+        }
       }
     }
 
@@ -527,18 +536,18 @@ PNODE g;
       sa = aa->nsucc;
 
       for ( cc = n->S_CONS->G_NODES; cc != NULL; cc = cc->nsucc ) {
-	/* A SHORT CIRCUIT FOR FASTER EXECUTION */
-	if ( aa->type != cc->type )
-	  continue;
+        /* A SHORT CIRCUIT FOR FASTER EXECUTION */
+        if ( aa->type != cc->type )
+          continue;
 
         if ( !OptIsInvariant( aa ) )
-	  continue;
-	if ( !OptIsInvariant( cc ) )
-	  continue;
+          continue;
+        if ( !OptIsInvariant( cc ) )
+          continue;
         if ( !AreNodesEqual(aa,cc) )
           continue;
 
-	/* BE CAREFUL NOT TO HURT UPDATE-IN-PLACE ANALYSIS */
+        /* BE CAREFUL NOT TO HURT UPDATE-IN-PLACE ANALYSIS */
         if ( IsAElement( aa ) ) {
           for ( e = aa->imp->src->exp; e != NULL; e = e->esucc )
             if ( e->dst->type == IFAReplace )
@@ -547,30 +556,30 @@ PNODE g;
           for ( e = cc->imp->src->exp; e != NULL; e = e->esucc )
             if ( e->dst->type == IFAReplace )
               goto MoveOn;
-	  }
+          }
 
         RemoveNode( cc, n->S_CONS );
         InsertNode( n, cc );
 
         /* RemoveNode( aa, n->S_ALT ); */
         /* InsertNode( n, aa ); */
-	for ( e = cc->exp; e != NULL; e = e->esucc )
-	  for ( ee = aa->exp; ee != NULL; ee = se ) {
-	    se = ee->esucc;
+        for ( e = cc->exp; e != NULL; e = e->esucc )
+          for ( ee = aa->exp; ee != NULL; ee = se ) {
+            se = ee->esucc;
 
-	    if ( ee->eport != e->eport )
-	      continue;
+            if ( ee->eport != e->eport )
+              continue;
 
-	    UnlinkExport( ee );
-	    ee->eport = e->iport;
-	    LinkExport( n->S_ALT, ee );
-	    }
+            UnlinkExport( ee );
+            ee->eport = e->iport;
+            LinkExport( n->S_ALT, ee );
+            }
 
-	OptRemoveDeadNode( aa );
+        OptRemoveDeadNode( aa );
         ccnt++;
 
-	/* SUCCESS!!! SO BREAK OUT AND MOVE ON */
-	break;
+        /* SUCCESS!!! SO BREAK OUT AND MOVE ON */
+        break;
         }
 
       MoveOn: continue;

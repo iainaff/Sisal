@@ -1,10 +1,20 @@
-/* if1invar.c,v
+/**************************************************************************/
+/* FILE   **************         if1invar.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:57  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:34  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -142,7 +152,7 @@ PNODE g;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
       if ( !(IsForall( n ) || IsLoop( n )) )
-	continue;
+        continue;
 
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
         for ( nd = sg->G_NODES; nd != NULL; nd = sn ) {
@@ -265,7 +275,7 @@ PNODE g;
     /* a := array_addh(for...end for,v); in if (x) error[work] else a end if */
     for ( i = n->imp; i != NULL; i = i->isucc ) {
       if ( !IsBasic( i->info ) )
-	break;
+        break;
       }
     if ( i != NULL )
       continue;
@@ -276,19 +286,19 @@ PNODE g;
 
     for ( e = n->exp; e != NULL; e = e->esucc ) {
       if ( !IsSelect( e->dst ) )
-	break;
+        break;
 
       if ( s == NULL ) {
-	s = e->dst;
+        s = e->dst;
 
-	if ( (sg = ExclusiveUse( s, e->iport )) == NULL )
-	  break;
-	}
+        if ( (sg = ExclusiveUse( s, e->iport )) == NULL )
+          break;
+        }
       else if ( s != e->dst )
-	break;
+        break;
 
       if ( sg != ExclusiveUse( s, e->iport ) )
-	break;
+        break;
       }
 
     if ( e != NULL )
@@ -307,15 +317,15 @@ PNODE g;
       UnlinkImport( e );
 
       for ( ee = sg->exp; ee != NULL; ee = see ) {
-	see = ee->esucc;
+        see = ee->esucc;
 
-	if ( ee->eport != e->iport )
-	  continue;
+        if ( ee->eport != e->iport )
+          continue;
 
-	UnlinkExport( ee );
-	ee->eport = e->eport;
-	LinkExport( n, ee );
-	}
+        UnlinkExport( ee );
+        ee->eport = e->eport;
+        LinkExport( n, ee );
+        }
       }
 
     i = n->imp;
@@ -325,9 +335,9 @@ PNODE g;
       si = i->isucc;
 
       if ( IsConst( i ) ) {
-	LinkImport( n, i );
-	continue;
-	}
+        LinkImport( n, i );
+        continue;
+        }
 
 
       port = ++maxint;
@@ -349,7 +359,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc )
     if ( IsCompound( n )  )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	AntiMovement( sg );
+        AntiMovement( sg );
 }
 
 

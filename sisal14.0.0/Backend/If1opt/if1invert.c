@@ -1,3 +1,15 @@
+/**************************************************************************/
+/* FILE   **************        if1invert.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ */
+/**************************************************************************/
+
 /* if1invert.c,v
  * Revision 12.7  1992/11/04  22:04:58  miller
  * Initial revision
@@ -244,7 +256,7 @@ PNODE g;
   for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
     if ( IsCompound( n ) )
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	InvertLoops( sg );
+        InvertLoops( sg );
     
     if ( !IsForall( n ) )
       continue;
@@ -265,7 +277,7 @@ PNODE g;
       /* IS THE SELECT TEST INVARIANT TO n */
       i = nn->S_TEST->imp;
       if ( IsConst( i ) || !IsSGraph( i->src ) ||
-	(i = FindImport( nn, i->eport )) == NULL || IsConst( i ) ||
+        (i = FindImport( nn, i->eport )) == NULL || IsConst( i ) ||
         !IsSGraph( i->src ) || !IsImport( n, i->eport ) ) 
         continue;
 
@@ -278,7 +290,7 @@ PNODE g;
     /* RETURN FANOUT NOT ALLOWED! */
     for ( i = n->F_RET->imp; i != NULL; i = i->isucc )
       if ( i->esucc != NULL )
-	break;
+        break;
 
     if ( i != NULL ) 
       continue;
@@ -289,44 +301,44 @@ PNODE g;
 
     for ( i = n->F_RET->imp; i != NULL; i = i->isucc ) {
       switch ( i->src->type ) {
-	case IFAGather:
-	  goto MoveOn;
+        case IFAGather:
+          goto MoveOn;
 
-	case IFReduce:
-	case IFRedLeft:
-	case IFRedRight:
-	case IFRedTree:
-	  if ( i->src->imp->CoNsT[0] == REDUCE_CATENATE )
-	    goto MoveOn;
+        case IFReduce:
+        case IFRedLeft:
+        case IFRedRight:
+        case IFRedTree:
+          if ( i->src->imp->CoNsT[0] == REDUCE_CATENATE )
+            goto MoveOn;
 
-	  break;
+          break;
 
-	default:
-	  break;
-	}
+        default:
+          break;
+        }
 
       continue;
 
 MoveOn:
 
       for ( e = n->exp; e != NULL; e = e->esucc ) {
-	if ( e->eport != i->iport )
-	  continue;
+        if ( e->eport != i->iport )
+          continue;
 
-	if ( e->dst->type == IFAAddH )
-	  if ( e->iport == 1 )
-	    break;
+        if ( e->dst->type == IFAAddH )
+          if ( e->iport == 1 )
+            break;
 
-	if ( e->dst->type == IFAAddL )
-	  if ( e->iport == 1 )
-	    break;
+        if ( e->dst->type == IFAAddL )
+          if ( e->iport == 1 )
+            break;
 
-	if ( e->dst->type == IFACatenate )
-	  break;
-	}
+        if ( e->dst->type == IFACatenate )
+          break;
+        }
 
       if ( e != NULL )
-	break;
+        break;
       }
 
     if ( i != NULL ) 

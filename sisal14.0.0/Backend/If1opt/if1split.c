@@ -1,12 +1,20 @@
-/* if1split.c,v
+/**************************************************************************/
+/* FILE   **************         if1split.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:58  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:37  miller
  * Initial RCS Version by Cann
- * */
-
-/* static PEDGE k; */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -79,53 +87,53 @@ PNODE n;
 
    switch ( n->type ) {
       case IFNotEqual:
-	/* GET THE LEFT OPERAND OF THE EQUAL NODE */
-	if ( (i1 = GetOperand( f, n->imp )) == NULL ) 
-	  return( SPLIT_BAD );
+        /* GET THE LEFT OPERAND OF THE EQUAL NODE */
+        if ( (i1 = GetOperand( f, n->imp )) == NULL ) 
+          return( SPLIT_BAD );
 
-	/* GET THE RIGHT OPERAND OF THE EQUAL NODE */
-	if ( (i2 = GetOperand( f, n->imp->isucc )) == NULL ) 
-	  return( SPLIT_BAD );
+        /* GET THE RIGHT OPERAND OF THE EQUAL NODE */
+        if ( (i2 = GetOperand( f, n->imp->isucc )) == NULL ) 
+          return( SPLIT_BAD );
 
-	/* FOR i in L,H ... */
+        /* FOR i in L,H ... */
 
-	if ( i1 == f->F_GEN->imp ) {
-	  /* i ~= L */
-	  if ( AreValuesEqual( i2, lo ) )
-	    return( SPLIT_NOT_LOW );
+        if ( i1 == f->F_GEN->imp ) {
+          /* i ~= L */
+          if ( AreValuesEqual( i2, lo ) )
+            return( SPLIT_NOT_LOW );
 
-	  /* i ~= H */
-	  if ( AreValuesEqual( i2, hi ) )
-	    return( SPLIT_NOT_HIGH );
-	  }
+          /* i ~= H */
+          if ( AreValuesEqual( i2, hi ) )
+            return( SPLIT_NOT_HIGH );
+          }
 
-	return( SPLIT_BAD );
+        return( SPLIT_BAD );
 
       case IFEqual:
-	/* GET THE LEFT OPERAND OF THE EQUAL NODE */
-	if ( (i1 = GetOperand( f, n->imp )) == NULL ) 
-	  return( SPLIT_BAD );
+        /* GET THE LEFT OPERAND OF THE EQUAL NODE */
+        if ( (i1 = GetOperand( f, n->imp )) == NULL ) 
+          return( SPLIT_BAD );
 
-	/* GET THE RIGHT OPERAND OF THE EQUAL NODE */
-	if ( (i2 = GetOperand( f, n->imp->isucc )) == NULL ) 
-	  return( SPLIT_BAD );
+        /* GET THE RIGHT OPERAND OF THE EQUAL NODE */
+        if ( (i2 = GetOperand( f, n->imp->isucc )) == NULL ) 
+          return( SPLIT_BAD );
 
-	/* FOR i in L,H ... */
+        /* FOR i in L,H ... */
 
-	if ( i1 == f->F_GEN->imp ) {
-	  /* i = L */
-	  if ( AreValuesEqual( i2, lo ) )
-	    return( SPLIT_LOW );
+        if ( i1 == f->F_GEN->imp ) {
+          /* i = L */
+          if ( AreValuesEqual( i2, lo ) )
+            return( SPLIT_LOW );
 
-	  /* i = H */
-	  if ( AreValuesEqual( i2, hi ) )
-	    return( SPLIT_HIGH );
-	  }
+          /* i = H */
+          if ( AreValuesEqual( i2, hi ) )
+            return( SPLIT_HIGH );
+          }
 
-	return( SPLIT_BAD );
+        return( SPLIT_BAD );
 
       default:
-	return( SPLIT_BAD );
+        return( SPLIT_BAD );
       }
 }
 
@@ -297,7 +305,7 @@ void WriteSplitInfo()
   FPRINTF( infoptr, "\n\n **** LOOP SPLITTING\n\n%s\n", printinfo);
 
   FPRINTF( infoptr, " Loops Split:              %d of %d\n", 
-		lcnt + hcnt + nlcnt + nhcnt, Tcnt );
+                lcnt + hcnt + nlcnt + nhcnt, Tcnt );
 /*  FPRINTF( infoptr, " Low Splits:               %d\n", lcnt );
   FPRINTF( infoptr, " High Splits:              %d\n", hcnt  );
   FPRINTF( infoptr, " Not Low Splits:           %d\n", nlcnt );
@@ -389,18 +397,18 @@ char **ReasonP;
   for ( n = f->F_RET->G_NODES; n != NULL; n = n->nsucc )
     switch ( n->type ) {
       case IFAGather:
-	/* FILTER? */
-	if ( n->imp->isucc->isucc != NULL ) {
-    	  *ReasonP = "loop builds a filtered array";
-	  return( SPLIT_BAD );
+        /* FILTER? */
+        if ( n->imp->isucc->isucc != NULL ) {
+          *ReasonP = "loop builds a filtered array";
+          return( SPLIT_BAD );
         }
 
-	break;
+        break;
 
       default:
-    	  *ReasonP = "loop builds wrong type of array";
-	rfail++;
-	return( SPLIT_BAD );
+          *ReasonP = "loop builds wrong type of array";
+        rfail++;
+        return( SPLIT_BAD );
       }
 
   return( s );
@@ -479,8 +487,8 @@ int   kind;
   FixControl1( f2->F_GEN->imp->src->imp, f2->F_GEN->imp->src, IFMax );
   FixControl2( hi, c->src->imp->isucc, c->src, "-1" );
 
-  NewCompoundID(f2);		/* Give it a unique ID */
-  f2->ThinCopy = TRUE;		/* TO DISABLE CONCURRENTIZATION OF THIN COPY */
+  NewCompoundID(f2);            /* Give it a unique ID */
+  f2->ThinCopy = TRUE;          /* TO DISABLE CONCURRENTIZATION OF THIN COPY */
 }
 
 
@@ -556,8 +564,8 @@ int   kind;
   FixControl2( lo, f2->F_GEN->imp->src->imp, f2->F_GEN->imp->src, "1" );
   FixControl1( c->src->imp->isucc, c->src, IFMin );
 
-  NewCompoundID(f1);		/* Give it a unique ID */
-  f1->ThinCopy = TRUE;		/* TO DISABLE CONCURRENTIZATION OF THIN COPY */
+  NewCompoundID(f1);            /* Give it a unique ID */
+  f1->ThinCopy = TRUE;          /* TO DISABLE CONCURRENTIZATION OF THIN COPY */
 }
 
 
@@ -580,7 +588,7 @@ PNODE g;
       PropagateConst( n );
 
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc )
-	SplitForalls( sg );
+        SplitForalls( sg );
       }
 
     if ( !IsForall( n ) )
@@ -595,15 +603,15 @@ PNODE g;
       case SPLIT_NOT_LOW:
       case SPLIT_LOW:
         DoLowSplit( n, kind );
-	break;
+        break;
 
       case SPLIT_HIGH:
       case SPLIT_NOT_HIGH:
         DoHighSplit( n, kind );
-	break;
+        break;
 
       default:
-	Error2( "SplitForalls", "ILLEGAL IsSplitCandidate KIND" );
+        Error2( "SplitForalls", "ILLEGAL IsSplitCandidate KIND" );
       }
     if (RequestInfo(I_Info1,info)) {
     DYNEXPAND(printinfo,printbuf,printlen,printcount,char,printlen+200);

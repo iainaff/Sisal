@@ -1,10 +1,20 @@
-/* if2array.c,v
+/**************************************************************************/
+/* FILE   **************         if2array.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:00  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:59  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -22,15 +32,15 @@ char  *buf;
 {
   if ( n->line <= 0 ) {
     SPRINTF( buf, "\"%s,%s,line=lost\"",
-	     (n->file == NULL)? "unknown.sis" : n->file,
-	     (n->funct == NULL)? "unknown(...)" : n->funct );
-	   
+             (n->file == NULL)? "unknown.sis" : n->file,
+             (n->funct == NULL)? "unknown(...)" : n->funct );
+           
     return( buf );
     }
 
   SPRINTF( buf, "\"%s,%s,line=%d\"",
-	   (n->file == NULL)? "unknown.sis" : n->file,
-	   (n->funct == NULL)? "unknown(...)" : n->funct, n->line );
+           (n->file == NULL)? "unknown.sis" : n->file,
+           (n->funct == NULL)? "unknown(...)" : n->funct, n->line );
 
   return( buf );
 }
@@ -50,34 +60,34 @@ char  *buf;
   if ( e->line > 0 ) 
     {
       SPRINTF( buf, "\"%s,%s,line=%d\"",
-	      (e->file == NULL)? "unknown.sis" : e->file,
-	      (e->funct == NULL)? "unknown(...)" : e->funct, e->line );
+              (e->file == NULL)? "unknown.sis" : e->file,
+              (e->funct == NULL)? "unknown(...)" : e->funct, e->line );
       return( buf );
     }
 
   else if (e->dst->line > 0)
     {
       SPRINTF( buf, "\"%s,%s,line=%d\"",
-	      (e->dst->file == NULL)? "unknown.sis" : e->dst->file,
-	      (e->dst->funct == NULL)? "unknown(...)" : e->dst->funct, 
-	      e->dst->line );
+              (e->dst->file == NULL)? "unknown.sis" : e->dst->file,
+              (e->dst->funct == NULL)? "unknown(...)" : e->dst->funct, 
+              e->dst->line );
       return( buf );
     }
 
   else if (e->src->line > 0)
     {
       SPRINTF( buf, "\"%s,%s,line=%d\"",
-	      (e->src->file == NULL)? "unknown.sis" : e->src->file,
-	      (e->src->funct == NULL)? "unknown(...)" : e->src->funct, 
-	      e->src->line );
+              (e->src->file == NULL)? "unknown.sis" : e->src->file,
+              (e->src->funct == NULL)? "unknown(...)" : e->src->funct, 
+              e->src->line );
       return( buf );
     }
   
   else
     {
       SPRINTF( buf, "\"%s,%s,line=lost\"",
-	      (e->file == NULL)? "unknown.sis" : e->file,
-	      (e->funct == NULL)? "unknown(...)" : e->funct );
+              (e->file == NULL)? "unknown.sis" : e->file,
+              (e->funct == NULL)? "unknown(...)" : e->funct );
       return( buf );
     }
 }
@@ -111,7 +121,7 @@ PEDGE i;
     }
 
   FPRINTF( output, "BoundsCheck%d( ", (i != NULL)? 1 : 2 );
-	   
+           
   PrintTemp( a );
 
   FPRINTF( output, ", \"%s\"", (a->name == NULL)? "lost" : a->name );
@@ -231,11 +241,11 @@ PNODE  g;
     if ( sequential && standalone && IsXGraph( g ) ) {
       /* IF COMPLEX LIES AHEAD THEN FREE THE STORAGE */
       for ( nn = n->nsucc; nn != NULL; nn = nn->nsucc )
-	if ( IsCompound( nn ) || IsCall( nn ) )
-	  break;
+        if ( IsCompound( nn ) || IsCall( nn ) )
+          break;
 
       if ( nn == NULL )
-	return;
+        return;
       }
     }
 
@@ -274,12 +284,12 @@ char  *nm;
   PrintIndentation( indent );
 
   if (n->norm > 0) {
-  	FPRINTF( output, "SkiPSMAlloc%s( %d, %s, %s, ", nm, n->norm, n->gname, 
-	   	n->usucc->exp->info->A_ELEM->A_ELEM->tname );
-	FPRINTF(stderr, "SKI PS NORM %d\n", n->norm);
+        FPRINTF( output, "SkiPSMAlloc%s( %d, %s, %s, ", nm, n->norm, n->gname, 
+                n->usucc->exp->info->A_ELEM->A_ELEM->tname );
+        FPRINTF(stderr, "SKI PS NORM %d\n", n->norm);
   } else
-  	FPRINTF( output, "PSMAlloc%s( %s, %s, ", nm, n->gname, 
-	   n->usucc->exp->info->A_ELEM->A_ELEM->tname );
+        FPRINTF( output, "PSMAlloc%s( %s, %s, ", nm, n->gname, 
+           n->usucc->exp->info->A_ELEM->A_ELEM->tname );
   PrintTemp( n->exp );
   FPRINTF( output, ", " );
   PrintTemp( n->imp );
@@ -329,7 +339,7 @@ PNODE n;
     FPRINTF( output, "MAlloc( " );
 
   if ( !(n->wmark) && n->norm > 0 )
-  	FPRINTF( output, "%d,", n->norm );
+        FPRINTF( output, "%d,", n->norm );
 
   PrintTemp( n->exp );
   FPRINTF( output, ", " );
@@ -428,17 +438,17 @@ PNODE  n;
 
     if ( IsBuffer( n->imp->info ) )
         FPRINTF( output, "%s%s( %s, ", pre, macro, 
-		 n->exp->info->A_ELEM->A_ELEM->tname );
+                 n->exp->info->A_ELEM->A_ELEM->tname );
     else
         FPRINTF( output, "%s%s( %s, ", pre, macro, n->imp->info->A_ELEM->tname);
 
     PrintTemp( n->exp );
 
     for ( i = n->imp; i != NULL; i = i->isucc ) {
-	FPRINTF( output, ", " );
-	PrintTemp( i );
-	}
-	
+        FPRINTF( output, ", " );
+        PrintTemp( i );
+        }
+        
     FPRINTF( output, " );\n" );
 }
 
@@ -459,10 +469,10 @@ PNODE n;
     register int   c;
     register PEDGE ab;
     register int   opt = FALSE;
-	     char  buf[100];
+             char  buf[100];
 
     if ( n->exp->temp != n->imp->temp )
-	PrintAssgn( indent, n->exp, n->imp );
+        PrintAssgn( indent, n->exp, n->imp );
 
     PrintSetRefCount( indent, n->exp, n->exp->sr, TRUE );
 
@@ -471,44 +481,44 @@ PNODE n;
 
     if ( (ab != NULL) && aimp )
         if ( (ab->rc == 0) && (UsageCount( ab->src, ab->eport ) == 1) )
-	    opt = TRUE;
+            opt = TRUE;
 
     if ( (!IsBasic( ci )) && (!n->nmark) )
-	SPRINTF( buf, "DARepl( %s, ", GetFreeName( ci ) );
+        SPRINTF( buf, "DARepl( %s, ", GetFreeName( ci ) );
     else
-	SPRINTF( buf, "ARepl( " );
+        SPRINTF( buf, "ARepl( " );
 
     for ( c = 0, i = n->imp->isucc->isucc; i != NULL; c++ ) {
-	if ( (c > 0) && opt ) {
-	    PrintIndentation( indent );
-	    FPRINTF( output, "IncArrayBase( %s, ", ci->tname );
-	    PrintTemp( ab );
-	    FPRINTF( output, " );\n" );
-	    }
+        if ( (c > 0) && opt ) {
+            PrintIndentation( indent );
+            FPRINTF( output, "IncArrayBase( %s, ", ci->tname );
+            PrintTemp( ab );
+            FPRINTF( output, " );\n" );
+            }
 
-	PrintIndentation( indent );
+        PrintIndentation( indent );
 
-	FPRINTF( output, "%s%s %s, ", (ab != NULL)? "Opt" : "", buf, ci->tname);
-	PrintTemp( n->exp );
-	FPRINTF( output, ", " );
-	PrintTemp( n->imp->isucc );
+        FPRINTF( output, "%s%s %s, ", (ab != NULL)? "Opt" : "", buf, ci->tname);
+        PrintTemp( n->exp );
+        FPRINTF( output, ", " );
+        PrintTemp( n->imp->isucc );
 
-	if ( !opt && (c > 0) )
-	    FPRINTF( output, " + %d", c );
+        if ( !opt && (c > 0) )
+            FPRINTF( output, " + %d", c );
 
-	FPRINTF( output, ", " );
+        FPRINTF( output, ", " );
         PrintTemp( i );
 
-	if ( ab != NULL ) {
-	    FPRINTF( output, ", " );
-	    PrintTemp( ab );
-	    }
+        if ( ab != NULL ) {
+            FPRINTF( output, ", " );
+            PrintTemp( ab );
+            }
 
         FPRINTF( output, " );\n" );
 
-	if ( (i = i->isucc) == ab )
-	    break;
-	}
+        if ( (i = i->isucc) == ab )
+            break;
+        }
 }
 
 
@@ -560,19 +570,19 @@ PNODE n;
     register int   s;
 
     if ( n->cmark ) {
-	PrintIndentation( indent );
-	FPRINTF( output, "%s( ", GetIncRefCountName( n->exp->info ) );
-	PrintTemp( n->exp );
-	FPRINTF( output, ", %s, %d );\n", n->exp->info->sname, 1 );
-	return;
-	}
+        PrintIndentation( indent );
+        FPRINTF( output, "%s( ", GetIncRefCountName( n->exp->info ) );
+        PrintTemp( n->exp );
+        FPRINTF( output, ", %s, %d );\n", n->exp->info->sname, 1 );
+        return;
+        }
 
     /* FIND THE BUFFER IMPORT AND THE NUMBER OF INITIAL ELEMENTS */
     for ( s = 0, i = n->imp->isucc; i != NULL; i = i->isucc )
-	if ( i->isucc != NULL ) 
-	  s++; 
-	else 
-	  b = i;
+        if ( i->isucc != NULL ) 
+          s++; 
+        else 
+          b = i;
 
 
     /* PART OF VECTORIZED ReduceAT COMPUTATION? */
@@ -580,33 +590,33 @@ PNODE n;
       if ( b->src->G_DAD->vmark ) {
         for ( c = 0, i = n->imp->isucc; i != b; i = i->isucc, c++ ) {
           PrintIndentation( indent );
-	  FPRINTF( output, "((%s*)", n->exp->info->A_ELEM->tname );
-	  PrintTemp( b );
-	  FPRINTF( output, ")[%d] = ", c );
-	  PrintTemp( i );
-	  FPRINTF( output, ";\n" );
-	  }
+          FPRINTF( output, "((%s*)", n->exp->info->A_ELEM->tname );
+          PrintTemp( b );
+          FPRINTF( output, ")[%d] = ", c );
+          PrintTemp( i );
+          FPRINTF( output, ";\n" );
+          }
 
-	return;
-	}
+        return;
+        }
 
     PrintIndentation( indent );
 
     switch ( n->type ) {
       case IFABuildATDVI:
         FPRINTF( output, "BldATDVI( %s, ", n->exp->info->A_ELEM->tname );
-	break;
+        break;
 
       case IFABuildATDV:
         FPRINTF( output, "BldATDV( %s, ", n->exp->info->A_ELEM->tname );
-	break;
+        break;
 
       default:
         FPRINTF( output, "%s%s( %s, ", (n->nmark)? "Opt" : "", GetMacro( n ),  
-	         n->exp->info->A_ELEM->tname );
+                 n->exp->info->A_ELEM->tname );
         break;
       }
-	     
+             
     PrintTemp( n->exp );
     FPRINTF( output, ", " );
     PrintTemp( n->imp );
@@ -628,12 +638,12 @@ PNODE n;
       FPRINTF( output, "->Base;\n" );
 
       for ( c = 0, i = n->imp->isucc; i != b; i = i->isucc, c++ ) {
-	PrintIndentation( indent );
+        PrintIndentation( indent );
 
-	FPRINTF( output, "  pp[%d] = ", c );
-	PrintTemp( i );
-	FPRINTF( output, ";\n" );
-	}
+        FPRINTF( output, "  pp[%d] = ", c );
+        PrintTemp( i );
+        FPRINTF( output, ";\n" );
+        }
 
       PrintIndentation( indent );
       FPRINTF( output, "}\n" );
@@ -661,47 +671,47 @@ PNODE n;
 
     switch ( n->type ) {
       case IFAAddHATDVI:
-	s = "HATDVI" ;
-	assgnOK = FALSE;
-	break;
+        s = "HATDVI" ;
+        assgnOK = FALSE;
+        break;
 
       case IFAAddHATDV:
-	s = "HATDV";
-	assgnOK = FALSE;
-	break;
+        s = "HATDV";
+        assgnOK = FALSE;
+        break;
 
       case IFAAddLATDVI:
         s = "LATDVI";
-	assgnOK = FALSE;
-	break;
+        assgnOK = FALSE;
+        break;
 
       case IFAAddLATDV:
-	s = "LATDV";
-	assgnOK = FALSE;
-	break;
+        s = "LATDV";
+        assgnOK = FALSE;
+        break;
 
       case IFAAddHAT:
-	s = "HAT";
-	break;
+        s = "HAT";
+        break;
 
       case IFAAddLAT:
-	s = "LAT";
-	break;
+        s = "LAT";
+        break;
 
       default:
-	Error2( "PrintAAddHLAT", "ILLEGAL NODE TYPE" );
+        Error2( "PrintAAddHLAT", "ILLEGAL NODE TYPE" );
       }
 
     if ( !(n->nmark) )
       if ( n->imp->pmark )
         if ( n->imp->temp != n->exp->temp )
           if ( assgnOK )
-	    PrintAssgn( indent, n->exp, n->imp );
+            PrintAssgn( indent, n->exp, n->imp );
 
     PrintIndentation( indent );
 
     FPRINTF( output, "%s%sAdd%s( ",
-	     (n->nmark)? "Opt" : "", (n->imp->pmark)? "P" : "", s );
+             (n->nmark)? "Opt" : "", (n->imp->pmark)? "P" : "", s );
 
     PrintTemp( n->exp );
     FPRINTF( output, ", " );
@@ -715,7 +725,7 @@ PNODE n;
     FPRINTF( output, ", " );
     PrintTemp( n->imp->isucc->isucc );
     FPRINTF( output, ", %s, %s, ", GetCopyFunction( n->exp->info ),
-	     n->exp->info->A_ELEM->tname                         );
+             n->exp->info->A_ELEM->tname                         );
     PrintTemp( n->imp->isucc->isucc->isucc );
     FPRINTF( output, ", " );
     PrintTemp( n->imp->isucc->isucc->isucc->isucc );
@@ -754,7 +764,7 @@ PNODE n;
   FPRINTF( output, ", " );
 
   FPRINTF( output, "%s, %s, %s", GetCopyFunction( n->exp->info ),
-	   n->exp->info->A_ELEM->tname, GetFreeName( n->exp->info ) );
+           n->exp->info->A_ELEM->tname, GetFreeName( n->exp->info ) );
 
   if ( IsBasic(n->exp->info->A_ELEM) )
     FPRINTF( output, " );\n" );
@@ -783,41 +793,41 @@ PNODE n;
 
     switch ( n->type ) {
       case IFACatenateATDVI:
-	s = "DVI";
-	assgnOK = FALSE;
-	break;
+        s = "DVI";
+        assgnOK = FALSE;
+        break;
 
       case IFACatenateATDV:
-	s = "DV";
-	assgnOK = FALSE;
-	break;
+        s = "DV";
+        assgnOK = FALSE;
+        break;
 
       default:
-	s = "";
+        s = "";
         break;
       }
 
     if ( n->imp->pmark ) {
-	if ( !(n->nmark) )
-	  if ( n->imp->temp != n->exp->temp )
+        if ( !(n->nmark) )
+          if ( n->imp->temp != n->exp->temp )
             if ( assgnOK )
-	      PrintAssgn( indent, n->exp, n->imp );
+              PrintAssgn( indent, n->exp, n->imp );
 
-	if ( !(n->imp->isucc->pmark) )
-	    SPRINTF( buf, "PCCatAT" );
+        if ( !(n->imp->isucc->pmark) )
+            SPRINTF( buf, "PCCatAT" );
         else
-	    SPRINTF( buf, "PPCatAT" );
-	}
+            SPRINTF( buf, "PPCatAT" );
+        }
     else if ( n->imp->isucc->pmark ) {
-	if ( !(n->nmark) )
-	  if ( n->imp->isucc->temp != n->exp->temp )
+        if ( !(n->nmark) )
+          if ( n->imp->isucc->temp != n->exp->temp )
             if ( assgnOK )
-	      PrintAssgn( indent, n->exp, n->imp->isucc );
+              PrintAssgn( indent, n->exp, n->imp->isucc );
 
-	SPRINTF( buf, "CPCatAT" );
+        SPRINTF( buf, "CPCatAT" );
         }
     else
-	SPRINTF( buf, "CCCatAT" );
+        SPRINTF( buf, "CCCatAT" );
 
     PrintIndentation( indent );
 
@@ -842,12 +852,12 @@ PNODE n;
           PrintTemp( n->imp->isucc );
           FPRINTF( output, ", " );
           }
-	}
+        }
       }
 
     PrintTemp( n->imp->isucc->isucc );
     FPRINTF( output, ", %s, %s, ", GetCopyFunction( n->exp->info ),
-	     n->exp->info->A_ELEM->tname                        );
+             n->exp->info->A_ELEM->tname                        );
     PrintTemp( n->imp->isucc->isucc->isucc );
     FPRINTF( output, ", " );
     PrintTemp( n->imp->isucc->isucc->isucc->isucc );
@@ -856,7 +866,7 @@ PNODE n;
     if ( !(n->nmark) ) {
       if ( n->imp->pmark || n->imp->isucc->pmark ) {
         PrintSetRefCount( indent, n->exp, n->exp->sr, TRUE  );
-	}
+        }
       else
         PrintSetRefCount( indent, n->exp, n->exp->sr, FALSE );
       }
@@ -878,9 +888,9 @@ PNODE n;
     register PEDGE i; 
 
     if ( n->imp->rmark1 == RMARK )
-	if ( n->imp->omark1 || n->imp->pmark ) {           /* A TRUE NoOp */
-	    if ( n->imp->temp != n->exp->temp )
-	        PrintAssgn( indent, n->exp, n->imp );
+        if ( n->imp->omark1 || n->imp->pmark ) {           /* A TRUE NoOp */
+            if ( n->imp->temp != n->exp->temp )
+                PrintAssgn( indent, n->exp, n->imp );
 
 if ( n->exp != NULL )
   if ( IsAReplace( n->exp->dst ) )
@@ -888,32 +898,32 @@ if ( n->exp != NULL )
       n->exp->dst->exp->sr = 0;
 
             return;
-	    }
+            }
 
     i = n->imp;
 
     if ( i->pmark ) {
-	PrintIndentation( indent );
+        PrintIndentation( indent );
 
-	FPRINTF( output, "P%sANoOp( ", (i->rmark1 == rMARK)? "C" : "" );
-	PrintTemp( n->exp );
-	FPRINTF( output, ", " );
-	PrintTemp( i );
-	FPRINTF( output, ", %s );\n", GetFreeName( i->info ) );
+        FPRINTF( output, "P%sANoOp( ", (i->rmark1 == rMARK)? "C" : "" );
+        PrintTemp( n->exp );
+        FPRINTF( output, ", " );
+        PrintTemp( i );
+        FPRINTF( output, ", %s );\n", GetFreeName( i->info ) );
 
-	return;
-	}
+        return;
+        }
 
     PrintIndentation( indent );
 
     if ( i->rmark1 == rMARK )
-	FPRINTF( output, "COANoOp( " );
+        FPRINTF( output, "COANoOp( " );
     else
-	FPRINTF( output, "ANoOp( " );
+        FPRINTF( output, "ANoOp( " );
 
     PrintTemp( n->exp );
     FPRINTF( output, ", " );
     PrintTemp( n->imp );
     FPRINTF( output, ", %s, %s, %s );\n", n->exp->info->A_ELEM->tname,
-	     GetCopyFunction( n->exp->info ), GetFreeName( n->exp->info ) );
+             GetCopyFunction( n->exp->info ), GetFreeName( n->exp->info ) );
 }

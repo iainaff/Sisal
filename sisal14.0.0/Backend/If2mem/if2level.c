@@ -1,10 +1,20 @@
-/* if2level.c,v
+/**************************************************************************/
+/* FILE   **************         if2level.c        ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:06  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:22  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -29,7 +39,7 @@ static PPNODE CopyLevelStack()
     ls = (PPNODE) MyAlloc( (int) ((level+1) * sizeof(PNODE)) );
 
     for ( i = 0; i <= level; i++ )
-	ls[i] = lstack[i];
+        ls[i] = lstack[i];
 
     return( ls );
 }
@@ -52,10 +62,10 @@ PNODE g;
     register PNODE  n;
     register PPNODE ls;
 
-	             /* PUSH A NEW LEVEL */
+                     /* PUSH A NEW LEVEL */
 
     if ( (++level) >= SIZE_LEVEL_STACK )
-	Error2( "AssignLevelNumbers",  "LEVEL STACK OVERFLOW" );
+        Error2( "AssignLevelNumbers",  "LEVEL STACK OVERFLOW" );
 
     lstack[level] = g;
 
@@ -65,15 +75,15 @@ PNODE g;
     g->level  = level;
 
     for ( n = g->G_NODES; n != NULL; n = n->nsucc ) {
-	n->lstack = ls;
-	n->level  = level;
+        n->lstack = ls;
+        n->level  = level;
 
-	if ( IsCompound( n ) )
-	    for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
-		AssignLevelNumbers( g );
-	}
+        if ( IsCompound( n ) )
+            for ( g = n->C_SUBS; g != NULL; g = g->gsucc )
+                AssignLevelNumbers( g );
+        }
 
-	             /* POP THE NEW LEVEL */
+                     /* POP THE NEW LEVEL */
 
     level--;
 }

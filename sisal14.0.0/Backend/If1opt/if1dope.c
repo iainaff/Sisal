@@ -1,10 +1,20 @@
-/* if1dope.c,v
+/**************************************************************************/
+/* FILE   **************         if1dope.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:04:56  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:08:32  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -43,7 +53,7 @@ PEDGE a;
   register PNODE aelm;
   register PEDGE e;
   register PINFO iinfo;
-	   char  buf[100];
+           char  buf[100];
 
   iinfo = (IsMultiple(i->info))? i->info->A_ELEM : i->info;
 
@@ -282,7 +292,7 @@ PNODE sg;
 
     for ( e = sg->exp; e != NULL; e = e->esucc ) {
       if ( e->eport != i->iport ) 
-	continue;
+        continue;
 
       e->dope = d;
       }
@@ -306,7 +316,7 @@ int    v;
 {
   register PEDGE e;
   register PEDGE se;
-	   char  buf[100];
+           char  buf[100];
   register int   eport;
   register PNODE src;
   register PEDGE ee;
@@ -392,7 +402,7 @@ int   lvl;
   register int   dlow;
   register int   dhigh;
   register PNODE l;
-	   char  buf[100];
+           char  buf[100];
 
   if ( lvl >= MAX_SCOPE )
     Error2( "ProcessDopeInfo", "SCOPE STACK OVERFLOW" );
@@ -402,368 +412,368 @@ int   lvl;
 
     if ( IsCompound( n ) ) {
       switch ( n->type ) {
-	case IFSelect:
-	  PropagateDopeInfo( n, n->S_CONS );
-	  PropagateDopeInfo( n, n->S_ALT );
-	  break;
+        case IFSelect:
+          PropagateDopeInfo( n, n->S_CONS );
+          PropagateDopeInfo( n, n->S_ALT );
+          break;
 
-	case IFForall:
-	  PropagateDopeInfo( n, n->F_BODY );
-	  break;
+        case IFForall:
+          PropagateDopeInfo( n, n->F_BODY );
+          break;
 
-	case IFLoopA:
-	case IFLoopB:
-	  PropagateDopeInfo( n, n->L_INIT );
-	  PropagateDopeInfo( n, n->L_BODY );
-	  break;
+        case IFLoopA:
+        case IFLoopB:
+          PropagateDopeInfo( n, n->L_INIT );
+          PropagateDopeInfo( n, n->L_BODY );
+          break;
 
         case IFTagCase:
           break;
 
-        case IFUReduce:		/* TBD: how is this used? */
-	  PropagateDopeInfo( n, n->R_INIT );
-	  PropagateDopeInfo( n, n->R_BODY );
+        case IFUReduce:         /* TBD: how is this used? */
+          PropagateDopeInfo( n, n->R_INIT );
+          PropagateDopeInfo( n, n->R_BODY );
           break;
 
-	default:
+        default:
           UNEXPECTED("Unknown compound");
         }
 
       for ( sg = n->C_SUBS; sg != NULL; sg = sg->gsucc ) {
-	scope[lvl+1] = sg;
-	ProcessDopeInfo( sg, lvl+1 );
-	}
+        scope[lvl+1] = sg;
+        ProcessDopeInfo( sg, lvl+1 );
+        }
 
       switch ( n->type ) {
-	case IFLoopA:
-	case IFLoopB:
-	  for ( c = FALSE, i = n->L_INIT->imp; i != NULL; i = i->isucc ) {
-	    if ( (ii = FindImport( n->L_BODY, i->iport )) == NULL )
-	      continue;
+        case IFLoopA:
+        case IFLoopB:
+          for ( c = FALSE, i = n->L_INIT->imp; i != NULL; i = i->isucc ) {
+            if ( (ii = FindImport( n->L_BODY, i->iport )) == NULL )
+              continue;
 
             ++Tpcyc;
 
-	    switch ( AreDopesEqual( i, ii ) ) {
-	      case 0:
-		break;
+            switch ( AreDopesEqual( i, ii ) ) {
+              case 0:
+                break;
 
-	      case 1:
-		c = TRUE;
-		pcyc++;
+              case 1:
+                c = TRUE;
+                pcyc++;
 
-		/* JUST THE LOWER BOUND IS EQUAL */
-	        d = DopeAlloc();
-	        d->lo  = i->dope->lo;
-		d->dec = i->dope->dec;
-	        BindDopeInfo( n->L_BODY, i->iport, d );
-		break;
+                /* JUST THE LOWER BOUND IS EQUAL */
+                d = DopeAlloc();
+                d->lo  = i->dope->lo;
+                d->dec = i->dope->dec;
+                BindDopeInfo( n->L_BODY, i->iport, d );
+                break;
 
-	      case 2:
-	        c = TRUE;
-	        pcyc++;
+              case 2:
+                c = TRUE;
+                pcyc++;
 
-		/* BOTH THE BOUNDS ARE EQUAL */
-	        BindDopeInfo( n->L_BODY, i->iport, i->dope );
-		break;
+                /* BOTH THE BOUNDS ARE EQUAL */
+                BindDopeInfo( n->L_BODY, i->iport, i->dope );
+                break;
 
-	      default:
-		Error2( "ProcessDopeInfo", "AreDopesEqual RETURN VALUE ERROR" );
+              default:
+                Error2( "ProcessDopeInfo", "AreDopesEqual RETURN VALUE ERROR" );
               }
-	    }
+            }
 
           if ( c )
-	    ProcessDopeInfo( n->L_BODY, lvl+1 );
+            ProcessDopeInfo( n->L_BODY, lvl+1 );
 
-	  break;
+          break;
 
-	default:
-	  break;
+        default:
+          break;
         }
       }
 
     switch ( n->type ) {
       case IFABuild:
-	if ( !IsArray( n->exp->info ) ) break;
+        if ( !IsArray( n->exp->info ) ) break;
 
-	for ( c = 0, i = n->imp->isucc; i != NULL; i = i->isucc )
-	  c++;
+        for ( c = 0, i = n->imp->isucc; i != NULL; i = i->isucc )
+          c++;
 
-	d = DopeAlloc();
-	d->lo = n->imp;
+        d = DopeAlloc();
+        d->lo = n->imp;
 
-	n->imp->lvl = lvl;
+        n->imp->lvl = lvl;
 
-	if ( IsConst(d->lo) ) {
-	  d->hi = EdgeAlloc( NULL_NODE, CONST_PORT, NULL_NODE, CONST_PORT );
-	  d->hi->info = d->lo->info;
-	  SPRINTF( buf, "%d", atoi(d->lo->CoNsT) + c - 1 );
-	  d->hi->CoNsT = CopyString( buf );
-	  d->hi->lvl = lvl;
-	  }
+        if ( IsConst(d->lo) ) {
+          d->hi = EdgeAlloc( NULL_NODE, CONST_PORT, NULL_NODE, CONST_PORT );
+          d->hi->info = d->lo->info;
+          SPRINTF( buf, "%d", atoi(d->lo->CoNsT) + c - 1 );
+          d->hi->CoNsT = CopyString( buf );
+          d->hi->lvl = lvl;
+          }
 
-	BindDopeInfo( n, 1, d );
-	break;
+        BindDopeInfo( n, 1, d );
+        break;
 
       case IFAGather:
-	if ( !IsArray( n->exp->info ) ) break;
+        if ( !IsArray( n->exp->info ) ) break;
 
-	/* IS THERE A FILTER? */
-	if ( n->imp->isucc->isucc != NULL )
-	  break;
+        /* IS THERE A FILTER? */
+        if ( n->imp->isucc->isucc != NULL )
+          break;
 
-	l = n->exp->dst->G_DAD;
+        l = n->exp->dst->G_DAD;
 
-	/* FOR FORALL NODES ONLY!!! */
-	if ( !IsForall( l ) )
-	  break;
+        /* FOR FORALL NODES ONLY!!! */
+        if ( !IsForall( l ) )
+          break;
 
-	/* FROM A RangeGenerate NODE? */
-	if ( (dd = l->F_GEN->imp->dope) == NULL )
-	  break;
+        /* FROM A RangeGenerate NODE? */
+        if ( (dd = l->F_GEN->imp->dope) == NULL )
+          break;
         
-	if ( !AreValuesEqual( n->imp, dd->lo ) )
-	  break;
+        if ( !AreValuesEqual( n->imp, dd->lo ) )
+          break;
 
-	/* SKIP for i in 6,5 do */
-	if ( IsConst(dd->lo) && IsConst(dd->hi) )
-	  if ( atoi(dd->lo->CoNsT) > atoi(dd->hi->CoNsT) )
-	    break;
+        /* SKIP for i in 6,5 do */
+        if ( IsConst(dd->lo) && IsConst(dd->hi) )
+          if ( atoi(dd->lo->CoNsT) > atoi(dd->hi->CoNsT) )
+            break;
 
-	d = DopeAlloc();
-	*d = *dd;
+        d = DopeAlloc();
+        *d = *dd;
 
-	BindDopeInfo( l, n->exp->iport, d );
-	break;
+        BindDopeInfo( l, n->exp->iport, d );
+        break;
 
       case IFRangeGenerate:
-	/* IS n THE CONTROL? */
-	if ( n->exp != n->exp->dst->imp )
-	  break;
+        /* IS n THE CONTROL? */
+        if ( n->exp != n->exp->dst->imp )
+          break;
 
-	/* IS n THE ONLY F_GEN NODE? */
-	if ( n->nsucc != NULL )
-	  break;
+        /* IS n THE ONLY F_GEN NODE? */
+        if ( n->nsucc != NULL )
+          break;
 
-	l = n->exp->dst;
+        l = n->exp->dst;
 
-	d = DopeAlloc();
+        d = DopeAlloc();
 
-	d->lo = (IsConst(n->imp))? n->imp : 
-		        FindImport( l->G_DAD, n->imp->eport );
+        d->lo = (IsConst(n->imp))? n->imp : 
+                        FindImport( l->G_DAD, n->imp->eport );
 
-	if ( d->lo == NULL )
-	  Error2( "ProcessDopeInfo", "FindImport FAILURE" );
+        if ( d->lo == NULL )
+          Error2( "ProcessDopeInfo", "FindImport FAILURE" );
 
-	d->hi = (IsConst(n->imp->isucc))? n->imp->isucc : 
-		        FindImport( l->G_DAD, n->imp->isucc->eport );
+        d->hi = (IsConst(n->imp->isucc))? n->imp->isucc : 
+                        FindImport( l->G_DAD, n->imp->isucc->eport );
 
-	if ( d->hi == NULL )
-	  Error2( "ProcessDopeInfo", "FindImport FAILURE" );
+        if ( d->hi == NULL )
+          Error2( "ProcessDopeInfo", "FindImport FAILURE" );
 
-	d->lo->lvl = lvl-1; /* THE SCOPE CONTAINING l */
-	d->hi->lvl = lvl-1;
+        d->lo->lvl = lvl-1; /* THE SCOPE CONTAINING l */
+        d->hi->lvl = lvl-1;
 
-	BindDopeInfo( n, 1, d );
-	break;
+        BindDopeInfo( n, 1, d );
+        break;
 
       case IFAReplace:
-	if ( (dd = n->imp->dope) == NULL )
-	  break;
+        if ( (dd = n->imp->dope) == NULL )
+          break;
 
-	d = DopeAlloc();
-	*d = *dd;
+        d = DopeAlloc();
+        *d = *dd;
 
-	BindDopeInfo( n, 1, d );
-	break;
+        BindDopeInfo( n, 1, d );
+        break;
 
       case IFAAddH:
-	if ( (dd = n->imp->dope) == NULL )
-	  break;
+        if ( (dd = n->imp->dope) == NULL )
+          break;
 
-	if ( dd->hi == NULL )
-	  break;
+        if ( dd->hi == NULL )
+          break;
 
-	d = DopeAlloc();
-	*d = *dd;
-	d->inc++;
+        d = DopeAlloc();
+        *d = *dd;
+        d->inc++;
 
-	BindDopeInfo( n, 1, d );
-	break;
+        BindDopeInfo( n, 1, d );
+        break;
 
       case IFAAddL:
-	if ( (dd = n->imp->dope) == NULL )
-	  break;
+        if ( (dd = n->imp->dope) == NULL )
+          break;
 
-	if ( dd->lo == NULL )
-	  break;
+        if ( dd->lo == NULL )
+          break;
 
-	d = DopeAlloc();
-	*d = *dd;
-	d->dec++;
+        d = DopeAlloc();
+        *d = *dd;
+        d->dec++;
 
-	BindDopeInfo( n, 1, d );
-	break;
+        BindDopeInfo( n, 1, d );
+        break;
 
       case IFALimL:
 
-	++Tliml;
+        ++Tliml;
 
-	if ( (d = n->imp->dope) == NULL )
-	  break;
+        if ( (d = n->imp->dope) == NULL )
+          break;
 
-	if ( d->lo == NULL )
-	  break;
+        if ( d->lo == NULL )
+          break;
     
-	if ( ObviateNode( n, lvl, d->lo, -(d->dec) ) ) {
-	  liml++;
-	  }
+        if ( ObviateNode( n, lvl, d->lo, -(d->dec) ) ) {
+          liml++;
+          }
 
-	break;
+        break;
 
       case IFALimH:
 
-	++Tlimh;
+        ++Tlimh;
 
-	if ( (d = n->imp->dope) == NULL )
-	  break;
+        if ( (d = n->imp->dope) == NULL )
+          break;
 
-	if ( d->lo == NULL || d->hi == NULL )
-	  break;
+        if ( d->lo == NULL || d->hi == NULL )
+          break;
 
-	/* THEY BOTH MUST BE CONSTANTS BECAUSE OF 5,<4 GENERATE PROBLEM  */
-	/* THE HIGH BOUND IS ACTUALLY 4!!! THIS SCREWS UP LOTS OF STUFF  */
-	/* STUFF...UGH!!!  HOWEVER, IT IS OK IN THE FOLLOWING SITUATION: */
-	/*                                                               */
-	/*   for i in liml(x),limh(x) ... where both liml and limh have  */
-	/*   the same dope descriptor!!!!                                */
-	/*                                                               */
-	/* THIS IS NOT CURRENTLY IMPLEMENTED!                            */
+        /* THEY BOTH MUST BE CONSTANTS BECAUSE OF 5,<4 GENERATE PROBLEM  */
+        /* THE HIGH BOUND IS ACTUALLY 4!!! THIS SCREWS UP LOTS OF STUFF  */
+        /* STUFF...UGH!!!  HOWEVER, IT IS OK IN THE FOLLOWING SITUATION: */
+        /*                                                               */
+        /*   for i in liml(x),limh(x) ... where both liml and limh have  */
+        /*   the same dope descriptor!!!!                                */
+        /*                                                               */
+        /* THIS IS NOT CURRENTLY IMPLEMENTED!                            */
 
-	if ( !(IsConst(d->lo) && IsConst(d->hi)) ) {
-	  break;
-	  }
+        if ( !(IsConst(d->lo) && IsConst(d->hi)) ) {
+          break;
+          }
 
-	if ( ObviateNode( n, lvl, d->hi, d->inc ) ) {
-	  limh++;
-	  }
+        if ( ObviateNode( n, lvl, d->hi, d->inc ) ) {
+          limh++;
+          }
 
-	break;
+        break;
 
       case IFASize:
         ++Tsize;
 
-	if ( (d = n->imp->dope) == NULL )
-	  break;
+        if ( (d = n->imp->dope) == NULL )
+          break;
 
-	if ( d->lo == NULL || d->hi == NULL )
-	  break;
+        if ( d->lo == NULL || d->hi == NULL )
+          break;
 
-	/* THEY BOTH MUST BE CONSTANTS!!! */
-	if ( !(IsConst(d->lo) && IsConst(d->hi)) )
-	  break;
+        /* THEY BOTH MUST BE CONSTANTS!!! */
+        if ( !(IsConst(d->lo) && IsConst(d->hi)) )
+          break;
 
-	if ( ObviateNode( n, lvl, d->hi, 
-			  d->inc + d->dec + 1 - atoi(d->lo->CoNsT) ) ) {
-	  size++;
-	  }
+        if ( ObviateNode( n, lvl, d->hi, 
+                          d->inc + d->dec + 1 - atoi(d->lo->CoNsT) ) ) {
+          size++;
+          }
 
-	break;
+        break;
 
       case IFForall:
-	if ( !tgcse )
-	  break;
+        if ( !tgcse )
+          break;
 
-	/* OPEN UP OPPORTUNITIES FOR GCSE */
-	i = n->F_GEN->imp;
+        /* OPEN UP OPPORTUNITIES FOR GCSE */
+        i = n->F_GEN->imp;
 
-	if ( (d = i->dope) == NULL )
-	  break;
+        if ( (d = i->dope) == NULL )
+          break;
         if ( d->lo == NULL || d->hi == NULL )
-	  break;
+          break;
 
-	for ( ii = n->imp; ii != NULL; ii = ii->isucc ) {
-	  if ( (dd = ii->dope) == NULL )
-	    continue;
+        for ( ii = n->imp; ii != NULL; ii = ii->isucc ) {
+          if ( (dd = ii->dope) == NULL )
+            continue;
 
-	  if ( dd->lo == NULL || dd->hi == NULL )
-	    continue;
+          if ( dd->lo == NULL || dd->hi == NULL )
+            continue;
 
-	  if ( !IsExport( n->F_BODY, ii->iport ) )
-	    continue;
+          if ( !IsExport( n->F_BODY, ii->iport ) )
+            continue;
 
-	  /* BE CAREFUL NOT TO ADD UNNECESSARY OVERHEAD!!! */
-	  for ( e = n->F_BODY->exp; e != NULL; e = e->esucc )
-	    if ( e->eport == ii->iport )
-	      if ( IsSelect( e->dst ) || IsTagCase( e->dst ) )
-		break;
+          /* BE CAREFUL NOT TO ADD UNNECESSARY OVERHEAD!!! */
+          for ( e = n->F_BODY->exp; e != NULL; e = e->esucc )
+            if ( e->eport == ii->iport )
+              if ( IsSelect( e->dst ) || IsTagCase( e->dst ) )
+                break;
 
-	  if ( e != NULL ) {
-	    continue;
-	    }
-
-	  /* MAKE SURE THE OPTIMIZATION COULD RESULT IN INVARIANT */
-	  /* REMOVAL!                                             */
-	  for ( e = n->F_BODY->exp; e != NULL; e = e->esucc ) {
-	    if ( e->eport != ii->iport )
-	      continue;
-
-	    if ( IsForall( e->dst ) ) {
-	      if ( IsExport( e->dst->F_BODY, e->iport ) )
-	        break;
-	      }
-
-	    if ( IsLoop( e->dst ) ) {
-	      if ( IsExport( e->dst->L_BODY, e->iport ) )
-	        break;
-	      }
-	    }
-
-	  if ( e == NULL ) {
-	    continue;
-	    }
-
-	  if ( AreValuesEqual( d->lo, dd->lo ) && 
-	       AreValuesEqual( d->hi, dd->hi ) &&
-	       d->dec == dd->dec && d->inc == dd->inc  ) {
-	    dlow  = 0;
-	    dhigh = 0;
+          if ( e != NULL ) {
+            continue;
             }
-	  else if ( IsConst( d->lo ) && IsConst( dd->lo ) &&
-		    IsConst( d->hi ) && IsConst( dd->hi ) ) {
-	    /* d IS THE CONTROL!!! */
-	    dlow = (atoi(dd->lo->CoNsT) - dd->dec) -
+
+          /* MAKE SURE THE OPTIMIZATION COULD RESULT IN INVARIANT */
+          /* REMOVAL!                                             */
+          for ( e = n->F_BODY->exp; e != NULL; e = e->esucc ) {
+            if ( e->eport != ii->iport )
+              continue;
+
+            if ( IsForall( e->dst ) ) {
+              if ( IsExport( e->dst->F_BODY, e->iport ) )
+                break;
+              }
+
+            if ( IsLoop( e->dst ) ) {
+              if ( IsExport( e->dst->L_BODY, e->iport ) )
+                break;
+              }
+            }
+
+          if ( e == NULL ) {
+            continue;
+            }
+
+          if ( AreValuesEqual( d->lo, dd->lo ) && 
+               AreValuesEqual( d->hi, dd->hi ) &&
+               d->dec == dd->dec && d->inc == dd->inc  ) {
+            dlow  = 0;
+            dhigh = 0;
+            }
+          else if ( IsConst( d->lo ) && IsConst( dd->lo ) &&
+                    IsConst( d->hi ) && IsConst( dd->hi ) ) {
+            /* d IS THE CONTROL!!! */
+            dlow = (atoi(dd->lo->CoNsT) - dd->dec) -
                    (atoi(d->lo->CoNsT)  - d->dec);
 
-	    if ( dlow > 0 )
-	      continue;
+            if ( dlow > 0 )
+              continue;
 
-	    if ( dlow < -5 ) 
-	      dlow = -5;
+            if ( dlow < -5 ) 
+              dlow = -5;
 
-	    /* d IS THE CONTROL!!! */
-	    dhigh = (atoi(dd->hi->CoNsT) + dd->inc) -
+            /* d IS THE CONTROL!!! */
+            dhigh = (atoi(dd->hi->CoNsT) + dd->inc) -
                     (atoi(d->hi->CoNsT)  + d->inc);
 
-	    if ( dhigh < 0 )
-	      continue;
+            if ( dhigh < 0 )
+              continue;
 
-	    if ( dhigh > 5 )
-	      dhigh = 5;
-	    }
-	  else
-	    continue;
+            if ( dhigh > 5 )
+              dhigh = 5;
+            }
+          else
+            continue;
 
-	  for ( c = 0; c >= dlow; c-- )
-	    AddAElement( i, c, n->F_BODY, ii );
+          for ( c = 0; c >= dlow; c-- )
+            AddAElement( i, c, n->F_BODY, ii );
 
-	  for ( c = 1; c <= dhigh; c++ )
-	    AddAElement( i, c, n->F_BODY, ii );
-	  }
+          for ( c = 1; c <= dhigh; c++ )
+            AddAElement( i, c, n->F_BODY, ii );
+          }
 
-	break;
+        break;
 
       default:
-	break;
+        break;
       }
     }
 }

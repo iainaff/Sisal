@@ -1,10 +1,20 @@
-/* if2size.c,v
+/**************************************************************************/
+/* FILE   **************         if2size.c         ************************/
+/**************************************************************************/
+/* Author: Dave Cann                                                      */
+/* Update: Patrick Miller -- Ansi support (Dec 2000)                      */
+/* Copyright (C) University of California Regents                         */
+/**************************************************************************/
+/*
+ * $Log:
+ *
  * Revision 12.7  1992/11/04  22:05:06  miller
  * Initial revision
  *
  * Revision 12.7  1992/10/21  18:09:22  miller
  * Initial RCS Version by Cann
- * */
+ */
+/**************************************************************************/
 
 #include "world.h"
 
@@ -51,13 +61,13 @@ PNODE n;
         if ( e->iport != 1 ) /* NOT FIRST IMPORT? */
           return( TRUE );
 
-	return( FALSE );
+        return( FALSE );
 
       case IFACatenate:
-	return( FALSE );
+        return( FALSE );
 
       default:
-	break;
+        break;
       }
 
   return( TRUE );
@@ -104,21 +114,21 @@ PNODE n1, n2 ;
     register PEDGE  e;
 
     for ( i = n1->imp ; i != NULL ; i = i->isucc ) {
-	if ( !IsConst( i ) )
-	    if ( IsAGather( i->src ) )
-		if ( i->src->imp->isucc->isucc != NULL )       /* FILTER? */
-		    continue;
+        if ( !IsConst( i ) )
+            if ( IsAGather( i->src ) )
+                if ( i->src->imp->isucc->isucc != NULL )       /* FILTER? */
+                    continue;
 
-	if ( IsSizeUnknown( i ) )
-	    continue;
+        if ( IsSizeUnknown( i ) )
+            continue;
 
-	/* ONLY PROPAGATE ASize SIZE EXPRESSIONS TO LOOP SUBGRAPHS        */
+        /* ONLY PROPAGATE ASize SIZE EXPRESSIONS TO LOOP SUBGRAPHS        */
 
-	if ( !IsConstSize( i ) )
-	    if ( IsASize( i->esize ) )
-		if ( IsSGraph( n2 ) )
-		    if ( !(IsLoop( n2->G_DAD ) || IsForall( n2->G_DAD )) )
-			continue;
+        if ( !IsConstSize( i ) )
+            if ( IsASize( i->esize ) )
+                if ( IsSGraph( n2 ) )
+                    if ( !(IsLoop( n2->G_DAD ) || IsForall( n2->G_DAD )) )
+                        continue;
                     
         for ( e = n2->exp ; e != NULL ; e = e->esucc )
             if ( i->iport == e ->eport ) {
@@ -218,24 +228,24 @@ PNODE n;
 PEDGE mult;
 {
     if ( IsSizeUnknown( l ) )
-	return( FALSE );
+        return( FALSE );
 
     if ( !IsArray( n->exp->info ) )
-	return( FALSE );
+        return( FALSE );
 
     if ( !IsConst( mult ) )
-	if ( !IsSGraph( mult->src ) )
-	    return( FALSE );
+        if ( !IsSGraph( mult->src ) )
+            return( FALSE );
 
     if ( mult->isucc != NULL ) {
-	/* NEW CANN 2/92 */
-	if ( IsAGather( n ) && IsLoopB( l ) )
-	  if ( FirstIterationSkipped( l, n, mult ) )
-	    return( TRUE );
+        /* NEW CANN 2/92 */
+        if ( IsAGather( n ) && IsLoopB( l ) )
+          if ( FirstIterationSkipped( l, n, mult ) )
+            return( TRUE );
         /* END NEW CANN 2/92 */
 
-	if ( !( IsAGather( n ) && fover ) )
-	    return( FALSE );
+        if ( !( IsAGather( n ) && fover ) )
+            return( FALSE );
         }
 
     return( TRUE );
@@ -377,102 +387,102 @@ PNODE l;
     register int    bop;
     register int    cnt;
     register char  *ide;
-	     char   buf[100];
+             char   buf[100];
 
     /* CHECK LOOP TEST STRUCTURE, INITIALIZING fve and bop */
 
     for ( n = l->L_TEST->G_NODES, cnt = 0; n != NULL; n = n->nsucc )
-	cnt++;
+        cnt++;
 
     switch ( cnt ) {
-	case 1:
-	    n = l->L_TEST->G_NODES;
+        case 1:
+            n = l->L_TEST->G_NODES;
 
-	    switch ( n->type ) {
-		case IFLessEqual: bop = LessEqual; break;
-		case IFLess:      bop = Less;      break;
+            switch ( n->type ) {
+                case IFLessEqual: bop = LessEqual; break;
+                case IFLess:      bop = Less;      break;
 
-		default:
-		    return;
+                default:
+                    return;
                 }
 
-	    break;
+            break;
 
-	case 2:
-	    n = l->L_TEST->G_NODES;
+        case 2:
+            n = l->L_TEST->G_NODES;
 
-	    if ( !IsNot( n->nsucc ) )
-		return;
+            if ( !IsNot( n->nsucc ) )
+                return;
 
-	    switch ( n->type ) {
-		case IFLess:      bop = GreatEqual; break;
-		case IFLessEqual: bop = Great;      break;
+            switch ( n->type ) {
+                case IFLess:      bop = GreatEqual; break;
+                case IFLessEqual: bop = Great;      break;
 
-		default:
-		    return;
+                default:
+                    return;
                 }
 
-	    break;
+            break;
 
-	default:
-	    return;
+        default:
+            return;
         }
 
     if ( IsConst( n->imp ) )
-	return;
+        return;
 
     if ( !IsSGraph( n->imp->src ) )
-	return;
+        return;
 
     lvalue = n->imp;
     fve    = lvalue->isucc;
 
     if ( !IsConst( fve ) )
-	if ( (fve = FindImport( l, fve->eport )) == NULL )
-	    return;
+        if ( (fve = FindImport( l, fve->eport )) == NULL )
+            return;
 
     /* INITIALIZE ive, CHECKING ITS STRUCTURE */
 
     if ( (ive = FindImport( l->L_INIT, lvalue->eport )) == NULL )
-	return;
+        return;
 
     if ( !IsConst( ive ) ) {
-	if ( !IsSGraph( ive->src ) )
-	    return;
+        if ( !IsSGraph( ive->src ) )
+            return;
       
-	ive = FindImport( l, ive->eport );
-	}
+        ive = FindImport( l, ive->eport );
+        }
 
     /* INITIALIZE upd (THE ive UPDATE), CHECKING ITS STRUCTURE */
 
     if ( (lvalue = FindImport( l->L_BODY, lvalue->eport )) == NULL )
-	return;
-	
+        return;
+        
     if ( IsConst( lvalue ) )
-	return;
+        return;
 
     upd = lvalue->src;
 
     switch ( upd->type ) {
-	case IFPlus:
-	case IFMinus:
-	    break;
+        case IFPlus:
+        case IFMinus:
+            break;
 
-	default:
-	    return;
+        default:
+            return;
         }
 
     if ( IsConst( upd->imp ) )
-	return;
+        return;
 
     if ( !IsSGraph( upd->imp->src ) )
-	return;
+        return;
 
     if ( upd->imp->eport != lvalue->iport )
-	return;
+        return;
 
     if ( !IsConst( upd->imp->isucc ) )
-	return;
+        return;
 
     /* CANN: May 5th */
     if ( upd->imp->isucc->CoNsT == NULL )
@@ -482,22 +492,22 @@ PNODE l;
 
     /* BE CAREFUL NOT TO DIVIDE BY ZERO IN BuildLoopIterExpr */
     if ( atoi( upd->imp->isucc->CoNsT ) == 0 )
-	return;
+        return;
 
     if ( upd->imp->isucc->CoNsT[0] == '-' )
-	return;
+        return;
 
     if ( IsPlus( upd ) ) {
-	if ( (bop != Less) && (bop != LessEqual) )
-	    return;
+        if ( (bop != Less) && (bop != LessEqual) )
+            return;
 
         ide = upd->imp->isucc->CoNsT;
     } else {
-	if ( (bop != Great) && (bop != GreatEqual) )
-	    return;
+        if ( (bop != Great) && (bop != GreatEqual) )
+            return;
 
-	SPRINTF( buf, "-%s", upd->imp->isucc->CoNsT );
-	ide = CopyString( buf );
+        SPRINTF( buf, "-%s", upd->imp->isucc->CoNsT );
+        ide = CopyString( buf );
         }
 
             /* CONSTRUCT THE NUMBER OF ITERATIONS EXPRESSION */
@@ -507,7 +517,7 @@ PNODE l;
     pr  = MaxSourceInDFO( l, ive, fve );
 
             /* ((fve MINUS 1) MINUS ive), ((fve PLUS 1) MINUS ive), OR */
-	    /* (fve MINUS ive)                                         */
+            /* (fve MINUS ive)                                         */
 
     n = NodeAlloc( ++maxint, IFMinus );
     n->level  = pr->level;
@@ -516,32 +526,32 @@ PNODE l;
     CopyEdgeAndThreadToUse( ive, n, 2 );
 
     switch ( bop ) {
-	case Great:
-	case Less:
-	    if ( bop == Great )
-	        adj = NodeAlloc( ++maxint, IFPlus  );
+        case Great:
+        case Less:
+            if ( bop == Great )
+                adj = NodeAlloc( ++maxint, IFPlus  );
             else
-	        adj = NodeAlloc( ++maxint, IFMinus );
+                adj = NodeAlloc( ++maxint, IFMinus );
 
-	    adj->level  = pr->level;
-	    adj->lstack = pr->lstack;
+            adj->level  = pr->level;
+            adj->lstack = pr->lstack;
 
-	    c = EdgeAlloc( NULL_NODE, CONST_PORT, adj, 2 );
-	    c->info  = integer;
-	    c->CoNsT = "1";
+            c = EdgeAlloc( NULL_NODE, CONST_PORT, adj, 2 );
+            c->info  = integer;
+            c->CoNsT = "1";
 
-	    LinkImport( adj, c );
-	    CopyEdgeAndThreadToUse( fve, adj, 1 );
+            LinkImport( adj, c );
+            CopyEdgeAndThreadToUse( fve, adj, 1 );
 
-	    ThreadToUse( adj, 1, n, 1, integer );
+            ThreadToUse( adj, 1, n, 1, integer );
 
-	    LinkNode( pr, adj );
-	    pr = adj;
-	    break;
+            LinkNode( pr, adj );
+            pr = adj;
+            break;
 
-	default:
-	    CopyEdgeAndThreadToUse( fve, n, 1 );
-	    break;
+        default:
+            CopyEdgeAndThreadToUse( fve, n, 1 );
+            break;
         }
 
     LinkNode( pr, n );
@@ -593,7 +603,7 @@ PNODE l;
     c->info  = integer;
 
     if ( IsLoopA ( l ) )
-	c->CoNsT = "1";
+        c->CoNsT = "1";
     else
         c->CoNsT = "0";
 
@@ -648,14 +658,14 @@ PNODE n;
         if( !IsSGraph( lo->src ) )
             return;
         else
-	    lo = FindImport( n, lo->eport );
+            lo = FindImport( n, lo->eport );
         }
 
     if ( !IsConst( hi ) ) {
         if( !IsSGraph( hi->src ) )
             return;
         else
-	    hi = FindImport( n, hi->eport );
+            hi = FindImport( n, hi->eport );
         }
 
     n->esize = HighMinusLowPlusOne( n, lo, hi ) ;
@@ -704,7 +714,7 @@ PNODE n;
     
     /* NODE n'S IMPORT CANNOT BE REFERENCED BY ANY OTHER MULTIPLE NODES   */
     if ( UsageCount( n->imp->src, n->imp->eport ) != 1 )
-	return( FALSE );
+        return( FALSE );
 
     if ( (linit = FindImport( l->L_INIT, n->imp->eport )) == NULL )
         return( FALSE );
@@ -719,31 +729,31 @@ PNODE n;
     lsrc  = FindSource( linit );
 
     if ( !IsABuild( lsrc->src ) )
-	return( FALSE );
+        return( FALSE );
 
     if ( (lb = FindImport( l->L_BODY, n->imp->eport )) == NULL )
-	return( FALSE );
+        return( FALSE );
 
     if ( IsConst( lb ) )
        return( FALSE );
 
     /* THE BODY NODE CAN ONLY REDEFINE ONE L VALUE.                       */
     for ( cnt = 0, i1 = l->L_BODY->imp; i1 != NULL; i1 = i1->isucc ) {
-	if ( IsConst( i1 ) )
-	    continue;
+        if ( IsConst( i1 ) )
+            continue;
 
         if ( i1->src == lb->src )
-	    cnt++;
+            cnt++;
         }
 
     if ( cnt != 1 )
-	return( FALSE );
+        return( FALSE );
 
 
     switch ( lb->src->type ) {
         case IFAAddH:
         case IFAAddL:
-	    i1 = lb->src->imp;
+            i1 = lb->src->imp;
 
             if ( IsConst( i1 ) )
                 return( FALSE );
@@ -758,36 +768,36 @@ PNODE n;
             break;
         
         case IFACatenate:
-	    i1 = lb->src->imp;
-	    i2 = i1->isucc;
+            i1 = lb->src->imp;
+            i2 = i1->isucc;
 
             /* WE DON't HANDLE CATENATE NODES WITH >= 3 IMPORTS           */
             if ( i2->isucc != NULL )
                 return( FALSE );
 
-	    if ( IsSizeUnknown( i1 ) || IsSizeUnknown( i2 ) )
-		return( FALSE );
+            if ( IsSizeUnknown( i1 ) || IsSizeUnknown( i2 ) )
+                return( FALSE );
 
-	    /* ONE OF THE IMPORTS MUST BE A REFERENCE TO old x            */
-	    if ( IsSGraph( i1->src ) ) {
-		if ( i1->eport == lb->iport )
-		    lxpnd = i2;
+            /* ONE OF THE IMPORTS MUST BE A REFERENCE TO old x            */
+            if ( IsSGraph( i1->src ) ) {
+                if ( i1->eport == lb->iport )
+                    lxpnd = i2;
                 else if ( IsSGraph( i2->src ) && (i2->eport == lb->iport) )
-		    lxpnd = i1;
+                    lxpnd = i1;
                 else
-		    return( FALSE );
+                    return( FALSE );
                 }
             else if ( IsSGraph( i2->src ) && ( i2->eport == lb->iport ) )
-		lxpnd = i1;
+                lxpnd = i1;
             else
-		return( FALSE );
+                return( FALSE );
 
-	    /* IS THE EXPANSION ARRAY SIZE INVARIANT?                     */
-	    if ( !IsConstSize( lxpnd ) )
-		if ( lxpnd->esize->level >= n->level )
-		    return( FALSE );
+            /* IS THE EXPANSION ARRAY SIZE INVARIANT?                     */
+            if ( !IsConstSize( lxpnd ) )
+                if ( lxpnd->esize->level >= n->level )
+                    return( FALSE );
 
-	    break;
+            break;
 
         default:
             return( FALSE );
@@ -815,14 +825,14 @@ PNODE n;
     register PNODE pr;
 
     if ( IsConstSize( n->imp ) ) {
-	BindExportSizes( n, n->imp->lsize, n->imp->csize + 1, NULL_NODE );
-	return;
-	}
+        BindExportSizes( n, n->imp->lsize, n->imp->csize + 1, NULL_NODE );
+        return;
+        }
 
     pr = n->imp->esize;
 
     if ( pr->level < n->level )
-	pr = ReferencePoint( n, pr->level );
+        pr = ReferencePoint( n, pr->level );
 
     plus = NodeAlloc( ++maxint, IFPlus );
     plus->level  = pr->level;
@@ -867,7 +877,7 @@ PNODE n ;
 
     if ( IsConstSize( i1 ) && IsConstSize( i2 ) ) {
         BindExportSizes( n, Max( i1->lsize, i2->lsize ),
-			 i1->csize + i2->csize, NULL_NODE  );
+                         i1->csize + i2->csize, NULL_NODE  );
 
         return;
         }
@@ -966,7 +976,7 @@ PNODE n ;
 
     if ( IsForall( l ) ) {
         BindExportSizes( n, l->lsize, l->csize, l->esize );
-	return;
+        return;
         }
 
     /* NODE l IS A LoopA OR LoopB NODE, WHOSE ITERATION EXPRESSION IS NOT */
@@ -975,7 +985,7 @@ PNODE n ;
     pr = l->esize;
 
     if ( pr->level < l->level )
-	pr = ReferencePoint( l, pr->level );
+        pr = ReferencePoint( l, pr->level );
 
     plus = NodeAlloc( ++maxint, IFPlus );
     plus->level  = pr->level;
@@ -1033,16 +1043,16 @@ PNODE l, n ;
         pr = l->esize;
 
         if ( pr->level < l->level )
-	    pr = ReferencePoint( l, pr->level );
-	}
+            pr = ReferencePoint( l, pr->level );
+        }
     else if ( IsConstSize( lxpnd ) ) {
         pr = l->esize;
 
         if ( pr->level < l->level )
-	    pr = ReferencePoint( l, pr->level );
-	}
+            pr = ReferencePoint( l, pr->level );
+        }
     else
-	pr = MaxNodeInDFO( l, lxpnd->esize, l->esize );
+        pr = MaxNodeInDFO( l, lxpnd->esize, l->esize );
 
     times = NodeAlloc( ++maxint, IFTimes ) ;
     times->level  = pr->level ;
@@ -1055,7 +1065,7 @@ PNODE l, n ;
         ce->info  = integer ;
         ce->CoNsT = "1";
         LinkImport( times, ce );
-	}
+        }
     else if ( IsConstSize( lxpnd ) ) {
         ce = EdgeAlloc( NULL_NODE, CONST_PORT, times, 2 ) ;
         ce->info  = integer ;
@@ -1063,7 +1073,7 @@ PNODE l, n ;
         LinkImport( times, ce );
         }
     else
-	ThreadToUse( lxpnd->esize, 1, times, 2, integer );
+        ThreadToUse( lxpnd->esize, 1, times, 2, integer );
 
     LinkNode( pr, times );
 
@@ -1104,7 +1114,7 @@ int   CoNsT;
     pr = expr;
 
     if ( pr->level < rpoint->level )
-	pr = ReferencePoint( rpoint, pr->level );
+        pr = ReferencePoint( rpoint, pr->level );
 
     times = NodeAlloc( ++maxint, IFTimes );
     times->level  = pr->level;
@@ -1236,34 +1246,34 @@ PNODE g;
     for ( nd = g->G_NODES; nd != NULL; nd = nd->nsucc )
         switch ( nd->type) {
             case IFAAddH:
-		if ( !IsArray( nd->imp->info ) )
+                if ( !IsArray( nd->imp->info ) )
                     break;
 
                 if ( IsConst( nd->imp ) )
-		    break;
+                    break;
 
-		/* FOR ERROR VALUES */
+                /* FOR ERROR VALUES */
                 if ( IsSizeUnknown( nd->imp ) )
-		  nd->imp->csize = 1;
+                  nd->imp->csize = 1;
 
                 BuildAddLHSize( nd );
 
-		/* SHOULD WE DELAY EVERYTHING UNTIL RUN TIME? */
-		if ( (!minopt) && PreferAAddH( nd ) ) {
-		  paddh++;
-		  break;
-		  }
+                /* SHOULD WE DELAY EVERYTHING UNTIL RUN TIME? */
+                if ( (!minopt) && PreferAAddH( nd ) ) {
+                  paddh++;
+                  break;
+                  }
 
                 PushAtNode( nd );
                 break;
 
             case IFAAddL:
-		if ( !IsArray( nd->imp->info ) )
+                if ( !IsArray( nd->imp->info ) )
                     break;
 
-		/* FOR ERROR VALUES! */
+                /* FOR ERROR VALUES! */
                 if ( IsSizeUnknown( nd->imp ) )
-		  nd->imp->csize = 1;
+                  nd->imp->csize = 1;
 
                 BuildAddLHSize( nd );
                 PushAtNode( nd );
@@ -1271,16 +1281,16 @@ PNODE g;
 
             case IFACatenate:
                 if ( !IsArray( nd->exp->info ) )        /* EXPORTS AN ARRAY? */
-		    break;
+                    break;
 
                 if ( nd->imp->isucc->isucc != NULL )
-		    Error1( "AssignSizes: ACatenate WITH > 2 IMPORTS" );
+                    Error1( "AssignSizes: ACatenate WITH > 2 IMPORTS" );
 
-		/* FOR ERROR VALUES! */
+                /* FOR ERROR VALUES! */
                 if ( IsSizeUnknown ( nd->imp ) )
-		  nd->imp->csize = 1;
-		if ( IsSizeUnknown( nd->imp->isucc ) )
-		  nd->imp->isucc->csize = 1;
+                  nd->imp->csize = 1;
+                if ( IsSizeUnknown( nd->imp->isucc ) )
+                  nd->imp->isucc->csize = 1;
 
                 BuildACatSize ( nd ) ;
                 PushAtNode( nd );
@@ -1292,8 +1302,8 @@ PNODE g;
 
                 BuildABuildSize( nd );
 
-		if ( minopt )
-		  break;
+                if ( minopt )
+                  break;
 
                 PushAtNode( nd );
                 break;
@@ -1311,8 +1321,8 @@ PNODE g;
             case IFAGather:
                 l = nd->exp->dst->G_DAD;              /* LOOP OWNING NODE nd */
 
-		if ( minopt )                /* PERFORM MINIMAL OPTIMIZATION */
-		  break;
+                if ( minopt )                /* PERFORM MINIMAL OPTIMIZATION */
+                  break;
 
                 if ( !IsGatherFinalOrReduceOk( l, nd, nd->imp->isucc ) )
                     break;
@@ -1322,8 +1332,8 @@ PNODE g;
                 break;
 
             case IFFinalValue:
-		if ( minopt )           /* ONLY PERFORM MINIMAL OPTIMIZATION */
-		  break;
+                if ( minopt )           /* ONLY PERFORM MINIMAL OPTIMIZATION */
+                  break;
 
                 l = nd->exp->dst->G_DAD;              /* LOOP OWNING NODE nd */
 
@@ -1344,35 +1354,35 @@ PNODE g;
             case IFRedLeft:
             case IFRedRight:
             case IFRedTree:
-		if ( minopt )           /* ONLY PERFORM MINIMAL OPTIMIZATION */
-		  break;
+                if ( minopt )           /* ONLY PERFORM MINIMAL OPTIMIZATION */
+                  break;
 
                 if ( nd->imp->CoNsT[0] != REDUCE_CATENATE )     /* CATENATE? */
                     break;
 
                 l    = nd->exp->dst->G_DAD;           /* LOOP OWNING NODE nd */
-		mult = nd->imp->isucc->isucc;
+                mult = nd->imp->isucc->isucc;
 
                 if ( !IsForall(l) )                      /* ONLY FOR FORALLS */
                     break;
 
                 if ( !IsGatherFinalOrReduceOk( l, nd, mult ) )
-		    break;
+                    break;
 
                 if ( IsConst( mult ) )          /* NOT IF CATENATING STRINGS */
-		    break;
+                    break;
 
-		/* IF mult IS NOT A K-PORT VALUE IT MUST BE A T-PORT VALUE   */
-		/* WHOSE SIZE IS EITHER CONSTANT OR KNOWN OUTSIDE THE LOOP   */
+                /* IF mult IS NOT A K-PORT VALUE IT MUST BE A T-PORT VALUE   */
+                /* WHOSE SIZE IS EITHER CONSTANT OR KNOWN OUTSIDE THE LOOP   */
 
                 if ( !IsImport( l, mult->eport ) )
                     mult = FindImport( l->F_BODY, mult->eport );
 
                 if ( mult == NULL )
-		    break;
+                    break;
 
-		if ( IsSizeUnknown( mult ) )
-		    break;
+                if ( IsSizeUnknown( mult ) )
+                    break;
 
                 if ( !IsConstSize( mult ) )
                     if ( mult->esize->level >= nd->level )
