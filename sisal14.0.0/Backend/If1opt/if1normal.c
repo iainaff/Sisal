@@ -1675,8 +1675,30 @@ StartForall:
                 break;
 
             case IFNoOp:
-                if ( native )
-                    Error1( "IFNoOp NOT IMPLEMENTED" );
+	      if ( native ) {
+		PEDGE e;
+		PEDGE e2;
+		PEDGE sedge;
+
+		/* Wire across edges */
+		for(e = n->exp; e; e = e2) {
+		  e2 = e->esucc;
+
+		  /* Find equivalent source edge */
+		  sedge = FindImport(n,e->eport);
+		  UnlinkExport(e);
+		  
+		  /* Relink the output edge to the source */
+		  if ( IsConst(sedge) ) {
+		    e->src = 0;
+		    e->eport = -1;
+		    e->CoNsT = sedge->CoNsT;
+		  } else {
+		    e->eport = sedge->eport;
+		    LinkExport(sedge->src,e);
+		  }
+		}
+	      }
 
                 break;
 
