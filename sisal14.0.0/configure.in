@@ -26,7 +26,16 @@ AC_ARG_ENABLE(fortran, --disable-fortran   turn off FORTRAN support if you have 
 # -----------------------------------------------
 AC_PROG_CC
 if test "$fortran_enabled" = 1; then
-  AC_PROG_F77
+  echo 'check here'
+  #  AC_PROG_F77(foop 
+  #AC_PATH_PROG(F77,fl32 f77 fort77 xlf cf77 g77 f90 xlf90)
+  AC_CHECK_PROGS(F77, fl32 f77 fort77 xlf cf77 g77 f90 xlf90,noF77)
+  if test "$F77" != "noF77"; then
+    AC_PROG_F77
+  else
+    AC_MSG_WARN(FORTRAN support disabled)
+    fortran_enabled=0
+  fi
 fi
 CCARGUMENTS=`extraArguments $CC`
 AC_PATH_PROG(CC,$CC,$CC)

@@ -257,15 +257,28 @@ int fetchStringNext(int action,char* program,char*** argP, option_t* option) {
 int appendQueue(int action,char* program,char*** argP, option_t* option) {
    char* arg = (argP)?(**argP):0;
    char* equal = 0;
+   int sense = 0;
+
    switch (action) {
    case SETDEFAULT:
       break;
    case CHECKARG:
+      /* Check if it is the form -e=xxxx */
       equal = matchEqual(arg,option);
       if ( equal ) {
          enqueue(option->queue,equal);
          (*argP)++;
          return 1;
+      }
+
+      /* Check if it is the form -e xxxx */
+      else if ( matches(arg,option,&sense) ) {
+        (*argP)++;
+        if (*argP) {
+          enqueue(option->queue,**argP);
+          (*argP)++;
+          return 1;
+        }
       }
       break;
    case DOC:

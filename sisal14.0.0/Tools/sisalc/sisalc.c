@@ -426,6 +426,7 @@ int main(int argc, char** argv) {
    /* ----------------------------------------------- */
    if ( if1Files ) {
       result = generateFilename(if1Files->charStar,".mono",stopMONO);
+      puts("here i am");
       if1ld(
             &if1Files, /* files to merge */
             result, /* Where to put merged result */
