@@ -75,7 +75,7 @@ int main() {
 }
 EOF
     if $cc -o conftest conftest.c >/dev/null 2>&1; then
-      echo `conftest`
+      echo `./conftest`
       rm -f conftest conftest.*
       exit 0
     fi

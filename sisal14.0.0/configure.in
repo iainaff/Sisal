@@ -409,7 +409,7 @@ int main() {
 }
 EOF
 if ( eval $ac_link > /dev/null 2>&1 ); then
-   path_length=`conftest${ac_exeext}`
+   path_length=`./conftest${ac_exeext}`
    if test "$path_length" != "0"; then
       max_path_length="$path_length";
    fi
