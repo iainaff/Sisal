@@ -16,6 +16,21 @@ int RecompileTheModuleDefining_ARGV = 0;
 #undef _EXIT
 void         _EXIT();
 int RecompileTheModuleDefining_EXIT = 0;
+#undef _LSHIFT
+void         _LSHIFT();
+int RecompileTheModuleDefining_LSHIFT = 0;
+#undef _RSHIFT
+void         _RSHIFT();
+int RecompileTheModuleDefining_RSHIFT = 0;
+#undef _BITOR
+void         _BITOR();
+int RecompileTheModuleDefining_BITOR = 0;
+#undef _BITAND
+void         _BITAND();
+int RecompileTheModuleDefining_BITAND = 0;
+#undef _BITXOR
+void         _BITXOR();
+int RecompileTheModuleDefining_BITXOR = 0;
 
 struct Args12 {   
 struct ActRec *FirstAR; int Count;   
@@ -35,6 +50,11 @@ struct ActRec *FirstAR; int Count;
 struct Args15 {   
 struct ActRec *FirstAR; int Count;   
   int In1; POINTER In2;    int Out1;
+  };
+
+struct Args16 {   
+struct ActRec *FirstAR; int Count;   
+  int In1;  int In2; int Out1;
   };
 
 extern char** sisal_save_argv;
@@ -168,3 +188,24 @@ void _EXIT(struct Args15* args) {
   fputc('\n',stderr);
   exit(args->In1);
 }
+
+void _LSHIFT(struct Args16* args) {
+  args->Out1 = (args->In1 << args->In2);
+}
+
+void _RSHIFT(struct Args16* args) {
+  args->Out1 = (args->In1 >> args->In2);
+}
+
+void _BITOR(struct Args16* args) {
+  args->Out1 = (args->In1 | args->In2);
+}
+
+void _BITAND(struct Args16* args) {
+  args->Out1 = (args->In1 & args->In2);
+}
+
+void _BITXOR(struct Args16* args) {
+  args->Out1 = (args->In1 ^ args->In2);
+}
+
