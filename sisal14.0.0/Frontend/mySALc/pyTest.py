@@ -1,15 +1,17 @@
 import mysal,mysalparser
 import string,sys,time
+#sys.stdout = sys.stderr
 
 
 ##################################################################
 #                      CLASS FUNCTIONRECORD                      #
 ##################################################################
 class FunctionRecord:
-    def __init__(self,id,types,defined=0):
+    def __init__(self,id,types,defined=0,module=''):
 	self.id		= id
 	self.types	= types
 	self.defined	= defined
+        self.module     = module
 	return
 
 ##################################################################
@@ -29,7 +31,7 @@ class SymbolTableEntry:
         return str(self.unique)
 
     def __repr__(self):
-        return '<st %s : %s>'%(self.name,self.type)
+        return '<sym %s : %s>'%(self.name,self.type)
 
 
 ##################################################################
@@ -50,6 +52,9 @@ class SymbolTable:
             raise ValueError
         self.__symbols[name] = newSymbol
         return
+
+    def __repr__(self):
+        return '<ST %s>'%self.__symbols
         
 
 ##################################################################
@@ -66,19 +71,25 @@ class SymbolTableStack:
     
     def close(self):
         try:
+            last = self.__stack[-1]
             del self.__stack[-1]
         except:
-            pass
+            last = None
+        return last
 
     def __getattr__(self,a):
-        assert self.__stack
-        return getattr(self.__stack[-1],a)
+        if self.__stack:
+            return getattr(self.__stack[-1],a)
+        raise AttributeError,a
 
     def lookup(self,name):
         for i in range(1,len(self.__stack)+1):
             try: return self.__stack[-i].lookup(name)
             except: pass
         raise KeyError,name
+
+    def __repr__(self):
+        return '<STS %s>'%self.__stack
 
 ##################################################################
 #                          CLASS TOKEN                           #
@@ -121,9 +132,11 @@ class token:
 ##################################################################
 class expr(token):
     def __init__(self,code="",values=[],start=None,end=None,clone=None):
+        from types import ListType
         token.__init__(self)
         self.code	= code
         self.values	= values
+        assert type(values) == ListType
         if start: self.startFrom(start)
         if end: self.endFrom(end)
         if clone: self.clone(clone)
@@ -155,6 +168,7 @@ class expr(token):
         return len(self.values)
     def __repr__(self):
         return "<%s = %s %s:%d>"%(self.values,repr(self.code),self.fileName,self.startLine)
+    __str__ = __repr__
     def __getitem__(self,i):
         return self.values[i]
 
@@ -166,16 +180,33 @@ class mySALImplementation(mysalparser.mySALParser):
     # Class static
     token = token
     expr = expr
+    __boolean = token('boolean','system',0,0,0,0)
+    __integer = token('integer','system',0,0,0,0)
+    __double = token('double','system',0,0,0,0)
+    __string = token('string','system',0,0,0,0)
+
+    __boolean_array = token('boolean_array','system',0,0,0,0)
+    __integer_array = token('integer_array','system',0,0,0,0)
+    __double_array = token('double_array','system',0,0,0,0)
+    __string_array = token('string_array','system',0,0,0,0)
+
+    __boolean_matrix = token('boolean_matrix','system',0,0,0,0)
+    __integer_matrix = token('integer_matrix','system',0,0,0,0)
+    __double_matrix = token('double_matrix','system',0,0,0,0)
+    __string_matrix = token('string_matrix','system',0,0,0,0)
+
+    __boolean_slab = token('boolean_slab','system',0,0,0,0)
+    __integer_slab = token('integer_slab','system',0,0,0,0)
+    __double_slab = token('double_slab','system',0,0,0,0)
+    __string_slab = token('string_slab','system',0,0,0,0)
+
+    __zero = token('0','system',0,0,0,0)
 
     def __init__(self,file):
         self.__file = file
         self.__symbols = SymbolTableStack()
         self.__known = {}
         self.__functions = {}
-        self.__boolean = self.token('boolean','system',0,0,0,0)
-        self.__integer = self.token('integer','system',0,0,0,0)
-        self.__double = self.token('double','system',0,0,0,0)
-        self.__zero = self.token('0','system',0,0,0,0)
         return
 
     # -----------------------------------------------
@@ -203,9 +234,10 @@ class mySALImplementation(mysalparser.mySALParser):
         keys = self.__known.keys()
         i = 0
         name = str(base)
-        while name in keys:
+        while 1:
             i += 1
-            name = '%s_%d'%(base,i) 
+            name = '%s_%d'%(base,i)
+            if name not in keys: break
         self.__known[name] = base
         return name
 
@@ -215,28 +247,56 @@ class mySALImplementation(mysalparser.mySALParser):
         expr = self.lookupName(name)
         return expr
 
+    def integerTemporary(self,dummy=0):
+        expr = self.temporary(dummy)
+        expr.setType(self.__integer)
+        return expr
+
     def uniqueTemporaries(self,n):
         return map(self.temporary, range(n))
 
     # -----------------------------------------------
     # This is the standard typer for arithmetic ops
     # -----------------------------------------------
-    def type_arithmetic(self,A,op,B):
-        typeA = str(A.value().type)
-        typeB = str(B.value().type)
+    def type_arithmetic(self,op,*args):
+        assert args
+        types = tuple(map(lambda x: str(x.value().type), args))
+
         ok = { ('integer','integer') : 'integer',
                ('integer','double') : 'double',
                ('double','double') : 'double',
                ('double','integer') : 'double',
+               
+               ('integer',) : 'integer',
+               ('double',) : 'double',
                }
         try:
-            result = ok[(typeA,typeB)]
+            result = ok[types]
         except:
-            self.error(op,msg='invalid operand types (%s,%s)'%(typeA,typeB))
-            result = A.value().type
+            self.error(op,msg='invalid operand types for %s, %s'%(op,str(types)))
+            result = args[0].value().type
         return result
 
-    def type_equals(self,A,op,B):
+    # -----------------------------------------------
+    # Unary not
+    # -----------------------------------------------
+    def type_not(self,op,B):
+        if str(B.value.type) != 'boolean':
+            self.error(op,msg='Expected boolean type, have %s'%str(B.value.type))
+        return self.__boolean
+    
+    # -----------------------------------------------
+    # Arithmetics and string catenation
+    # -----------------------------------------------
+    def type_string_or_arithmetic(self,op,A,B):
+        typeA = str(A.value().type)
+        typeB = str(B.value().type)
+        if typeA == 'string' and typeB == 'string':
+            return 'string'
+        else:
+            return self.type_arithmetic(op,A,B)
+    
+    def type_equals(self,op,A,B):
         typeA = str(A.value().type)
         typeB = str(B.value().type)
         ok = { ('integer','integer') : 'boolean',
@@ -252,7 +312,7 @@ class mySALImplementation(mysalparser.mySALParser):
             result = self.__boolean
         return result
 
-    def type_compare(self,A,op,B):
+    def type_compare(self,op,A,B):
         typeA = str(A.value().type)
         typeB = str(B.value().type)
         ok = { ('integer','integer') : 'boolean',
@@ -271,7 +331,10 @@ class mySALImplementation(mysalparser.mySALParser):
     # Write in standard error format
     # -----------------------------------------------
     def error(self,x,msg='',*args):
-        sys.stderr.write( '\n%s:%d: Error, %s\n'%(x.fileName,x.startLine,msg) )
+        try:
+            sys.stderr.write( '\n%s:%d: Error, %s\n'%(x.fileName,x.startLine,msg) )
+        except:
+            sys.stderr.write( '\n??:??: Error, %s\n'%(msg) )
         return
 
     # -----------------------------------------------
@@ -290,8 +353,7 @@ class mySALImplementation(mysalparser.mySALParser):
         return
 
     def closeScope(self):
-        self.__symbols.close()
-        return
+        return self.__symbols.close()
 
     def lookupName(self,name):
         return self.__symbols.lookup(name)
@@ -304,9 +366,12 @@ class mySALImplementation(mysalparser.mySALParser):
     # -----------------------------------------------
     def idList_1(self,id_):
         # Enter value into scope
-        u = self.unique(id_)
-        self.setName(id_,u)
-        return [u]
+        try:
+            u = self.unique(id_)
+            self.setName(id_,u)
+        except ValueError:
+            self.error(id_,msg="%s already defined in this scope"%id_)
+        return [str(id_)]
 
     def idList_3(self,idList,comma,id_):
         idList += self.idList_1(id_)
@@ -357,16 +422,56 @@ class mySALImplementation(mysalparser.mySALParser):
         return expr
 
     # -----------------------------------------------
+    # Follow parens
+    # -----------------------------------------------
+    def paren( self, lparen,expression,rparen ):
+        expression.startFrom(lparen)
+        expression.endFrom(rparen)
+        return expression
+
+    # -----------------------------------------------
     # Function call
     # -----------------------------------------------
+    intrinsicFunctions = {
+        '_peek_of_boolean' : [__boolean],
+        '_peek_of_boolean_string' : [__boolean],
+
+        '_peek_of_integer' : [__integer],
+        '_peek_of_integer_string' : [__integer],
+
+        '_peek_of_double' : [__double],
+        '_peek_of_double_string' : [__double],
+
+        '_peek_of_string' : [__string],
+        '_peek_of_string_string' : [__string],
+
+        '_double_of_integer' : [__double],
+        '_double_of_double' : [__double],
+        '_double_of_string' : [__double],
+
+        '_integer_of_integer' : [__integer],
+        '_integer_of_double' : [__integer],
+        '_integer_of_string' : [__integer],
+
+        '_string_of_integer' : [__string],
+        '_string_of_double' : [__string],
+        '_string_of_string' : [__string],
+
+        }
+    
     def functionCall( self, id,lparen,expression,rparen ):
         # Generate the mangled name for lookup
         name = self.mangle(id,expression.types())
 
         # It should be defined by now...
-        if not self.__functions.has_key(name):
-            self.__functions[name] = FunctionRecord(id, [self.__integer] ) # signature and body count
-            self.error(id,msg="Undefined function %s"%id)
+        if self.intrinsicFunctions.has_key(name):
+            if not self.__functions.has_key(name):
+                self.__functions[name] = FunctionRecord(id, self.intrinsicFunctions[name], module='sisalrt.')
+        elif self.__functions.has_key(name):
+            pass
+        else:
+            self.__functions[name] = FunctionRecord(id, [self.__integer] ) # fake signature and body count
+            self.error(id,msg="Undefined function %s%s"%(id,map(str,expression.types())))
 
         # We need to hold these results
         results = self.uniqueTemporaries(len(self.__functions[name].types))
@@ -378,12 +483,16 @@ class mySALImplementation(mysalparser.mySALParser):
 
         # Do the work for the current expression
         value = self.expr(expression.code,results,start=id,end=rparen)
-        value.append('%s = %s(%s)'%(lhs,name,expression.rhs()))
+        value.append('%s = %s%s(%s)'%(lhs,self.__functions[name].module,name,expression.rhs()))
 
         return value
     
     def optExpression_0( self ):
         return self.expr()
+
+
+    def dollarCall(self, dollar, id):
+        return self.functionCall(id,dollar,self.expr(),dollar)
 
     # -----------------------------------------------
     # Handle constant values as special expressions
@@ -405,43 +514,103 @@ class mySALImplementation(mysalparser.mySALParser):
     def doubleConst(self,doubleLiteral):
         return self.setConst(doubleLiteral,self.__double)
 
+    def stringConst(self,stringLiteral):
+        return self.setConst(stringLiteral,self.__string)
+
     # -----------------------------------------------
     # Arithmetics just use either inline or special
     # name functions
     # -----------------------------------------------
-    intrinsics = {
-        'mod': ('_modulus', type_arithmetic),
-        'div': ('_divide', type_arithmetic),
-        '+': ('+', type_arithmetic),
+    intrinsicOperations = {
+        'mod': ('modulus', type_arithmetic),
+        'div': ('divide', type_arithmetic),
+        '+': ('+', type_string_or_arithmetic),
         '-': ('-', type_arithmetic),
         '*': ('*', type_arithmetic),
         '/': ('/', type_arithmetic),
+        '^': ('pow', type_arithmetic),
         '==': ('==', type_equals),
         '<': ('<', type_compare),
         '<=': ('<=', type_compare),
         '>': ('>', type_compare),
         '>=': ('>=', type_compare),
+        'not': ('not', type_not),
         }
 
     def infix_3(self, A, op, B):
         # These work only on unary expressions
-        assert len(A) == 1
-        assert len(B) == 1
+        if len(A) != 1:
+            self.error(A,msg="Incorrect arity of left operand, %d"%len(A))
+        if len(B) != 1:
+            self.error(B,msg="Incorrect arity of right operand, %d"%len(B))
         
         # The code I want is t = A op B or maybe t = op(A,B)
-        function, typer = self.intrinsics[str(op)]
+        function, typer = self.intrinsicOperations[str(op)]
+        name = self.mangle(function,[A.value().type,B.value().type])
         if str(op) == function:
             work = '(%s %s %s)'%(A.value(),op,B.value())
         else:
-            work = '%s(%s,%s)'%(function,A.value(),B.value())
+            work = 'sisalrt.%s(%s,%s)'%(name,A.value(),B.value())
 
         # Get a temporary and set its type
-        type = typer(self, A,op,B)
-        expr = self.temporary()
-        expr.setType(type)
+        type = typer(self, op,A,B)
+        t = self.temporary()
+        t.setType(type)
 
-        code = A.code + '\n' + B.code + "\n%s = %s"%(expr, work)
-        result = self.expr(code,[expr],start=A,end=B)
+        # Build an expression
+        result = self.expr('',[t],start=A,end=B)
+        result.append(A.code)
+        result.append(B.code)
+        result.append("%s = %s"%(t, work))
+        return result
+
+    def prefix_2(self, op, B):
+        # These work only on unary expressions
+        if len(B) != 1:
+            self.error(B,msg="Incorrect arity of unary operand, %d"%len(B))
+
+        # The code I want is t = op B or maybe t = op(B)
+        function, typer = self.intrinsicOperations[str(op)]
+        name = self.mangle(function,[B.value().type])
+        if str(op) == function:
+            work = '(%s %s)'%(op,B.value())
+        else:
+            work = 'sisalrt.%s(%s)'%(name,B.value())
+
+        # Get a temporary and set its type
+        type = typer(self, op,B)
+        t = self.temporary()
+        t.setType(type)
+
+        # Build an expression
+        result = self.expr('',[t],start=op,end=B)
+        result.append(B.code)
+        result.append("%s = %s"%(t, work))
+        return result
+
+    # -----------------------------------------------
+    # Array indices are pretty simple
+    # -----------------------------------------------
+    def arrayIndex_4(self,array,lbracket,expression,rbracket):
+        # Just simple arrays please...
+        if len(array) > 1:
+            self.error(array,msg="Expected unary array value, not arity %d expression"%len(array))
+            del array.values[1:]
+            
+        # Make sure the expression is all integer
+        types = map(str,expression.types())
+        for i in range(0,len(types)):
+            if types[i] != 'integer':
+                self.error(lbracket,msg='Index #%d is %s, not integer'%(i+1,types[i]))
+
+
+        # Get a temporary and set its type
+        base = str(array.value().type).split('_')[0]
+        t = self.temporary()
+        t.setType(base)
+
+        # Build an expression
+        result = self.expr('%s = (%s).index(%s)'%(t,array.rhs(),expression.rhs()),[t],start=array,end=rbracket)
         return result
 
     # -----------------------------------------------
@@ -489,38 +658,81 @@ class mySALImplementation(mysalparser.mySALParser):
         nameList.append(nameEntry)
         return nameList
     def nameEntry(self, idList,equals,expression):
-        code = expression.code+'%s = %s'%(string.join(idList,','),expression.rhs())
-        return self.expr(code,idList)
+        # Convert names into local names
+        syms = map(lambda x,self=self: self.lookupName(x), idList)
+
+        # Sanity check for length
+        if len(syms) != len(expression):
+            self.error(equals,msg="LHS has arity %d, RHS has arity %d"%(len(syms),len(expression)))
+            # Expand expression as needed
+            while len(expression) < len(syms):
+                expression.append(self.integerConst(self.__zero))
+            while len(syms) < len(expression):
+                syms.append(self.temporary())
+
+        # Match types with names
+        names = map(lambda x: x.unique, syms)
+        for sym,type in map(None, syms,expression.types()):
+            sym.setType(type)
+        code = expression.code+'\n%s = %s'%(string.join(names,','),expression.rhs())
+        result = self.expr(code,idList,clone=equals)
+        return result
 
     # -----------------------------------------------
     # Let expressions use name bindings
     # -----------------------------------------------
     def letExpr( self, let_,openScope,nameList,in_,expression,closeScope,end_,let__ ):
-        expr = self.expr('',expression.values,start=let,end=let__)
-        expr += nameList.code
-        expr += expression.code
+        assert isinstance(expression,self.expr),expression
+        expr = self.expr('',expression.values,start=let_,end=let__)
+        expr.append(nameList.code)
+        expr.append(expression.code)
         return expr
 
     # -----------------------------------------------
     # Range expressions
     # -----------------------------------------------
     def rangeClause( self, id,in_,expression ):
-        assert len(expression) == 2 or len(expression) == 3
+        # I only understand low/high and low/high/step
+        if len(expression) != 2 and len(expression) != 3:
+            self.error(expression,msg="Range driver not of form low/high or low/high/step with arity %d"%len(expression))
+        if len(expression) < 2:
+            expression.append(self.integerConst(self.__zero))
+        if len(expression) > 3:
+            del expression.values[3:]
+            
         # Make sure all sub expressions are integers
         for subexpr in expression:
-            assert str(subexpr.type) == 'integer'
+            if str(subexpr.type) != "integer":
+                self.error(expression,msg="Expecting all integer range driver, not %s"%subexpr.type)
 
+        # Build a range value
+        t = self.integerTemporary()
+        e = self.expr(expression.code+"\n%s = sisalrt._range(%s)"%(t,expression.rhs()),[t],start=id,end=expression)
+        #e.append('print "%s.shape",%s.shape()'%(t,t))
+        
         id = str(id)
         u = self.unique(id)
         self.setName(id,u)
         sym = self.lookupName(id)
         sym.setType(self.__integer)
-        return (u,expression)
+        return ([u],e)
+
     def rangeExpr_1( self, rangeClause ):
-        return [rangeClause]
-    def rangeExpr_3( self, arg1,arg2,arg3 ):
-        assert str(arg2) == 'dot'
-        raise RuntimeError,"rangeExpr"
+        return rangeClause
+
+    def rangeExpr_3( self, arg1,op,arg2 ):
+        id1, expr1 = arg1; v1 = expr1.value()
+        id2, expr2 = arg2; v2 = expr2.value()
+
+        # Build a range value
+        t = self.integerTemporary()
+        result = self.expr('',[t],clone=op)
+        result.append(expr1.code)
+        result.append(expr2.code)
+        result.append('%s = sisalrt._%s(%s,%s)'%(t,op,v1,v2))
+        #result.append('print "%s.shape",%s.shape()'%(t,t))
+
+        return (id1+id2,result)
 
     # -----------------------------------------------
     # Returns clauses for forall loops
@@ -536,60 +748,87 @@ class mySALImplementation(mysalparser.mySALParser):
         return arrayReturnBody
 
     # -----------------------------------------------
+    # Built in reduction funtions
+    # -----------------------------------------------
+    reductions = {
+        '_array_of_boolean' : __boolean_array,
+        '_array_of_integer' : __integer_array,
+        '_array_of_double' : __double_array,
+        '_array_of_string' : __string_array,
+        }
+        
+    # -----------------------------------------------
     # Forall loops
     # -----------------------------------------------
-    def forExpr( self, for_,openScope,rangeExpr,optNameList,returns_,arrayReturns,end_,for__ ):
-        # We need prelude code for the range generators
-        code = ''
-        drivers = []
-        for name, expr in rangeExpr:
-            code += '\n'+expr.code
-            if len(expr) == 1:
-                raise RuntimeError
-            elif len(expr) == 2:
-                drivers.append( '%s in range(%s,%s+1)'%(name,expr[0],expr[1]) )
-            elif len(expr) == 3:
-                drivers.append( '%s in range(%s,%s+%s,%s)'%(name,expr[0],expr[1],expr[2],expr[2]) )
-            else:
-                self.error(expr,msg="Range arity must be 1,2, or 3")
+    def forExpr( self, for_,openScope,rangeExpr,optNameList,returns_,arrayReturns,end_,for__,closeScope ):
+        # -----------------------------------------------
+        # Build the prelude
+        # -----------------------------------------------
+        rangeIDs, rangeCode = rangeExpr
+        code = rangeCode.code
 
+        # Lay out prelude code for returns
         # We need prelude code for all the values gathered
-        names = []
+        syms = []
         for kind,work in arrayReturns:
-            if str(kind) == 'array':
-                expr = self.temporary()
-                code += '%s = _array()\n'%expr
-                names.append(expr)
+            t = self.temporary()
+            syms.append(t)
+            t.setType(work.value().type)
+            code += '\n%s = sisalrt._multiple_of_%s(%s)'%(t,work.typeString(),rangeCode.rhs())
+
+        # Add in the driver for the loop
+        ii = self.integerTemporary()
+        code += '\nfor %s in xrange(%s.length):'%(ii,rangeCode.rhs())
+
+        # -----------------------------------------------
+        # Build the loop body
+        # -----------------------------------------------
+        body = self.expr()
+        
+        # calculate values for ranges
+        for i in range(0,len(rangeIDs)):
+            rangeID = rangeIDs[i]
+            body.append('%s = %s.index(%d,%s)'%(rangeID,rangeCode.rhs(),i,ii))
+
+        # Do the work for the body
+        body.append(optNameList.code)
+
+        # Gather up multiples
+        for i in range(len(arrayReturns)):
+            kind,work = arrayReturns[i]
+            sym = syms[i]
+            body.append(work.code)
+            body.append('%s.set(%s,%s)'%(sym,ii,work.rhs()))
+        
+        body.indent()
+        code += '\n'
+        code += body.code
+
+        # -----------------------------------------------
+        # Apply the reductions
+        # -----------------------------------------------
+        # Gather up multiples
+        results = self.uniqueTemporaries(len(arrayReturns))
+        for i in range(len(arrayReturns)):
+            kind,work = arrayReturns[i]
+            name = self.mangle(kind,[work.value().type])
+            if self.reductions.has_key(name):
+                results[i].setType(self.reductions[name])
             else:
-                raise RuntimeError
-
-        # A single range is a special case (no dotting)
-        if len(rangeExpr) == 1:
-            code += 'for %s:\n'%drivers[0]
-        else:
-            raise RuntimeError
-
-        # Add in the body code
-        optNameList.indent()
-        code += optNameList.code
-
-        # Add in the code that the return clauses need
-        i = 0
-        for kind,work in arrayReturns:
-            work.indent()
-            code += work.code+'\n'
-            if str(kind) == 'array':
-                name = names[i]
-                code += '    %s.append(%s)\n'%(name,work.value())
-            else:
-                raise RuntimeError
-
-        return self.expr(code,names)
+                results[i].setType(self.__integer)
+                self.error(work,msg='Invalid reduction for type %s'%work.value().type)
+            code += '\n%s = sisalrt.%s(%s,%s)'%(results[i],name,rangeCode.rhs(),syms[i])
+        
+        expr = self.expr(code,results,start=for_,end=for__)
+        return expr
 
     # -----------------------------------------------
     # Expressions just join singletons
     # -----------------------------------------------
     def expression_3(self, expression, comma, singleton):
+        assert isinstance(expression,self.expr),expression
+        assert isinstance(singleton,self.expr),singleton
+
         expression.append(singleton)
         expression.endFrom(singleton)
         return expression
@@ -597,7 +836,7 @@ class mySALImplementation(mysalparser.mySALParser):
     # -----------------------------------------------
     # Functions bind arguments to an expression
     # -----------------------------------------------
-    def function_common(self, id,lparen,openScope,optParameters,returns_,typeList,rparen,closeScope ):
+    def functionPrototype( self, function_,id,lparen,optParameters,returns_,typeList,rparen ):
         # -----------------------------------------------
         # Get the input and output types...
         # -----------------------------------------------
@@ -631,7 +870,7 @@ class mySALImplementation(mysalparser.mySALParser):
             self.error(id, msg="Function %s already has a body"%id)
             self.error(self.__functions[name].id, msg="Previous definition")
         
-        return inTypes,inNames,outTypes,name
+        return id,typeList,inTypes,inNames,outTypes,name
 
     def function_expression_check(self, end_, expression, typeList):
         L = min(len(expression),len(typeList))
@@ -644,12 +883,58 @@ class mySALImplementation(mysalparser.mySALParser):
                 self.error(end_,msg='bad type result %d expected %s and got %s'%(i+1,typeList[i],expression[i].type))
         return
 
-    def function_10( self, function_,id,lparen,openScope,optParameters,returns_,typeList,rparen,semi,closeScope ):
-        inTypes,inNames,outTypes,name = self.function_common(id,lparen,openScope,optParameters,returns_,typeList,rparen,closeScope )
-    
-    def function_11( self, main_,lparen,openScope,optParameters,returns_,typeList,rparen,expression,closeScope,end_,main__ ):
-        inTypes,inNames,outTypes,name = self.function_common(main_,lparen,openScope,optParameters,returns_,typeList,rparen,closeScope )
-        self.__functions[name].defined = 1  # Mark as having a body
+    # -----------------------------------------------
+    # Function with expression body
+    # -----------------------------------------------
+    def function_7( self, openScope,functionPrototype,expression,end_,function_,id,closeScope ):
+        rawName, typeList, inTypes,inNames,outTypes,name = functionPrototype
+
+        # Mark as having a body
+        self.__functions[name].defined = 1
+
+        # Make sure tail id matches
+        if str(rawName) != str(id):
+            self.error(id, msg="Tail id %s doesn't match function name %s"%(rawName,id))
+
+        # Convert IDs into unique name
+        names = map(lambda id,closeScope=closeScope: closeScope.lookup(id).unique, inNames)
+
+        print '# -----------------------------------------------'
+        print "def %s(%s):"%(name,string.join(names,','))
+        expression.append('return %s # %s'%(expression.rhs(),string.join(map(str,expression.types()))))
+        expression.indent()
+        print expression.code
+        print '# -----------------------------------------------'
+
+        self.function_expression_check(end_, expression, typeList)
+        return name,typeList
+
+    # -----------------------------------------------
+    # Forward function
+    # -----------------------------------------------
+    def function_4( self, openScope,functionPrototype,semi,closeScope ):
+        rawName, typeList, inTypes,inNames,outTypes,name = functionPrototype
+        return name,typeList
+
+    # -----------------------------------------------
+    # Forward function in module
+    # -----------------------------------------------
+    def function_6( self, openScope,functionPrototype,in_,id,semi,closeScope ):
+        rawName, typeList, inTypes,inNames,outTypes,name = functionPrototype
+        print 'import %s'%id
+        if self.__functions[name].module and self.__functions[name].module != str(id):
+            self.error(in_,msg="%s was already assigned to module %s"%(rawName,self.__functions[name].module))
+        self.__functions[name].module=str(id)+'.'
+        return name,typeList
+
+    # -----------------------------------------------
+    # Main
+    # -----------------------------------------------
+    def function_11( self, openScope,main_,lparen,optParameters,returns_,typeList,rparen,expression,end_,main__,closeScope ):
+        rawName, typeList, inTypes,inNames,outTypes,name = self.functionPrototype("function",main_,lparen,optParameters,returns_,typeList,rparen)
+
+        # Mark as having a body
+        self.__functions[name].defined = 1
         
         # We build an expression to hold main
         main = self.expr('',expression.values)
@@ -657,7 +942,8 @@ class mySALImplementation(mysalparser.mySALParser):
         # We first need to grab all inputs
         main.append('sisalrt._start()')
         for i in range(0,len(inNames)):
-            main.append('%s = sisalrt._input%s()'%(inNames[i],inTypes[i]))
+            name = closeScope.lookup(inNames[i])
+            main.append('%s = sisalrt._input%s()'%(name,inTypes[i]))
 
         # Now the code that does all the work
         main.append('sisalrt._begin()')
@@ -676,23 +962,8 @@ class mySALImplementation(mysalparser.mySALParser):
         
         self.function_expression_check(end_, expression, typeList)
 
-    def function_13( self, function_,id,lparen,openScope,optParameters,returns_,typeList,rparen,expression,closeScope,end_,function__,id_ ):
-        inTypes,inNames,outTypes,name = self.function_common(id,lparen,openScope,optParameters,returns_,typeList,rparen,closeScope )
-        self.__functions[name].defined = 1  # Mark as having a body
-
-        # Make sure tail id matches
-        if str(id) != str(id_):
-            self.error(id_, msg="Tail id %s doesn't match function name %s"%(id_,id))
-
-        print '# -----------------------------------------------'
-        print "def %s(%s):"%(name,string.join(inNames,','))
-        expression.append('return %s # %s'%(expression.rhs(),string.join(map(str,expression.types()))))
-        expression.indent()
-        print expression.code
-        print '# -----------------------------------------------'
-
-        self.function_expression_check(end_, expression, typeList)
-        return name,typeList
+    def function_13( self, openScope,function_,id,lparen,optParameters,returns_,typeList,rparen,expression,end_,function__,id_,closeScope ):
+        inTypes,inNames,outTypes,name = self.function_common(id,lparen,optParameters,returns_,typeList,rparen )
 
     def program(self,prologue,functionList):
         return functionList

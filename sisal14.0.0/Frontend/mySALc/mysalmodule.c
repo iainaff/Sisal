@@ -36,6 +36,7 @@ static void* generateToken(void* master,
 /************************************************************************ **/
 /*  */
 /**************************************************************************/
+static FILE* logFile = 0;
 static void* reductionAction(void* master,
 			     const char* lhs,
 			     unsigned int rule,
@@ -60,8 +61,9 @@ static void* reductionAction(void* master,
     if ( !self ) return 0;
     sprintf(methodName,"%s_%d",lhs,rhsSize);
 
-    fprintf(stderr,"%s ==>",methodName);
-    fflush(stderr);
+    if ( ! logFile ) logFile = fopen("trace.log","w");
+    fprintf(logFile,"%s ==>",methodName);
+    fflush(logFile);
 
     method = PyObject_GetAttrString(self,methodName);
     if ( PyErr_Occurred() ) {
@@ -87,9 +89,9 @@ static void* reductionAction(void* master,
     Py_XDECREF(args);
     Py_XDECREF(method);
 
-    PyObject_Print(result,stderr,0);
-    fputs("\n",stderr);
-    fflush(stderr);
+    PyObject_Print(result,logFile,0);
+    fputs("\n",logFile);
+    fflush(logFile);
     return result;
 }
 
