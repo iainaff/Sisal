@@ -404,7 +404,7 @@ PNODE g;
 
         /* LINK UP THE IMPORTS TO n1 */
         if ( c )
-          LinkImport( n, ii1 );
+          LinkImport( n1, ii1 ); /* PJM: Argh!  This was never right! */
         else {
           ee = EdgeAlloc( n, p1, n1, 1 );
           ee->info = ii1->info;

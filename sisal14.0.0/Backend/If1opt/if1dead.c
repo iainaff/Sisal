@@ -432,6 +432,7 @@ PNODE g;
   for ( n = FindLastNode( g ); n != g; n = n->npred ) {
     switch( n->type ) {
       case IFSelect:
+	
         CombineKports( n );
         /* FastRemoveUnnecEdges( n ); */
         FastRemoveUnusedRports( n->S_ALT  );
@@ -504,6 +505,8 @@ PNODE g;
       UnlinkNode( n );
       }
     }
+
+
 }
 
 

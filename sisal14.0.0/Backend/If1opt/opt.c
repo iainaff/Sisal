@@ -444,6 +444,7 @@ char **argv;
 
   ParseCommandLine( argc, argv );
 
+
   if ( DeBuG ) {
     InLineExpansion = fission = split = fold = vec = concur = FALSE;
     inlineall = invert = dfuse = ifuse = gcse = dope = FALSE;
@@ -459,6 +460,9 @@ char **argv;
   If1Read();
   (void)fclose( input );       /* AS IT MIGHT BE THE SOON TO BE WRITTEN FILE */
   StopProfiler( "If1Read" );
+
+
+
 
   if ( !IsStamp( DFORDERED ) )
     Error1( "IF1 INPUT IS NOT DFOrdered" );
@@ -514,6 +518,7 @@ char **argv;
   /* INITIALIZE DEAD NODE COUNTERS SO NOT TO REFLECT ACTION TAKEN DURING */
   /* NORMALIZATION AND GRAPH EXPANSION                                   */
   ikcnt = unnec = unused = dscnt = dccnt = agcnt = 0;
+
 
   /* OK, CLEAN EVERYTHING AGAIN! */
   StartProfiler();
@@ -573,9 +578,11 @@ char **argv;
       StopProfiler( "If1IFusion" );
       }
 
+
     StartProfiler();
     if ( gcse ) If1GCse();
     StopProfiler( "If1GCse" );
+
 
     StartProfiler();
     if ( dope && i == 1 ) If1Dope();
@@ -589,14 +596,20 @@ char **argv;
     if ( explode && i == 3 ) If1Explode( explodeI );
     StopProfiler( "If1Explode" );
 
+
+
     /* Test cascadence */
     StartProfiler();
     if ( cascade ) If1TestCascade();
     StopProfiler( "If1TestCascade" );
 
+
+
     StartProfiler();
     if ( dead ) If1Clean();
     StopProfiler( "If1Clean" );
+
+
     }
 
   if ( RequestInfo(I_Info1,info) ) {
@@ -642,9 +655,11 @@ char **argv;
     output = fd;
     }
 
+
   StartProfiler();
   If1Write();
   StopProfiler( "If1Write" );
+
 
   return OK;
 }
