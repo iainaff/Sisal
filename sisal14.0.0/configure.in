@@ -387,10 +387,11 @@ if test -x Runtime/"$model"Model/detect; then
 fi
 
 if test "$parallel_compile" = "ERROR" || test "$parallel_link" = "ERROR"; then
-  AC_MSG_WARN(Model not implemented here.  Reverting to Serial)
+  AC_MSG_WARN(Parallel model not implemented here.  Reverting to Serial)
   model=Serial
   parallel_compile=""
   parallel_link=""
+  max_procs=1
 fi
 
 dnl -----------------------------------------------

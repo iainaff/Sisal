@@ -18,12 +18,12 @@
 
 #include "world.h"
 
-static int  fmin  = 0;                     /* VECTORIZATION FORM COUNTERS */
-static int  famin = 0;
-static int  fmax  = 0;
-static int  famax = 0;
-static int  fsum  = 0;
-static int  tri   = 0;
+static int  first_min_count  = 0;                     /* VECTORIZATION FORM COUNTERS */
+static int  first_amin_count = 0;
+static int  first_max_count  = 0;
+static int  first_amax_count = 0;
+static int  first_sum_count  = 0;
+static int  tridiagonal_count   = 0;
 
 
 /**************************************************************************/
@@ -35,12 +35,12 @@ static int  tri   = 0;
 void WriteVectorInfo()
 {
   FPRINTF( infoptr, "\n **** VECTOR OPTIMIZATIONS\n\n" );
-  FPRINTF( infoptr, " First Minimum      conversions:  %d\n", fmin  );
-  FPRINTF( infoptr, " First Abs Minimum  conversions:  %d\n", famin );
-  FPRINTF( infoptr, " First Maximum      conversions:  %d\n", fmax  );
-  FPRINTF( infoptr, " First Abs Maximum  conversions:  %d\n", famax );
-  FPRINTF( infoptr, " First Sum          conversions:  %d\n", fsum  );
-  FPRINTF( infoptr, " Tri-Diagonal       conversions:  %d\n", tri   );
+  FPRINTF( infoptr, " First Minimum      conversions:  %d\n", first_min_count  );
+  FPRINTF( infoptr, " First Abs Minimum  conversions:  %d\n", first_amin_count );
+  FPRINTF( infoptr, " First Maximum      conversions:  %d\n", first_max_count  );
+  FPRINTF( infoptr, " First Abs Maximum  conversions:  %d\n", first_amax_count );
+  FPRINTF( infoptr, " First Sum          conversions:  %d\n", first_sum_count  );
+  FPRINTF( infoptr, " Tri-Diagonal       conversions:  %d\n", tridiagonal_count   );
 }
 
 
@@ -1103,32 +1103,32 @@ PNODE g;
 
     if ( IsFirstMin( n ) ) {
       n->type = IFFirstMin;
-      fmin++;
+      first_min_count++;
       continue;
       }
     else if ( IsFirstAbsMin( n ) ) {
       n->type = IFFirstAbsMin;
-      famin++;
+      first_amin_count++;
       continue;
       }
     else if ( IsFirstMax( n ) ) {
       n->type = IFFirstMax;
-      fmax++;
+      first_max_count++;
       continue;
       }
     else if ( IsFirstAbsMax( n ) ) {
       n->type = IFFirstAbsMax;
-      famax++;
+      first_amax_count++;
       continue;
       }
     else if ( IsFirstSum( n ) ) {
       n->type = IFFirstSum;
-      fsum++;
+      first_sum_count++;
       continue;
       }
     else if ( IsTri( n ) ) {
       n->type = IFTri;
-      tri++;
+      tridiagonal_count++;
       continue;
       }
     }
