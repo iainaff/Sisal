@@ -25,12 +25,25 @@ static void ConvertIfThenElse(PNODE node) {
   PEDGE e;
   PEDGE condition;
   PEDGE e2;
+  PEDGE literal;
   PALIST L;
   int label;
   int port;
   int i;
 
   if ( IsSimple(node) ) {
+    /* Get rid of NOOP */
+    if ( node->type == IFNoOp ) {
+      literal = node->imp;
+      /* Unlink output edges and turn into literal */
+      for(e = node->exp; e; e = e2) {
+	e2 = e->esucc;
+	UnlinkExport(e);
+	e->src = 0;
+	e->eport = -1;
+	e->CoNsT = literal->CoNsT;
+      }
+    }
     /* Nothing */
   } else if IsGraph(node) {
     G = node;
