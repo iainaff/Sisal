@@ -10,6 +10,8 @@
  */
 /**************************************************************************/
 
+#include <errno.h>
+
 #include "sisalInfo.h"
 
 /**************************************************************************/
@@ -3124,42 +3126,8 @@ int code, ior;
         bufp = buf;
     }
     if (code == -10) {
-        sprintf(bufp, "Pascal system I/O error %d", ior);
-        switch (ior) {
-            case 3:
-                strcat(buf, " (illegal I/O request)");
-                break;
-            case 7:
-                strcat(buf, " (bad file name)");
-                break;
-            case FileNotFound:   /*10*/
-                strcat(buf, " (file not found)");
-                break;
-            case FileNotOpen:    /*13*/
-                strcat(buf, " (file not open)");
-                break;
-            case BadInputFormat: /*14*/
-                strcat(buf, " (bad input format)");
-                break;
-            case 24:
-                strcat(buf, " (not open for reading)");
-                break;
-            case 25:
-                strcat(buf, " (not open for writing)");
-                break;
-            case 26:
-                strcat(buf, " (not open for direct access)");
-                break;
-            case 28:
-                strcat(buf, " (string subscript out of range)");
-                break;
-            case EndOfFile:      /*30*/
-                strcat(buf, " (end-of-file)");
-                break;
-            case FileWriteError: /*38*/
-                strcat(buf, " (file write error)");
-                break;
-        }
+        sprintf(bufp, "Pascal system I/O error %d: ", ior);
+	strcat(buf,strerror(errno));
     } else {
         sprintf(bufp, "Pascal system error %d", code);
         switch (code) {

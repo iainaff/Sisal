@@ -59,6 +59,22 @@ void _ARGV( void* args )
   }
 }
 
+void _FATAL( void* args )
+{
+  FILE *fp = 0;
+  char buf[4096];
+  POINTER val;
+  ARRAYP filename = (ARRAYP)(((struct Args12*)args)->In1);
+  int i;
+  int c;
+  int size;
+
+  size = filename->Size;
+
+  fprintf(stderr,"FATAL: %s\n",(char*)(filename->Base+filename->LoBound));
+  exit(1);
+}
+
 void _READ( void* args )
 {
   FILE *fp = 0;
