@@ -53,6 +53,8 @@ void linker(char* loader,
    explodeEnqueue(&argv,LDFLAGS);
    explodeEnqueue(&argv,linkWithF77);
 
+   enqueue(&argv,"-lm");
+
    if ( Submit(&argv) != 0 ) {
       compilerError("linker failure");
    }
