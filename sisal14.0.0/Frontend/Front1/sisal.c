@@ -4496,7 +4496,7 @@ parrec **outfile, **paramlist;
 stryng hohoho;
 stryng s;
 
-defaultext(&hohoho, &(infile[0]->parvalue), "spp       ");
+defaultext(&hohoho, &(outfile[0]->parvalue), "spp       ");
 s = hohoho;
 stripspaces(&s);
 concatchar(&s, '\0');
