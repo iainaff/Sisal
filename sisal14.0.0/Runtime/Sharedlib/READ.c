@@ -4,10 +4,15 @@
 #undef _READ
 void         _READ();
 int RecompileTheModuleDefining_READ = 0;
+#undef _PIPE
 void         _PIPE();
 int RecompileTheModuleDefining_PIPE = 0;
+#undef _STDIN
 void         _STDIN();
 int RecompileTheModuleDefining_STDIN = 0;
+#undef _ARGV
+void         _ARGV();
+int RecompileTheModuleDefining_ARGV = 0;
 
 struct Args12 {   
 struct ActRec *FirstAR; int Count;   
@@ -24,6 +29,27 @@ struct ActRec *FirstAR; int Count;
   POINTER In1;    POINTER Out1;   int Out2;
   };
 
+extern char** sisal_save_argv;
+void _ARGV( void* args )
+{
+  POINTER val;
+  POINTER arg;
+  int i;
+  int j;
+  char** p;
+  char* q;
+
+  ABld(val,1,1); /* Empty array */
+  ((struct Args13*)args)->Out1 = val;
+
+  for(p=sisal_save_argv;p && *p;++p) {
+    ABld(arg,1,1);
+    for(q=*p; q && *q; ++q) {
+      AGather(arg,*q,char);
+    }
+    AGather(val,arg,POINTER);
+  }
+}
 
 void _READ( void* args )
 {

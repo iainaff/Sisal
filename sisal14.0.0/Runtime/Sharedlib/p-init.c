@@ -81,6 +81,8 @@ char *ParseCEscapes(s)
   return buf;
 }
 
+char** sisal_save_argv = 0;
+
 void ParseCommandLine( argc, argv )
 int   argc;
 char *argv[];
@@ -89,6 +91,11 @@ char *argv[];
   int   Tmp;
   int   FibreFileMode;
   char  *CorrectUsage;
+  int i;
+
+  sisal_save_argv = malloc((argc+1)*sizeof(char*));
+  sisal_save_argv[0] = argv[0];
+  sisal_save_argv[1] = 0;
 
 #if defined(NO_STATIC_SHARED)
   /* ------------------------------------------------------------ */
@@ -101,41 +108,7 @@ char *argv[];
   FibreFileMode = FIBREIN;
 
   for ( idx = 1; idx < argc; idx++ ) {
-    CorrectUsage = NULL;        /* No error reasons yet */
-
-    /* ------------------------------------------------------------ */
-    /* Look for filename style arguments first                      */
-    /* ------------------------------------------------------------ */
-    if ( argv[idx][0] != '-' ) {
-      switch ( FibreFileMode ) {
-       case FIBREIN:
-        OPEN( FibreInFd, argv[idx], "r" );
-        break;
-
-       case FIBREOUT:
-        OPEN( FibreOutFd, argv[idx], "w" );
-        break;
-
-       case SINFO:
-        SINFOFile = argv[idx];
-        GatherPerfInfo = TRUE;  /* specifying a file implies -r */
-        break;
-
-       default:
-        goto OptionError;
-      }
-
-      FibreFileMode++;
-      continue;
-    }
-
-    /* ------------------------------------------------------------ */
-    /* Handle empty file names                                      */
-    /* ------------------------------------------------------------ */
-    if ( argv[idx][1] == '\0' ) {
-      FibreFileMode++;
-      continue;
-    }
+    if ( argv[idx][0] != '-' ) goto OptionError;
 
     /* ------------------------------------------------------------ */
     /* Look for -option style arguments                             */
@@ -154,6 +127,7 @@ char *argv[];
   /* ------------------------------------------------------------ */
   /* Open performance info file if needed                         */
   /* ------------------------------------------------------------ */
+ Finalize:
   if ( GatherPerfInfo ) OPEN( PerfFd, SINFOFile, "a" );
 
   /* ------------------------------------------------------------ */
@@ -167,8 +141,11 @@ char *argv[];
   return;
 
  OptionError:
-  if ( CorrectUsage ) FPRINTF(stderr,"%s\n",CorrectUsage);
-  SisalError( "ILLEGAL COMMAND LINE ARGUMENT",(argv[idx])?(argv[idx]):"" );
+  for(i=idx;i<argc;++i) {
+    sisal_save_argv[i-idx+1] = argv[i];
+  }    
+  sisal_save_argv[i-idx+1] = 0;
+  goto Finalize;
 } 
 
 

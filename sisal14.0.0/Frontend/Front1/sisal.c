@@ -142,7 +142,7 @@ typedef unsigned char boolean;
 #endif
 
 
-#define maxstringchars  10240
+#define maxstringchars  1024
 
 char blankstring[maxstringchars];
 
