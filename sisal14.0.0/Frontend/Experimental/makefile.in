@@ -1,0 +1,50 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+sources = ifront.cc parser.cc lexer.cc semanticBase.cc \
+	IFObject.cc node.cc graph.cc literal.cc edge.cc \
+	info.cc module.cc stamp.cc SisalParser.cc
+
+localFiles = .depends
+
+versionedExecutables = ifront
+
+include @top_level_directory@/Include/makefile.inc
+CXXFLAGS+= -g
+
+ifeq ("${wildcard .depends}","")
+.depends:
+	mkdir .depends
+endif
+
+ifneq ("${wildcard .depends/*}","")
+include ${wildcard .depends/*}
+endif
+
+ifront: $(objects)
+	$(LD-CXX) -o $@ $^
+
+ifront.o: parser.y
+
+parser.cc: parser.y
+	bison --defines --output-file=parser.c --name-prefix=ss parser.y
+	mv parser.c parser.cc
+
+#	bison++ --defines --output=parser.cc -h SisalParser.h --no-lines parser.y
+
+
+lexer.cc: lexer.l
+	flex $<
+	cp lex.ss.cc $@
+
+lexer.o: lexer.cc parser.cc
+ifront.o: ifront.cc parser.cc
+
+clean:
+	$(RM) -r $(objects) $(patsubst %.cc,%.cc.C,$(sources)) lexer.cc parser.cc ifront .depends

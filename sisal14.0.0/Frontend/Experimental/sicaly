@@ -1,0 +1,14 @@
+#!/bin/sh
+echo Test
+if ./ifront $1.sis; then
+  echo OK
+else
+  echo OOPS
+  exit 1
+fi
+
+echo ""
+echo COMPILE
+./ifront $1.sis > $1.if1 2>/dev/null
+/home/pjmiller/pubX/bin/sisalc $1.if1
+./s.out

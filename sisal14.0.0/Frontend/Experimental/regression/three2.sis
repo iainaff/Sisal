@@ -1,0 +1,7 @@
+module main;
+
+public function main(returns integer,character,integer)
+  3,'',555
+end function;
+    
+    
