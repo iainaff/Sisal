@@ -549,7 +549,7 @@ PEDGE  i;
     PrintIndentation( indent );
     if ( i->src->imp->CoNsT[3]=='b' ) {
         if ( !IsBRecord(i->src->imp->isucc->isucc->info) ) {
-            FPRINTF( output, "DeAlloc(%s);\n", 
+            FPRINTF( output, "DeAlloc( (POINTER) %s);\n", 
                 i->src->imp->isucc->isucc->temp->name );
         }
     }

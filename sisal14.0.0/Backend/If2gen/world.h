@@ -10,6 +10,9 @@
 /**************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2001/01/02 09:16:45  patmiller
+ * Now ANSI compliant, but still a pthread problem
+ *
  * Revision 1.2  2001/01/01 05:46:22  patmiller
  * Adding prototypes and header info -- all will be broken
  *
@@ -140,6 +143,7 @@ extern int   max_dims;          /* MAXIMUM NUMBER OF DESIRED POINTER SWAP DIMENS
 extern int   share;             /* TRY AND SHARE POINTER SWAP STORAGE */
 
 extern int   assoc;             /* DO ASSOCIATIVE TRANSFORMATIONS? */
+extern int   stream_io;
 
 extern int   standalone;        /* CALLED FROM THE OPERATING SYSTEM? */
 

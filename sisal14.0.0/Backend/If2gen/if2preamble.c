@@ -608,6 +608,7 @@ void PrintFilePrologue()
   FPRINTF( output, "#define _INTRINSICS_ 1\n\n" );
 
   FPRINTF( output, "#include \"sisal.h\"\n\n" );
+  FPRINTF( output, "int sisal_file_io = %d;\n\n",stream_io);
 
 
   /* ------------------------------------------------------------ */
@@ -1062,7 +1063,7 @@ PNODE f;
     FPRINTF( output, "  if ( NoFibreOutput ) {\n" );
 
     PrintOutputDeallocs( 4, f );
-    FPRINTF( output, "    DeAlloc( args );\n" );
+    FPRINTF( output, "    DeAlloc( (POINTER) args );\n" );
 
     FPRINTF( output, "    }\n" );
     }

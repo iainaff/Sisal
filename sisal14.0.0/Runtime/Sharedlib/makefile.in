@@ -13,7 +13,7 @@ sources = p-worker.c p-timer.c p-spawn.c              \
 	p-fibre.c p-util.c p-interface.c            \
 	p-init.c p-pointer.c p-sdbx.c		    \
 	p-tracer.c 				    \
-	vectorIO.c
+	vectorIO.c READ.c
 
 libraries = libsisal.a srt0.o
 

@@ -26,7 +26,8 @@ void if2gen(char* file,
             int associativeReductions,
             int FORTRANIntrinsicBitFunctions,
             int vector,
-            int bounds
+            int bounds,
+            int fileio
              ) {
    char generator[MAXPATHLEN];
    charStarQueue* argv = 0;
@@ -45,6 +46,7 @@ void if2gen(char* file,
    if ( showSource ) enqueue(&argv,"-%");
    if ( FORTRANIntrinsicBitFunctions ) enqueue(&argv,"-U");
    if ( bounds ) enqueue(&argv,"-B");
+   if ( fileio ) enqueue(&argv,"-s");
 
    enqueue(&argv,"-G"); /* if ( !nogshared ) av[avcnt++] = "-G"; */
    enqueue(&argv,"-O"); /* if ( useORTS ) av[avcnt++] = "-O"; */

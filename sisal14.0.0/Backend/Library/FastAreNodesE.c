@@ -84,6 +84,7 @@ PNODE n2;
 
   i2 = n2->imp; 
     
+
   for ( i1 = n1->imp; i1 != NULL; i1 = i1->isucc ) {
     if ( i2 == NULL )
       return( FALSE );
@@ -105,6 +106,11 @@ PNODE n2;
 
 /*
  * $Log$
+ * Revision 1.3  2002/11/09 07:40:31  patmiller
+ * Mistakenly assumed that edges into different
+ * ports of a RBuild (when used as UBuild) could
+ * be merged.  I'm surprised this was never exercised.
+ *
  * Revision 1.2  2001/01/02 09:16:45  patmiller
  * Now ANSI compliant, but still a pthread problem
  *

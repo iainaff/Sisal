@@ -410,7 +410,7 @@ PNODE f;
       for ( i = n->imp->isucc; i != NULL; i = i->isucc )
         if ( IsArray( i->info ) )
           if ( IsArray( i->info->A_ELEM ) )
-            FPRINTF( output, "DeAlloc( itmp%d );\n", i->iport );
+            FPRINTF( output, "DeAlloc( (POINTER) itmp%d );\n", i->iport );
 
 /* CANN NEW 3/92 */
       if ( cmp ) {
@@ -420,7 +420,7 @@ PNODE f;
           if ( (e = FindExport(n,r)) == NULL ) {
             if ( IsArray( rt->L_SUB ) ) {
               ac++;
-              FPRINTF( output, "DeAlloc( iret%d );\n", r );
+              FPRINTF( output, "DeAlloc( (POINTER) iret%d );\n", r );
               }
 
             continue;
@@ -445,7 +445,7 @@ PNODE f;
             FPRINTF( output, "I%s( FALSE, iret%d, itmp%d );\n", 
                      rt->L_SUB->rname, r, dv->iport );
 
-            FPRINTF( output, "DeAlloc( iret%d );\n", r );
+            FPRINTF( output, "DeAlloc( (POINTER) iret%d );\n", r );
             continue;
             }
 

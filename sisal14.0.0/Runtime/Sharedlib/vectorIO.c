@@ -108,6 +108,15 @@ POINTER ReadCharVector()
 {
   POINTER       val0;
 
+  if ( sisal_file_io ) {
+    int c;
+    ABld(val0,1,1);
+    while( (c = fgetc(stdin)) != EOF ) {
+      AGather( val0, c, char );
+    }
+    return val0;
+  }
+
   switch ( FibreParse( ANY_ ) ) {
   case ARRAYB_:
     GenericReadArray(char,ReadChar,ARRAYE_);
@@ -137,10 +146,20 @@ POINTER val;
   register ARRAYP  arr = (ARRAYP) val;
   int              c;
 
-  PrintIndent;
   Lo2 = arr->LoBound;
   Base2 = arr->Base;
   HiBound = Lo2 + arr->Size - 1;
+
+  if ( sisal_file_io ) {
+    for (       ; Lo2 <= HiBound; Lo2++ ) {
+      c = *((char*)Base2+Lo2);
+      fputc(c,FibreOutFd);
+    }
+    fflush(FibreOutFd);
+    return;
+  }
+
+  PrintIndent;
   if ( FibreStrings && Lo2 == 1 ) {
     fputc( '"', FibreOutFd );
     for (       ; Lo2 <= HiBound; Lo2++ ) {

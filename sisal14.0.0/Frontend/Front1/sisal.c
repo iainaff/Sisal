@@ -142,9 +142,9 @@ typedef unsigned char boolean;
 #endif
 
 
-#define maxstringchars  127
+#define maxstringchars  10240
 
-#define blankstring     "                                                                                                                                    "
+char blankstring[maxstringchars];
 
 #define maxbigint       SHORT_MAX
 /* Constants from setutl.m4 */
@@ -731,7 +731,7 @@ typedef struct {
 typedef Char stryngar[maxstringchars];
 
 typedef struct stryng {
-  char len;
+  int len;
   stryngar str;
 } stryng;
 
@@ -28331,6 +28331,8 @@ Char *argv[];
     else if ( argv[i][1] == 'F' ) /* NEW CANN */
       CANN_file_name = &(argv[i][2]); /* NEW CANN */
     }                                            /* NEW CANN */
+
+  for(i=0;i<maxstringchars;++i) blankstring[i] = ' ';
 
   PASCAL_MAIN(argc, argv);
   /*llparse*/

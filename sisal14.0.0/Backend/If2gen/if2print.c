@@ -1431,7 +1431,7 @@ PNODE g;
       for ( n = g->G_NODES; n != NULL; n = n->nsucc )
         if ( n->type == IFBuildSlices ) {
           PrintIndentation( indent );
-          FPRINTF( output, "DeAlloc( ((%s *)%s)->FirstAR );\n", 
+          FPRINTF( output, "DeAlloc( (POINTER) ((%s *)%s)->FirstAR );\n", 
                    n->usucc->temp->info->sname, n->usucc->temp->name );
           }
 

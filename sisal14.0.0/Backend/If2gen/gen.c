@@ -46,6 +46,7 @@ int   bounds     = FALSE;    /* GENERATE BOUNDS CHECKING?                 */
 int   sdbx       = FALSE;    /* GENERATE SDBX CODE?                       */
 int   SISdebug   = FALSE;    /* REMOVE DEAD FUNCTION CALLS?               */
 int   assoc      = TRUE;     /* DO ASSOCIATIVE TRANSFORMATIONS?           */
+int   stream_io  = FALSE;    /* USE STDIN/STDOUT for IO?                  */
 int   gdata      = TRUE;     /* PREPARE GLOBAL DATA?                      */
 
 int   vec        = FALSE;    /* FURTHER VECTORIZE CODE?                   */
@@ -135,6 +136,7 @@ static char *flop[200];                       /* FLOP FUNCTION LIST       */
 /*              -w      -> Suppress warning messages                      */
 /*              -x      -> CALL THE FORTRAN VECTOR ROUTINES               */
 /*              -y      -> Do not allow associative transformations       */
+/*              -s      -> Use stdin/stdout streams                       */
 
 /*              -A      -> ALLIANT                                        */
 /*              -B      -> GENERATE BOUNDS CHECKING                       */
@@ -324,6 +326,10 @@ char **argv;
 
         case 'y':
           assoc = FALSE;
+          break;
+
+        case 's':
+          stream_io = TRUE;
           break;
 
         case '3':

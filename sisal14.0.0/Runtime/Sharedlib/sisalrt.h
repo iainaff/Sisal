@@ -20,6 +20,8 @@ extern void ParseTracerCommand PROTO((char*));
 extern void InitDsa PROTO((int,int));
 extern void InitSignalSystem PROTO((void));
 
+extern int sisal_file_io;
+
 #include "locks.h"
 #include "process.h"
 #include "fibre.h"

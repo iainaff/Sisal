@@ -82,6 +82,7 @@ PNODE n2;
   i2 = n2->imp; 
     
   while ( (i1 != NULL) && (i2 != NULL) ) {
+    if ( i1->iport != i2->iport ) return FALSE;
     if ( !AreValuesEqual( i1, i2 ) )
       return( FALSE );
 
@@ -98,6 +99,9 @@ PNODE n2;
 
 /*
  * $Log$
+ * Revision 1.2  2001/01/02 09:16:45  patmiller
+ * Now ANSI compliant, but still a pthread problem
+ *
  * Revision 1.1.1.1  2000/12/31 17:58:10  patmiller
  * Well, here is the first set of big changes in the distribution
  * in 5 years!  Right now, I did a lot of work on configuration/

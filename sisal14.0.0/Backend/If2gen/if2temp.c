@@ -2926,5 +2926,5 @@ void PrintFrameDeallocs()
 
   for ( p = thead; p != NULL; p = p->next )
     if ( p->DeAl )
-      FPRINTF( output, "  DeAlloc( %s );\n", p->name );
+      FPRINTF( output, "  DeAlloc( (POINTER) %s );\n", p->name );
 }

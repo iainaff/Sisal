@@ -105,7 +105,8 @@ extern void if2gen PROTO((char* file,
                           int associativeReductions,
                           int FORTRANIntrinsicBitFunctions,
                           int vector,
-                          int bounds
+                          int bounds,
+                          int fileio
                           ));
 
 extern void compile PROTO((char* file,
