@@ -1281,7 +1281,8 @@ PNODE g;
             case IFAAdjust:
                 if ( bounds ) {
                    PrintBoundsCheck( indent, n, n->imp, n->imp->isucc );
-                   PrintBoundsCheck( indent, n, n->imp, n->imp->isucc->isucc );
+		   /* TODO: The current bounds check fails for legal empty ranges */
+                   /* PrintBoundsCheck( indent, n, n->imp, n->imp->isucc->isucc ); */
                    }
 
             case IFASetL:
