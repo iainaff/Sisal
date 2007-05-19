@@ -1,3 +1,4 @@
+
 #ifndef IFX_H
 #define IFX_H
 
@@ -1027,7 +1028,7 @@ struct ade {
 #ifndef MAX_PATH
 #  define MAX_PATH      (1024)  /* Pathname length (sometimes in sys header) */
 #endif
-#define MaxClass      2000      /* MAX NUMBER OF EQUIVALENCE CLASSES */
+#define MaxClass      10000      /* MAX NUMBER OF EQUIVALENCE CLASSES */
 #define MaxLevel  100           /* MAXIMUM NUMBER OF NESTING LEVELS */
 struct level {                  /* LEVEL OCCURRENCE COUNTERS        */
     int lits;
@@ -1587,6 +1588,9 @@ extern int      UsingPatch PROTO((int));
 
 /*
  * $Log$
+ * Revision 1.2  2001/01/02 09:16:45  patmiller
+ * Now ANSI compliant, but still a pthread problem
+ *
  * Revision 1.1.1.1  2000/12/31 17:58:23  patmiller
  * Well, here is the first set of big changes in the distribution
  * in 5 years!  Right now, I did a lot of work on configuration/

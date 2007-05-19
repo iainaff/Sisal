@@ -1394,12 +1394,17 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 # -----------------------------------------------
 # Set version
 # -----------------------------------------------
-version="14.0.3"
+version="14.0.6"
 echo "$as_me:$LINENO: checking version number" >&5
 echo $ECHO_N "checking version number... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: $version" >&5
 echo "${ECHO_T}$version" >&6
 
+
+# -----------------------------------------------
+# Better to put . into path for some of the tests
+# -----------------------------------------------
+export PATH=".:$PATH"
 
 extraArguments () { shift; echo $*; }
 
@@ -2483,7 +2488,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2486:" \
+echo "$as_me:2491:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3453,7 +3458,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3456: \"$ac_link\") >&5
+(eval echo $as_me:3461: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3531,7 +3536,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3534: \"$ac_link\") >&5
+(eval echo $as_me:3539: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -7384,7 +7389,7 @@ echo "${ECHO_T}$instrument_runtime" >&6
 top_level_directory=`pwd`
 
 
-                                                                                                                                            ac_config_files="$ac_config_files makefile Include/sisalPaths.h Include/sisalInfo.h Include/makefile.inc Frontend/Front1/makefile Backend/Library/makefile Backend/If1ld/makefile Backend/If1opt/makefile Backend/If2gen/makefile Backend/If2mem/makefile Backend/If2part/makefile Backend/If2up/makefile Runtime/Sharedlib/makefile Tools/sisalc/makefile"
+                                                                                                                                                      ac_config_files="$ac_config_files makefile Include/sisalPaths.h Include/sisalInfo.h Include/makefile.inc Frontend/Front1/makefile Backend/Library/makefile Backend/If1ld/makefile Backend/If1opt/makefile Backend/If2gen/makefile Backend/If2mem/makefile Backend/If2part/makefile Backend/If2up/makefile Runtime/Sharedlib/sisalrt.h Runtime/Sharedlib/makefile Tools/sisalc/makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -7922,6 +7927,7 @@ do
   "Backend/If2mem/makefile" ) CONFIG_FILES="$CONFIG_FILES Backend/If2mem/makefile" ;;
   "Backend/If2part/makefile" ) CONFIG_FILES="$CONFIG_FILES Backend/If2part/makefile" ;;
   "Backend/If2up/makefile" ) CONFIG_FILES="$CONFIG_FILES Backend/If2up/makefile" ;;
+  "Runtime/Sharedlib/sisalrt.h" ) CONFIG_FILES="$CONFIG_FILES Runtime/Sharedlib/sisalrt.h" ;;
   "Runtime/Sharedlib/makefile" ) CONFIG_FILES="$CONFIG_FILES Runtime/Sharedlib/makefile" ;;
   "Tools/sisalc/makefile" ) CONFIG_FILES="$CONFIG_FILES Tools/sisalc/makefile" ;;
   "Include/sisalConfig.h" ) CONFIG_HEADERS="$CONFIG_HEADERS Include/sisalConfig.h" ;;

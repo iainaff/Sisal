@@ -250,11 +250,13 @@ void CheckForUnresolvedNames()
 
   /* ARE DUPLICATE ENTRIES IDENTICAL? */
   for ( i = inames; i != NULL; i = i->next ) {
-    for ( ii = i->usucc; ii != NULL; ii = ii->usucc )
-      if ( ii->info->label != i->info->label )
+    for ( ii = i->usucc; ii != NULL; ii = ii->usucc ) {
+      if ( ii->info->label != i->info->label ) {
         Error2( "ARGUMENT TYPE CONFLICT:", 
                 (i->node->funct)? i->node->funct : i->name );
+      }
     }
+  }
 
   for ( i = inames; i != NULL; i = i->next ) {
     if ( IsCInterface( i->name ) ) {
@@ -283,9 +285,11 @@ void CheckForUnresolvedNames()
         Error2( (i->node->funct)? i->node->funct : i->name,
                 "MULTIPLY DEFINED"                    );
 
-      if ( i->info->label != x->info->label )
-        Error2( "PARAMETER LIST TYPE MISMATCH FOR:",
-                (i->node->funct)? i->node->funct : i->name );
+      if ( i->info->label != x->info->label ) {
+	fprintf(stderr,"TODO: FIX %s] i->info->label is %d and x->info->label is %d] %s\n",i->name,i->info->label,x->info->label,x->name);
+        //Error2( "PARAMETER LIST TYPE MISMATCH FOR:",
+	//      (i->node->funct)? i->node->funct : i->name );
+      }
 
       i->mark = '\0'; /* GET i OUT OF THE IMPORT LIST */
       continue;

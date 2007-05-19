@@ -47,7 +47,7 @@ int main( argc, argv )
     }
   }
 
-  FPRINTF( stderr, "%s %s\n", SISAL_BANNER, VERSION );
+  if (!NoFibreOutput) FPRINTF( stderr, "%s %s\n", SISAL_BANNER, VERSION );
 
   SisalMainArgs = ReadFibreInputs();
 

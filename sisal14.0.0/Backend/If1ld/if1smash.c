@@ -46,21 +46,25 @@ void LoadSmashTypes()
             r = htable[c];
             p = r;
 
-            if ( p == NULL )
+            if ( p == NULL ) {
                 m = NULL;
-            else
+	    } else {
                 m = p->mnext;
-
-            while ( m != NULL )
+	    }
+            while ( m != NULL ) {
                 if ( SameEquivClass( r, m ) ) {
                     p = m;
                     m = p->mnext;
                 } else {
                     GatherOthers( p, m );
-                    chgd = TRUE; m = NULL;
-                    }
-            }
-        }    
+                    chgd = TRUE;
+		    m = NULL;
+		}
+	    }
+	    if (chgd) break; /* Look again? */
+	}
+	
+    }    
 
     PointToHead();
 }

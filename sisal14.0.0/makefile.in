@@ -8,6 +8,8 @@ target=all
 packages=front1 sisalc backend_library if1opt if1ld if2mem if2up if2part if2gen runtime
 local: ${packages}
 
+VERSION=@version@
+
 include @top_level_directory@/Include/makefile.inc
 
 .PHONY: front1
@@ -63,11 +65,10 @@ clean:
 	$(MAKE) target=clean
 	$(MAKE) -C Tests clean
 
-%.tgz:
-	dirname=`pwd | tr / '\012' | tail -1`; \
-	cd ..; \
+.PHONY: tarball
+tarball: 
 	files=""; \
-	for e in `find $$dirname -type d -print`; do \
+	for e in `find . -type d -print`; do \
 		if test -r $$e/CVS/Entries; then \
 			for f in `egrep ^/ $$e/CVS/Entries | tr / ' ' | cut -d ' ' -f 2`; do \
 				newfile=`echo $$e/$$f | sed 's^$$dirname/^^'`; \
@@ -75,7 +76,9 @@ clean:
 			done; \
 		fi; \
 	done; \
-	tar cf - $$files | gzip > $$dirname/$@
+	tar cf - $$files | (mkdir sisal.$(VERSION); cd sisal.$(VERSION); tar xvf -)
+	tar zcf sisal.$(VERSION).tgz sisal.$(VERSION)
+	rm -rf sisal.$(VERSION)
 
 uncontrolled:
 	for e in `find $$dirname -type d -print`; do \

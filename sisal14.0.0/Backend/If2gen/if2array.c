@@ -59,33 +59,37 @@ char  *buf;
 {
   if ( e->line > 0 ) 
     {
-      SPRINTF( buf, "\"%s,%s,line=%d\"",
-              (e->file == NULL)? "unknown.sis" : e->file,
-              (e->funct == NULL)? "unknown(...)" : e->funct, e->line );
+      SPRINTF( buf, "\"%s:%d: %s\"",
+	       (e->file == NULL)? "unknown.sis" : e->file,
+	       e->line,
+	       (e->funct == NULL)? "unknown(...)" : e->funct
+	       );
       return( buf );
     }
 
   else if (e->dst->line > 0)
     {
-      SPRINTF( buf, "\"%s,%s,line=%d\"",
-              (e->dst->file == NULL)? "unknown.sis" : e->dst->file,
-              (e->dst->funct == NULL)? "unknown(...)" : e->dst->funct, 
-              e->dst->line );
+      SPRINTF( buf, "\"%s:%d: %s\"",
+	       (e->dst->file == NULL)? "unknown.sis" : e->dst->file,
+	       e->dst->line,
+	       (e->dst->funct == NULL)? "unknown(...)" : e->dst->funct
+	       );
       return( buf );
     }
 
   else if (e->src->line > 0)
     {
-      SPRINTF( buf, "\"%s,%s,line=%d\"",
-              (e->src->file == NULL)? "unknown.sis" : e->src->file,
-              (e->src->funct == NULL)? "unknown(...)" : e->src->funct, 
-              e->src->line );
+      SPRINTF( buf, "\"%s:%d: %s\"",
+	       (e->src->file == NULL)? "unknown.sis" : e->src->file,
+	       e->src->line,
+	       (e->src->funct == NULL)? "unknown(...)" : e->src->funct
+ );
       return( buf );
     }
   
   else
     {
-      SPRINTF( buf, "\"%s,%s,line=lost\"",
+      SPRINTF( buf, "\"%s:lost: %s\"",
               (e->file == NULL)? "unknown.sis" : e->file,
               (e->funct == NULL)? "unknown(...)" : e->funct );
       return( buf );

@@ -668,7 +668,8 @@ char  *nm;
     /* Build the name.  Use the source ID if set else use the nmid  */
     /* to generate a unique one.                                    */
     /* ------------------------------------------------------------ */
-    Unique = (s->ID)?(s->ID):(++nmid);
+    /*Unique = (s->ID)?(s->ID):(++nmid); // Clearly this isn't unique when ID is cloned -- pjm */
+    Unique = ++nmid;
 
     if ( s->funct == NULL ) {
       g->G_NAME = MakeName( nm, cfunct->G_NAME, Unique );

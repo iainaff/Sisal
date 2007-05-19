@@ -5,10 +5,15 @@ AC_CANONICAL_HOST
 # -----------------------------------------------
 # Set version
 # -----------------------------------------------
-version="14.0.3"
+version="14.0.6"
 AC_MSG_CHECKING(version number)
 AC_MSG_RESULT($version)
 AC_SUBST(version)
+
+# -----------------------------------------------
+# Better to put . into path for some of the tests
+# -----------------------------------------------
+export PATH=".:$PATH"
 
 extraArguments () { shift; echo $*; }
 
@@ -526,6 +531,7 @@ AC_OUTPUT(makefile
 	Backend/If2mem/makefile
 	Backend/If2part/makefile
 	Backend/If2up/makefile
+	Runtime/Sharedlib/sisalrt.h
 	Runtime/Sharedlib/makefile
 	Tools/sisalc/makefile
 )

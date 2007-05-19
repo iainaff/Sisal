@@ -78,9 +78,17 @@ static int matches(char* arg, option_t* option, int* senseP) {
    if ( nameDash == baseDash ) {
       if ( strcmp(name,base) == 0 ) return 1;
       if ( strncmp(name,"<no->",5) == 0 ) {
-         if ( strcmp(name+5,base) == 0 ) return 1;
-         if ( strncmp(base,"no-",3) == 0 ) {
+	/* OK.. suppose base is XXX and name is <no->XXX */
+	/* we just compare base to name+5 */
+	if ( strcmp(name+5,base) == 0 ) {
             *senseP = !*senseP;
+	  return 1;
+	}
+       
+	 /* If base is no-XXX and name is <no->XXX, we match */
+	 /* but with the sense reversed */
+         if ( strncmp(base,"no-",3) == 0 &&
+	      strcmp(base+3,name+5) == 0) {
             return 1;
          }
       }
@@ -93,7 +101,8 @@ static int matches(char* arg, option_t* option, int* senseP) {
       if ( strcmp(alternate,base) == 0 ) return 1;
       if ( strncmp(alternate,"<no->",5) == 0 ) {
          if ( strcmp(alternate+5,base) == 0 ) return 1;
-         if ( strncmp(base,"no-",3) == 0 ) {
+         if ( strncmp(base,"no-",3) == 0 &&
+	      strcmp(base+3,name+5) == 0 ) {
             *senseP = !*senseP;
             return 1;
          }
@@ -132,6 +141,7 @@ static int booleanFlag(int action,char* program,char*** argP, option_t* option,i
       break;
    case CHECKARG:
       if ( matches(arg,option,&sense) ) {
+	printf("match %s to %s... (sense=%d)\n",arg,option->name,sense);
          *(option->param0) = !sense;
          (*argP)++;
          return 1;
