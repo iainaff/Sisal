@@ -2010,7 +2010,7 @@ staticforward void printline PROTO(( inputbuffer* ));
 staticforward void modify PROTO(( inputbuffer* ));
 staticforward void flushlines PROTO(( void ));
 staticforward void readline PROTO(( inputbuffer* ));
-staticforward void getline PROTO(( inputbuffer** ));
+staticforward void getline_ PROTO(( inputbuffer** ));
 staticforward void readchar PROTO(( Char*,inputbuffer** ));
 staticforward void unreadchar PROTO(( int,inputbuffer* ));
 staticforward void insertcharbuf PROTO(( int,unchar,inputbuffer* ));
@@ -24377,7 +24377,7 @@ inputbuffer *buffer;
 }  /* readline */
 
 
-static void getline(buffer)
+static void getline_(buffer)
 inputbuffer **buffer;
 {
   /*(var buffer: InBufPtr); forward*/
@@ -24409,7 +24409,7 @@ inputbuffer **buffer;
   readline(*buffer);
 
   /* else */
-}  /* getline */
+}  /* getline_ */
 
 
 static void readchar(ch, buffer)
@@ -24426,7 +24426,7 @@ inputbuffer **buffer;
     if ((*buffer)->lastline)
       endfile = true;
     else
-      getline(buffer);
+      getline_(buffer);
   }
   WITH = *buffer;   /* with */
   *ch = WITH->buf[WITH->pointer];
@@ -24509,7 +24509,7 @@ int pighowmany;
   tokenstart = oldline->pointer;
   peeking = false;
   while (oldline != savbuf)   /* print the skipped lines */
-    getline(&savbuf);
+    getline_(&savbuf);
   linebuf = oldline;   /* next char will be first AFTER deletions */
   linebuf->pointer = tokenstart;
   if (debug)
@@ -25463,7 +25463,7 @@ inputbuffer **buffer;
      are being replaced.
      The scanner 'module' interfaces with the parser, the corrector
      and the 'module' which reads and prints lines, hereafter referred
-     to as 'getline'.
+     to as 'getline_'.
      procedure 'initscanner' is called by the parser to allow any
      initialization to be done
      The parser gets symbols from the scanner by calling 'gettok',
@@ -25481,27 +25481,27 @@ inputbuffer **buffer;
      is actually used by the parser.  Side-effects of the scanner,
      such as symbol-table manipulations, should be avoided during peeking.
      A global boolean, 'peeking', is used to indicate this. Peeking is
-     set by peek, cleared by gettok, and may also be used in 'getline'.
+     set by peek, cleared by gettok, and may also be used in 'getline_'.
      The corrector effects corrections by two procedures: 'deletetokens'
      and 'inserttokens'. Deletetokens has one argument, giving the number
      of (previously scanned) symbols to be deleted. This count begins
      at the point of error, the starting point kept by gettok.
-     (notice that in the current implemention, this is handled by 'getline').
+     (notice that in the current implemention, this is handled by 'getline_').
      Inserttokens has an argument of record type 'StageRec', which contains
      an array of symbols to be inserted. These symbols are to be inserted
      before the first non-deleted symbol in the input. If any symbols are
      to be deleted, deletetokens will be called before inserttokens.
      It is the responsibility of deletetokens and inserttokens to
-     call the appropriate routines (in getline) to display the corrections
+     call the appropriate routines (in getline_) to display the corrections
      made.
      After a correction has been made, all the inserted symbols plus
      at least one symbol in the input will be comsumed by the parser.
      If this is not the case, an internal error has occurred, most likely
      in the corrector. procedure checkerrorok checks this situation.
-     The distinction between the scanner module and the getline module is
+     The distinction between the scanner module and the getline_ module is
      fairly fuzzy.  In the current implementation, the scanner depends
-     on getline to reposition the scanning pointer after corrections are made.
-     In order to do this, getline calls 'scan' to skip past one token.
+     on getline_ to reposition the scanning pointer after corrections are made.
+     In order to do this, getline_ calls 'scan' to skip past one token.
      End of file is reporsted through the global boolean 'endfile'.  No attempt
      to read will be made while endfile is true.  Since a correction may cause
      input to be rescanned, endfile must be cleared by the correction routines.
