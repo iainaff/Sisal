@@ -1,0 +1,61 @@
+sisal-mode.el is an Emacs lisp file that creates a Sisal language
+mode.  The mode will auto-indent Sisal structures and insert comments
+when <meta> ; is entered.
+
+-------------------------------------------------------------------------------
+Version 1.0 -- Original release
+Version 1.1 -- Comment improvements from John Ramsdell at Mitre
+	       (ramsdell@linus.mitre.org)
+Version 1.2 -- README/Makefile changes
+-------------------------------------------------------------------------------
+
+Instructions if you wish to install a compiled version of sisal-mode.elc
+in a load path directory (defaults to /usr/local/lib/emacs/lisp).
+To find out what your load-path is set to, enter <esc> <esc> load-path
+while in EMACS.
+
+First compile the .el file...
+
+  % make
+
+and install by
+
+  % make install
+
+If you don't want it in the default location, then
+
+  % make BIN_PATH=/whereever/bin install
+
+If sisal-mode.elc is in the load path, then put this in your .emacs file:
+
+(autoload 'sisal-mode "sisal-mode" "Major mode for editing Sisal source." t)
+(setq auto-mode-alist (cons '("\\.sis$" . sisal-mode) auto-mode-alist))
+
+If sisal-mode.elc is NOT in the load path, then put this in your .emacs file
+
+(load-file "/whereever/bin/sisal-mode.elc")
+
+-------------------------------------------------------------------------------
+Alternate instructions supplied by the author
+
+The person installing Sisal mode places sisal-mode.el in a directory
+in emacs's load path.  For me, that directory is ~/el because my
+.emacs file has the form:
+
+(setq load-path (cons (expand-file-name "~/el") load-path))
+
+In emacs, the installer types M-x byte-compile-file and gives the path
+name of sisal-mode.el which produces the file sisal-mode.elc.
+
+To use sisal-mode.el, add the following forms to your .emacs file.
+
+(autoload 'sisal-mode "sisal-mode" "Major mode for editing Sisal source." t)
+(setq auto-mode-alist
+      (cons '("\\.sis$" . sisal-mode)
+	    auto-mode-alist))
+
+That's it!  Now sisal-mode will be automatically loaded when ever the
+user edits a file with the extension .sis.
+
+John (ramsdell@linus.mitre.org)
+

@@ -1,0 +1,169 @@
+/* Include/sisalConfig.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define if your compiler botches static forward declarations (as it does on
+   SCI ODT 3.0) */
+#undef BAD_STATIC_FORWARD
+
+/* Define if you want debug info for the DSA */
+#undef DEBUG_DSA
+
+/* Define if you choose a distributed DSA model (broken) */
+#undef DIST_DSA
+
+/* Define if C does not support const keyword */
+#undef HAVE_CONST
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#undef HAVE_FCNTL_H
+
+/* Define to 1 if you have the <float.h> header file. */
+#undef HAVE_FLOAT_H
+
+/* Define if GCC-style noreturn attribute is supported */
+#undef HAVE_GCC_ATTR_NORETURN
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <limits.h> header file. */
+#undef HAVE_LIMITS_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define if you allow normal C prototypes */
+#undef HAVE_PROTOTYPES
+
+/* Define to 1 if you have the `psignal' function. */
+#undef HAVE_PSIGNAL
+
+/* Define if the register keyword works */
+#undef HAVE_REGISTER_KEYWORD
+
+/* Define if we can get usage times with the getrusage() call */
+#undef HAVE_RUSAGE
+
+/* Define to 1 if you have the <sched.h> header file. */
+#undef HAVE_SCHED_H
+
+/* Define to 1 if you have the `sched_yield' function. */
+#undef HAVE_SCHED_YIELD
+
+/* Define if the shared keyword works */
+#undef HAVE_SHARED_KEYWORD
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/resource.h> header file. */
+#undef HAVE_SYS_RESOURCE_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/times.h> header file. */
+#undef HAVE_SYS_TIMES_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <sys/wait.h> header file. */
+#undef HAVE_SYS_WAIT_H
+
+/* Define if we can get usage times with the times() call */
+#undef HAVE_TIMES
+
+/* Define to 1 if you have the <time.h> header file. */
+#undef HAVE_TIME_H
+
+/* Define if the TSECND intrinsic (Cray) is present */
+#undef HAVE_TSECND_INTRINSIC
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define if the volatile keyword works */
+#undef HAVE_VOLATILE_KEYWORD
+
+/* Define if your FLI supports mutable descriptors */
+#undef MUTABLE_DESCRIPTORS
+
+/* Define if model has non-coherent cache (Dead IBM Power 4) */
+#undef NON_COHERENT_CACHE
+
+/* Define if your C compiler cannot do static sharing */
+#undef NO_STATIC_SHARED
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
+#undef TIME_WITH_SYS_TIME
+
+/* Enable extensions on AIX 3, Interix.  */
+#ifndef _ALL_SOURCE
+# undef _ALL_SOURCE
+#endif
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+# undef _GNU_SOURCE
+#endif
+/* Enable threading extensions on Solaris.  */
+#ifndef _POSIX_PTHREAD_SEMANTICS
+# undef _POSIX_PTHREAD_SEMANTICS
+#endif
+/* Enable extensions on HP NonStop.  */
+#ifndef _TANDEM_SOURCE
+# undef _TANDEM_SOURCE
+#endif
+/* Enable general extensions on Solaris.  */
+#ifndef __EXTENSIONS__
+# undef __EXTENSIONS__
+#endif
+
+
+/* Define if you want verbose information from the runtime */
+#undef VERBOSE
+
+/* Version number of package */
+#undef VERSION
+
+/* Define to 1 if on MINIX. */
+#undef _MINIX
+
+/* Define to 2 if the system does not provide POSIX.1 features except with
+   this defined. */
+#undef _POSIX_1_SOURCE
+
+/* Define to 1 if you need to in order for `stat' and other things to work. */
+#undef _POSIX_SOURCE

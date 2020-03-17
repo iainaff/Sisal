@@ -1,0 +1,2 @@
+(byte-compile-file "./sisal-mode.el")
+(kill-emacs)

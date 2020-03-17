@@ -1,0 +1,32 @@
+DIFF=$1
+RM=$2
+SRCDIR=$3
+BUILDDIR=$4
+
+if [ "$5" == "--answer" ] 
+then
+  ANSWER="yes"
+  TEST=$6
+else
+  TEST="$5"
+fi
+
+BASENAME=`echo "${TEST}" | sed 's/^\(.*\/\)\([a-zA-Z0-9]\+\)\(\..*\)\?$/\2/'`
+
+if [ -z "$ANSWER" ]
+then
+  OUTFILE=${BUILDDIR}/${BASENAME}.out
+  $RM "${OUTFILE}"
+  $TEST < "${SRCDIR}/${BASENAME}.in" 2>&1 | tail -n +2 > "${OUTFILE}"
+  $DIFF "${OUTFILE}" "${SRCDIR}/${BASENAME}.ans" > "${BUILDDIR}/${BASENAME}.dif" || exit $?
+
+  OUTFILE3=${BUILDDIR}/${BASENAME}.out3
+  $RM "${OUTFILE3}"
+  $TEST -w3 < "${SRCDIR}/${BASENAME}.in" 2>&1 | tail -n +2 > "${OUTFILE3}"
+  $DIFF "${OUTFILE3}" "${SRCDIR}/${BASENAME}.ans" > "${BUILDDIR}/${BASENAME}.dif3" || exit $?
+else
+  ANSFILE=${SRCDIR}/${BASENAME}.ans
+  $RM "${ANSFILE}"
+  $TEST < "${SRCDIR}/${BASENAME}.in" 2>&1 | tail -n +2 > "${ANSFILE}"
+fi
+

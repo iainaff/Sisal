@@ -1,0 +1,28 @@
+-*- mode: outline -*-
+
+* Release 14.1.0:
+
+** Fixed name conflicts with GNU C Library
+
+** Fixed bug 2805801: Tests/fromC.sis can't be compiled with gcc4
+
+** Fixed buffer overrun in "stryng" library functions (frontend)
+
+** Automake-compliant build scripts
+
+   Known issues:
+
+   1) "make install" should be run explicitly;
+
+   2) since SISAL compiler can't be run directly from the build directory,
+      "make check" should be run only after "make install";
+
+   3) "make distcheck" is not working properly at all for the same reason;
+
+   4) "make dist" skips files not involved in building (experimental, etc.).
+
+** User-defined output file name in '-c' mode
+
+** Improved efficiency of runtime checks with 'noreturn' attribute
+
+

@@ -1,0 +1,421 @@
+# ------------------------------------------------------------
+help
+"Same as -usage"
+{
+  PrintUsageTable(argv,idx);
+}
+
+# ------------------------------------------------------------
+w<num>
+"Set number of worker processes to <num>"
+-wNUM
+Set the number of worker processes to
+.I NUM.
+A value greater than one makes sense only on a multiprocessor
+SISAL implementation (Cray, Encore, Sequent, Alliant, etc.).  Default:  1.
+{
+  if ( GET_Tmp( 2 ) <= 0 ) goto OptionError;
+
+  NumWorkers = Tmp;
+}
+
+# ------------------------------------------------------------
+ls<num>
+"Set the default slice count to <num>"
+-lsNUM
+If compiled for concurrent execution
+(refer to \fIosc\fR(1)), 
+slice each concurrentized 
+.I for
+loop into
+.I NUM 
+pieces.
+That is, the parameter is a blocking factor.
+Note: When using the strided slicing algorithm (see \fB\-strided\fR),
+this parameter affects what the stride is rather than the blocking factor.
+Default:  Slice each concurrentized
+loop into
+.I W
+pieces, where 
+.I W
+is the number of workers.
+{
+  if ( GET_Tmp( 3 ) <= 0 ) goto OptionError;
+
+  LoopSlices = Tmp;
+}
+
+# ------------------------------------------------------------
+blocked
+"Use a blocked scheduling algorithm for loops (default)"
+-blocked
+Break loops up into clustered blocks for scheduling.  For instance,
+consider a loop with 8 iterations on 4 processors.  The blocking
+algorithm will group the first and second iterations on processor 1,
+third and fourth on processor 2, etc...  The association looks like
+1:<1,2>; 2:<3,4>; 3:<5,6>, and 4:<7,8>.
+{
+  DefaultLoopStyle = 'B';
+}
+
+# ------------------------------------------------------------
+strided
+"Use strided loop scheduling algorithm instead of block slicing"
+-strided
+If compiled for concurrent execution,
+slice each concurrentized 
+.I for
+loop using a strided method.  For instance, if a loop has 8 iterations on
+4 processors, with this algoritm, the association is 1:<1,5>; 2:<2,6>; 3:<3,7>,
+and 4:<4,8>.
+{
+  DefaultLoopStyle = 'S';
+}
+
+# ------------------------------------------------------------
+gss
+"Use guided self scheduling algorithm instead of block slicing"
+-gss
+If compiled for concurrent execution,
+slice each concurrentized 
+.I for
+loop using guided self
+scheduling.  Here the thickness of a slice is dynamically computed as
+the number of iterations not yet scheduled divided by the
+number of workers.
+Note that the \-ls and \-gss options conflict.
+{
+  DefaultLoopStyle = 'G';
+}
+
+# ------------------------------------------------------------
+cached
+"Use cached scheduling algorithm instead of block slicing"
+-cached
+If compiled for concurrent execution,
+slice each concurrentized 
+.I for
+loop using cached scheduling.  
+{
+  DefaultLoopStyle = 'C';
+}
+
+# ------------------------------------------------------------
+b
+"Use distributed run queue system to bind work to processes"
+-b
+If compiled for concurrent execution 
+(refer to \fIosc\fR(1)),
+use the distributed run queue system to
+bind parallel work to worker processes in a consistent and regular
+manner. 
+In the absence of gang scheduling, this option could degrade performance
+if the machine load is high.
+Default: Use the shared run queue system.
+WARNING: on the SGI this option binds processors to worker processes,
+and under heavy system loads, this can severely degrade job and system 
+throughput.
+{
+  BindParallelWork = TRUE;
+}
+
+# ------------------------------------------------------------
+ax<num>
+"Set array expansion factor"
+-axNUM
+Set array expansion value to
+.I NUM\.
+Each time the space for a dynamically growing array must be
+expanded, it will obtain \fINUM\fR times the number of previous
+expansions more elements.
+Programs with dynamically growing arrays may benefit from a
+larger value.  
+The expansion value is also used to prevent memory fragmentation in
+programs repeatedly building and recycling incrementally smaller or 
+larger arrays.
+Default:  100.
+{
+  if ( GET_Tmp( 3 ) < 0 ) goto OptionError;
+  ArrayExpansion = Tmp;
+}
+
+# ------------------------------------------------------------
+ds<num>
+"Initialize the shared data management pool to <num> bytes."
+-dsNUM
+Initialize the shared data management pool 
+to
+.I NUM
+bytes.  An execution that terminates because of storage deadlock may
+need more dynamic memory.  Default:  2000000 bytes.
+{
+  if ( GET_Tmp( 3 ) <= 0 ) goto OptionError;
+  DsaSize = Tmp;
+}
+
+# ------------------------------------------------------------
+dx<num>
+"Set the exact fit storage allocation threshold to <num> bytes."
+-dxNUM
+Set the exact fit storage allocation threshold to
+.I NUM
+bytes.  This eliminates the existence of
+leftover free blocks whose sizes are smaller than \fINUM\fR bytes.  
+Default: 100.
+{
+  if ( GET_Tmp( 3 ) < 0 ) goto OptionError;
+
+  XftThreshold = Tmp;
+}
+
+# ------------------------------------------------------------
+r
+"Append resource utilization information to the file s.info"
+-r
+Append resource utilization information to the infofile (elapsed cpu
+time, elapsed wall clock time, memory utilization figures, etc.).
+A new file is created if the infofile does not exist.  Otherwise,
+information is catenated.
+The default info filename is s.info, but the name can be overridden by
+specifying it (after the infile and outfile) on the command line.
+{
+  GatherPerfInfo = TRUE;
+}
+
+# ------------------------------------------------------------
+iformat <formatstring>
+"Change the default integer output format"
+-iformat formatstring
+Change the integer output format string from the default (%d\\n) to
+.B formatstring.
+{
+  iformat = ParseCEscapes(argv[idx]);
+}
+# ------------------------------------------------------------
+fformat <formatstring>
+"Change the default real  output format"
+-fformat formatstring
+Change the real output format string from the default (%.6e\\n) to
+.B formatstring.
+{
+  fformat = ParseCEscapes(argv[idx]);
+}
+# ------------------------------------------------------------
+dformat <formatstring>
+"Change the default double real output format"
+-dformat formatstring
+Change the double output format string from the default (%15e\\n) to
+.B formatstring.
+{
+  dformat = ParseCEscapes(argv[idx]);
+}
+# ------------------------------------------------------------
+nformat <formatstring>
+"Change the default null type output format"
+-nformat formatstring
+Change the null output format string from the default (nil\\n) to
+.B formatstring.
+{
+  nformat = ParseCEscapes(argv[idx]);
+}
+# ------------------------------------------------------------
+cformat <formatstring>
+"Change the default integer output format for printable characters"
+-cformat formatstring
+Change the printable character output format string from the
+default ('%c'\\n) to
+.B formatstring.
+NOTE:  single quotes and backslashes will always print single
+quoted and escaped.
+{
+  cformat = ParseCEscapes(argv[idx]);
+}
+# ------------------------------------------------------------
+cformat2 <formatstring>
+"Change the default uprintable character output format"
+-cformat2 formatstring
+Change the uprintable character output format string from the
+default ('\\\\%03o'\\n) to
+.B formatstring.
+{
+  cformat2 = ParseCEscapes(argv[idx]);
+}
+# ------------------------------------------------------------
+bformat <formatstring>
+"Change the default boolean output format"
+-bformat formatstring
+Change the boolean output format string from the default (%c\\n) to
+.B formatstring.
+{
+  bformat = ParseCEscapes(argv[idx]);
+}
+
+# ------------------------------------------------------------
+tr=<attribute>
+"Interface to tracer function"
+-tr=attribute
+The OSC Tracer allows you to trace the input values to a function
+specified with the
+.B -tr
+option in the compile.  If no functions are being traced, then this
+has no effect.
+The Tracer has several attributes which can be set by the command
+line.  All attributes can be minimally abreviated.
+.B interactive,
+.B ~interactive
+A user can interactively work with the trace points and set breakpoint entry
+attributes individually.
+The interactive tracer allows several commands when entered.  Illegal
+commands give you the help list.
+.br
+.br
+\ \ Commands with optional ID and ~ (not)
+.br
+.br
+\ \ [id]\ [~]Append\ \ \ \ \ \ \ \ : Append or overwrite
+.br
+\ \ \ \ \ \ \ \ \ \ Continue\ \ \ \ \ \ : Continue execution
+.br
+\ \ \ \ \ \ \ \ \ \ Display\ \ \ \ \ \ \ : Display trace
+.br
+\ \ [id]\ [~]File\ \ \ \ \ \ \ \ \ \ : File or screen
+.br
+\ \ \ \ \ \ \ [~]Interactive\ \ \ : Interactive or not
+.br
+\ \ \ \ \ \ \ \ \ \ List\ \ \ \ \ \ \ \ \ \ : List breakpoints
+.br
+\ \ [id]\ [~]Kill\ \ \ \ \ \ \ \ \ \ : Kill or resurrect
+.br
+\ \ [id]\ [~]Overwrite\ \ \ \ \ : Overwrite or append
+.br
+\ \ \ \ \ \ \ \ \ \ Peek\ \ \ \ \ \ \ \ \ \ : Trace to screen
+.br
+\ \ \ \ \ \ \ \ \ \ Quit\ \ \ \ \ \ \ \ \ \ : Quit s.out
+.br
+\ \ [id]\ \ \ \ Step\ n\ \ \ \ \ \ \ \ : Set step count to n
+.br
+\ \ \ \ \ \ \ [~]Twine\ \ \ \ \ \ \ \ \ : TWINE or Fibre format
+.br
+.br
+The ID and not operator are ignored where not appropriate.  When
+entering the Tracer, you will be given a prompt with the current
+breakpoint ID, current function name, and the number of times the
+breakpoint has been entered.  For more information about entries, use
+the List command.  It will show the number of times this breakpoint
+has been entered (TCount), number of times since last entered (Count),
+the breakpoint's step modifier, whether its still active, and its file
+and append modes.
+(Default \-tr=~interactive).
+
+.B file
+Function traces can be printed to files of the form funct.trace rather
+than stderr.
+(Default \-tr=~file).
+
+.B append,
+.B ~append,
+.B overwrite,
+.B ~overwrite
+Function traces (when written to files) can either be overwritten at each
+step or appended.  Overwriting is nice if you just want the last set
+of values at a function while appending is nice if you need to see all
+the values.
+(Default \-tr=append).
+.B {stepcount}
+Controls how often a breakpoint is exercised.  For instance, if the
+step is 3, then the breakpoint reports on the 3rd, 6th, 9th, etc...
+time through.  This is useful if you want a periodic report.
+(Default \-tr=1).
+
+.B break
+.B ~break
+.B go
+.B ~go
+Controls if the program will exit after hitting the first breakpoint.
+(Default \-tr=~break).
+
+.B twine,
+.B ~twine
+Tracer can dump its output either in Fibre or as a set of TWINE
+debugger commands suitable for inclusion.  For instance one could
+compile s.out to trace function F and then use the output in a TWINE
+t.out exection.
+.br
+\ \ % twine -g test.sis
+.br
+\ \ % osc -trace f test.sis
+.br
+\ \ % s.out -tr=break -tr=twine < input
+.br
+\ \ % t.out -debug
+.br
+\ \ Entering debug mode... 
+.br
+\ \ Remember... All commands are ...
+.br
+\ \ At top level
+.br
+\ \ debug-0> include f.trace;
+.br
+\ \ ...
+.br
+This will pick up execution in TWINE where OSC left off and continue
+to the end of the function.
+(Default \-tr=~twine).
+{
+   ParseTracerCommand(argv[idx]+4);
+}
+
+# ------------------------------------------------------------
+m
+"Indicate the master process on distributed processors."
+-m
+If set, terminate parsing since a slave has been started.
+{
+  /* return */;
+}
+
+# ------------------------------------------------------------
+nostrings
+"Do not print array[character] in string (quoted) format"
+-nostrings
+Print all array[character] items in array format rather than
+in string (quoted) format.  Default: print eligible array[character]
+items in string format.  To be eligible, the lower bound of
+the array must be 1.
+{
+  FibreStrings = FALSE;
+}
+
+# ------------------------------------------------------------
+z
+"Do not print the program's output."
+-z
+Do not print the program's output. Default: print the program's output.
+{
+      NoFibreOutput = TRUE;
+}
+
+# ------------------------------------------------------------
+X
+"All remaining arguments treated as FIBRE inputs"
+-X
+All remaining arguments are used as FIBRE input values.  No further
+argument parsing is done.
+{
+	idx++;			/* Skip to next argument */
+	while ( idx < argc ) {
+	  (void)strcat(ArgumentString,argv[idx]);
+	  (void)strcat(ArgumentString," ");
+	  idx++;
+	}
+}
+
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+nb
+"Do not bind parallel work"
+{
+  BindParallelWork = FALSE;
+}

@@ -1,0 +1,66 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#************************************************************************ **#
+#* Author: Patrick Miller December 23 2000				  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = @top_builddir@
+VPATH = @srcdir@
+
+sources = ifront.cc parser.cc lexer.cc semanticBase.cc \
+	SisalParser.cc \
+	IFObject.cc \
+	cluster.cc module.cc \
+	node.cc compound.cc graph.cc Function.cc \
+	edge.cc literal.cc FatEdge.cc \
+	info.cc ArrayInfo.cc FunctionInfo.cc TupleInfo.cc \
+	IFCall.cc IFGraph.cc
+
+localFiles = .depends
+
+versionedExecutables = ifront
+
+include $(top_builddir)/Include/makefile.inc
+CXXFLAGS+= -g
+
+ifeq ("${wildcard .depends}","")
+.depends:
+	mkdir .depends
+endif
+
+ifneq ("${wildcard .depends/*}","")
+include ${wildcard .depends/*}
+endif
+
+ifront: $(objects)
+	$(LD-CXX) -o $@ $^
+
+ifront.o: parser.y
+
+parser.cc: parser.y
+	bison --defines --output-file=parser.c --name-prefix=ss parser.y
+	mv parser.c parser.cc
+
+#	bison++ --defines --output=parser.cc -h SisalParser.h --no-lines parser.y
+
+
+lexer.cc: lexer.l
+	flex $<
+	cp lex.ss.cc $@
+
+lexer.o: lexer.cc parser.cc
+ifront.o: ifront.cc parser.cc
+
+clean:
+	$(RM) -r $(objects) $(patsubst %.cc,%.cc.C,$(sources)) lexer.cc parser.cc ifront .depends
+
+regressionTest:
+	for sis in ${patsubst %.sis,%,${wildcard regression/*.sis}}; do \
+	  echo sicaly $$sis; \
+	  sicaly $$sis; \
+	done

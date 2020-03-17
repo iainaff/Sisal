@@ -1,0 +1,47 @@
+#**************************************************************************#
+#* FILE   **************          makefile         ************************#
+#* @configure_input@
+#**************************************************************************#
+#* Author: Patrick Miller August 19 2001				  *#
+#* Copyright (C) 2001 Patrick J. Miller					  *#
+#**************************************************************************#
+#*  *#
+#**************************************************************************#
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = @top_builddir@
+VPATH = @srcdir@
+
+sources = foo.cc
+
+localFiles = .depends mysalmodule.so
+
+include $(top_builddir)/Include/makefile.inc
+
+CFLAGS+= -g -I/usr/local/include/python2.1
+
+ifeq ("${wildcard .depends}","")
+.depends:
+	mkdir .depends
+endif
+
+ifneq ("${wildcard .depends/*}","")
+include ${wildcard .depends/*}
+endif
+
+mysalmodule.so: mysalmodule.o  ../mySAL/lexer.o  ../mySAL/parser.o
+	gcc -shared -o $@ mysalmodule.o  ../mySAL/lexer.o  ../mySAL/parser.o
+
+clean:
+	$(RM) -rf $(objects) $(localFiles)
+
+test: pyTest.py mysalmodule.so
+	@cat test.sis
+	@echo '--'
+	env PYTHONPATH=../mySAL python pyTest.py test.sis > foo.py
+	@echo '--'
+	@cat foo.py
+	@echo '--'
+	echo 11 22 33 | python foo.py
+

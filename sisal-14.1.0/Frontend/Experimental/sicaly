@@ -1,0 +1,19 @@
+#!/bin/sh
+echo Test
+if ./ifront $1.sis > $1.if1 2>/dev/null; then
+  echo OK
+else
+  echo OOPS
+  exit 1
+fi
+
+echo ""
+echo COMPILE $1
+
+if /home/pjmiller/pubX/bin/sisalc $1.if1; then
+  echo OK
+else
+  echo OOPS
+  exit 1
+fi
+./s.out -X `head -1 $1.sis | tr -d /`       

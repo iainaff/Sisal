@@ -1,0 +1,1 @@
+SUBDIRS = AlliantModel CrayModel EncoreModel IBMPower4Model PThreadsModel SequentModel SerialModel SGIModel Sharedlib SolarisModel

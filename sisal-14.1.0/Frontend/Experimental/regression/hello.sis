@@ -1,0 +1,5 @@
+module main;
+
+public function main(returns string)
+  "hello world!"
+end function;  
