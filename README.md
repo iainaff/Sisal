@@ -1,4 +1,6 @@
-# Sisal
+# Sisal 
+
+Streams and Iteration in a Single Assignment Language
 
 Reboot of LLNL Sisal
 
